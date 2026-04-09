@@ -1,0 +1,32 @@
+name: CI — Store
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/store/**'
+
+jobs:
+  build:
+    name: Build SSR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: apps/store/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/store
+        run: npm ci
+
+      - name: Build SSR bundle
+        working-directory: apps/store
+        run: npm run build:ssr

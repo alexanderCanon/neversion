@@ -1,0 +1,8 @@
+.angular
+node_modules
+dist
+*.md
+*.log
+tmp_refactor.js
+.vscode
+.gemini
