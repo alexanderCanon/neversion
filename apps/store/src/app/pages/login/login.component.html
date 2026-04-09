@@ -1,0 +1,205 @@
+<section class="login-section d-flex align-items-center min-vh-100 py-4">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-7 col-lg-5 col-xl-4">
+
+                <div class="card shadow-sm border rounded-3 p-4">
+                    <div class="card-body">
+
+                        <!-- Login Mode -->
+                        <div *ngIf="isLoginMode">
+
+                            <h3 class="mb-4 text-dark fw-bold">Acceder</h3>
+
+                            <form>
+                                <!-- Email Input -->
+                                <div class="mb-3">
+                                    <label for="loginEmail" class="form-label small fw-bold">Correo electrónico</label>
+                                    <input type="email" class="form-control" id="loginEmail">
+                                </div>
+
+                                <!-- Password Input -->
+                                <div class="mb-2">
+                                    <label for="loginPassword" class="form-label small fw-bold">Contraseña</label>
+                                    <div class="input-group">
+                                        <input [type]="showPassword ? 'text' : 'password'"
+                                            class="form-control border-end-0" id="loginPassword">
+                                        <span
+                                            class="input-group-text bg-white border-start-0 cursor-pointer text-primary fw-bold small"
+                                            (click)="togglePassword()">
+                                            {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Forgot Password -->
+                                <div class="text-end mb-3">
+                                    <a href="#" class="small text-decoration-none fw-bold text-primary">¿Has olvidado tu
+                                        contraseña?</a>
+                                </div>
+
+                                <!-- Main Action Button -->
+                                <div class="d-grid gap-2 mb-4">
+                                    <button type="submit" class="btn btn-primary fw-bold py-2">Acceder</button>
+                                </div>
+
+                                <!-- Separator -->
+                                <div class="separator d-flex align-items-center justify-content-center mb-4">
+                                    <span class="line bg-light border-bottom flex-grow-1"></span>
+                                    <span class="text-muted small mx-3">o accede con</span>
+                                    <span class="line bg-light border-bottom flex-grow-1"></span>
+                                </div>
+
+                                <!-- Google Button -->
+                                <div class="d-grid gap-2 mb-4">
+                                    <button type="button"
+                                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2 fw-bold">
+                                        <i class="bi bi-google"></i>
+                                        Google
+                                    </button>
+                                </div>
+
+                                <!-- Footer Text -->
+                                <div class="text-center mt-4">
+                                    <p class="small text-muted mb-1">
+                                        Crea tu cuenta, y obtén tu panel donde podrás tener tu historial de compras,
+                                        subscripciones y más
+                                    </p>
+                                    <a href="javascript:void(0)" (click)="isLoginMode = false"
+                                        class="fw-bold text-decoration-none text-primary">Crear una cuenta</a>
+                                </div>
+                            </form>
+
+                        </div>
+
+                        <!-- Register Mode -->
+                        <div *ngIf="!isLoginMode">
+
+                            <h3 class="mb-2 text-dark fw-bold">Crear una cuenta</h3>
+                            <p class="text-muted small mb-4">
+                                ¡Consulta el historial de pedidos, consigue una biblioteca gaming y realiza tus compras
+                                más rápidamente!
+                            </p>
+
+                            <form>
+                                <!-- Name & Lastname Row -->
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <label for="regName" class="form-label small fw-bold">Nombre</label>
+                                        <input type="text" class="form-control" id="regName">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="regLastname" class="form-label small fw-bold">Apellido</label>
+                                        <input type="text" class="form-control" id="regLastname">
+                                    </div>
+                                </div>
+
+                                <!-- Info tooltip/collapse -->
+                                <div class="mb-3">
+                                    <a class="small text-primary text-decoration-none d-flex align-items-center gap-1"
+                                        data-bs-toggle="collapse" href="#whyInfo" role="button" aria-expanded="false"
+                                        aria-controls="whyInfo">
+                                        <i class="bi bi-info-circle"></i>
+                                        ¿Por qué pedimos nombre, apellido y correo?
+                                    </a>
+                                    <div class="collapse mt-1" id="whyInfo">
+                                        <div class="card card-body bg-light border-0 p-2 small text-muted">
+                                            Esta información es útil para tener registros de las suscripciones activas y
+                                            tener un mejor control tanto para ti como para nosotros.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="mb-2">
+                                    <label for="regEmail" class="form-label small fw-bold">Correo electrónico</label>
+                                    <input type="email" class="form-control" id="regEmail">
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="mb-2">
+                                    <label for="regPhone" class="form-label small fw-bold">Teléfono</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light text-muted border-end-0">+502</span>
+                                        <input type="tel" class="form-control border-start-0 ps-1" id="regPhone">
+                                    </div>
+                                </div>
+
+                                <!-- Password -->
+                                <div class="mb-3">
+                                    <label for="regPassword" class="form-label small fw-bold">Contraseña</label>
+                                    <div class="input-group">
+                                        <input [type]="showPassword ? 'text' : 'password'"
+                                            class="form-control border-end-0" id="regPassword">
+                                        <span
+                                            class="input-group-text bg-white border-start-0 cursor-pointer text-primary fw-bold small"
+                                            (click)="togglePassword()">
+                                            {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Password strength indicators (Visual only for now) -->
+                                    <div class="mt-2 ps-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="badge bg-secondary rounded-circle p-1"
+                                                style="width: 8px; height: 8px;"></span>
+                                            <small class="text-muted" style="font-size: 0.75rem;">Al menos 6
+                                                caracteres</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Checkboxes -->
+                                <div class="mb-2 form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkNewsletter">
+                                    <label class="form-check-label small text-muted lh-sm" for="checkNewsletter">
+                                        Aceptas que te enviemos correos con información sobre tus suscripciones activas,
+                                        renovaciones, ofertas y más.
+                                    </label>
+                                </div>
+
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="checkCookies">
+                                    <label class="form-check-label small text-muted lh-sm" for="checkCookies">
+                                        Acepto el uso de cookies.
+                                    </label>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="d-grid gap-2 mb-4">
+                                    <button type="submit" class="btn btn-primary fw-bold py-2">Crear una cuenta</button>
+                                </div>
+
+                                <!-- Separator & Google -->
+                                <div class="separator d-flex align-items-center justify-content-center mb-3">
+                                    <span class="line bg-light border-bottom flex-grow-1"></span>
+                                    <span class="text-muted small mx-3">o crea una cuenta con</span>
+                                    <span class="line bg-light border-bottom flex-grow-1"></span>
+                                </div>
+
+                                <div class="d-grid gap-2 mb-4">
+                                    <button type="button"
+                                        class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2 fw-bold">
+                                        <i class="bi bi-google"></i>
+                                        Google
+                                    </button>
+                                </div>
+
+                                <!-- Footer Link -->
+                                <div class="text-center">
+                                    <span class="small text-muted">¿Ya tienes una cuenta? </span>
+                                    <a href="javascript:void(0)" (click)="isLoginMode = true"
+                                        class="fw-bold text-decoration-none text-primary">Acceder</a>
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

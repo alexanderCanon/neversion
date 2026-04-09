@@ -1,0 +1,96 @@
+/* Standard Login Styles */
+.login-section {
+    background-color: #ffffff;
+}
+
+@media (min-width: 768px) {
+    .login-section {
+        background-color: #f9f9f9;
+    }
+}
+
+.card {
+    border-color: #e5e5e5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Form Controls */
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 0.15rem rgba(var(--secondary-color-rgb), 0.15);
+}
+
+.form-label {
+    color: #212529;
+    margin-bottom: 0.3rem;
+}
+
+/* Checkboxes */
+.form-check-input:checked {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.form-check-label {
+    font-size: 0.85rem;
+}
+
+/* Password Toggle & Info */
+.cursor-pointer {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #0066ff;
+    /* G2A-like vibrant blue for primary action */
+    border-color: #0066ff;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0052cc;
+    border-color: #0052cc;
+}
+
+/* Google Button */
+.btn-outline-secondary {
+    border-color: #ced4da;
+    color: #495057;
+    background-color: white;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #adb5bd;
+}
+
+/* Separator Line */
+.line {
+    height: 1px;
+    background-color: #e5e5e5 !important;
+}
+
+.separator span.line {
+    display: block;
+    height: 1px;
+}
+
+/* Links */
+a.text-primary {
+    color: #0066ff !important;
+}
+
+a:hover {
+    text-decoration: underline !important;
+}

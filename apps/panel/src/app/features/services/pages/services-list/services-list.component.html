@@ -1,0 +1,73 @@
+<div class="container-fluid py-4 h-100 bg-light bg-opacity-50">
+  <!-- Header Title and Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 class="mb-0 fw-bold text-dark text-uppercase">Administración de Servicios</h3>
+      <button class="btn btn-primary d-flex align-items-center px-4 shadow-sm rounded-3" (click)="openNewServiceModal()">
+          <i class="bi bi-plus fs-5 pe-1"></i> Nuevo Servicio
+      </button>
+  </div>
+
+  <!-- Main Content Card -->
+  <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body p-4 p-md-5">
+          
+          <!-- Toolbars / Filters -->
+          <div class="row mb-4 align-items-center">
+              <div class="col-12 col-md-6 mb-3 mb-md-0">
+                  <div class="input-group">
+                      <span class="input-group-text bg-white border-end-0 text-secondary" id="search-addon">
+                          <i class="bi bi-search"></i>
+                      </span>
+                      <input type="text" 
+                             class="form-control border-start-0 ps-0 text-secondary" 
+                             placeholder="Buscar por nombre de servicio..." 
+                             [ngModel]="searchTerm()"
+                             (ngModelChange)="onSearchChange($event)">
+                  </div>
+              </div>
+              <div class="col-12 col-md-auto ms-auto">
+                  <select class="form-select text-secondary border" 
+                          [value]="selectedCategory()" 
+                          (change)="onCategoryChange($event)">
+                      <option value="">Todas las categorías</option>
+                      <option value="STREAMING">Streaming</option>
+                      <option value="SOFTWARE">Software</option>
+                      <option value="GIFT_CARD">Gift Card</option>
+                      <option value="RECHARGE">Recargas</option>
+                      <option value="DIGITAL_SERVICE">Servicio digital</option>
+                  </select>
+              </div>
+          </div>
+
+          <!-- The Table -->
+          @if (isLoading()) {
+              <div class="text-center py-5">
+                  <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Cargando...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Cargando servicios...</p>
+              </div>
+          } @else if (filteredServices().length === 0) {
+              <div class="text-center py-5">
+                  <i class="bi bi-inbox fs-1 text-muted"></i>
+                  <p class="mt-2 text-muted">No encontramos servicios.</p>
+                  @if (searchTerm() || selectedCategory()) {
+                      <button class="btn btn-outline-secondary mt-2" (click)="searchTerm.set(''); selectedCategory.set('')">Limpiar filtros</button>
+                  } @else {
+                      <button class="btn btn-primary mt-2" (click)="openNewServiceModal()">
+                          Crear el primer servicio
+                      </button>
+                  }
+              </div>
+          } @else {
+             <app-services-table 
+                [services]="filteredServices()">
+             </app-services-table>
+          }
+      </div>
+  </div>
+</div>
+
+<app-service-form 
+    (saveService)="onSaveService($event)">
+</app-service-form>

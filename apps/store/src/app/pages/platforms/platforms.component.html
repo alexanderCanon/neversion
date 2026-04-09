@@ -1,0 +1,36 @@
+<!-- <table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Servicio</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Duracion</th>
+            <th scope="col">Detalles</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let service of platformsList">
+            <th scope="row">{{ service.id }}</th>
+            <td>{{ service.name }}</td>
+            <td>{{ service.price }}</td>
+            <td>30 dias</td>
+            <td>
+                <button type="button" class="btn btn-primary" [routerLink]="['/platforms', service.id]">Ver
+                    detalles</button>
+            </td>
+        </tr>
+    </tbody>
+</table> -->
+
+<ul *ngIf="platforms$ | async as platforms">
+    <li *ngFor="let platform of platforms">
+        <strong>{{ platform.name }}</strong><br />
+        {{ platform.description }}
+        {{ platform.stock }}
+        {{ platform.price | currency:'Q'}}
+        {{ platform.s_type }}
+        {{ platform.link }}
+        {{ platform.is_active }}
+        {{ platform.created_at }}
+    </li>
+</ul>

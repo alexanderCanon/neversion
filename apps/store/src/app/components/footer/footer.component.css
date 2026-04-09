@@ -1,0 +1,95 @@
+/* Base Footer Styling */
+.custom-footer {
+  background-color: var(--primary-color) !important;
+  color: var(--light-text-color);
+}
+
+.footer-logo {
+  height: 50px;
+  width: auto;
+}
+
+.footer-text {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer-title {
+  color: var(--secondary-color);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+}
+
+/* Elegant Links */
+.footer-link {
+  color: var(--light-text-color);
+  text-decoration: none;
+  display: inline-block;
+  padding: 4px 0;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.footer-link:hover {
+  color: var(--secondary-color);
+  transform: translateX(5px);
+}
+
+/* Social Buttons */
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-img {
+  width: 24px;
+  height: 24px;
+  /* Look neutral manteniendo la forma del logo */
+  filter: grayscale(100%) brightness(1.2);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  transform: translateY(-5px);
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  box-shadow: 0 5px 15px rgba(51, 196, 255, 0.4);
+}
+
+.social-btn:hover .social-img {
+  filter: grayscale(0%) brightness(1);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.text-secondary-custom {
+  color: var(--secondary-color) !important;
+}
+
+/* Responsive Overrides */
+@media (max-width: 991.98px) {
+  .footer-link:hover {
+    transform: none;
+  }
+
+  .social-icons {
+    justify-content: flex-start !important;
+  }
+}

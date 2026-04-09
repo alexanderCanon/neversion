@@ -1,0 +1,150 @@
+import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AccountRequest, SaleMode } from '../../models/account.model';
+import { AccountsService } from '../../services/accounts.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { ServicesDataService } from '../../../services/services/services-data.service';
+
+interface ServiceOption {
+  id: number;
+  displayName: string;
+}
+
+@Component({
+  selector: 'app-account-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './account-form.component.html',
+  styleUrls: [],
+})
+export class AccountFormComponent implements OnInit {
+  @ViewChild('accountModal') modalElement!: ElementRef;
+  @Output() accountCreated = new EventEmitter<AccountRequest>();
+
+  accountForm!: FormGroup;
+  isSubmitting = false;
+  isBrowser: boolean;
+
+  readonly saleModes = Object.values(SaleMode);
+
+  private readonly fb = inject(FormBuilder);
+  private readonly accountsService = inject(AccountsService);
+  private readonly toastService = inject(ToastService);
+  private readonly servicesDataService = inject(ServicesDataService);
+
+  readonly serviceOptions = signal<ServiceOption[]>([]);
+
+  constructor() {
+    this.isBrowser = true;
+  }
+
+  ngOnInit(): void {
+    this.initForm();
+    this.loadServices();
+  }
+
+  private loadServices(): void {
+    this.servicesDataService.getServices().subscribe({
+      next: (services) => {
+        const options: ServiceOption[] = services.map(s => ({
+          id: Number(s.id),
+          displayName: `${s.name} (${s.maxProfiles} perfiles)`
+        }));
+        this.serviceOptions.set(options);
+      },
+      error: (err) => console.error('Failed to load services', err)
+    });
+  }
+
+  private initForm(): void {
+    this.accountForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(1)]],
+      serviceId: [null, [Validators.required]],
+      plan: [''],
+      saleMode: [SaleMode.BY_PROFILE, Validators.required],
+      renewalDate: ['', [Validators.required]],
+      notes: ['']
+    });
+  }
+
+  openModal(): void {
+    if (this.isBrowser) {
+      const modalEl = this.modalElement?.nativeElement;
+      if (modalEl) {
+        const bootstrap = (window as any).bootstrap;
+        if (bootstrap) {
+          const modal = new bootstrap.Modal(modalEl);
+          modal.show();
+        } else {
+          modalEl.classList.add('show');
+          modalEl.style.display = 'block';
+          document.body.classList.add('modal-open');
+          const backdrop = document.createElement('div');
+          backdrop.classList.add('modal-backdrop', 'fade', 'show');
+          document.body.appendChild(backdrop);
+        }
+      }
+    }
+  }
+
+  closeModal(): void {
+    if (this.isBrowser) {
+      const modalEl = this.modalElement?.nativeElement;
+      if (modalEl) {
+        const bootstrap = (window as any).bootstrap;
+        if (bootstrap) {
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+        } else {
+          modalEl.classList.remove('show');
+          modalEl.style.display = 'none';
+          document.body.classList.remove('modal-open');
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.remove();
+        }
+      }
+      this.resetForm();
+    }
+  }
+
+  onSubmit(): void {
+    if (this.accountForm.valid) {
+      this.isSubmitting = true;
+      const formValue = this.accountForm.value;
+
+      const accountRequest: AccountRequest = {
+        email: formValue.email,
+        password: formValue.password,
+        serviceId: Number(formValue.serviceId),
+        plan: formValue.plan || undefined,
+        saleMode: formValue.saleMode as SaleMode,
+        renewalDate: formValue.renewalDate,
+        notes: formValue.notes || undefined
+      };
+
+      this.accountsService.createAccount(accountRequest).subscribe({
+        next: () => {
+          this.toastService.success('Cuenta ingresada existosamente. Perfiles generados.');
+          this.accountCreated.emit(accountRequest);
+          this.closeModal();
+        },
+        error: () => {
+          this.isSubmitting = false;
+        },
+      });
+    } else {
+      Object.keys(this.accountForm.controls).forEach((key) => {
+        this.accountForm.get(key)?.markAsTouched();
+      });
+    }
+  }
+
+  resetForm(): void {
+    this.accountForm.reset({
+      saleMode: SaleMode.BY_PROFILE,
+    });
+    this.isSubmitting = false;
+  }
+}

@@ -1,0 +1,8 @@
+<ng-container *ngIf="!loading">
+    <h1>{{ platform?.name }}</h1>
+    <p>{{ platform?.price }}</p>
+</ng-container>
+
+<ng-container *ngIf="loading">
+    <i style="color: var(--primary-color); font-size: 2rem;">Cargando información...</i>
+</ng-container>

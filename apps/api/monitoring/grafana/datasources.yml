@@ -1,0 +1,20 @@
+# ══════════════════════════════════════════════════════════════════
+# Grafana Data Source Provisioning
+#
+# This file auto-configures Prometheus as a data source when
+# Grafana starts for the first time. No manual setup needed.
+# ══════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    # Access mode: 'proxy' means Grafana's backend will fetch data
+    # from Prometheus. This is more secure than 'direct' (browser).
+    access: proxy
+    # Docker resolves 'prometheus' to the prometheus container.
+    url: http://prometheus:9090
+    # Make this the default data source for new dashboards.
+    isDefault: true
+    editable: true

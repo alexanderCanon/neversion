@@ -1,0 +1,26 @@
+<div class="card h-100 shadow-sm custom-card">
+    <!-- Image Wrapper: Inner frame for image, separated from card borders -->
+    <div class="p-3">
+        <div class="card-img-wrapper position-relative overflow-hidden rounded-3">
+            <img [src]="platforms?.link" class="card-img-top service-img" [alt]="platforms?.name">
+            <div class="overlay d-flex align-items-center justify-content-center">
+                <span class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">Ver detalles</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body pt-0 pb-3 px-3 d-flex flex-column justify-content-between">
+        <div class="d-flex align-items-center justify-content-between">
+            <!-- Name aligned left -->
+            <h5 class="card-title fw-bold m-0 text-dark text-start">{{platforms?.name}}</h5>
+            <!-- 5 Stars aligned right -->
+            <div class="text-warning small text-nowrap">
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+                <i class="bi bi-star-fill"></i>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,130 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">
+      <i class="bi bi-credit-card me-2"></i>Suscripciones
+    </h2>
+    <button class="btn btn-primary" (click)="subscriptionForm.openModal()">
+      <i class="bi bi-plus-lg me-1"></i>Nueva suscripción
+    </button>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <select
+            class="form-select"
+            [ngModel]="filterStatus()"
+            (ngModelChange)="onFilterChange($event)"
+          >
+            <option value="">Todos los estados</option>
+            @for (status of statusOptions; track status) {
+              <option [value]="status">{{ getStatusLabel(status) }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-secondary w-100" (click)="loadSubscriptions()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+          </button>
+        </div>
+        <div class="col-md-5 text-end">
+          <span class="text-muted">
+            Total: {{ filteredSubscriptions().length }} suscripciones
+          </span>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando suscripciones...</p>
+        </div>
+      } @else if (filteredSubscriptions().length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-credit-card fs-1 text-muted"></i>
+          <p class="mt-2 text-muted">Sin suscripciones registradas</p>
+          <button class="btn btn-primary" (click)="subscriptionForm.openModal()">
+            Registrar primera suscripción
+          </button>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Perfil</th>
+                <th>Cliente</th>
+                <th>Fecha compra</th>
+                <th>Vencimiento Pago</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
+                <tr>
+                  <td><code>{{ sub.id | slice:0:8 }}...</code></td>
+                  <td><code>{{ sub.profileId | slice:0:8 }}...</code></td>
+                  <td><code>{{ sub.clientId | slice:0:8 }}...</code></td>
+                  <td>{{ sub.purchaseDate }}</td>
+                  <td>{{ sub.paymentDueDate }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="getStatusClass(sub.status)">
+                      {{ getStatusLabel(sub.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (sub.status === 'ACTIVE') {
+                      <button
+                        class="btn btn-sm btn-outline-warning me-1"
+                        (click)="suspendSubscription(sub)"
+                        title="Suspender"
+                      >
+                        <i class="bi bi-pause-fill"></i>
+                      </button>
+                    }
+                    @if (sub.status !== 'CANCELLED') {
+                      <button
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="terminateSubscription(sub)"
+                        title="Cancelar"
+                      >
+                        <i class="bi bi-x-circle"></i>
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="prevPage()">Anterior</button>
+              </li>
+              @for (pageNum of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === $index + 1">
+                  <button class="page-link" (click)="currentPage.set($index + 1)">
+                    {{ $index + 1 }}
+                  </button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="nextPage()">Siguiente</button>
+              </li>
+            </ul>
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>

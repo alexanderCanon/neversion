@@ -1,0 +1,11 @@
+target/
+.git/
+.gitignore
+.idea/
+*.iml
+.vscode/
+.agents/
+.env
+.env.template
+.claude/
+*.md

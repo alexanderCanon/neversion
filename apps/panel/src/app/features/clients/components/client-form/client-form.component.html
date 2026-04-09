@@ -1,0 +1,77 @@
+<div class="modal fade" tabindex="-1" #clientModal>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi" [ngClass]="mode === 'CREATE' ? 'bi-person-plus' : 'bi-pencil-square'"></i>
+          <span class="ms-2">{{ mode === 'CREATE' ? 'Nuevo Cliente' : 'Editar Cliente' }}</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Cerrar"></button>
+      </div>
+
+      <form [formGroup]="clientForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              formControlName="name"
+              [class.is-invalid]="clientForm.get('name')?.invalid && clientForm.get('name')?.touched"
+              placeholder="Ej. Juan Pérez"
+            />
+            @if (clientForm.get('name')?.errors?.['required'] && clientForm.get('name')?.touched) {
+              <div class="invalid-feedback d-block">El nombre es requerido</div>
+            }
+            @if (clientForm.get('name')?.errors?.['minlength'] && clientForm.get('name')?.touched) {
+              <div class="invalid-feedback d-block">El nombre debe tener al menos 2 caracteres</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Correo electrónico</label>
+            <input
+              type="email"
+              class="form-control"
+              id="email"
+              formControlName="email"
+              [class.is-invalid]="clientForm.get('email')?.invalid && clientForm.get('email')?.touched"
+              placeholder="correo@ejemplo.com"
+            />
+            @if (clientForm.get('email')?.errors?.['email'] && clientForm.get('email')?.touched) {
+              <div class="invalid-feedback d-block">Formato de correo inválido</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Teléfono <span class="text-danger">*</span></label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone"
+              formControlName="phone"
+              [class.is-invalid]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
+              placeholder="44123456"
+            />
+            @if (clientForm.get('phone')?.errors?.['required'] && clientForm.get('phone')?.touched) {
+              <div class="invalid-feedback d-block">El teléfono es requerido</div>
+            }
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            {{ mode === 'CREATE' ? 'Crear Cliente' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

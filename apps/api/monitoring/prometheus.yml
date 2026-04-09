@@ -1,0 +1,31 @@
+# ══════════════════════════════════════════════════════════════════
+# Prometheus Configuration
+#
+# Prometheus scrapes metrics from the Spring Boot application's
+# Actuator endpoint at /actuator/prometheus every 15 seconds.
+# These metrics include: HTTP request durations, JVM memory/GC,
+# HikariCP connection pool, and custom business metrics.
+# ══════════════════════════════════════════════════════════════════
+
+global:
+  # How often Prometheus collects metrics from each target.
+  # 15s is a good balance between granularity and resource usage.
+  scrape_interval: 15s
+
+  # How often Prometheus evaluates alert rules (if configured).
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ── Spring Boot Application ─────────────────────────────────────
+  - job_name: "panel-api"
+    # The /actuator/prometheus endpoint returns metrics in Prometheus
+    # text format (counters, gauges, histograms, summaries).
+    metrics_path: /actuator/prometheus
+
+    # Target is the Docker service name + internal port.
+    # Docker networking resolves 'app' to the panel-app container.
+    static_configs:
+      - targets: ["app:8080"]
+        labels:
+          application: "neversion-panel"
+          environment: "production"

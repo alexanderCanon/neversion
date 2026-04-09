@@ -1,0 +1,34 @@
+<div class="container">
+    <form [formGroup]="formContact" (ngSubmit)="send()">
+        <div class="mb-3">
+            <label for="name" class="form-label">Nombre</label>
+            <input [ngClass]="{'is-invalid': hasError('name', 'required') || hasError('name', 'minlength')}" type="name"
+                class="form-control" id="name" formControlName="name">
+            <div class="text-danger" *ngIf="hasError('name', 'required')">Nombre Requerido
+            </div>
+            <div class="text-danger" *ngIf="hasError('name', 'minlength')">Nombre debe tener al menos 3 caracteres
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input [ngClass]="{'is-invalid': hasError('email', 'required') || hasError('email', 'email')}" type="email"
+                class="form-control" id="email" formControlName="email">
+            <div class="text-danger" *ngIf="hasError('email', 'required')">Email Requerido</div>
+            <div class="text-danger" *ngIf="hasError('email', 'email')">Email formato invalido</div>
+        </div>
+        <div class="mb-3">
+            <label for="options" class="form-label">Opciones</label>
+            <select class="form-select" aria-label="Default select example">
+                <option [ngValue]="null" selected>Seleccione una categoria de consulta</option>
+                <option *ngFor="let option of options" [value]="option">{{ option }}</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="message" class="form-label">Message</label>
+            <textarea [ngClass]="{'is-invalid': hasError('message', 'required')}" class="form-control" id="message"
+                formControlName="message"></textarea>
+            <div class="text-danger" *ngIf="hasError('message', 'required')">Mensaje Requerido</div>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+    </form>
+</div>

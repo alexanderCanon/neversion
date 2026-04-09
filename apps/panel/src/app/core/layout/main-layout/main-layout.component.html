@@ -1,0 +1,96 @@
+<div class="d-flex w-100 h-100 overflow-hidden bg-light">
+    <!-- Sidebar -->
+    <nav class="sidebar d-flex flex-column text-white p-3">
+        <div class="sidebar-brand mb-4 px-3">
+            <h5 class="fw-bold mb-0 text-white line-height-1">Neversion<br><span class="fs-6 fw-normal text-white-50">Agency</span></h5>
+        </div>
+
+        <ul class="nav nav-pills flex-column mb-auto gap-1">
+            <li class="nav-item">
+                <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                    <i class="bi bi-grid"></i>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a routerLink="/services" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                    <i class="bi bi-box-seam"></i>
+                    Servicios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a routerLink="/accounts" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                    <i class="bi bi-wallet2"></i>
+                    Cuentas
+                </a>
+            </li>
+            <!-- Features -->
+            <li class="nav-item">
+                <a routerLink="/clients" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                    <i class="bi bi-people"></i>
+                    Clientes
+                </a>
+            </li>
+            <li class="nav-item">
+                <a routerLink="/subscriptions" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                    <i class="bi bi-card-checklist"></i>
+                    Suscripciones
+                </a>
+            </li>
+        </ul>
+
+        <div class="mt-auto">
+            <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-3 mb-2">
+                <i class="bi bi-question-circle"></i>
+                Ayuda
+            </a>
+            <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <i class="bi bi-gear"></i>
+                Configuración
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content Wrapper -->
+    <main class="flex-grow-1 overflow-auto d-flex flex-column bg-body-tertiary">
+        <!-- Top Bar -->
+        <header
+            class="d-flex align-items-center justify-content-between px-4 py-3 bg-body border-bottom shadow-sm sticky-top">
+            <div class="search-wrapper" style="max-width: 400px; width: 100%;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text border bg-body ps-3">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0 ps-0 bg-body text-body" placeholder="Buscar...">
+                </div>
+            </div>
+            <div class="user-profile d-flex align-items-center gap-3">
+                <button
+                    class="btn btn-link text-body p-0 me-2"
+                    (click)="toggleTheme()"
+                    title="Alternar tema">
+                    <i class="bi" [ngClass]="theme() === 'light' ? 'bi-moon' : 'bi-sun text-warning'"></i>
+                </button>
+                <div class="dropdown">
+                    <div
+                        class="avatar bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                        style="cursor: pointer; width: 40px; height: 40px;"
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false">
+                        JD
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
+                        <li><a class="dropdown-item d-flex align-items-center gap-2" routerLink="/profile"><i class="bi bi-person"></i> Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item d-flex align-items-center gap-2 text-danger" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Salir</button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Nested router views injected here -->
+        <div class="flex-grow-1 overflow-auto">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+</div>

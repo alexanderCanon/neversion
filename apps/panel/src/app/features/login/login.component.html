@@ -1,0 +1,10 @@
+<div class="login-wrapper">
+    <div class="login-card shadow-lg p-4">
+        <app-login-header></app-login-header>
+        <app-login-form 
+            [isLoading]="isLoading" 
+            [errorMessage]="errorMessage()" 
+            (submitLogin)="onSubmit($event)">
+        </app-login-form>
+    </div>
+</div>

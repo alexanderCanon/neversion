@@ -1,0 +1,32 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+        <label class="form-label text-secondary small fw-semibold">Correo electrónico</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com">
+        @if(loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+            <div class="text-danger small mt-1">El correo es obligatorio.</div>
+        }
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label text-secondary small fw-semibold">Contraseña</label>
+        <input type="password" class="form-control" formControlName="password" placeholder="••••••••">
+        @if(loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+            <div class="text-danger small mt-1">Mínimo 6 caracteres.</div>
+        }
+    </div>
+
+    @if(errorMessage) {
+        <div class="alert alert-danger p-2 small mb-4">
+            {{ errorMessage }}
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary w-100 login-btn shadow-sm" [disabled]="loginForm.invalid || isLoading">
+        @if(isLoading) {
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Ingresando...
+        } @else {
+            Ingresar
+        }
+    </button>
+</form>

@@ -1,0 +1,27 @@
+<section class="hero-section position-relative overflow-hidden py-5">
+  <div class="container px-4 py-5 my-5 text-center">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-4">Bienvenido a Neversion</h1>
+        <h2 class="h3 fw-normal mb-4">Encontrá la mejor experiencia de compra en línea</h2>
+        <p class="lead mb-5 opacity-75">
+          Accede a las mejores plataformas de streaming con precios accesibles, Disney, HBO, Prime Video y más.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <a routerLink="/platforms" class="btn btn-primary btn-lg px-4 gap-3 fw-bold">
+            Ver plataformas <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+          <a routerLink="/offers" class="btn btn-outline-primary btn-lg px-4 fw-bold">
+            Ver ofertas
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container py-5">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+    <app-service-card *ngFor="let item of platforms$ | async" [platforms]="item"></app-service-card>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+// Custom Colors for Corporate Theme
+$sidebar-bg: #1e293b; // Slate 800
+$primary-color: #3b82f6; // Blue 500
+
+:host {
+    display: block;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background-color: $sidebar-bg;
+    flex-shrink: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+
+    .sidebar-brand {
+        height: 60px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-link {
+        color: #94a3b8; // Slate 400
+        transition: all 0.2s ease;
+        padding: 0.65rem 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+
+        &:hover {
+            color: #f1f5f9; // Slate 100
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        &.active, &.active-link {
+            color: #fff;
+            background-color: $primary-color;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        i {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+    }
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+}
+
+// Ensure search input looks merged
+.input-group-text {
+    border-right: none;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+// Responsive
+@media (max-width: 991px) {
+    .sidebar {
+        display: none !important;
+    }
+}

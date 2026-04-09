@@ -1,0 +1,138 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">
+      <i class="bi bi-people me-2"></i>Clientes
+    </h2>
+    <button class="btn btn-primary" (click)="clientForm.openModal()">
+      <i class="bi bi-plus-lg me-1"></i>Nuevo cliente
+    </button>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar por nombre, correo o teléfono..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearchChange($event)"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-secondary w-100" (click)="loadClients()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando clientes...</p>
+        </div>
+      } @else if (filteredClients().length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-people fs-1 text-muted"></i>
+          <p class="mt-2 text-muted">No hay clientes registrados</p>
+          <button class="btn btn-primary" (click)="clientForm.openModal()">
+            Registrar primer cliente
+          </button>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (client of paginatedClients(); track trackByClientId($index, client)) {
+                <tr>
+                  <td>
+                    <i class="bi bi-person-circle me-2 text-muted"></i>
+                    <strong>{{ client.name }}</strong>
+                  </td>
+                  <td>
+                    @if (client.email) {
+                      <a [href]="'mailto:' + client.email">{{ client.email }}</a>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (client.phone) {
+                      <a [href]="'tel:' + (client.phone | phone)" class="text-decoration-none">{{ client.phone | phone }}</a>
+                    } @else {
+                      <span class="text-muted">—</span>
+                    }
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2 justify-content-end">
+                      <a
+                        class="btn btn-sm btn-outline-info"
+                        [routerLink]="['/subscriptions']"
+                        [queryParams]="{clientId: client.id}"
+                        title="Ver Suscripciones"
+                      >
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <button
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="clientForm.openModal(client)"
+                        title="Editar"
+                      >
+                        <i class="bi bi-pencil-square"></i>
+                      </button>
+                      <button
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deactivateClient(client)"
+                        title="Eliminar"
+                      >
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="prevPage()">Anterior</button>
+              </li>
+              @for (pageNum of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === $index + 1">
+                  <button class="page-link" (click)="currentPage.set($index + 1)">
+                    {{ $index + 1 }}
+                  </button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="nextPage()">Siguiente</button>
+              </li>
+            </ul>
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<app-client-form #clientForm (clientCreated)="onClientCreated()"></app-client-form>

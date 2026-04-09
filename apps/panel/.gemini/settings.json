@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "stitch": {
+      "url": "https://stitch.googleapis.com/mcp",
+      "type": "http",
+      "trust": true,
+      "description": "Stitch UI Generator"
+    }
+  }
+}

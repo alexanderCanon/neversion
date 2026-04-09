@@ -1,0 +1,150 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 fw-bold">
+      <i class="bi bi-collection me-2"></i>Cuentas
+    </h2>
+    <button class="btn btn-primary" (click)="accountForm.openModal()">
+      <i class="bi bi-plus-lg me-1"></i>Nueva cuenta
+    </button>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="row mb-3">
+        <div class="col-md-10">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Buscar por correo o proveedor..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearchChange($event)"
+            />
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <button class="btn btn-outline-secondary w-100" (click)="loadAccounts()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="mt-2 text-muted">Cargando cuentas...</p>
+        </div>
+      } @else if (filteredAccounts().length === 0) {
+        <div class="text-center py-5">
+          <i class="bi bi-inbox fs-1 text-muted"></i>
+          <p class="mt-2 text-muted">No hay cuentas registradas</p>
+          <button class="btn btn-primary" (click)="accountForm.openModal()">
+            Crear primera cuenta
+          </button>
+        </div>
+      } @else {
+        <div class="accordion" id="accountsAccordion">
+          @for (account of paginatedAccounts(); track trackByAccountId($index, account)) {
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button
+                  class="accordion-button"
+                  type="button"
+                  [class.collapsed]="!isExpanded(account.id)"
+                  (click)="toggleAccount(account.id)"
+                  [attr.aria-expanded]="isExpanded(account.id)"
+                >
+                  <div class="d-flex w-100 justify-content-between align-items-center pe-3">
+                    <div class="d-flex align-items-center gap-2">
+                      <strong>{{ account.email }}</strong>
+                      @if (account.activeProfiles === account.maxProfiles) {
+                        <span class="badge bg-danger">Sin disponibilidad</span>
+                      } @else if (account.activeProfiles === 0) {
+                        <span class="badge bg-success">Disponible</span>
+                      } @else {
+                        <span class="badge bg-warning text-dark">Parcial</span>
+                      }
+                      <span class="badge bg-light text-secondary border" style="font-weight: 500;">
+                        {{ account.activeProfiles }}/{{ account.maxProfiles }}
+                      </span>
+                    </div>
+                    <div class="text-end">
+                      <small class="text-muted me-3">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        Vence: {{ account.renewalDate | date }}
+                      </small>
+                      <small class="text-muted me-3">
+                        <i class="bi bi-shop me-1"></i>
+                        {{ account.service?.name }} {{ account.plan ? '- ' + account.plan : '' }}
+                      </small>
+                      <small class="fw-bold">{{ account.saleMode }}</small>
+                    </div>
+                  </div>
+                </button>
+              </h2>
+              <div
+                class="accordion-collapse collapse"
+                [class.show]="isExpanded(account.id)"
+              >
+                <div class="accordion-body">
+                  <div class="row">
+                    <div class="col-md-8">
+                      <h6 class="text-muted fw-semibold" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="bi bi-people me-1"></i>Perfiles
+                      </h6>
+                      <app-profile-list [accountId]="account.id" [profiles]="account.profiles"></app-profile-list>
+                    </div>
+                    <div class="col-md-4 border-start ps-3">
+                      <h6 class="text-muted fw-semibold" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <i class="bi bi-info-circle me-1"></i>Detalles
+                      </h6>
+                      <ul class="list-unstyled small">
+                        <li><strong>Contraseña:</strong> <code>{{ account.password }}</code></li>
+                        <li><strong>Servicio:</strong> {{ account.service?.name }} {{ account.plan ? '- ' + account.plan : '' }}</li>
+                        <li><strong>Perfiles disponibles:</strong> {{ (account.maxProfiles || 0) - (account.activeProfiles || 0) }}/{{ account.maxProfiles }}</li>
+                      </ul>
+                      <button
+                        class="btn btn-sm btn-outline-danger mt-2"
+                        (click)="deactivateAccount(account)"
+                      >
+                        <i class="bi bi-trash me-1"></i>Desactivar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link" (click)="prevPage()">Anterior</button>
+              </li>
+              @for (pageNum of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === $index + 1">
+                  <button class="page-link" (click)="currentPage.set($index + 1)">
+                    {{ $index + 1 }}
+                  </button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link" (click)="nextPage()">Siguiente</button>
+              </li>
+            </ul>
+          </nav>
+        }
+      }
+    </div>
+  </div>
+</div>
+
+<app-account-form #accountForm (accountCreated)="onAccountCreated()"></app-account-form>

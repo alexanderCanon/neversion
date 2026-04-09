@@ -1,0 +1,45 @@
+<nav class="navbar navbar-expand-lg sticky-top custom-toolbar py-2 shadow-sm">
+  <div class="container-fluid px-4">
+
+    <!-- Logo Section -->
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
+      <img src="/assets/logo_neversion.svg" alt="Neversion Logo" class="logo-img">
+    </a>
+
+    <!-- Mobile Toggle (Bootstrap Standard) -->
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+      aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Center Section: Navigation Links & Search -->
+    <div class="collapse navbar-collapse justify-content-center" id="navbarContent">
+      <ul class="navbar-nav mb-2 mb-lg-0 gap-2">
+        <li class="nav-item"><a class="nav-link" routerLink="offers" routerLinkActive="active">Ofertas</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="combo" routerLinkActive="active">Combos</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="platforms" routerLinkActive="active">Plataformas</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="games" routerLinkActive="active">Juegos</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="wholesalers" routerLinkActive="active">Mayoristas</a></li>
+        <li class="nav-item"><a class="nav-link" routerLink="payment-methods" routerLinkActive="active">Pagos</a></li>
+      </ul>
+
+      <!-- Search Bar -->
+      <form class="ms-lg-4 d-flex" role="search">
+        <input class="form-control search-input" type="search" placeholder="Buscar..." aria-label="Search">
+      </form>
+    </div>
+
+    <!-- Right Section: Cart and Login -->
+    <div class="d-flex align-items-center gap-3 ms-lg-3">
+      <a routerLink="checkout" class="cart-link" title="Carrito de compras">
+        <img src="/assets/cart.svg" alt="Cart" class="cart-icon">
+      </a>
+
+      <button routerLink="login" routerLinkActive="active" type="button"
+        class="btn btn-primary rounded-pill px-4 login-btn">
+        Iniciar Sesión
+      </button>
+    </div>
+
+  </div>
+</nav>

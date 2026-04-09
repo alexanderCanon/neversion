@@ -1,0 +1,185 @@
+<div class="modal fade" tabindex="-1" #subscriptionModal>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-link-45deg me-2"></i>Nueva Suscripción
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          @if (isLoadingData) {
+            <div class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Cargando datos...</span>
+            </div>
+          } @else {
+            <div class="row g-3">
+              
+              <div class="col-md-6 position-relative">
+                <label for="clientSearch" class="form-label">Cliente <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="clientSearch"
+                  formControlName="clientSearch"
+                  [class.is-invalid]="subscriptionForm.get('clientId')?.invalid && subscriptionForm.get('clientSearch')?.touched"
+                  placeholder="Buscar por nombre o teléfono..."
+                  autocomplete="off"
+                  (focus)="showClientDropdownList()"
+                  (blur)="hideClientDropdown()"
+                />
+                
+                @if (showClientDropdown) {
+                  <ul class="dropdown-menu show w-100 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1050; top: 100%;">
+                    @for (client of filteredClients; track client.id) {
+                      <li>
+                        <button type="button" class="dropdown-item" (click)="selectClient(client)">
+                          {{ client.name }} <small class="text-muted">({{ client.phone || client.email }})</small>
+                        </button>
+                      </li>
+                    }
+                    @if (filteredClients.length === 0) {
+                      <li><span class="dropdown-item text-muted">No se encontraron clientes</span></li>
+                    }
+                  </ul>
+                }
+
+                @if (subscriptionForm.get('clientId')?.errors?.['required'] && subscriptionForm.get('clientSearch')?.touched) {
+                  <div class="invalid-feedback d-block">Debes seleccionar un cliente válido del listado.</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="price" class="form-label">Precio Cobrado <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text">Q</span>
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="price"
+                    formControlName="price"
+                    [class.is-invalid]="subscriptionForm.get('price')?.invalid && subscriptionForm.get('price')?.touched"
+                    step="0.01"
+                  />
+                </div>
+                @if (subscriptionForm.get('price')?.invalid && subscriptionForm.get('price')?.touched) {
+                  <div class="invalid-feedback d-block">Ingrese un precio válido mayor a 0</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="accountId" class="form-label">Cuenta <span class="text-danger">*</span></label>
+                <select
+                  class="form-select"
+                  id="accountId"
+                  formControlName="accountId"
+                  [class.is-invalid]="subscriptionForm.get('accountId')?.invalid && subscriptionForm.get('accountId')?.touched"
+                  (change)="onAccountChange($any($event.target).value)"
+                >
+                  <option value="">Seleccione una cuenta</option>
+                  @for (account of accounts; track account.id) {
+                    <option [value]="account.id">
+                      {{ account.email }} ({{ account.service?.name }})
+                    </option>
+                  }
+                </select>
+                @if (subscriptionForm.get('accountId')?.errors?.['required'] && subscriptionForm.get('accountId')?.touched) {
+                  <div class="invalid-feedback d-block">La cuenta es requerida</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="profileId" class="form-label">Perfil <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  id="profileId" 
+                  formControlName="profileId"
+                  [class.is-invalid]="subscriptionForm.get('profileId')?.invalid && subscriptionForm.get('profileId')?.touched"
+                >
+                  <option value="">Seleccione un perfil</option>
+                  @for (profile of profiles; track profile.id) {
+                    <option [value]="profile.id">
+                      {{ profile.name || 'Perfil Múltiple' }} 
+                      @if (profile.pin) { (PIN: {{profile.pin}}) }
+                    </option>
+                  }
+                </select>
+                @if (subscriptionForm.get('profileId')?.errors?.['required'] && subscriptionForm.get('profileId')?.touched) {
+                  <div class="invalid-feedback d-block">El perfil es requerido</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="purchaseDate" class="form-label">Fecha de Compra <span class="text-danger">*</span></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="purchaseDate"
+                  formControlName="purchaseDate"
+                  [class.is-invalid]="subscriptionForm.get('purchaseDate')?.invalid && subscriptionForm.get('purchaseDate')?.touched"
+                />
+                @if (subscriptionForm.get('purchaseDate')?.errors?.['required'] && subscriptionForm.get('purchaseDate')?.touched) {
+                  <div class="invalid-feedback d-block">La fecha de compra es requerida</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="paymentDueDate" class="form-label">Fecha de Próximo Pago <span class="text-danger">*</span></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="paymentDueDate"
+                  formControlName="paymentDueDate"
+                  [class.is-invalid]="subscriptionForm.get('paymentDueDate')?.invalid && subscriptionForm.get('paymentDueDate')?.touched"
+                />
+                @if (subscriptionForm.get('paymentDueDate')?.errors?.['required'] && subscriptionForm.get('paymentDueDate')?.touched) {
+                  <div class="invalid-feedback d-block">La fecha de pago es requerida</div>
+                }
+              </div>
+
+              <div class="col-12">
+                <label for="notes" class="form-label">Notas (Opcional)</label>
+                <textarea
+                  class="form-control"
+                  id="notes"
+                  formControlName="notes"
+                  rows="2"
+                ></textarea>
+              </div>
+
+              @if (selectedAccount) {
+                <div class="col-12">
+                  <div class="alert alert-info mb-0">
+                    <strong>Detalles de la Cuenta Matriz:</strong>
+                    <ul class="mb-0 mt-1">
+                      <li>Correo: <code>{{ selectedAccount.email }}</code></li>
+                      <li>Clave: <code>{{ selectedAccount.password }}</code></li>
+                      <li>Vencimiento Matriz: {{ selectedAccount.renewalDate }}</li>
+                    </ul>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || isLoadingData">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            Completar Suscripción
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

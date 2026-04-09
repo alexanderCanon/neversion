@@ -1,0 +1,124 @@
+<div class="profile-list">
+  @if (isLoading) {
+    <div class="text-center py-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+    </div>
+  } @else if (profiles.length === 0) {
+    <p class="text-muted mb-0 py-2">No hay perfiles disponibles para esta cuenta.</p>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-sm table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Perfil</th>
+            <th>PIN</th>
+            <th>Estado</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (profile of profiles; track profile.id) {
+            <tr>
+              <td>
+                <i class="bi bi-person-circle me-1 text-muted"></i>
+                {{ profile.name || 'Predeterminado' }}
+              </td>
+              <td>
+                @if (profile.pin) {
+                  <code>{{ profile.pin }}</code>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(profile)">
+                  {{ getStatusLabel(profile) }}
+                </span>
+              </td>
+              <td class="text-end">
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="openEditModal(profile)"
+                  title="Editar Perfil"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<!-- Modal para Editar Perfil -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="editProfileModalLabel">
+          <i class="bi bi-pencil-square me-2"></i>Editar Perfil
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeEditModal()" aria-label="Cerrar"></button>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="profileName" class="form-label">Nombre del Perfil <span class="text-danger">*</span></label>
+            <input
+              type="text"
+              class="form-control"
+              id="profileName"
+              formControlName="name"
+              [class.is-invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+              placeholder="Ej. Juan, TV Sala"
+            />
+            @if (profileForm.get('name')?.errors?.['required'] && profileForm.get('name')?.touched) {
+              <div class="invalid-feedback d-block">El nombre es requerido</div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <label for="profilePin" class="form-label">PIN (Opcional)</label>
+            <input
+              type="text"
+              class="form-control"
+              id="profilePin"
+              formControlName="pin"
+              placeholder="Ej. 1234"
+            />
+          </div>
+
+          <div class="mb-3 form-check form-switch mt-4">
+            <input 
+              class="form-check-input" 
+              type="checkbox" 
+              id="isOwnerSwitch" 
+              formControlName="isOwner"
+            >
+            <label class="form-check-label" for="isOwnerSwitch">
+              <strong>Es Propietario de la Cuenta</strong>
+              <div class="form-text">Si se activa, este perfil tiene los derechos principales sobre la cuenta.</div>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeEditModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || profileForm.invalid">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            Guardar Cambios
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

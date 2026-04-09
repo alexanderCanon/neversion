@@ -1,0 +1,65 @@
+<div class="table-responsive bg-white rounded-3">
+  <table class="table table-hover align-middle mb-0">
+    <thead class="table-light text-secondary">
+      <tr>
+        <th scope="col" class="ps-4">Servicio</th>
+        <th scope="col">Categoría</th>
+        <th scope="col">Perfiles Máx.</th>
+        <th scope="col" class="text-end pe-4">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (service of services; track service.id) {
+        <tr>
+          <!-- Basic Info -->
+          <td class="ps-4">
+            <div class="d-flex align-items-center py-2">
+              <div class="flex-shrink-0">
+                @if (service.details?.imageUrl) {
+                  <img [src]="service.details?.imageUrl" alt="{{service.name}}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                } @else {
+                  <div class="rounded bg-light d-flex align-items-center justify-content-center text-primary" style="width: 48px; height: 48px;">
+                    <i class="bi bi-box-seam fs-4"></i>
+                  </div>
+                }
+              </div>
+              <div class="ms-3">
+                <div class="fw-bold text-dark">{{ service.name }}</div>
+                <div class="text-muted small text-truncate" style="max-width: 200px;">{{ service.details?.description || 'Sin descripción' }}</div>
+              </div>
+            </div>
+          </td>
+          
+          <!-- Category -->
+          <td>
+            <span class="badge rounded-pill px-3 py-2 fw-normal" 
+                  [ngClass]="getCategoryBadgeClass(service.details?.category)"
+                  [ngStyle]="getCategoryBadgeStyle(service.details?.category)">
+              {{ service.details?.category }}
+            </span>
+          </td>
+
+          <!-- Max Profiles -->
+          <td>
+            <span class="text-dark">{{ service.maxProfiles }}</span>
+          </td>
+
+          <!-- Actions -->
+          <td class="text-end pe-4">
+            <div class="btn-group shadow-sm border rounded-2">
+              <button class="btn btn-light btn-sm text-primary px-3" (click)="editService.emit(service)" title="Editar servicio">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="4" class="text-center py-4 text-muted">
+             <i class="bi bi-info-circle me-1"></i> No hay servicios que mostrar.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

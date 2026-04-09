@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'bootstrap/scss/bootstrap';
+
+// ─────────────────────────────────────────────
+// Design Tokens
+// ─────────────────────────────────────────────
+:root {
+    // Brand
+    --primary-color:       oklch(0.2261 0.0377 241.61);
+    --darkest-primary-color: oklch(0.1658 0.0227 235.92);
+
+    // Semantic (matches docs/uiux-audit/global-improvements.md)
+    --color-primary:       #1E40AF;
+    --color-primary-hover: #1D4ED8;
+    --color-danger:        #DC2626;
+    --color-success:       #16A34A;
+    --color-warning:       #D97706;
+    --color-neutral:       #6B7280;
+    --color-surface:       #F9FAFB;
+    --color-border:        #E5E7EB;
+    --color-text-primary:  #1F2937;
+    --color-text-secondary:#6B7280;
+    --color-text-placeholder: #9CA3AF;
+
+    // Typography
+    --light-text-color:    oklch(1 0 0);
+    --dark-text-color:     oklch(0.0658 0.0227 235.92);
+}
+
+// ─────────────────────────────────────────────
+// Bootstrap Overrides — Primary Button (unified)
+// ─────────────────────────────────────────────
+.btn-primary {
+    --bs-btn-bg:               var(--primary-color);
+    --bs-btn-border-color:     var(--primary-color);
+    --bs-btn-hover-bg:         var(--darkest-primary-color);
+    --bs-btn-hover-border-color: var(--darkest-primary-color);
+    --bs-btn-active-bg:        var(--darkest-primary-color);
+    --bs-btn-active-border-color: var(--darkest-primary-color);
+}
+
+// ─────────────────────────────────────────────
+// Typography
+// ─────────────────────────────────────────────
+html,
+body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--color-text-primary);
+    background-color: var(--color-surface);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+// ─────────────────────────────────────────────
+// Shared Utilities
+// ─────────────────────────────────────────────
+.text-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+}

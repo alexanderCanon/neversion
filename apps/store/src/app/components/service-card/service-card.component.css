@@ -1,0 +1,85 @@
+/* AGENTS Style for Service Card - V2 */
+
+.custom-card {
+    background-color: #ffffff !important;
+    /* White background requested */
+    border: 1px solid var(--primary-color);
+    /* Border color matching primary/background */
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* Image Wrapper acts as the inner frame */
+.card-img-wrapper {
+    height: 180px;
+    /* Adjusted height for framing */
+    width: 100%;
+    background-color: #f8f9fa;
+    /* Light grey placeholder */
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.service-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.custom-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    border-color: var(--secondary-color);
+    /* Highlight border on hover */
+}
+
+.custom-card:hover .service-img {
+    transform: scale(1.1);
+}
+
+/* Title Styling - Dark for white background */
+.card-title {
+    color: var(--dark-text-color);
+    /* Ensuring contrast on white bg */
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+    transition: color 0.3s ease;
+    width: 65%;
+    /* Prevent overlapping with stars */
+}
+
+.custom-card:hover .card-title {
+    color: var(--secondary-color);
+}
+
+/* Overlay Effect */
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    /* Lighter overlay for white theme */
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.custom-card:hover .overlay {
+    opacity: 1;
+}
+
+/* Stars */
+.text-warning {
+    color: #ffc107 !important;
+    font-size: 0.8rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .card-img-wrapper {
+        height: 160px;
+    }
+}

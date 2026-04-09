@@ -1,0 +1,134 @@
+<div class="modal fade" tabindex="-1" #accountModal>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-plus me-2"></i>Nueva Cuenta
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="email" class="form-label">Correo electrónico <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                formControlName="email"
+                [class.is-invalid]="accountForm.get('email')?.invalid && accountForm.get('email')?.touched"
+                placeholder="cuenta@ejemplo.com"
+              />
+              @if (accountForm.get('email')?.errors?.['required'] && accountForm.get('email')?.touched) {
+                <div class="invalid-feedback">Correo es requerido</div>
+              }
+              @if (accountForm.get('email')?.errors?.['email'] && accountForm.get('email')?.touched) {
+                <div class="invalid-feedback">Formato inválido</div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                formControlName="password"
+                [class.is-invalid]="accountForm.get('password')?.invalid && accountForm.get('password')?.touched"
+              />
+              @if (accountForm.get('password')?.invalid && accountForm.get('password')?.touched) {
+                <div class="invalid-feedback">Contraseña es requerida</div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="serviceId" class="form-label">Servicio <span class="text-danger">*</span></label>
+              <select
+                class="form-select"
+                id="serviceId"
+                formControlName="serviceId"
+                [class.is-invalid]="accountForm.get('serviceId')?.invalid && accountForm.get('serviceId')?.touched"
+              >
+                <option [ngValue]="null">Selecciona un servicio</option>
+                @for (item of serviceOptions(); track item.id) {
+                  <option [value]="item.id">{{ item.displayName }}</option>
+                }
+              </select>
+              @if (accountForm.get('serviceId')?.invalid && accountForm.get('serviceId')?.touched) {
+                <div class="invalid-feedback">Debe seleccionar un servicio</div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="plan" class="form-label">Plan / Proveedor (Opcional)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="plan"
+                formControlName="plan"
+                placeholder="Ej. Premium, 4K, Pin..."
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label d-block">Tipo de Venta <span class="text-danger">*</span></label>
+              @for (mode of saleModes; track mode) {
+                <div class="form-check form-check-inline mt-2">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    formControlName="saleMode"
+                    [id]="'mode_' + mode"
+                    [value]="mode"
+                  >
+                  <label class="form-check-label" [for]="'mode_' + mode">
+                    {{ mode === 'BY_PROFILE' ? 'Por Perfiles' : 'Cuenta Completa' }}
+                  </label>
+                </div>
+              }
+            </div>
+
+            <div class="col-md-6">
+              <label for="renewalDate" class="form-label">Fecha de Renovación Vencimiento<span class="text-danger">*</span></label>
+              <input
+                type="date"
+                class="form-control"
+                id="renewalDate"
+                formControlName="renewalDate"
+                [class.is-invalid]="accountForm.get('renewalDate')?.invalid && accountForm.get('renewalDate')?.touched"
+              />
+              @if (accountForm.get('renewalDate')?.invalid && accountForm.get('renewalDate')?.touched) {
+                <div class="invalid-feedback">La fecha de renovación es requerida</div>
+              }
+            </div>
+
+            <div class="col-12">
+              <label for="notes" class="form-label">Notas / URL Factura (Opcional)</label>
+              <textarea
+                class="form-control"
+                id="notes"
+                formControlName="notes"
+                rows="2"
+              ></textarea>
+            </div>
+            
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            Ingresar Cuenta
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
