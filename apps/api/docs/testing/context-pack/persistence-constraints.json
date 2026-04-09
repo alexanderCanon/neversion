@@ -1,0 +1,13 @@
+{
+  "database": "PostgreSQL 16",
+  "migrations": "Flyway",
+  "schema": {
+    "tables": ["services", "accounts", "profiles", "clients", "subscriptions", "reservations", "orders", "reservation_details"],
+    "views": ["upcoming_renewals", "upcoming_account_renewals"],
+    "UUID_generation": "gen_random_uuid() for external IDs"
+  },
+  "constraints": [
+    "unique_active_profile in subscriptions: UNIQUE(profile_id, status) DEFERRABLE",
+    "Cascading delete on profiles from accounts"
+  ]
+}

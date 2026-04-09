@@ -1,0 +1,16 @@
+{
+  "frameworks": ["JUnit 5", "Mockito", "Testcontainers", "Spring Boot Test"],
+  "existing_tests": [
+    "CreateAccountServiceUT",
+    "GetAccountServiceUT",
+    "ApplicationSmokeIT",
+    "UpdateSubscriptionServiceUT",
+    "SubscriptionServiceTest",
+    "SecurityFilterChainIT",
+    "ClientServiceUT"
+  ],
+  "test_infrastructure": [
+    "BaseIntegrationTest configuring PostgreSQLContainer with @ServiceConnection",
+    "application-test.yaml"
+  ]
+}

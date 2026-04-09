@@ -1,0 +1,19 @@
+{
+  "type": "Spring Boot Monolith",
+  "architecture": "Hexagonal / Ports and Adapters",
+  "layers": [
+    "domain (models, services, ports/in, ports/out)",
+    "application (services implementing use cases, ports/in)",
+    "infrastructure (adapters/in/rest controllers, adapters/out/jpa repositories, configs)"
+  ],
+  "technologies": [
+    "Java 17",
+    "Spring Boot 3.5.10",
+    "Spring Security + OAuth2 Resource Server",
+    "Spring Data JPA",
+    "PostgreSQL 16",
+    "Flyway",
+    "Lombok",
+    "Testcontainers"
+  ]
+}

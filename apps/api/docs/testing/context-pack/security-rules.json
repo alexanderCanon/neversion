@@ -1,0 +1,11 @@
+{
+  "authentication": "Stateless JWT via OAuth2 Resource Server",
+  "jwtProvider": "Supabase with HS256 secret key",
+  "publicEndpoints": [
+    "/v3/api-docs/**",
+    "/swagger-ui/**",
+    "/actuator/**"
+  ],
+  "protectedEndpoints": "All others require authentication",
+  "rbac": "Per-feature RBAC rules defined in HttpSecurityCustomizer beans per module."
+}

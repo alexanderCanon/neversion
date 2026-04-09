@@ -1,0 +1,32 @@
+{
+  "endpoints": {
+    "dashboard": [
+      "GET /api/v1/dashboard/products/{productId}/accounts",
+      "GET /api/v1/dashboard/accounts/{accountId}/profiles"
+    ],
+    "reservations": [
+      "GET /api/v1/reservations/{id}",
+      "PUT /api/v1/reservations/{id}/receipt",
+      "PUT /api/v1/reservations/{id}/validate",
+      "PUT /api/v1/reservations/{id}/cancel",
+      "PUT /api/v1/reservations/{id}/client"
+    ],
+    "subscriptions": [
+      "POST /api/v1/subscriptions",
+      "GET /api/v1/subscriptions",
+      "GET /api/v1/subscriptions/{id}",
+      "PUT /api/v1/subscriptions/{id}/suspend",
+      "PUT /api/v1/subscriptions/{id}/cancel"
+    ],
+    "accounts": [
+      "POST /api/v1/accounts",
+      "GET /api/v1/accounts/{id}",
+      "DELETE /api/v1/accounts/{id}",
+      "PUT /api/v1/accounts/{id}/deactivate"
+    ],
+    "profiles": [
+      "GET /api/v1/profiles"
+    ]
+  },
+  "documentation": "OpenAPI spec available via SpringDoc at /v3/api-docs"
+}

@@ -1,0 +1,25 @@
+{
+  "reservation": [
+    "CreateReservationUseCase",
+    "ValidateReservationUseCase",
+    "UploadReceiptUseCase"
+  ],
+  "subscription": [
+    "AssignSubscriptionUseCase",
+    "UpdateSubscriptionUseCase (suspend, terminate)"
+  ],
+  "account": [
+    "CreateAccountUseCase",
+    "DeleteAccountUseCase",
+    "DeactivateAccountUseCase",
+    "GetAccountUseCase"
+  ],
+  "profile": [
+    "ProfileUseCase (create, update, fetch)"
+  ],
+  "dashboard": [
+    "GetProductsSummaryUseCase",
+    "GetProfilesByAccountUseCase",
+    "GetAccountsByProductUseCase"
+  ]
+}

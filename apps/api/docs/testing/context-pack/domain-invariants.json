@@ -1,0 +1,11 @@
+{
+  "BR-01": "Auto-generate N blank profiles based on service maxProfiles when an account is created.",
+  "BR-02": "Reservations must capture the current price of items.",
+  "BR-03": "Combo discount applies when a reservation has more than one item type.",
+  "BR-04": "Anti-overbooking: a profile can only have one active subscription.",
+  "BR-05": "Anti-fraud: same receipt URL cannot be used twice for a reservation.",
+  "BR-06": "AccountAvailability is calculated at query time (AVAILABLE, PARTIAL, FULL).",
+  "BR-10": "EXPIRING_SOON calculated dynamically / used by background automations to detect overdue payments.",
+  "BR-11": "CANCELLED status is a permanent termination of a subscription.",
+  "BR-17": "Service name must be unique."
+}
