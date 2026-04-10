@@ -56,7 +56,7 @@ POST /api/v1/reservations
 
 ```json
 {
-  "userGuestId": "uuid",
+  "clientId": "uuid",
   "items": [
     { "inventoryId": 1, "qty": 1 }
   ]
@@ -65,8 +65,8 @@ POST /api/v1/reservations
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `userGuestId` | `string (uuid)` | No | Can be attached later |
-| `items` | `array` | Yes | One or more inventory items |
+| `clientId` | `string (uuid)` | No | Can be attached later via `/client` endpoint |
+| `items` | `array` | Yes | One or more service items |
 
 | Code | Description |
 |---|---|
@@ -92,7 +92,7 @@ Customer uploads proof of payment. Transitions `PENDING → UPLOADED`.
 | Code | Description |
 |---|---|
 | `200` | Receipt uploaded |
-| `400` | Invalid status or duplicate URL |
+| `400` | Invalid status or duplicate URL (BR-05) |
 | `404` | Not found |
 
 ---
@@ -135,18 +135,18 @@ Only `PENDING` or `UPLOADED` reservations can be cancelled.
 
 ---
 
-### Attach guest user to reservation
+### Attach client to reservation
 
 ```
-PUT /api/v1/reservations/{id}/guest?userGuestId={uuid}
+PUT /api/v1/reservations/{id}/client?clientId={uuid}
 ```
 
-Links an existing guest user to a reservation created without one.
+Links an existing client to a reservation created without one.
 
 | Code | Description |
 |---|---|
-| `200` | Guest attached |
-| `404` | Not found |
+| `200` | Client attached |
+| `404` | Reservation or client not found |
 
 ---
 
@@ -157,7 +157,7 @@ Links an existing guest user to a reservation created without one.
 ```json
 {
   "id": "uuid",
-  "userGuestId": "uuid",
+  "clientId": "uuid",
   "status": "PENDING",
   "discount": 0.00,
   "total": 40.00,

@@ -20,8 +20,8 @@ public interface SpringDataReservationRepository extends JpaRepository<Reservati
    */
   @Modifying
   @Query(value = """
-      UPDATE reservations SET status = 'expired'
-      WHERE status = 'pending'
+      UPDATE reservations SET status = 'EXPIRED'
+      WHERE status = 'PENDING'
         AND expiration_date < NOW()
       """, nativeQuery = true)
   int expirePendingReservations();

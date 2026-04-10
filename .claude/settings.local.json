@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./mvnw compile:*)"
+      "Bash(./mvnw compile:*)",
+      "Bash(mkdir -p ~/.claude/channels/telegram)",
+      "Read(//home/alexavers/.claude/channels/**)",
+      "Bash(./mvnw test:*)",
+      "Bash(./mvnw clean:*)",
+      "Bash(xargs cat:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }

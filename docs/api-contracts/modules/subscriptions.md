@@ -16,9 +16,22 @@ GET /api/v1/subscriptions
 |---|---|---|---|
 | `status` | `SubStatus` | No | Filter by status |
 | `clientId` | `string (uuid)` | No | Filter by client |
-| `accountId` | `string (uuid)` | No | Filter by account |
+| `profileId` | `string (uuid)` | No | Filter by profile |
 
 **Response `200 OK`** — Array of `SubscriptionResponse`
+
+---
+
+### Get subscription by ID
+
+```
+GET /api/v1/subscriptions/{id}
+```
+
+| Code | Description |
+|---|---|
+| `200` | Subscription found |
+| `404` | Not found |
 
 ---
 
@@ -28,8 +41,8 @@ GET /api/v1/subscriptions
 POST /api/v1/subscriptions
 ```
 
-Manually assigns an account or profile to a client.
-Validates individual account exclusivity (BR-06) before saving.
+Admin assigns a Profile to a Client.
+Validates profile exclusivity (BR-04) before saving.
 
 **Request Body**
 
@@ -38,9 +51,8 @@ Validates individual account exclusivity (BR-06) before saving.
   "profileId": "uuid",
   "clientId": "uuid",
   "accountId": "uuid",
-  "purchaseDate": "2026-03-15",
+  "startDate": "2026-03-15",
   "paymentDueDate": "2026-04-15",
-  "price": 10.00,
   "notes": "Premium plan"
 }
 ```
@@ -50,9 +62,8 @@ Validates individual account exclusivity (BR-06) before saving.
 | `profileId` | `string (uuid)` | Yes | Target profile |
 | `clientId` | `string (uuid)` | Yes | Client being assigned |
 | `accountId` | `string (uuid)` | Yes | Parent account |
-| `purchaseDate` | `string (date)` | Yes | Start date |
-| `paymentDueDate` | `string (date)` | Yes | End / renewal date |
-| `price` | `number` | No | Subscription price |
+| `startDate` | `string (date)` | No | Access start date (defaults to today) |
+| `paymentDueDate` | `string (date)` | Yes | Renewal / payment due date |
 | `notes` | `string` | No | Admin notes |
 
 **Responses**
@@ -62,21 +73,21 @@ Validates individual account exclusivity (BR-06) before saving.
 | `201` | Subscription created |
 | `400` | Invalid request |
 | `404` | Account or profile not found |
-| `409` | Conflict or business rule violation |
+| `409` | Conflict — profile already has an active subscription (BR-04) |
 
 ---
 
-### Terminate subscription
+### Cancel subscription
 
 ```
-PUT /api/v1/subscriptions/{id}/terminate
+PUT /api/v1/subscriptions/{id}/cancel
 ```
 
-Transitions a subscription to `CANCELLED`. Triggered by admin due to payment failure.
+Transitions a subscription to `CANCELLED`. Triggered by admin.
 
 | Code | Description |
 |---|---|
-| `200` | Terminated |
+| `200` | Cancelled |
 | `400` | Already cancelled |
 | `404` | Not found |
 
@@ -108,11 +119,12 @@ Transitions an `ACTIVE` subscription to `SUSPENDED`. Triggered by admin due to p
   "accountId": "uuid",
   "clientId": "uuid",
   "profileId": "uuid",
-  "purchaseDate": "2026-03-15",
-  "paymentDueDate": "2026-04-15",
   "status": "ACTIVE",
-  "price": 10.00,
-  "notes": "Premium plan"
+  "startDate": "2026-03-15",
+  "paymentDueDate": "2026-04-15",
+  "monthsPaid": 1,
+  "notes": "Premium plan",
+  "createdAt": "2026-03-15T10:00:00"
 }
 ```
 

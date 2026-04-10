@@ -13,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -85,4 +86,10 @@ public class AccountEntity {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (uuid == null) uuid = UUID.randomUUID();
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
 }

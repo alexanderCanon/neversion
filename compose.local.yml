@@ -19,7 +19,7 @@
 services:
   # ── Base de datos local (solo para API) ─────────────────────────
   db:
-    image: postgres:17
+    image: postgres:16-alpine
     container_name: neversion-db
     restart: unless-stopped
     environment:
@@ -31,7 +31,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d neversiondb"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d neversiondb" ]
       interval: 5s
       timeout: 5s
       retries: 5

@@ -14,10 +14,7 @@ GET /api/v1/accounts
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `seller` | `string` | No | Filter by seller name |
-| `accountType` | `AccountType` | No | Filter by type |
-| `expirationBefore` | `string (date)` | No | Filter by expiration before `YYYY-MM-DD` |
-| `isActive` | `boolean` | No | Filter by active status |
+| `serviceId` | `integer` | No | Filter by service (internal ID) |
 
 **Response `200 OK`** — Array of `AccountResponse`
 
@@ -43,7 +40,7 @@ POST /api/v1/accounts
 ```
 
 Registers a new master credential purchased from an external provider.
-The system automatically generates `Profiles` based on `maxProfiles` in the linked `Inventory`.
+The system automatically generates `Profiles` based on `maxProfiles` in the linked `Service` when `saleMode=BY_PROFILE`.
 
 **Request Body**
 
@@ -51,25 +48,21 @@ The system automatically generates `Profiles` based on `maxProfiles` in the link
 {
   "email": "nexp1010+a100@gmail.com",
   "pass": "588netflix",
-  "inventoryId": 1,
-  "seller": "ProviderName",
-  "priceSeller": 25.00,
-  "accountType": "FAMILY",
-  "status": "AVAILABLE",
-  "expirationDate": "2026-05-01"
+  "serviceId": 1,
+  "saleMode": "BY_PROFILE",
+  "renewalDate": "2026-05-01",
+  "notes": "Purchased from ProviderX"
 }
 ```
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `email` | `string` | No | Account email |
-| `pass` | `string` | No | Account password |
-| `inventoryId` | `integer` | Yes | Linked inventory variant |
-| `seller` | `string` | No | External provider name |
-| `priceSeller` | `number` | Yes | Cost paid to the provider (GTQ) |
-| `accountType` | `AccountType` | Yes | `FAMILY` or `INDIVIDUAL` |
-| `status` | `AccountStatus` | Yes | Initial status, typically `AVAILABLE` |
-| `expirationDate` | `string (date)` | Yes | Provider cut-off date |
+| `email` | `string` | Yes | Account email credential |
+| `pass` | `string` | Yes | Account password credential |
+| `serviceId` | `integer` | Yes | Linked service (internal numeric ID) |
+| `saleMode` | `SaleMode` | Yes | `BY_PROFILE` or `FULL_ACCOUNT` |
+| `renewalDate` | `string (date)` | Yes | Date Neversion must renew with the provider |
+| `notes` | `string` | No | Internal admin notes |
 
 | Code | Description |
 |---|---|
@@ -78,17 +71,17 @@ The system automatically generates `Profiles` based on `maxProfiles` in the link
 
 ---
 
-### Deactivate account
+### Delete account
 
 ```
 DELETE /api/v1/accounts/{id}
 ```
 
-Soft-delete. The account record is preserved for historical reference.
+Hard-delete. Cascades to profiles.
 
 | Code | Description |
 |---|---|
-| `204` | Deactivated |
+| `204` | Deleted |
 | `404` | Not found |
 
 ---
@@ -102,17 +95,15 @@ Soft-delete. The account record is preserved for historical reference.
   "id": "uuid",
   "email": "nexp1010+a100@gmail.com",
   "pass": "588netflix",
-  "inventoryId": 1,
-  "seller": "ProviderName",
-  "priceSeller": 25.00,
-  "accountType": "FAMILY",
-  "status": "ASSIGNED",
-  "expirationDate": "2026-05-01"
+  "serviceId": 1,
+  "saleMode": "BY_PROFILE",
+  "renewalDate": "2026-05-01",
+  "notes": "Purchased from ProviderX",
+  "createdAt": "2026-03-15T10:00:00"
 }
 ```
 
-`accountType` values: `FAMILY`, `INDIVIDUAL` — see `enums.md`.
-`status` values: `AVAILABLE`, `ASSIGNED`, `EXPIRED` — see `enums.md`.
+`saleMode` values: `BY_PROFILE`, `FULL_ACCOUNT` — see `enums.md`.
 
 > **Note:** `pass` is intentionally returned in plaintext. These are resale credentials
 > managed by the admin, not user authentication passwords.

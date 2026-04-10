@@ -8,20 +8,20 @@
 
 ## Endpoints
 
-### 1. Get streaming products summary
+### 1. Get streaming services summary
 
 ```
 GET /api/v1/dashboard?category=STREAMING
 ```
 
-Returns the list of products filtered by category, with account count per product.
+Returns the list of services filtered by category, with account count per service.
 Used to render the dashboard entry screen.
 
 **Query Parameters**
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `category` | `CategoryType` | Yes | Filter by product category. See `enums.md`. |
+| `category` | `CategoryType` | Yes | Filter by service category. See `enums.md`. |
 
 **Response `200 OK`**
 
@@ -38,27 +38,27 @@ Used to render the dashboard entry screen.
 
 | Field | Type | Description |
 |---|---|---|
-| `productId` | `string (uuid)` | Unique product identifier |
-| `productName` | `string` | Display name of the product |
-| `category` | `CategoryType` | Product category |
-| `totalAccounts` | `integer` | Total accounts registered for this product |
+| `productId` | `string (uuid)` | Unique service identifier (use as `serviceId` in subsequent calls) |
+| `productName` | `string` | Display name of the service |
+| `category` | `CategoryType` | Service category |
+| `totalAccounts` | `integer` | Total accounts registered for this service |
 
 ---
 
-### 2. Get accounts for a product
+### 2. Get accounts for a service
 
 ```
 GET /api/v1/dashboard/products/{productId}/accounts
 ```
 
-Returns all accounts belonging to a product, including slot availability.
-Slot details are **not** included — loaded separately on expand.
+Returns all accounts belonging to a service, including profile availability.
+Profile details are **not** included — loaded separately on expand.
 
 **Path Parameters**
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `productId` | `string (uuid)` | Yes | Product identifier |
+| `productId` | `string (uuid)` | Yes | Service identifier (use `productId` from endpoint 1) |
 
 **Response `200 OK`**
 
@@ -70,10 +70,10 @@ Slot details are **not** included — loaded separately on expand.
     "password": "588netflix",
     "cutOffDate": "2026-05-01",
     "accountType": "FAMILY",
-    "accountStatus": "ASSIGNED",
-    "maxSlots": 5,
-    "occupiedSlots": 3,
-    "availableSlots": 2,
+    "accountStatus": "ACTIVE",
+    "maxProfiles": 5,
+    "occupiedProfiles": 3,
+    "availableProfiles": 2,
     "availability": "PARTIAL"
   }
 ]
@@ -84,23 +84,23 @@ Slot details are **not** included — loaded separately on expand.
 | `accountId` | `string (uuid)` | Unique account identifier |
 | `email` | `string` | Account email credential |
 | `password` | `string` | Account password credential |
-| `cutOffDate` | `string (date)` | Account expiration date from the external provider |
-| `accountType` | `AccountType` | `FAMILY` or `INDIVIDUAL`. See `enums.md`. |
-| `accountStatus` | `AccountStatus` | Current account status. See `enums.md`. |
-| `maxSlots` | `integer` | Maximum slots defined by the admin |
-| `occupiedSlots` | `integer` | Number of slots currently occupied |
-| `availableSlots` | `integer` | `maxSlots - occupiedSlots` |
+| `cutOffDate` | `string (date)` | Provider renewal date for this account |
+| `accountType` | `string` | `FAMILY` (BY_PROFILE sale mode) or `INDIVIDUAL` (FULL_ACCOUNT sale mode) |
+| `accountStatus` | `string` | `ACTIVE` if renewal date has not passed, `EXPIRED` otherwise |
+| `maxProfiles` | `integer` | Maximum profiles defined by the service |
+| `occupiedProfiles` | `integer` | Profiles with ACTIVE or SUSPENDED subscriptions |
+| `availableProfiles` | `integer` | `maxProfiles - occupiedProfiles` |
 | `availability` | `AccountAvailability` | Calculated field — not persisted. See `enums.md`. |
 
 ---
 
-### 3. Get slots for an account
+### 3. Get profiles for an account
 
 ```
-GET /api/v1/dashboard/accounts/{accountId}/slots
+GET /api/v1/dashboard/accounts/{accountId}/profiles
 ```
 
-Returns all slots for a given account, including customer subscription data if occupied.
+Returns all profiles for a given account, including customer subscription data if occupied.
 Called lazily when the user expands an account row in the dashboard.
 
 **Path Parameters**
@@ -114,10 +114,10 @@ Called lazily when the user expands an account row in the dashboard.
 ```json
 [
   {
-    "slotId": "uuid",
+    "profileId": "uuid",
     "profileName": "Ariell Abrego",
     "pin": "1607",
-    "slotStatus": "OCCUPIED",
+    "profileStatus": "OCCUPIED",
     "subscription": {
       "subscriptionId": "uuid",
       "startDate": "2026-03-15",
@@ -127,15 +127,15 @@ Called lazily when the user expands an account row in the dashboard.
         "id": "uuid",
         "name": "Ariell Abrego",
         "phone": "36137857",
-        "type": "USER_GUEST"
+        "type": "CLIENT"
       }
     }
   },
   {
-    "slotId": "uuid",
+    "profileId": "uuid",
     "profileName": null,
     "pin": null,
-    "slotStatus": "AVAILABLE",
+    "profileStatus": "AVAILABLE",
     "subscription": null
   }
 ]
@@ -143,23 +143,23 @@ Called lazily when the user expands an account row in the dashboard.
 
 | Field | Type | Description |
 |---|---|---|
-| `slotId` | `string (uuid)` | Unique slot identifier |
+| `profileId` | `string (uuid)` | Unique profile identifier |
 | `profileName` | `string \| null` | Profile name inside the streaming service |
 | `pin` | `string \| null` | Profile PIN inside the streaming service |
-| `slotStatus` | `SlotStatus` | Current slot status. See `enums.md`. |
-| `subscription` | `SlotSubscription \| null` | Null if the slot is unassigned |
+| `profileStatus` | `ProfileStatus` | `OCCUPIED`, `BLOCKED`, or `AVAILABLE`. See `enums.md`. |
+| `subscription` | `ProfileSubscription \| null` | Null if the profile is unassigned |
 | `subscription.subscriptionId` | `string (uuid)` | Subscription identifier |
-| `subscription.startDate` | `string (date)` | Customer purchase date |
-| `subscription.endDate` | `string (date)` | Customer renewal date |
+| `subscription.startDate` | `string (date)` | Access start date |
+| `subscription.endDate` | `string (date)` | Payment due / renewal date |
 | `subscription.status` | `SubStatus` | Calculated by backend. `EXPIRING_SOON` is not persisted. See `enums.md`. |
-| `subscription.customer.id` | `string (uuid)` | Customer identifier |
-| `subscription.customer.name` | `string` | Customer full name |
-| `subscription.customer.phone` | `string` | Customer phone number |
-| `subscription.customer.type` | `string` | `USER_GUEST` (Sprint 1) or `PROFILE` (Sprint 2) |
+| `subscription.customer.id` | `string (uuid)` | Client identifier |
+| `subscription.customer.name` | `string` | Client full name |
+| `subscription.customer.phone` | `string` | Client phone number |
+| `subscription.customer.type` | `string` | Always `CLIENT` |
 
-> **Empty slots are always included in the response.**
-> A slot with `subscription: null` represents a free, assignable slot.
-> The frontend uses this to render available vs occupied slots visually.
+> **All profiles are always included in the response.**
+> A profile with `subscription: null` represents a free, assignable profile.
+> The frontend uses this to render available vs occupied profiles visually.
 
 ---
 
@@ -170,9 +170,7 @@ Called lazily when the user expands an account row in the dashboard.
 > ⚠️ **Deprecated** — Scheduled for removal on **2026-04-30**
 >
 > Replaced by the three endpoints above, which provide a richer and correctly
-> structured response including customer data, slot availability, and account grouping.
-> The `SubscriptionDashboardDTO` response lacked: customer name, phone, account ID,
-> slot status, and `availability` calculation.
+> structured response including customer data, profile availability, and account grouping.
 >
 > **Do not use in new frontend features.**
 
