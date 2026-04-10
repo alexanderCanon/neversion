@@ -42,6 +42,18 @@ export const routes: Routes = [
             {
                 path: 'subscriptions',
                 loadComponent: () => import('./features/subscriptions/pages/subscriptions-list/subscriptions-list.component').then(m => m.SubscriptionsListComponent)
+            },
+            {
+                path: 'reservations',
+                loadComponent: () => import('./features/reservations/pages/reservations-list/reservations-list.component').then(m => m.ReservationsListComponent)
+            },
+            {
+                path: 'reservations/:id',
+                loadComponent: () => import('./features/reservations/pages/reservation-detail/reservation-detail.component').then(m => m.ReservationDetailComponent)
+            },
+            {
+                path: 'orders',
+                loadComponent: () => import('./features/orders/pages/orders-list/orders-list.component').then(m => m.OrdersListComponent)
             }
         ]
     },

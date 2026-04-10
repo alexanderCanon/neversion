@@ -82,9 +82,10 @@ export class SubscriptionsListComponent implements OnInit {
     this.loadSubscriptions();
   }
 
-  terminateSubscription(subscription: SubscriptionResponse): void {
-    if (confirm(`¿Seguro que deseas cancelar la suscripción ${subscription.id.slice(0, 8)}...?`)) {
-      this.subscriptionsService.terminateSubscription(subscription.id).subscribe({
+  cancelSubscription(subscription: SubscriptionResponse): void {
+    if (confirm(`¿Está seguro de que desea cancelar la suscripción de ${subscription.clientId}?`)) {
+      this.subscriptionsService.cancelSubscription(subscription.id).subscribe({
+
         next: () => {
           this.toastService.success('Suscripción cancelada');
           this.loadSubscriptions();

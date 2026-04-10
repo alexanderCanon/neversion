@@ -17,7 +17,7 @@ export class ProfileService {
 
   getProfilesByAccount(accountId: string | number): Observable<ProfileResponse[]> {
     this._isLoading.set(true);
-    return this.http.get<ProfileResponse[]>(`${this.baseUrl}/profiles/account/${accountId}`).pipe(
+    return this.http.get<ProfileResponse[]>(`${this.baseUrl}/profiles`, { params: { accountId } }).pipe(
       tap((profiles) => this._profiles.set(profiles)),
       finalize(() => this._isLoading.set(false))
     );

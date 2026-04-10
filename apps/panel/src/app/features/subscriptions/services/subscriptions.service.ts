@@ -12,9 +12,6 @@ export class SubscriptionsService {
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
 
-  private readonly _dashboardData = signal<SubscriptionDashboardDTO[]>([]);
-  readonly dashboardData = this._dashboardData.asReadonly();
-
   private readonly _isLoading = signal<boolean>(false);
   readonly isLoading = this._isLoading.asReadonly();
 
@@ -31,12 +28,6 @@ export class SubscriptionsService {
     );
   }
 
-  getDashboard(): Observable<SubscriptionDashboardDTO[]> {
-    return this.http.get<SubscriptionDashboardDTO[]>(`${this.baseUrl}/subscriptions/dashboard`).pipe(
-      tap((data) => this._dashboardData.set(data))
-    );
-  }
-
   createSubscription(subscription: CreateSubscriptionRequest): Observable<SubscriptionResponse> {
     return this.http.post<SubscriptionResponse>(`${this.baseUrl}/subscriptions`, subscription).pipe(
       tap((newSub) => {
@@ -45,8 +36,8 @@ export class SubscriptionsService {
     );
   }
 
-  terminateSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/terminate`, {});
+  cancelSubscription(id: string): Observable<SubscriptionResponse> {
+    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/cancel`, {});
   }
 
   suspendSubscription(id: string): Observable<SubscriptionResponse> {

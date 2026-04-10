@@ -133,15 +133,24 @@ rename-module: ## Rename a module across the project. Usage: make rename-module 
 # ORCHESTRATION (delegates to subproject Makefiles)
 # =============================================================================
  
-.PHONY: build-all up-all down-all
+.PHONY: build-all up-local down-local up-prod down-prod
  
 build-all: ## Build all subprojects (api, panel, front)
 	$(MAKE) -C $(API_DIR) build
 	$(MAKE) -C $(PANEL_DIR) build
 	$(MAKE) -C $(FRONT_DIR) build
  
-up-all: ## Start full stack with Docker
-	$(MAKE) -C $(API_DIR) up
+up-local: ## Start full stack locally with Docker
+	docker compose -f compose.local.yml up -d --build api db panel
  
-down-all: ## Stop full stack with Docker
-	$(MAKE) -C $(API_DIR) down
+down-local: ## Stop local full stack with Docker
+	docker compose -f compose.local.yml down
+
+down-local-volumes: ## Stop local full stack with Docker and remove volumes
+	docker compose -f compose.local.yml down -v	
+ 
+up-prod: ## Start full stack in production with Docker
+	docker compose -f compose.prod.yml up -d
+ 
+down-prod: ## Stop production full stack with Docker
+	docker compose -f compose.prod.yml down
