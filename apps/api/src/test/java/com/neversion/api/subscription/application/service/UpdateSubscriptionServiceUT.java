@@ -49,9 +49,8 @@ class UpdateSubscriptionServiceUT {
                 .uuid(UUID.randomUUID())
                 .profileId(10L)
                 .clientId(20L)
-                .purchaseDate(LocalDate.now())
+                .startDate(LocalDate.now())
                 .paymentDueDate(LocalDate.now().plusMonths(1))
-                .price(new BigDecimal("25.00"))
                 .status(status)
                 .build();
     }

@@ -86,9 +86,8 @@ class SubscriptionServiceTest {
         return Subscription.builder()
                 .profileUuid(PROFILE_UUID)
                 .clientUuid(CLIENT_UUID)
-                .purchaseDate(LocalDate.now())
+                .startDate(LocalDate.now())
                 .paymentDueDate(LocalDate.now().plusDays(30))
-                .price(new BigDecimal("25.00"))
                 .build();
     }
 
@@ -109,9 +108,8 @@ class SubscriptionServiceTest {
                     .uuid(UUID.randomUUID())
                     .profileId(PROFILE_ID)
                     .clientId(CLIENT_ID)
-                    .purchaseDate(LocalDate.now())
+                    .startDate(LocalDate.now())
                     .paymentDueDate(LocalDate.now().plusDays(30))
-                    .price(new BigDecimal("25.00"))
                     .status(SubStatus.ACTIVE)
                     .build();
 
