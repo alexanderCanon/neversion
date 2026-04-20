@@ -1,7 +1,19 @@
-import { Component, Output, EventEmitter, ViewChild, ElementRef, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ServiceRequest } from '../../models/service.model';
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
 
 @Component({
   selector: 'app-service-form',
@@ -10,19 +22,19 @@ import { ServiceRequest } from '../../models/service.model';
   templateUrl: './service-form.component.html',
   styleUrls: []
 })
-export class ServiceFormComponent implements OnInit {
+export class ServiceFormComponent {
   @ViewChild('serviceModal') modalElement!: ElementRef;
   
   @Output() saveService = new EventEmitter<ServiceRequest>();
   
+  private readonly fb = inject(FormBuilder);
+  private readonly platformId = inject(PLATFORM_ID);
+
   serviceForm: FormGroup;
   categories = ['STREAMING', 'SOFTWARE', 'GIFT_CARD', 'RECHARGE', 'DIGITAL_SERVICE'];
   isBrowser: boolean;
   
-  constructor(
-      private fb: FormBuilder,
-      @Inject(PLATFORM_ID) private platformId: Object
-  ) {
+  constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
     this.serviceForm = this.fb.group({
@@ -34,14 +46,12 @@ export class ServiceFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
-
   openModal(): void {
     this.resetForm();
     if (this.isBrowser) {
         const modalEl = this.modalElement?.nativeElement;
         if(modalEl) {
-           const bootstrap = (window as any).bootstrap;
+           const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
            if(bootstrap) {
                const modal = new bootstrap.Modal(modalEl);
                modal.show();
@@ -62,7 +72,7 @@ export class ServiceFormComponent implements OnInit {
      if (this.isBrowser) {
         const modalEl = this.modalElement?.nativeElement;
         if(modalEl) {
-           const bootstrap = (window as any).bootstrap;
+           const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
            if(bootstrap) {
                const modal = bootstrap.Modal.getInstance(modalEl);
                if(modal) modal.hide();

@@ -1,13 +1,19 @@
+export interface ServiceDetails {
+  description?: string;
+  imageUrl?: string;
+  category: string;
+}
+
 export interface ServiceRequest {
   name: string;
   maxProfiles: number;
-  details: any;
+  details: ServiceDetails;
 }
 
 export interface ServiceResponse {
   id: string;
   name: string;
   maxProfiles: number;
-  details: any;
+  details: ServiceDetails;
   createdAt: string;
 }

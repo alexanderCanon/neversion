@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -11,9 +11,10 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit {
-  theme = signal<'light' | 'dark'>('light');
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  theme = signal<'light' | 'dark'>('light');
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;

@@ -5,8 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { 
   ReservationResponse, 
   CreateReservationRequest, 
-  ReservationsFilter, 
-  ReservationStatus 
+  ReservationsFilter 
 } from '../models/reservation.model';
 
 @Injectable({ providedIn: 'root' })

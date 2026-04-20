@@ -4,7 +4,7 @@ import { ProfileItem } from '../../models/dashboard.model';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 
 @Component({
-  selector: '[app-profile-row]',
+  selector: 'app-profile-row',
   standalone: true,
   imports: [CommonModule, PhonePipe],
   template: `
@@ -51,7 +51,13 @@ import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
            <span class="badge rounded-pill bg-light text-secondary border fw-normal" style="font-size: 0.8rem;">Libre</span>
         }
       </td>
-  `
+  `,
+  styles: [`
+    :host {
+      display: table-row;
+      vertical-align: middle;
+    }
+  `]
 })
 export class ProfileRowComponent {
   @Input({ required: true }) profile!: ProfileItem;

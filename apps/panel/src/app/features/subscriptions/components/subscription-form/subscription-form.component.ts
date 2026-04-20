@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CreateSubscriptionRequest } from '../../models/subscription.model';
@@ -9,6 +9,18 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { AccountResponse } from '../../../accounts/models/account.model';
 import { ClientResponse } from '../../../clients/models/client.model';
 import { ProfileResponse } from '../../../accounts/models/profile.model';
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
 
 @Component({
   selector: 'app-subscription-form',
@@ -38,9 +50,10 @@ export class SubscriptionFormComponent implements OnInit {
   private readonly accountsService = inject(AccountsService);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
-    this.isBrowser = true;
+    this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
@@ -147,7 +160,7 @@ export class SubscriptionFormComponent implements OnInit {
       this.loadDropdownData();
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
+        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
         if (bootstrap) {
           const modal = new bootstrap.Modal(modalEl);
           modal.show();
@@ -167,7 +180,7 @@ export class SubscriptionFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
+        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
         if (bootstrap) {
           const modal = bootstrap.Modal.getInstance(modalEl);
           if (modal) modal.hide();

@@ -31,7 +31,7 @@ export class ServicesTableComponent {
     }
   }
 
-  getCategoryBadgeStyle(category: string | undefined): any {
+  getCategoryBadgeStyle(category: string | undefined): Record<string, string> {
      if(category === 'STREAMING') return { 'background-color': '#4285f4', 'color': 'white' };
      if(category === 'DIGITAL_SERVICE') return { 'background-color': '#34a853', 'color': 'white' };
      if(category === 'SOFTWARE') return { 'background-color': '#a142f4', 'color': 'white' };

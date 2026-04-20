@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
-import { User, Session, AuthError, AuthResponse } from '@supabase/supabase-js';
+import { User, Session, AuthResponse } from '@supabase/supabase-js';
 import { Observable, from, of } from 'rxjs';
 import { map, tap, catchError, finalize } from 'rxjs/operators';
 

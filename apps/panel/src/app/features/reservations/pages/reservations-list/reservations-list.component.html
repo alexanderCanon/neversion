@@ -7,13 +7,13 @@
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Buscar por ID o Cliente</label>
-                    <input type="text" class="form-control" placeholder="Escribe para buscar..." 
+                    <label for="reservSearch" class="form-label">Buscar por ID o Cliente</label>
+                    <input id="reservSearch" type="text" class="form-control" placeholder="Escribe para buscar..." 
                            [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event); currentPage.set(1)">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label">Filtrar por Estado</label>
-                    <select class="form-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); currentPage.set(1)">
+                    <label for="statusFilter" class="form-label">Filtrar por Estado</label>
+                    <select id="statusFilter" class="form-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); currentPage.set(1)">
                         <option value="">Todos los estados</option>
                         <option value="PENDING">Pendiente</option>
                         <option value="UPLOADED">Comprobante Subido</option>

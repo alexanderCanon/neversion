@@ -75,7 +75,7 @@ export class SubscriptionsListComponent implements OnInit {
     const clientId = this.filterClientId();
     if (clientId) filter.clientId = clientId;
 
-    this.subscriptionsService.getSubscriptions(filter as any).subscribe();
+    this.subscriptionsService.getSubscriptions(filter).subscribe();
   }
 
   onSubscriptionCreated(): void {

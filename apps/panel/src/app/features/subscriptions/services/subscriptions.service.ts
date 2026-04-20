@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize } from 'rxjs';
-import { CreateSubscriptionRequest, SubscriptionResponse, SubscriptionDashboardDTO, SubscriptionsFilter, SubscriptionStatus } from '../models/subscription.model';
+import { CreateSubscriptionRequest, SubscriptionResponse, SubscriptionsFilter } from '../models/subscription.model';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })

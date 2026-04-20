@@ -35,7 +35,7 @@ export class LoginComponent {
                     this.errorMessage.set(this.mapAuthError(result.error!));
                 }
             },
-            error: (err) => {
+            error: () => {
                 this.errorMessage.set('Ocurrió un error inesperado al iniciar sesión.');
             }
         });

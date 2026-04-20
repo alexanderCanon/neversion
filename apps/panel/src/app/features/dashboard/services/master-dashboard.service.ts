@@ -9,7 +9,7 @@ export class MasterDashboardService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/dashboard`;
 
-  getProductsSummary(category: string = 'STREAMING'): Observable<ProductSummary[]> {
+  getProductsSummary(category = 'STREAMING'): Observable<ProductSummary[]> {
     return this.http.get<ProductSummary[]>(this.baseUrl, { params: { category } });
   }
 

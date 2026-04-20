@@ -129,9 +129,9 @@
                             <div class="alert alert-warning py-2 mb-3 small">
                                 Sin cliente asignado.
                             </div>
-                            <label class="form-label small">Asignar Cliente</label>
+                            <label for="assignClient" class="form-label small">Asignar Cliente</label>
                             <div class="input-group input-group-sm">
-                                <select class="form-select" [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
+                                <select id="assignClient" class="form-select" [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
                                     <option value="">Seleccionar...</option>
                                     @for (client of clients(); track client.id) {
                                         <option [value]="client.id">{{ client.name }} ({{ client.phone }})</option>
@@ -151,8 +151,8 @@
                         <div class="card-body">
                             <h6 class="text-uppercase small mb-3 fw-bold">Validar Pago</h6>
                             <div class="mb-3">
-                                <label class="form-label small">Notas de Validación</label>
-                                <textarea class="form-control form-control-sm" rows="3" 
+                                <label for="validationNotes" class="form-label small">Notas de Validación</label>
+                                <textarea id="validationNotes" class="form-control form-control-sm" rows="3" 
                                           placeholder="Ej: Pago recibido vía transferencia..."
                                           [ngModel]="validationNotes()" (ngModelChange)="validationNotes.set($event)"></textarea>
                             </div>

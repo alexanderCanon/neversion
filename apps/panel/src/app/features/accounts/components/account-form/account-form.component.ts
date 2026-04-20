@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountRequest, SaleMode } from '../../models/account.model';
 import { AccountsService } from '../../services/accounts.service';
@@ -10,6 +10,20 @@ interface ServiceOption {
   id: number;
   displayName: string;
 }
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
+
+declare const bootstrap: Bootstrap;
 
 @Component({
   selector: 'app-account-form',
@@ -73,8 +87,7 @@ export class AccountFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
-        if (bootstrap) {
+        if (typeof bootstrap !== 'undefined') {
           const modal = new bootstrap.Modal(modalEl);
           modal.show();
         } else {
@@ -93,8 +106,7 @@ export class AccountFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
-        if (bootstrap) {
+        if (typeof bootstrap !== 'undefined') {
           const modal = bootstrap.Modal.getInstance(modalEl);
           if (modal) modal.hide();
         } else {

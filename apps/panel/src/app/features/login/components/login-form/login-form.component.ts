@@ -11,7 +11,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 export class LoginFormComponent {
   private readonly fb = inject(FormBuilder);
 
-  @Input() isLoading: boolean = false;
+  @Input() isLoading = false;
   @Input() errorMessage: string | null = null;
   
   @Output() submitLogin = new EventEmitter<{email: string, password: string}>();
