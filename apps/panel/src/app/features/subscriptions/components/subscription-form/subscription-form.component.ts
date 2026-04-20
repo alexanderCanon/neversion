@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CreateSubscriptionRequest } from '../../models/subscription.model';
+import { CreateSubscriptionRequest } from '@neversion/models';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { AccountResponse } from '../../../accounts/models/account.model';
-import { ClientResponse } from '../../../clients/models/client.model';
-import { ProfileResponse } from '../../../accounts/models/profile.model';
+import { AccountResponse } from '@neversion/models';
+import { ClientResponse } from '@neversion/models';
+import { ProfileResponse } from '@neversion/models';
 
 interface BootstrapModal {
   show(): void;

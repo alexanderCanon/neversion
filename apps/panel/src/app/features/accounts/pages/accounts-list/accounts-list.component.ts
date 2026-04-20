@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountsService } from '../../services/accounts.service';
-import { AccountResponse } from '../../models/account.model';
+import { AccountResponse } from '@neversion/models';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';

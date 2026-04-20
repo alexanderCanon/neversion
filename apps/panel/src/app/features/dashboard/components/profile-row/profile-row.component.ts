@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileItem } from '../../models/dashboard.model';
+import { ProfileItem } from '@neversion/models';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 
 @Component({

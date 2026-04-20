@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccountGroup } from '../../models/dashboard.model';
+import { AccountGroup } from '@neversion/models';
 
 @Component({
   selector: 'app-account-row',

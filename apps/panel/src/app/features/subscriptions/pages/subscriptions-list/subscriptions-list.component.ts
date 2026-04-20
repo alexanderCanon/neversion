@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubscriptionsService } from '../../services/subscriptions.service';
-import { SubscriptionResponse, SubscriptionStatus, SubscriptionsFilter } from '../../models/subscription.model';
+import { SubscriptionResponse, SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { ToastService } from '../../../../core/services/toast.service';
 

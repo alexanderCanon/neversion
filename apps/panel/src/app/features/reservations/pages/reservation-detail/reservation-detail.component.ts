@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { ReservationsService } from '../../services/reservations.service';
-import { ReservationResponse } from '../../models/reservation.model';
+import { ReservationResponse } from '@neversion/models';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 

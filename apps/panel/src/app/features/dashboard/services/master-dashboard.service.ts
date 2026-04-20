@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { ProductSummary, AccountGroup, ProfileItem } from '../models/dashboard.model';
+import { ProductSummary, AccountGroup, ProfileItem } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class MasterDashboardService {

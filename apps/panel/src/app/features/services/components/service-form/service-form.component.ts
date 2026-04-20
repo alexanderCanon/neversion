@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ServiceRequest } from '../../models/service.model';
+import { ServiceRequest } from '@neversion/models';
 
 interface BootstrapModal {
   show(): void;

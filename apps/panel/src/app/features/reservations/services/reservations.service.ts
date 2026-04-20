@@ -6,7 +6,7 @@ import {
   ReservationResponse, 
   CreateReservationRequest, 
   ReservationsFilter 
-} from '../models/reservation.model';
+} from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsService {

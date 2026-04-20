@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ServiceResponse } from '../../models/service.model';
+import { ServiceResponse } from '@neversion/models';
 
 @Component({
   selector: 'app-services-table',

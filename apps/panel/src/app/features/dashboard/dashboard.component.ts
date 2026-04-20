@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MasterDashboardService } from './services/master-dashboard.service';
-import { ProductSummary, DashboardMetrics } from './models/dashboard.model';
+import { ProductSummary, DashboardMetrics } from '@neversion/models';
 import { DashboardMetricsComponent } from './components/dashboard-metrics/dashboard-metrics.component';
 import { ProductSummaryCardComponent } from './components/product-summary-card/product-summary-card.component';
 

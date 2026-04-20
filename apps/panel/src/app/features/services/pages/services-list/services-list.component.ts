@@ -2,7 +2,7 @@ import { Component, OnInit, signal, computed, ViewChild, inject } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ServicesDataService } from '../../services/services-data.service';
-import { ServiceResponse, ServiceRequest } from '../../models/service.model';
+import { ServiceResponse, ServiceRequest } from '@neversion/models';
 import { ServicesTableComponent } from '../../components/services-table/services-table.component';
 import { ServiceFormComponent } from '../../components/service-form/service-form.component';
 

@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MasterDashboardService } from '../services/master-dashboard.service';
-import { AccountGroup, ProfileItem } from '../models/dashboard.model';
+import { AccountGroup, ProfileItem } from '@neversion/models';
 import { AccountRowComponent } from '../components/account-row/account-row.component';
 import { ProfileRowComponent } from '../components/profile-row/profile-row.component';
 

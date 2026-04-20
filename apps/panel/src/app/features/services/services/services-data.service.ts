@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize } from 'rxjs';
-import { ServiceRequest, ServiceResponse } from '../models/service.model';
+import { ServiceRequest, ServiceResponse } from '@neversion/models';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })

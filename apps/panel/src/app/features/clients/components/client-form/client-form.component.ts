@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ClientRequest, ClientResponse } from '../../models/client.model';
+import { ClientRequest, ClientResponse } from '@neversion/models';
 import { ClientsService } from '../../services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
 

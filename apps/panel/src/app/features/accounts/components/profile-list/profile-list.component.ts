@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileRequest, ProfileResponse } from '../../models/profile.model';
+import { ProfileRequest, ProfileResponse } from '@neversion/models';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { ToastService } from '../../../../core/services/toast.service';

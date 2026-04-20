@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@neversion/models": ["packages/models/src/index.ts"],
+      "@neversion/utils": ["packages/utils/src/index.ts"],
+      "@neversion/api-client": ["packages/api-client/src/index.ts"]
+    },
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "strict": true
+  }
+}

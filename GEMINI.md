@@ -89,14 +89,24 @@ The `docs/` directory is the **absolute source of truth**.
 - **Mappers:** Separate `RequestMapper`, `ResponseMapper`, `EntityMapper`.
 - **Soft Delete:** Enabled via `@SQLDelete` and `@SQLRestriction`.
 
-### Frontend Coding Style (`panel/AGENTS.md`)
-- **Control Flow:** Use Angular 17 `@if`, `@for`, `@defer`.
-- **State:** Prefer Signals over RxJS for local component state.
-- **Styling:** Use Bootstrap utility classes first before writing custom SCSS.
+## 🤖 Agent Specialization (Senior Angular Developer)
+When acting as the senior engineer, the focus is strictly on **Angular (Frontend)** within `apps/panel/**` and `apps/store/**`. 
+- **Frameworks:** Angular 17+ (Panel) and Angular 16 (Store).
+- **Style:** Standalone components, Signals, Reactive Forms, and clean RxJS patterns.
+- **Backend:** Explicitly state requirements/contracts but **DO NOT** modify code in `api/` unless authorized.
 
----
+## 🔄 Protocolo de Sincronización API
+Cuando el backend sufra cambios en sus contratos (Swagger/OpenAPI):
+1. **Sincronizar:** Ejecutar `pnpm run api:sync` (opcionalmente pasando `API_URL`).
+2. **Validar:** Revisar errores de compilación en `apps/panel` y `apps/store` derivados de cambios en los modelos de `@neversion/api-client`.
+3. **Refactorizar:** Actualizar componentes y servicios para consumir los nuevos contratos.
 
-## 🔐 Security
+## 📓 Session & Task Logging
+In every session, for each task, a **Short-Term Memory Log (Bitácora)** must be maintained to ensure a clean and traceable workflow:
+- **Objective:** Main goal of the current task.
+- **Changes:** Summary of modified files and logic.
+- **Pending:** Tasks left for the next turn or session.
+- **Backend Needs:** Any API changes required to support the frontend.
 - **Identity Provider:** Supabase Auth.
 - **Resource Server:** Spring Boot validates JWT signature via Supabase JWKS.
 - **Roles:** Permissions are managed via JWT claims (`app_metadata`).

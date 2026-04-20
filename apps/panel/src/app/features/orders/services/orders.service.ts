@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { OrderResponse } from '../models/order.model';
+import { OrderResponse } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {

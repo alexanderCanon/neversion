@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClientsService } from '../../services/clients.service';
-import { ClientResponse } from '../../models/client.model';
+import { ClientResponse } from '@neversion/models';
 import { ClientFormComponent } from '../../components/client-form/client-form.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';

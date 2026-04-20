@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
-import { OrderResponse, OrderStatus } from '../../models/order.model';
+import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Component({
   selector: 'app-orders-list',
