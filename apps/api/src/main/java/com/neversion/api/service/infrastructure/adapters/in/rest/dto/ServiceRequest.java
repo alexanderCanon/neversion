@@ -1,5 +1,6 @@
 package com.neversion.api.service.infrastructure.adapters.in.rest.dto;
 
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
@@ -10,6 +11,9 @@ public record ServiceRequest(
 
         @Positive(message = "Max profiles must be positive") Integer maxProfiles,
 
-        /** JSONB — free-form metadata. Example: {"platform":"Netflix","category":"streaming"} */
-        String details) {
+        /** JSONB — free-form metadata. Example: {"platform":"Netflix"} */
+        String details,
+
+        /** Service category. Defaults to STREAMING if not provided. */
+        CategoryType category) {
 }

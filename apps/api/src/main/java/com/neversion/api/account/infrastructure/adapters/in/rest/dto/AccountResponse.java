@@ -16,6 +16,7 @@ public record AccountResponse(
         Long serviceId,
         SaleMode saleMode,
         LocalDate renewalDate,
+        String plan,
         String notes,
         LocalDateTime createdAt) {
 }

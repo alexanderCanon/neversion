@@ -1,40 +1,64 @@
-# Neversion System Documentation
+# Neversion — Documentation
 
-Welcome to the central repository for the Neversion project documentation. All source of truth resides within this `docs/` directory.
-
-> [!TIP]
-> **Feeling overwhelmed by the folder structure?** Check out the [Quick Guide (GUIDE.md)](GUIDE.md) for a friendly map of all subdirectories and their purpose.
-
-The project operates in **3 fundamental phases**. The documentation directory is strictly organized to reflect this composition. Iterate between these phases continually until the project is completed.
+> **Entry point:** Start with [`INDEX.md`](INDEX.md) for the full navigable index with FAQ.
+> For a quick map of all folders, see [`GUIDE.md`](GUIDE.md).
 
 ---
 
-## Phase 1: Analysis
-This phase defines the "What" and the "Why". It establishes the business vision, user stories, use cases, scope, and the methodologies used to execute the project.
+## Structure
 
-**Where to read:**
-* **`business-context.md`** / **`business-rules.md`** / **`domain.md`**: Start here. These three root indexes map out the business glossary, cross-cutting rules, and overarching concepts.
-* **`modules/`**: The detailed breakdown of the system. Contains all Use Cases, validation structures, and specific business rules separated logically (e.g., `services`, `profiles`, `clients`).
-* **`sprints/`**: Defines the functional requirements, scopes, and objectives separated by MVP targets (e.g., `sprint1-neversion-system.md`).
-* **`software-development-methods.md`**: Defines the operative frameworks: **Incremental Development (Sprints)** and **Scrum**.
-* **`general/`** & **`march/`**: Historical and overarching project context logs.
+```
+docs/
+  INDEX.md              ← Navigable book: FAQ + chapter-per-folder
+  GUIDE.md              ← Quick folder map for humans and AI agents
+  system/               ← Technical specification (architecture, schema, stack, API)
+  modules/              ← Domain modules: business rules + REST contracts per entity
+  archive/              ← Deprecated content preserved for historical reference
+```
 
----
-
-## Phase 2: Architecture
-Real work begins after a deep initial analysis. This phase defines the "How" at a high level. It covers system components, structural integrity, and infrastructure decisions.
-
-**Where to read:**
-* **`system-architecture.md`**: The structural backbone outlining system architecture, tech stack boundaries, and infrastructure/cloud hosting decisions.
-* **`schema/database-schema.md`**: Bridges the gap between Domain Rules and the literal relational PostgreSQL database (Flyway migrations).
-* **`enums/system-enums.md`**: The strictly defined system-wide dictionary and state machines (System Enums).
-* **`diagrams/`** & **`draw/`**: Visual models of the architecture.
+```
+project/                ← Operational project management (outside docs/)
+  sprints/              ← Sprint definitions, scope, roadmap, session summaries
+  bugs/                 ← Bug tracking
+  vault/                ← Brainstorming and raw notes (Obsidian)
+  prompt/               ← AI prompt history (audit trail)
+```
 
 ---
 
-## Phase 3: Engineering
-This defines everything related to logic, programming, and software development frameworks. It is the final execution step after performing analysis and defining the architecture. Applies design patterns (SOLID, Factory, Builder, KISS).
+## Development Philosophy
 
-**Where to read:**
-* **`api-contracts/`**: The absolute source of truth for backend development. Contains the exact REST endpoints, JSON structures, DTOs, and global `api-architecture` mapping to Phase 1 requirements.
-* **`bugs/`**: Ongoing engineering logs detailing tracked issues, replication steps, and technical debt.
+The project follows **Documentation-First, then Code** — based on DDD Architecture Definition:
+
+1. **Define** the domain and business rules in `docs/modules/`
+2. **Design** the API contract in `docs/modules/{module}.md → Endpoints section`
+3. **Model** the database in `docs/system/schema.md` (verified against Flyway migrations)
+4. **Implement** the backend following the contract exactly
+5. **Validate** against Integration Tests
+
+> *"If the contract is wrong, the system is wrong."*
+
+---
+
+## Three Phases of the System
+
+### Phase 1 — Analysis
+Defines the What and Why.
+
+→ [`system/overview.md`](system/overview.md) — Business context, domain glossary
+→ [`modules/`](modules/) — Use cases, business rules per entity
+→ [`project/sprints/`](../project/sprints/) — Sprint scope and objectives
+
+### Phase 2 — Architecture
+Defines the How at a high level.
+
+→ [`system/architecture.md`](system/architecture.md) — Hexagonal Architecture, diagrams, auth flow
+→ [`system/schema.md`](system/schema.md) — PostgreSQL schema, Flyway migrations V1–V5
+→ [`system/stack.md`](system/stack.md) — Full tech stack with versions
+
+### Phase 3 — Engineering
+Defines implementation and execution.
+
+→ [`system/api-conventions.md`](system/api-conventions.md) — REST design, versioning, RFC 7807 errors
+→ [`modules/{module}.md`](modules/) — REST endpoints and DTO contracts per module
+→ [`project/bugs/`](../project/bugs/) — Tracked issues and technical debt

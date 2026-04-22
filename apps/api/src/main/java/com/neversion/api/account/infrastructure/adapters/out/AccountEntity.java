@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
+import com.neversion.api.account.infrastructure.adapters.out.converter.SaleModeConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -74,9 +74,9 @@ public class AccountEntity {
 
     /**
      * Determines sales strategy: by individual profiles or as a full account.
-     * Values: BY_PROFILE | FULL_ACCOUNT (stored as VARCHAR in DB).
+     * Stored as lowercase varchar via SaleModeConverter (by_profile | full_account).
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = SaleModeConverter.class)
     @Column(name = "sale_mode", nullable = false, length = 20)
     private SaleMode saleMode;
 

@@ -28,6 +28,7 @@ public class AccountMapper {
                 .serviceId(account.getServiceId())
                 .saleMode(account.getSaleMode())
                 .renewalDate(account.getRenewalDate())
+                .plan(account.getPlan())
                 .notes(account.getNotes())
                 .createdAt(account.getCreatedAt())
                 .build() : null;

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -43,18 +44,25 @@ public class Service {
      */
     private JsonNode details;
 
+    /**
+     * Service category — used by the Dashboard for filtering.
+     * Values: STREAMING, SOFTWARE, GIFT_CARD, RECHARGE, DIGITAL_SERVICE.
+     */
+    private CategoryType category;
+
     private LocalDateTime createdAt;
 
     public Service() {
     }
 
     public Service(Long id, UUID uuid, String name, Integer maxProfiles,
-            JsonNode details, LocalDateTime createdAt) {
+            JsonNode details, CategoryType category, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.name = name;
         this.maxProfiles = maxProfiles;
         this.details = details;
+        this.category = category;
         this.createdAt = createdAt;
     }
 }

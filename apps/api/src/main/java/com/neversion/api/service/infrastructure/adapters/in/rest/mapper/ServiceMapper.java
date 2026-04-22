@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.infrastructure.adapters.in.rest.dto.ServiceRequest;
 import com.neversion.api.service.infrastructure.adapters.in.rest.dto.ServiceResponse;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 @Component
 public class ServiceMapper {
@@ -33,6 +34,7 @@ public class ServiceMapper {
                 .name(request.name())
                 .maxProfiles(request.maxProfiles())
                 .details(detailsNode)
+                .category(request.category() != null ? request.category() : CategoryType.STREAMING)
                 .build();
     }
 
@@ -49,6 +51,7 @@ public class ServiceMapper {
                 .name(service.getName())
                 .maxProfiles(service.getMaxProfiles())
                 .details(detailsStr)
+                .category(service.getCategory())
                 .createdAt(service.getCreatedAt())
                 .build();
     }

@@ -16,6 +16,7 @@ public class ServicePersistenceMapper {
                 .name(entity.getName())
                 .maxProfiles(entity.getMaxProfiles())
                 .details(entity.getDetails())
+                .category(entity.getCategory())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -28,6 +29,7 @@ public class ServicePersistenceMapper {
                 .name(domain.getName())
                 .maxProfiles(domain.getMaxProfiles())
                 .details(domain.getDetails())
+                .category(domain.getCategory())
                 .createdAt(domain.getCreatedAt())
                 .build();
     }
