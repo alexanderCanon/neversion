@@ -23,6 +23,7 @@ import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
@@ -57,6 +58,7 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
                         .name("Netflix-" + System.nanoTime())
                         .maxProfiles(5)
                         .details(null)
+                        .category(CategoryType.STREAMING)
                         .build());
 
         Account account = accountRepositoryPort.save(

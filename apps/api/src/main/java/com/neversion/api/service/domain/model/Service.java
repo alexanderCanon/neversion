@@ -11,12 +11,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Domain model for a digital service offered by Neversion (e.g. Netflix, Spotify).
+ * Domain model for a digital service offered by Neversion (e.g. Netflix,
+ * Spotify).
  * Replaces the legacy dual Product + Inventory model.
  *
- * 'id' (Long)  – internal identifier, used only for DB relations. Never exposed externally.
- * 'uuid' (UUID) – external identifier exposed in all REST responses and frontend routes.
- * 'details' (JsonNode) – JSONB payload with inventory metadata (pricing tiers, currencies, etc.)
+ * 'id' (Long) – internal identifier, used only for DB relations. Never exposed
+ * externally.
+ * 'uuid' (UUID) – external identifier exposed in all REST responses and
+ * frontend routes.
+ * 'details' (JsonNode) – JSONB payload with inventory metadata (pricing tiers,
+ * currencies, etc.)
  */
 @Getter
 @Setter
@@ -40,7 +44,8 @@ public class Service {
 
     /**
      * JSONB inventory metadata.
-     * Example: {"pricing": [{"duration_days": 30, "price": 50.00, "currency": "GTQ"}]}
+     * Example: {"pricing": [{"duration_days": 30, "price": 50.00, "currency":
+     * "GTQ"}]}
      */
     private JsonNode details;
 

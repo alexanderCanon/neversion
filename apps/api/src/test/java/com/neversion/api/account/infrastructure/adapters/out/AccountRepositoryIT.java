@@ -19,6 +19,7 @@ import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 @SpringBootTest
 @Transactional
@@ -40,6 +41,7 @@ class AccountRepositoryIT extends BaseIntegrationTest {
                         .name("Netflix-" + System.nanoTime())
                         .maxProfiles(5)
                         .details(null)
+                        .category(CategoryType.STREAMING)
                         .build());
     }
 

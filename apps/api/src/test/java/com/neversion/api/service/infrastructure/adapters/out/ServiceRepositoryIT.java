@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.BaseIntegrationTest;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 @SpringBootTest
 @Transactional
@@ -29,6 +30,7 @@ class ServiceRepositoryIT extends BaseIntegrationTest {
                 .name(name)
                 .maxProfiles(5)
                 .details(null)
+                .category(CategoryType.STREAMING)
                 .build();
     }
 
