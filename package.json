@@ -17,6 +17,7 @@
     "@typescript-eslint/parser": "^8.59.0",
     "angular-eslint": "21.0.1",
     "eslint": "^9.39.4",
+    "tslib": "^2.3.0",
     "typescript-eslint": "8.46.4"
   }
 }

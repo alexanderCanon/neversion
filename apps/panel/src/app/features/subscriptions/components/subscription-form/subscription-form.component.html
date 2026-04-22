@@ -55,24 +55,6 @@
               </div>
 
               <div class="col-md-6">
-                <label for="price" class="form-label">Precio Cobrado <span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <span class="input-group-text">Q</span>
-                  <input
-                    type="number"
-                    class="form-control"
-                    id="price"
-                    formControlName="price"
-                    [class.is-invalid]="subscriptionForm.get('price')?.invalid && subscriptionForm.get('price')?.touched"
-                    step="0.01"
-                  />
-                </div>
-                @if (subscriptionForm.get('price')?.invalid && subscriptionForm.get('price')?.touched) {
-                  <div class="invalid-feedback d-block">Ingrese un precio válido mayor a 0</div>
-                }
-              </div>
-
-              <div class="col-md-6">
                 <label for="accountId" class="form-label">Cuenta <span class="text-danger">*</span></label>
                 <select
                   class="form-select"

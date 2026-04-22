@@ -1,12 +1,13 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
+import { Observable, tap, finalize, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { 
-  ReservationResponse, 
-  CreateReservationRequest, 
-  ReservationsFilter 
-} from '@neversion/models';
+  ReservationResponse as ApiReservationResponse, 
+  ReservationRequest as CreateReservationRequest,
+  ReservationDetailResponse as ApiReservationDetailResponse
+} from '@neversion/api-client';
+import { ReservationsFilter, ReservationResponse, ReservationDetailResponse } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsService {
@@ -26,18 +27,22 @@ export class ReservationsService {
     }
 
     this._isLoading.set(true);
-    return this.http.get<ReservationResponse[]>(this.baseUrl, { params }).pipe(
+    return this.http.get<ApiReservationResponse[]>(this.baseUrl, { params }).pipe(
+      map(apiRes => apiRes.map(api => this.mapToModel(api))),
       tap((data) => this._reservations.set(data)),
       finalize(() => this._isLoading.set(false))
     );
   }
 
   getReservationById(id: string): Observable<ReservationResponse> {
-    return this.http.get<ReservationResponse>(`${this.baseUrl}/${id}`);
+    return this.http.get<ApiReservationResponse>(`${this.baseUrl}/${id}`).pipe(
+      map(api => this.mapToModel(api))
+    );
   }
 
   createReservation(request: CreateReservationRequest): Observable<ReservationResponse> {
-    return this.http.post<ReservationResponse>(this.baseUrl, request).pipe(
+    return this.http.post<ApiReservationResponse>(this.baseUrl, request).pipe(
+      map(api => this.mapToModel(api)),
       tap((newReserv) => {
         this._reservations.update((current) => [newReserv, ...current]);
       })
@@ -63,5 +68,29 @@ export class ReservationsService {
 
   refreshReservations(): void {
     this.getReservations().subscribe();
+  }
+
+  private mapToModel(api: ApiReservationResponse): ReservationResponse {
+    return {
+      id: api.id || '',
+      clientId: api.clientId || null,
+      status: (api.status as any) || 'PENDING',
+      discount: api.discount || 0,
+      total: api.total || 0,
+      receiptUrl: api.receiptUrl || null,
+      expirationDate: api.expirationDate || '',
+      createdAt: api.createdAt || '',
+      details: (api.details || []).map(this.mapDetailToModel)
+    };
+  }
+
+  private mapDetailToModel(api: ApiReservationDetailResponse): ReservationDetailResponse {
+    return {
+      id: api.id || '',
+      inventoryId: api.inventoryId || 0,
+      qty: api.qty || 0,
+      unitPrice: api.unitPrice || 0,
+      subtotal: api.subtotal || 0
+    };
   }
 }

@@ -1,14 +1,12 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CreateSubscriptionRequest } from '@neversion/models';
+import { CreateSubscriptionRequest } from '@neversion/api-client';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { AccountResponse } from '@neversion/models';
-import { ClientResponse } from '@neversion/models';
-import { ProfileResponse } from '@neversion/models';
+import { ProfileResponse, AccountResponse, ClientResponse } from '@neversion/models';
 
 interface BootstrapModal {
   show(): void;
@@ -69,7 +67,6 @@ export class SubscriptionFormComponent implements OnInit {
       profileId: ['', Validators.required],
       purchaseDate: [defaultDate, Validators.required],
       paymentDueDate: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0.01)]],
       notes: ['']
     });
 
@@ -204,8 +201,9 @@ export class SubscriptionFormComponent implements OnInit {
       const subscriptionRequest: CreateSubscriptionRequest = {
         profileId: formValue.profileId,
         clientId: formValue.clientId,
+        accountId: formValue.accountId,
         paymentDueDate: formValue.paymentDueDate,
-        price: formValue.price,
+        startDate: formValue.purchaseDate,
         notes: formValue.notes || undefined,
       };
 

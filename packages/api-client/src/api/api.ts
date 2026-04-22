@@ -1,0 +1,17 @@
+export * from './accounts.service';
+import { AccountsApiService } from './accounts.service';
+export * from './clients.service';
+import { ClientsApiService } from './clients.service';
+export * from './dashboard.service';
+import { DashboardApiService } from './dashboard.service';
+export * from './orders.service';
+import { OrdersApiService } from './orders.service';
+export * from './profiles.service';
+import { ProfilesApiService } from './profiles.service';
+export * from './reservations.service';
+import { ReservationsApiService } from './reservations.service';
+export * from './services.service';
+import { ServicesApiService } from './services.service';
+export * from './subscriptions.service';
+import { SubscriptionsApiService } from './subscriptions.service';
+export const APIS = [AccountsApiService, ClientsApiService, DashboardApiService, OrdersApiService, ProfilesApiService, ReservationsApiService, ServicesApiService, SubscriptionsApiService];

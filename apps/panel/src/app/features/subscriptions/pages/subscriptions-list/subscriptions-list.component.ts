@@ -3,7 +3,8 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SubscriptionsService } from '../../services/subscriptions.service';
-import { SubscriptionResponse, SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
+import { SubscriptionResponse } from '@neversion/api-client';
+import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { ToastService } from '../../../../core/services/toast.service';
 
@@ -54,7 +55,7 @@ export class SubscriptionsListComponent implements OnInit {
     Math.ceil(this.filteredSubscriptions().length / this.pageSize) || 1
   );
 
-  readonly statusOptions = Object.values(SubscriptionStatus);
+  readonly statusOptions: SubscriptionStatus[] = Object.values(SubscriptionStatus);
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -84,7 +85,7 @@ export class SubscriptionsListComponent implements OnInit {
 
   cancelSubscription(subscription: SubscriptionResponse): void {
     if (confirm(`¿Está seguro de que desea cancelar la suscripción de ${subscription.clientId}?`)) {
-      this.subscriptionsService.cancelSubscription(subscription.id).subscribe({
+      this.subscriptionsService.cancelSubscription(subscription.id!).subscribe({
 
         next: () => {
           this.toastService.success('Suscripción cancelada');
@@ -95,8 +96,8 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   suspendSubscription(subscription: SubscriptionResponse): void {
-    if (confirm(`¿Seguro que deseas suspender la suscripción ${subscription.id.slice(0, 8)}...?`)) {
-      this.subscriptionsService.suspendSubscription(subscription.id).subscribe({
+    if (confirm(`¿Seguro que deseas suspender la suscripción ${subscription.id!.slice(0, 8)}...?`)) {
+      this.subscriptionsService.suspendSubscription(subscription.id!).subscribe({
         next: () => {
           this.toastService.success('Suscripción suspendida');
           this.loadSubscriptions();
@@ -143,6 +144,6 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   trackBySubscriptionId(index: number, subscription: SubscriptionResponse): string {
-    return subscription.id;
+    return subscription.id || '';
   }
 }

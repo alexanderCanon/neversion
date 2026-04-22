@@ -70,11 +70,11 @@
                   <td><code>{{ sub.id | slice:0:8 }}...</code></td>
                   <td><code>{{ sub.profileId | slice:0:8 }}...</code></td>
                   <td><code>{{ sub.clientId | slice:0:8 }}...</code></td>
-                  <td>{{ sub.purchaseDate }}</td>
+                  <td>{{ sub.startDate }}</td>
                   <td>{{ sub.paymentDueDate }}</td>
                   <td>
-                    <span class="badge" [ngClass]="getStatusClass(sub.status)">
-                      {{ getStatusLabel(sub.status) }}
+                    <span class="badge" [ngClass]="getStatusClass(sub.status!)">
+                      {{ getStatusLabel(sub.status!) }}
                     </span>
                   </td>
                   <td>

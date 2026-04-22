@@ -1,5 +1,5 @@
 import { ProfileResponse } from './profile.model';
-import { ServiceResponse } from '../../services/models/service.model';
+import { ServiceResponse } from './service.model';
 
 export enum SaleMode {
   BY_PROFILE = 'BY_PROFILE',

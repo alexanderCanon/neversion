@@ -14,7 +14,7 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'angular-admix' title`, () => {
+  it('should have the \'angular-admix\' title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('angular-admix');

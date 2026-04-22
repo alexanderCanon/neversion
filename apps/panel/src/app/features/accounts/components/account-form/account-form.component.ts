@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AccountRequest, SaleMode } from '@neversion/models';
+import { AccountRequest } from '@neversion/models';
+import { SaleMode } from '@neversion/models';
 import { AccountsService } from '../../services/accounts.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';

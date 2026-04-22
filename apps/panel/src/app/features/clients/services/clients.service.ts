@@ -1,7 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
-import { ClientRequest, ClientResponse, ClientsFilter } from '@neversion/models';
+import { Observable, tap, finalize, map } from 'rxjs';
+import { ClientRequest as ApiClientRequest, ClientResponse as ApiClientResponse } from '@neversion/api-client';
+import { ClientsFilter, ClientRequest, ClientResponse } from '@neversion/models';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -21,18 +22,29 @@ export class ClientsService {
     if (filter?.phone) params = params.set('phone', filter.phone);
 
     this._isLoading.set(true);
-    return this.http.get<ClientResponse[]>(`${this.baseUrl}/clients`, { params }).pipe(
+    return this.http.get<ApiClientResponse[]>(`${this.baseUrl}/clients`, { params }).pipe(
+      map(apiClients => apiClients.map(api => this.mapToModel(api))),
       tap((clients) => this._clients.set(clients)),
       finalize(() => this._isLoading.set(false))
     );
   }
 
   getClientById(id: string): Observable<ClientResponse> {
-    return this.http.get<ClientResponse>(`${this.baseUrl}/clients/${id}`);
+    return this.http.get<ApiClientResponse>(`${this.baseUrl}/clients/${id}`).pipe(
+      map(api => this.mapToModel(api))
+    );
   }
 
   createClient(client: ClientRequest): Observable<ClientResponse> {
-    return this.http.post<ClientResponse>(`${this.baseUrl}/clients`, client).pipe(
+    const apiRequest: ApiClientRequest = {
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      notes: client.notes
+    };
+
+    return this.http.post<ApiClientResponse>(`${this.baseUrl}/clients`, apiRequest).pipe(
+      map(api => this.mapToModel(api)),
       tap((newClient) => {
         this._clients.update((current) => [...current, newClient]);
       })
@@ -40,7 +52,15 @@ export class ClientsService {
   }
 
   updateClient(id: string, client: ClientRequest): Observable<ClientResponse> {
-    return this.http.put<ClientResponse>(`${this.baseUrl}/clients/${id}`, client).pipe(
+    const apiRequest: ApiClientRequest = {
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      notes: client.notes
+    };
+
+    return this.http.put<ApiClientResponse>(`${this.baseUrl}/clients/${id}`, apiRequest).pipe(
+        map(api => this.mapToModel(api)),
         tap((updatedClient) => {
             this._clients.update(current => 
                 current.map(c => c.id === id ? updatedClient : c)
@@ -59,5 +79,16 @@ export class ClientsService {
 
   refreshClients(): Observable<ClientResponse[]> {
     return this.getClients();
+  }
+
+  private mapToModel(api: ApiClientResponse): ClientResponse {
+    return {
+      id: api.id || '',
+      name: api.name || '',
+      email: api.email || '',
+      phone: api.phone || '',
+      notes: api.notes || '',
+      createdAt: api.createdAt || ''
+    };
   }
 }

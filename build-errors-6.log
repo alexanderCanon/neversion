@@ -1,0 +1,174 @@
+
+> panel@1.0.0 build /home/alexavers/projects/neversion/apps/panel
+> ng build
+
+- Building...
+
+Application bundle generation failed. [18.771 seconds]
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:18:38:
+      18 │                 @if (service.details?.imageUrl) {
+         ╵                                       ~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:19:47:
+      19 │ ...img [src]="service.details?.imageUrl" alt="{{service.name}}" cl...
+         ╵                                ~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:28:106:
+      28 │ ...0px;">{{ service.details?.description || 'Sin descripción' }}<...
+         ╵                              ~~~~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:36:68:
+      36 │ ...      [ngClass]="getCategoryBadgeClass(service.details?.category)"
+         ╵                                                            ~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:37:68:
+      37 │ ...     [ngStyle]="getCategoryBadgeStyle(service.details?.category)">
+         ╵                                                           ~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/features/services/components/services-table/services-table.component.html:38:34:
+      38 │               {{ service.details?.category }}
+         ╵                                   ~~~~~~~~
+
+  Error occurs in the template of component ServicesTableComponent.
+
+    src/app/features/services/components/services-table/services-table.component.ts:9:15:
+      9 │   templateUrl: './services-table.component.html',
+        ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS2354: This syntax requires an imported helper but module 'tslib' cannot be found. [plugin angular-compiler]
+
+    ../../packages/api-client/src/api/subscriptions.service.ts:31:0:
+      31 │ @Injectable({
+         ╵ ~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS2353: Object literal may only specify known properties, and 'price' does not exist in type 'CreateSubscriptionRequest'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/components/subscription-form/subscription-form.component.ts:206:8:
+      206 │         price: formValue.price,
+          ╵         ~~~~~
+
+
+✘ [ERROR] NG9: Property 'purchaseDate' does not exist on type 'SubscriptionResponse'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.html:73:29:
+      73 │                   <td>{{ sub.purchaseDate }}</td>
+         ╵                              ~~~~~~~~~~~~
+
+  Error occurs in the template of component SubscriptionsListComponent.
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:15:15:
+      15 │   templateUrl: './subscriptions-list.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] NG5: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.html:76:70:
+      76 │ ...       <span class="badge" [ngClass]="getStatusClass(sub.status)">
+         ╵                                                             ~~~~~~
+
+  Error occurs in the template of component SubscriptionsListComponent.
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:15:15:
+      15 │   templateUrl: './subscriptions-list.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] NG5: Argument of type 'string | undefined' is not assignable to parameter of type 'string'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.html:77:44:
+      77 │                       {{ getStatusLabel(sub.status) }}
+         ╵                                             ~~~~~~
+
+  Error occurs in the template of component SubscriptionsListComponent.
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:15:15:
+      15 │   templateUrl: './subscriptions-list.component.html',
+         ╵                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:88:51:
+      88 │ ...bscriptionsService.cancelSubscription(subscription.id).subscribe({
+         ╵                                          ~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS18048: 'subscription.id' is possibly 'undefined'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:99:63:
+      99 │ ... suspender la suscripción ${subscription.id.slice(0, 8)}...?`)) {
+         ╵                              ~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:100:52:
+      100 │ ...criptionsService.suspendSubscription(subscription.id).subscribe({
+          ╵                                         ~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'. [plugin angular-compiler]
+
+    src/app/features/subscriptions/pages/subscriptions-list/subscriptions-list.component.ts:147:4:
+      147 │     return subscription.id;
+          ╵     ~~~~~~
+
+
+/home/alexavers/projects/neversion/apps/panel:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  panel@1.0.0 build: `ng build`
+Exit status 1
