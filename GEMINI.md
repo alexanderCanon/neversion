@@ -71,7 +71,7 @@ Uses `pnpm`.
 Uses `npm`.
 - **Install:** `npm install`
 - **Run:** `npm start`
-- **Build:** `npm run build`
+- **Build:** `npm build`
 
 ---
 
@@ -95,18 +95,36 @@ When acting as the senior engineer, the focus is strictly on **Angular (Frontend
 - **Style:** Standalone components, Signals, Reactive Forms, and clean RxJS patterns.
 - **Backend:** Explicitly state requirements/contracts but **DO NOT** modify code in `api/` unless authorized.
 
-## 🔄 Protocolo de Sincronización API
-Cuando el backend sufra cambios en sus contratos (Swagger/OpenAPI):
-1. **Sincronizar:** Ejecutar `pnpm run api:sync` (opcionalmente pasando `API_URL`).
-2. **Validar:** Revisar errores de compilación en `apps/panel` y `apps/store` derivados de cambios en los modelos de `@neversion/api-client`.
-3. **Refactorizar:** Actualizar componentes y servicios para consumir los nuevos contratos.
+## ⚖️ Interaction and Planning Protocol (Research First)
+For any requested task (bug report, new feature, or refactoring), the following order MUST be followed:
+1. **Analysis & Diagnosis:** Before any change, explain the identified error, its root cause, and its impact on the system.
+2. **Proposed Solution:** Detail the technical strategy to resolve it.
+3. **Implementation Plan:** List the specific steps to be taken.
+4. **Git Branching:** Create a dedicated branch for the task before making any file modifications (e.g., `git checkout -b feat/task-name`).
+5. **Confirmation:** Wait for user approval before proceeding with execution (Act), unless the user has given a direct and explicit execution instruction like "execute" or "fix now".
+6. **Validation & Commit:** After implementation, verify the changes (build/test). If successful, commit the changes with a descriptive message.
 
-## 📓 Session & Task Logging
-In every session, for each task, a **Short-Term Memory Log (Bitácora)** must be maintained to ensure a clean and traceable workflow:
-- **Objective:** Main goal of the current task.
-- **Changes:** Summary of modified files and logic.
-- **Pending:** Tasks left for the next turn or session.
-- **Backend Needs:** Any API changes required to support the frontend.
-- **Identity Provider:** Supabase Auth.
-- **Resource Server:** Spring Boot validates JWT signature via Supabase JWKS.
-- **Roles:** Permissions are managed via JWT claims (`app_metadata`).
+*Note:* Even if "Plan Mode" is not explicitly activated, this Analysis -> Plan process remains mandatory via text before modifying code.
+
+## 🔄 API Synchronization Protocol
+When the backend undergoes changes in its contracts (Swagger/OpenAPI):
+1. **Sync:** Run `pnpm run api:sync` (optionally passing `API_URL`).
+2. **Validate:** Review compilation errors in `apps/panel` and `apps/store` resulting from changes in `@neversion/api-client` models.
+3. **Refactor:** Update components and services to consume the new contracts.
+
+## 📓 Session & Task Logging (2026-04-21)
+- **Objective:** Fix panel build errors and sync with new API contracts generated via OpenAPI.
+- **Changes:**
+  - Configured `tsconfig.json` and `pnpm-workspace.yaml` for workspace package resolution.
+  - Resolved `tslib` and `@angular/core` dependencies for `@neversion/api-client`.
+  - Implemented Data Mappers in `AccountsService`, `ClientsService`, `ReservationsService`, and `ServicesDataService`.
+  - Refactored `SubscriptionFormComponent` to align with the new `CreateSubscriptionRequest` (removed `price`, added `accountId`).
+  - Fixed `OrdersListComponent` and `ReservationsListComponent` template type errors (undefined properties).
+- **Pending:**
+  - Verify if remaining features (Dashboard, Profiles) need deeper contract synchronization.
+- **Backend Needs:**
+  - The API currently lacks the `price` field in `CreateSubscriptionRequest`; verify if this is intentional or if it should be handled differently.
+- **Status:** Panel build is successful (`exit 0`).
+
+---
+*End of Session Log*
