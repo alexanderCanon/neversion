@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { AuthService, User } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
+import { User } from '@neversion/models';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 

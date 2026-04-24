@@ -12,15 +12,16 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { LoginComponent } from './pages/login/login.component';
-import { AuthGuard } from './guards/auth.guard';
-import { GuestGuard } from './guards/guest.guard';
+import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
+import { roleGuard } from './guards/role.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
   { 
     path: 'login', 
     component: LoginComponent,
-    canActivate: [GuestGuard]
+    canActivate: [guestGuard]
   },
   { path: 'contact', component: ContactComponent },
   { path: 'payment-methods', component: PaymentMethodsComponent },
@@ -32,12 +33,19 @@ const routes: Routes = [
   { 
     path: 'checkout', 
     component: CheckoutComponent,
-    canActivate: [AuthGuard]
+    canActivate: [authGuard]
   },
   { 
     path: 'admin', 
     component: AdminComponent,
-    canActivate: [AuthGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['super_admin'] }
+  },
+  { 
+    path: 'customer-panel', 
+    loadChildren: () => import('./pages/customer-panel/customer-panel.module').then(m => m.CustomerPanelModule),
+    canActivate: [authGuard, roleGuard],
+    data: { allowedRoles: ['cliente'] }
   },
   { path: 'platforms/:platformId', component: PlatformDetailComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }

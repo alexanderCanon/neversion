@@ -28,7 +28,18 @@ export class LoginComponent {
 
         this.authService.signIn(email, password).subscribe({
             next: (result) => {
-                if (result.success) {
+                if (result.success && result.user) {
+                    const role = result.user.role;
+                    
+                    if (role === 'cliente') {
+                        // User story US-014: If a client tries to log in here, redirect to store or deny.
+                        // For now, we sign out and show error.
+                        this.authService.signOut().subscribe();
+                        this.errorMessage.set('Este panel es exclusivo para administradores y vendedores.');
+                        return;
+                    }
+
+                    // Success for super_admin or vendedor
                     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/dashboard';
                     this.router.navigate([returnUrl], { replaceUrl: true });
                 } else {
@@ -45,9 +56,6 @@ export class LoginComponent {
         return this.authService.isLoading();
     }
 
-    /**
-     * Map raw Supabase errors to concise user-friendly Spanish prompts
-     */
     private mapAuthError(raw: string): string {
         if (raw.includes('Invalid login credentials')) return 'Correo o contraseña incorrectos';
         if (raw.includes('Email not confirmed'))        return 'Confirma tu correo antes de ingresar';

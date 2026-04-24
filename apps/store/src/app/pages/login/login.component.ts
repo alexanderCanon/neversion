@@ -13,7 +13,8 @@ export class LoginComponent implements OnInit {
   showPassword: boolean = false;
   loginForm!: FormGroup;
   registerForm!: FormGroup;
-  isLoading: boolean = false;
+  
+  isLoading$ = this.authService.isLoading$;
   errorMessage: string | null = null;
 
   constructor(
@@ -50,18 +51,16 @@ export class LoginComponent implements OnInit {
   onLoginSubmit(): void {
     if (this.loginForm.invalid) return;
 
-    this.isLoading = true;
     this.errorMessage = null;
-
     const { email, password } = this.loginForm.value;
+    
     this.authService.login(email, password).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = 'Credenciales inválidas. Por favor intente de nuevo.';
+      next: (result) => {
+        if (result.success && result.user) {
+          this.handleRedirect(result.user.role);
+        } else {
+          this.errorMessage = result.error || 'Credenciales inválidas.';
+        }
       }
     });
   }
@@ -69,18 +68,28 @@ export class LoginComponent implements OnInit {
   onRegisterSubmit(): void {
     if (this.registerForm.invalid) return;
 
-    this.isLoading = true;
     this.errorMessage = null;
-
     this.authService.register(this.registerForm.value).subscribe({
-      next: () => {
-        this.isLoading = false;
-        this.router.navigate(['/']);
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMessage = 'Hubo un error al registrarse. Por favor intente de nuevo.';
+      next: (result) => {
+        if (result.success) {
+          alert('¡Registro exitoso! Por favor verifica tu correo si es necesario.');
+          this.handleRedirect('cliente');
+        } else {
+          this.errorMessage = result.error || 'Error al registrarse.';
+        }
       }
     });
+  }
+
+  private handleRedirect(role: string): void {
+    if (role === 'cliente') {
+      // User Story US-014: Clients go to their specific area in store
+      this.router.navigate(['/customer-panel']);
+    } else {
+      // Vendedores or admins might log in here by mistake, or maybe it's allowed.
+      // We could redirect to the panel app (external URL) or just '/'
+      alert('Bienvenido. Redirigiendo al Panel de Administración...');
+      window.location.href = '/panel'; // Assuming /panel is the base path or handled by proxy
+    }
   }
 }

@@ -1,19 +1,9 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, map, tap } from 'rxjs/operators';
-
-export interface User {
-  id: string;
-  email: string;
-  role: 'cliente' | 'vendedor' | 'super_admin';
-  name?: string;
-  lastname?: string;
-}
-
-export interface AuthResponse {
-  user: User | null;
-  token: string | null;
-}
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { SupabaseService } from './supabase.service';
+import { User as SupaUser, AuthResponse } from '@supabase/supabase-js';
+import { User, AuthResult, UserRole } from '@neversion/models';
 
 @Injectable({
   providedIn: 'root'
@@ -21,72 +11,99 @@ export interface AuthResponse {
 export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  
+  private isLoadingSubject = new BehaviorSubject<boolean>(false);
+  public isLoading$ = this.isLoadingSubject.asObservable();
 
-  constructor() {
-    // Try to load user from localStorage if exists
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
-      this.currentUserSubject.next(JSON.parse(storedUser));
-    }
+  constructor(private supabaseService: SupabaseService) {
+    this.restoreSession();
+    this.listenToAuthChanges();
   }
 
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
 
-  login(email: string, password: string): Observable<AuthResponse> {
-    // Mocking login logic
-    return of({
-      user: {
-        id: 'mock-id-123',
-        email: email,
-        role: 'cliente',
-        name: 'Cliente',
-        lastname: 'Prueba'
-      } as User,
-      token: 'mock-jwt-token'
-    }).pipe(
-      delay(1000), // Simulate network delay
-      tap(response => {
-        if (response.user) {
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
-          localStorage.setItem('token', response.token!);
-          this.currentUserSubject.next(response.user);
-        }
-      })
+  login(email: string, password: string): Observable<AuthResult> {
+    this.isLoadingSubject.next(true);
+    const promise = this.supabaseService.client.auth.signInWithPassword({ email, password });
+
+    return from(promise).pipe(
+      map(response => this.handleAuthResponse(response)),
+      catchError(err => this.handleError(err)),
+      tap(() => this.isLoadingSubject.next(false))
     );
   }
 
-  register(userData: any): Observable<AuthResponse> {
-    // Mocking registration logic
-    return of({
-      user: {
-        id: 'mock-id-new',
-        email: userData.email,
-        role: 'cliente',
-        name: userData.name,
-        lastname: userData.lastname
-      } as User,
-      token: 'mock-jwt-token-new'
-    }).pipe(
-      delay(1000),
-      tap(response => {
-        if (response.user) {
-          localStorage.setItem('currentUser', JSON.stringify(response.user));
-          localStorage.setItem('token', response.token!);
-          this.currentUserSubject.next(response.user);
+  register(userData: any): Observable<AuthResult> {
+    this.isLoadingSubject.next(true);
+    
+    // For US-013, we need to send name, lastname and phone in metadata
+    // and also the role 'cliente'.
+    const promise = this.supabaseService.client.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        data: {
+          name: userData.name,
+          lastname: userData.lastname,
+          phone: userData.phone,
+          role: 'cliente' as UserRole
         }
-      })
+      }
+    });
+
+    return from(promise).pipe(
+      map(response => this.handleAuthResponse(response)),
+      catchError(err => this.handleError(err)),
+      tap(() => this.isLoadingSubject.next(false))
     );
   }
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
-    this.currentUserSubject.next(null);
+    this.supabaseService.client.auth.signOut().then(() => {
+      this.currentUserSubject.next(null);
+    });
   }
 
-  isLoggedIn(): boolean {
-    return !!this.currentUserValue;
+  private handleAuthResponse(response: AuthResponse): AuthResult {
+    const { data, error } = response;
+    if (error) {
+      return { success: false, user: null, error: error.message };
+    }
+
+    const mappedUser: User = {
+      id: data.user?.id || '',
+      email: data.user?.email || '',
+      role: (data.user?.user_metadata?.['role'] as UserRole) || 'cliente',
+      name: data.user?.user_metadata?.['name'],
+      lastname: data.user?.user_metadata?.['lastname'],
+      phone: data.user?.user_metadata?.['phone']
+    };
+
+    this.currentUserSubject.next(mappedUser);
+    return { success: true, user: mappedUser, error: null };
+  }
+
+  private handleError(err: any): Observable<AuthResult> {
+    const message = err.message || 'Error de autenticación';
+    return of({ success: false, user: null, error: message });
+  }
+
+  private async restoreSession() {
+    const { data: { session } } = await this.supabaseService.client.auth.getSession();
+    if (session) {
+      this.handleAuthResponse({ data: session, error: null } as any);
+    }
+  }
+
+  private listenToAuthChanges() {
+    this.supabaseService.client.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        this.handleAuthResponse({ data: session, error: null } as any);
+      } else {
+        this.currentUserSubject.next(null);
+      }
+    });
   }
 }
