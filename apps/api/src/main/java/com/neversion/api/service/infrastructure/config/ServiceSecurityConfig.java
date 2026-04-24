@@ -7,7 +7,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import com.neversion.api.config.HttpSecurityCustomizer;
 
 /**
- * Services: GET is public (catalog browsing), mutating is ADMIN-only.
+ * Services: GET is public (catalog browsing on the store).
+ * Mutations (POST/PUT/DELETE) are vendor + super_admin only.
+ * US-015 / ADR-08: RBAC aligned with platform roles.
  */
 @Configuration
 public class ServiceSecurityConfig implements HttpSecurityCustomizer {
@@ -16,8 +18,11 @@ public class ServiceSecurityConfig implements HttpSecurityCustomizer {
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/v1/services/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/services/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/services/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/services/**").hasRole("ADMIN"));
+                .requestMatchers(HttpMethod.POST, "/api/v1/services/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/services/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/services/**")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN"));
     }
 }
