@@ -41,7 +41,7 @@ export class AccountsService {
       email: account.email,
       pass: account.password,
       serviceId: account.serviceId,
-      saleMode: account.saleMode as any,
+      saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum,
       renewalDate: account.renewalDate,
       notes: account.notes
     };
@@ -72,7 +72,7 @@ export class AccountsService {
       email: api.email || '',
       password: api.pass || '',
       serviceId: api.serviceId || 0,
-      saleMode: api.saleMode as any,
+      saleMode: api.saleMode as unknown as AccountResponse['saleMode'],
       renewalDate: api.renewalDate || '',
       notes: api.notes || '',
       plan: api.plan || '',
