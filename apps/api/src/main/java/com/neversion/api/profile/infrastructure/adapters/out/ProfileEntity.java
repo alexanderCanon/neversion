@@ -64,6 +64,10 @@ public class ProfileEntity {
     @Column(name = "is_owner", nullable = false)
     private Boolean isOwner;
 
+    /** FK to vendors.id — multi-tenancy (ADR-02). DB FK by V16. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

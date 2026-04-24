@@ -43,16 +43,20 @@ public class Profile {
      */
     private Boolean isOwner;
 
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02). */
+    private Long vendorId;
+
     private LocalDateTime createdAt;
 
     public Profile(Long id, UUID uuid, Long accountId, String name, String pin,
-            Boolean isOwner, LocalDateTime createdAt) {
+            Boolean isOwner, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.accountId = accountId;
         this.name = name;
         this.pin = pin;
         this.isOwner = isOwner;
+        this.vendorId = vendorId;
         this.createdAt = createdAt;
     }
 }
