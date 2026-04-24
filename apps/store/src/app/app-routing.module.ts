@@ -12,10 +12,16 @@ import { AdminComponent } from './pages/admin/admin.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { LoginComponent } from './pages/login/login.component';
+import { AuthGuard } from './guards/auth.guard';
+import { GuestGuard } from './guards/guest.guard';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
-  { path: 'login', component: LoginComponent },
+  { 
+    path: 'login', 
+    component: LoginComponent,
+    canActivate: [GuestGuard]
+  },
   { path: 'contact', component: ContactComponent },
   { path: 'payment-methods', component: PaymentMethodsComponent },
   { path: 'offers', component: OffersComponent },
@@ -23,8 +29,16 @@ const routes: Routes = [
   { path: 'platforms', component: PlatformsComponent },
   { path: 'combo', component: ComboComponent },
   { path: 'wholesalers', component: WholesalersComponent },
-  { path: 'checkout', component: CheckoutComponent },
-  { path: 'admin', component: AdminComponent },
+  { 
+    path: 'checkout', 
+    component: CheckoutComponent,
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: 'admin', 
+    component: AdminComponent,
+    canActivate: [AuthGuard]
+  },
   { path: 'platforms/:platformId', component: PlatformDetailComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }
 ];

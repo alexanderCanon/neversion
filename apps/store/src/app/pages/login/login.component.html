@@ -6,16 +6,22 @@
                 <div class="card shadow-sm border rounded-3 p-4">
                     <div class="card-body">
 
+                        <!-- Error Message Alert -->
+                        <div *ngIf="errorMessage" class="alert alert-danger small py-2 mb-3">
+                            {{ errorMessage }}
+                        </div>
+
                         <!-- Login Mode -->
                         <div *ngIf="isLoginMode">
 
                             <h3 class="mb-4 text-dark fw-bold">Acceder</h3>
 
-                            <form>
+                            <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
                                 <!-- Email Input -->
                                 <div class="mb-3">
                                     <label for="loginEmail" class="form-label small fw-bold">Correo electrónico</label>
-                                    <input type="email" class="form-control" id="loginEmail">
+                                    <input type="email" class="form-control" id="loginEmail" formControlName="email"
+                                        [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
                                 </div>
 
                                 <!-- Password Input -->
@@ -23,7 +29,8 @@
                                     <label for="loginPassword" class="form-label small fw-bold">Contraseña</label>
                                     <div class="input-group">
                                         <input [type]="showPassword ? 'text' : 'password'"
-                                            class="form-control border-end-0" id="loginPassword">
+                                            class="form-control border-end-0" id="loginPassword" formControlName="password"
+                                            [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
                                         <span
                                             class="input-group-text bg-white border-start-0 cursor-pointer text-primary fw-bold small"
                                             (click)="togglePassword()">
@@ -40,7 +47,10 @@
 
                                 <!-- Main Action Button -->
                                 <div class="d-grid gap-2 mb-4">
-                                    <button type="submit" class="btn btn-primary fw-bold py-2">Acceder</button>
+                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="loginForm.invalid || isLoading">
+                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        {{ isLoading ? 'Cargando...' : 'Acceder' }}
+                                    </button>
                                 </div>
 
                                 <!-- Separator -->
@@ -81,16 +91,18 @@
                                 más rápidamente!
                             </p>
 
-                            <form>
+                            <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()">
                                 <!-- Name & Lastname Row -->
                                 <div class="row g-2 mb-2">
                                     <div class="col-6">
                                         <label for="regName" class="form-label small fw-bold">Nombre</label>
-                                        <input type="text" class="form-control" id="regName">
+                                        <input type="text" class="form-control" id="regName" formControlName="name"
+                                            [class.is-invalid]="registerForm.get('name')?.invalid && registerForm.get('name')?.touched">
                                     </div>
                                     <div class="col-6">
                                         <label for="regLastname" class="form-label small fw-bold">Apellido</label>
-                                        <input type="text" class="form-control" id="regLastname">
+                                        <input type="text" class="form-control" id="regLastname" formControlName="lastname"
+                                            [class.is-invalid]="registerForm.get('lastname')?.invalid && registerForm.get('lastname')?.touched">
                                     </div>
                                 </div>
 
@@ -113,7 +125,8 @@
                                 <!-- Email -->
                                 <div class="mb-2">
                                     <label for="regEmail" class="form-label small fw-bold">Correo electrónico</label>
-                                    <input type="email" class="form-control" id="regEmail">
+                                    <input type="email" class="form-control" id="regEmail" formControlName="email"
+                                        [class.is-invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
                                 </div>
 
                                 <!-- Phone -->
@@ -121,7 +134,8 @@
                                     <label for="regPhone" class="form-label small fw-bold">Teléfono</label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light text-muted border-end-0">+502</span>
-                                        <input type="tel" class="form-control border-start-0 ps-1" id="regPhone">
+                                        <input type="tel" class="form-control border-start-0 ps-1" id="regPhone" formControlName="phone"
+                                            [class.is-invalid]="registerForm.get('phone')?.invalid && registerForm.get('phone')?.touched">
                                     </div>
                                 </div>
 
@@ -130,7 +144,8 @@
                                     <label for="regPassword" class="form-label small fw-bold">Contraseña</label>
                                     <div class="input-group">
                                         <input [type]="showPassword ? 'text' : 'password'"
-                                            class="form-control border-end-0" id="regPassword">
+                                            class="form-control border-end-0" id="regPassword" formControlName="password"
+                                            [class.is-invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
                                         <span
                                             class="input-group-text bg-white border-start-0 cursor-pointer text-primary fw-bold small"
                                             (click)="togglePassword()">
@@ -151,7 +166,7 @@
 
                                 <!-- Checkboxes -->
                                 <div class="mb-2 form-check">
-                                    <input type="checkbox" class="form-check-input" id="checkNewsletter">
+                                    <input type="checkbox" class="form-check-input" id="checkNewsletter" formControlName="checkNewsletter">
                                     <label class="form-check-label small text-muted lh-sm" for="checkNewsletter">
                                         Aceptas que te enviemos correos con información sobre tus suscripciones activas,
                                         renovaciones, ofertas y más.
@@ -159,7 +174,8 @@
                                 </div>
 
                                 <div class="mb-4 form-check">
-                                    <input type="checkbox" class="form-check-input" id="checkCookies">
+                                    <input type="checkbox" class="form-check-input" id="checkCookies" formControlName="checkCookies"
+                                        [class.is-invalid]="registerForm.get('checkCookies')?.invalid && registerForm.get('checkCookies')?.touched">
                                     <label class="form-check-label small text-muted lh-sm" for="checkCookies">
                                         Acepto el uso de cookies.
                                     </label>
@@ -167,7 +183,10 @@
 
                                 <!-- Submit Button -->
                                 <div class="d-grid gap-2 mb-4">
-                                    <button type="submit" class="btn btn-primary fw-bold py-2">Crear una cuenta</button>
+                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="registerForm.invalid || isLoading">
+                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        {{ isLoading ? 'Creando cuenta...' : 'Crear una cuenta' }}
+                                    </button>
                                 </div>
 
                                 <!-- Separator & Google -->

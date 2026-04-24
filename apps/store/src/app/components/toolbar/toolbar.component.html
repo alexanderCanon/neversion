@@ -35,10 +35,25 @@
         <img src="/assets/cart.svg" alt="Cart" class="cart-icon">
       </a>
 
-      <button routerLink="login" routerLinkActive="active" type="button"
-        class="btn btn-primary rounded-pill px-4 login-btn">
-        Iniciar Sesión
-      </button>
+      <ng-container *ngIf="currentUser$ | async as user; else loginBtn">
+        <div class="dropdown">
+          <button class="btn btn-outline-primary dropdown-toggle rounded-pill px-4" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ user.name }}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item py-2" routerLink="admin"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item py-2 text-danger" href="javascript:void(0)" (click)="logout()"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </ng-container>
+
+      <ng-template #loginBtn>
+        <button routerLink="login" routerLinkActive="active" type="button"
+          class="btn btn-primary rounded-pill px-4 login-btn">
+          Iniciar Sesión
+        </button>
+      </ng-template>
     </div>
 
   </div>

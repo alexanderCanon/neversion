@@ -1,30 +1,10 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
-import { User, Session, AuthResponse } from '@supabase/supabase-js';
+import { User as SupaUser, Session, AuthResponse } from '@supabase/supabase-js';
 import { Observable, from, of } from 'rxjs';
-import { map, tap, catchError, finalize } from 'rxjs/operators';
-
-export interface RegisterProfile {
-    email: string;
-    password: string;
-    // metadata in auth.users (raw_user_meta_data)
-    name: string;
-    lastname: string;
-    phone: string;
-}
-
-export interface LoginProfile {
-    email: string;
-    password: string;
-}
-
-export interface AuthResult {
-    success: boolean;
-    user: User | null;
-    session: Session | null;
-    error: string | null;
-}
+import { map, catchError, finalize } from 'rxjs/operators';
+import { User, AuthResult, UserRole, RegisterVendorRequest } from '@neversion/models';
 
 @Injectable({
     providedIn: 'root'
@@ -35,7 +15,7 @@ export class AuthService {
     private readonly router = inject(Router);
 
     // ── Reactive State (Signals) ──────────────────────────────────
-    private readonly _currentUser = signal<User | null>(null);
+    private readonly _currentUser = signal<SupaUser | null>(null);
     private readonly _currentSession = signal<Session | null>(null);
     private readonly _isLoading = signal<boolean>(false);
     private readonly _errorMessage = signal<string | null>(null);
@@ -46,6 +26,22 @@ export class AuthService {
     readonly isLoading = this._isLoading.asReadonly();
     readonly errorMessage = this._errorMessage.asReadonly();
     readonly isAuthenticated = computed(() => this._currentUser() !== null);
+    
+    /**
+     * Role resolution. 
+     * In a real scenario, this would come from user metadata or a database query.
+     */
+    readonly userRole = computed<UserRole | null>(() => {
+        const user = this._currentUser();
+        if (!user) return null;
+        
+        // Priority to metadata if exists
+        const metaRole = user.user_metadata?.['role'] as UserRole;
+        if (metaRole) return metaRole;
+
+        // Fallback Mock logic: admin emails are super_admin, others are vendedor
+        return user.email?.includes('admin') ? 'super_admin' : 'vendedor';
+    });
 
     constructor() {
         this.listenToAuthChanges();
@@ -54,10 +50,6 @@ export class AuthService {
 
     // ── Initialization ────────────────────────────────────────────
 
-    /**
-     * Public method to block app initialization until the existing session (if any)
-     * is fully restored from Supabase. Used by APP_INITIALIZER.
-     */
     async initialize(): Promise<void> {
         await this.restoreSession();
     }
@@ -80,7 +72,6 @@ export class AuthService {
                 return of<AuthResult>({
                     success: false,
                     user: null,
-                    session: null,
                     error: message,
                 });
             }),
@@ -88,19 +79,21 @@ export class AuthService {
         );
     }
 
-    // ── Sign Up (stub for future use) ────────────────────────────
-    signUp(profile: RegisterProfile): Observable<AuthResult> {
+    // ── Sign Up (Vendor) ─────────────────────────────────────────
+    signUpVendor(request: RegisterVendorRequest): Observable<AuthResult> {
         this._isLoading.set(true);
         this._errorMessage.set(null);
 
         const promise = this.supabaseService.client.auth.signUp({
-            email: profile.email,
-            password: profile.password,
+            email: request.email,
+            password: request.password || 'TemporaryPassword123!', // Backend should ideally handle password setting
             options: {
                 data: {
-                    name: profile.name,
-                    lastname: profile.lastname,
-                    phone: profile.phone,
+                    name: request.name,
+                    lastname: request.lastname,
+                    phone: request.phone,
+                    store_name: request.storeName,
+                    role: 'vendedor' as UserRole
                 },
             },
         });
@@ -108,12 +101,11 @@ export class AuthService {
         return from(promise).pipe(
             map((response: AuthResponse) => this.handleAuthResponse(response)),
             catchError((err: unknown) => {
-                const message = err instanceof Error ? err.message : 'Error inesperado al registrarse';
+                const message = err instanceof Error ? err.message : 'Error inesperado al registrar vendedor';
                 this._errorMessage.set(message);
                 return of<AuthResult>({
                     success: false,
                     user: null,
-                    session: null,
                     error: message,
                 });
             }),
@@ -147,50 +139,8 @@ export class AuthService {
         );
     }
 
-    // ── Get Current User ─────────────────────────────────────────
-    getCurrentUser(): Observable<User | null> {
-        return from(this.supabaseService.client.auth.getUser()).pipe(
-            map(({ data }) => data.user),
-            tap((user) => this._currentUser.set(user)),
-            catchError(() => of(null)),
-        );
-    }
-
-    // ── Reset Password ───────────────────────────────────────────
-    resetPassword(email: string): Observable<{ success: boolean; error: string | null }> {
-        this._isLoading.set(true);
-        this._errorMessage.set(null);
-
-        const promise = this.supabaseService.client.auth.resetPasswordForEmail(email);
-
-        return from(promise).pipe(
-            map(({ error }) => {
-                if (error) {
-                    this._errorMessage.set(error.message);
-                    return { success: false, error: error.message };
-                }
-                return { success: true, error: null };
-            }),
-            catchError((err: unknown) => {
-                const message = err instanceof Error ? err.message : 'Error inesperado al enviar el correo';
-                this._errorMessage.set(message);
-                return of({ success: false, error: message });
-            }),
-            finalize(() => this._isLoading.set(false)),
-        );
-    }
-
-    // ── Clear Error ───────────────────────────────────────────────
-    clearError(): void {
-        this._errorMessage.set(null);
-    }
-
     // ── Private Helpers ───────────────────────────────────────────
 
-    /**
-     * Processes the Supabase AuthResponse, updates local state,
-     * and returns a normalised AuthResult.
-     */
     private handleAuthResponse(response: AuthResponse): AuthResult {
         const { data, error } = response;
 
@@ -199,24 +149,29 @@ export class AuthService {
             return {
                 success: false,
                 user: null,
-                session: null,
                 error: error.message,
             };
         }
 
         this._currentUser.set(data.user);
         this._currentSession.set(data.session);
+
+        const mappedUser: User = {
+            id: data.user?.id || '',
+            email: data.user?.email || '',
+            role: (data.user?.user_metadata?.['role'] as UserRole) || 'vendedor',
+            name: data.user?.user_metadata?.['name'],
+            lastname: data.user?.user_metadata?.['lastname'],
+            phone: data.user?.user_metadata?.['phone']
+        };
+
         return {
             success: true,
-            user: data.user,
-            session: data.session,
+            user: mappedUser,
             error: null,
         };
     }
 
-    /**
-     * Restores the existing session (if any) when the service initialises.
-     */
     private async restoreSession(): Promise<void> {
         try {
             const { data: { session }, error } = await this.supabaseService.client.auth.getSession();
@@ -235,16 +190,11 @@ export class AuthService {
         }
     }
 
-    /**
-     * Subscribes to Supabase auth state changes (login, logout, token refresh)
-     * and keeps the local signals in sync.
-     */
     private listenToAuthChanges(): void {
         this.supabaseService.client.auth.onAuthStateChange((event, session) => {
             this._currentUser.set(session?.user ?? null);
             this._currentSession.set(session ?? null);
 
-            // If the user logs out from another tab, redirect this tab to login page
             if (event === 'SIGNED_OUT') {
                 this.router.navigate(['/login'], { replaceUrl: true });
             }
