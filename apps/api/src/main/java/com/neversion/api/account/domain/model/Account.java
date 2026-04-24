@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -57,11 +58,28 @@ public class Account {
     /** Private admin-only notes for this account. */
     private String notes;
 
+    /** Acquisition cost paid to the wholesaler (US-006). */
+    private java.math.BigDecimal cost;
+
+    /** Where this account was purchased from (US-006). */
+    private String source;
+
+    /** Date the account was purchased from the wholesaler (US-006). */
+    private LocalDate purchasedAt;
+
+    /** Operational status: available | partial | full | expired (US-006). */
+    @Builder.Default
+    private AccountStatus status = AccountStatus.AVAILABLE;
+
+    /** FK to vendors.id — multi-tenancy (ADR-02, US-006). */
+    private Long vendorId;
+
     private LocalDateTime createdAt;
 
     public Account(Long id, UUID uuid, Long serviceId, String email, String password,
             LocalDate renewalDate, String plan, SaleMode saleMode, String notes,
-            LocalDateTime createdAt) {
+            java.math.BigDecimal cost, String source, LocalDate purchasedAt,
+            AccountStatus status, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.serviceId = serviceId;
@@ -71,6 +89,11 @@ public class Account {
         this.plan = plan;
         this.saleMode = saleMode;
         this.notes = notes;
+        this.cost = cost;
+        this.source = source;
+        this.purchasedAt = purchasedAt;
+        this.status = status;
+        this.vendorId = vendorId;
         this.createdAt = createdAt;
     }
 }

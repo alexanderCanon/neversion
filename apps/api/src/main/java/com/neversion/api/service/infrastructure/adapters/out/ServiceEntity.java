@@ -76,6 +76,35 @@ public class ServiceEntity {
     @Column(name = "category", nullable = false, length = 50)
     private CategoryType category;
 
+    /** FK to vendors.id — multi-tenancy catalog isolation (ADR-02, US-004). DB FK by V10. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
+
+    /** Human-readable description (US-005). */
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    /** URL to the service image/logo (US-005). */
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
+    /** Price per individual profile sale (US-005). */
+    @Column(name = "price_profile", precision = 10, scale = 2)
+    private java.math.BigDecimal priceProfile;
+
+    /** Price for full account sale (US-005). */
+    @Column(name = "price_full", precision = 10, scale = 2)
+    private java.math.BigDecimal priceFull;
+
+    /** Subscription duration in days (US-005). */
+    @Column(name = "duration_days")
+    private Integer durationDays;
+
+    /** Whether this service is currently available for sale (US-005). */
+    @Column(name = "is_active", nullable = false)
+    @lombok.Builder.Default
+    private Boolean isActive = true;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

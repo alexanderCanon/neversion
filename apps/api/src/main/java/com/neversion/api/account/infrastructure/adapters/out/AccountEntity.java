@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.infrastructure.adapters.out.converter.SaleModeConverter;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
+import com.neversion.api.shared.domain.model.enums.AccountStatusConverter;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -83,6 +85,28 @@ public class AccountEntity {
     /** Private admin notes about this account. */
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    /** Acquisition cost paid to the wholesaler (US-006). */
+    @Column(name = "cost", precision = 10, scale = 2)
+    private java.math.BigDecimal cost;
+
+    /** Where this account was purchased from (US-006). */
+    @Column(name = "source", length = 255)
+    private String source;
+
+    /** Date the account was purchased from the wholesaler (US-006). */
+    @Column(name = "purchased_at")
+    private LocalDate purchasedAt;
+
+    /** Operational status: available | partial | full | expired (US-006). */
+    @Convert(converter = AccountStatusConverter.class)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private AccountStatus status = AccountStatus.AVAILABLE;
+
+    /** FK to vendors.id — multi-tenancy (ADR-02, US-006). DB FK by V12. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

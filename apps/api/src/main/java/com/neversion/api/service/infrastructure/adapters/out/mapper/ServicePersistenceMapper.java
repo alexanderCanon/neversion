@@ -14,9 +14,16 @@ public class ServicePersistenceMapper {
                 .id(entity.getId())
                 .uuid(entity.getUuid())
                 .name(entity.getName())
+                .vendorId(entity.getVendorId())
                 .maxProfiles(entity.getMaxProfiles())
                 .details(entity.getDetails())
                 .category(entity.getCategory())
+                .description(entity.getDescription())
+                .imageUrl(entity.getImageUrl())
+                .priceProfile(entity.getPriceProfile())
+                .priceFull(entity.getPriceFull())
+                .durationDays(entity.getDurationDays())
+                .isActive(entity.getIsActive())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -27,9 +34,16 @@ public class ServicePersistenceMapper {
                 .id(domain.getId())
                 .uuid(domain.getUuid())
                 .name(domain.getName())
+                .vendorId(domain.getVendorId())
                 .maxProfiles(domain.getMaxProfiles())
                 .details(domain.getDetails())
                 .category(domain.getCategory())
+                .description(domain.getDescription())
+                .imageUrl(domain.getImageUrl())
+                .priceProfile(domain.getPriceProfile())
+                .priceFull(domain.getPriceFull())
+                .durationDays(domain.getDurationDays())
+                .isActive(domain.getIsActive())
                 .createdAt(domain.getCreatedAt())
                 .build();
     }

@@ -28,6 +28,12 @@ public class Client {
     /** External identifier — exposed to the frontend instead of the numeric id. */
     private UUID uuid;
 
+    /** FK to users.id — the authenticated identity behind this client (US-003). */
+    private Long userId;
+
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02, US-003). */
+    private Long vendorId;
+
     private String name;
 
     /** Primary contact channel — used for WhatsApp automation reminders. */
@@ -45,10 +51,12 @@ public class Client {
     public Client() {
     }
 
-    public Client(Long id, UUID uuid, String name, String phone, String email,
+    public Client(Long id, UUID uuid, Long userId, Long vendorId, String name, String phone, String email,
             String notes, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
+        this.userId = userId;
+        this.vendorId = vendorId;
         this.name = name;
         this.phone = phone;
         this.email = email;
