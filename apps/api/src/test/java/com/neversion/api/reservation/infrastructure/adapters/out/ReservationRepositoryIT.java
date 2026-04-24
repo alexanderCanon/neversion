@@ -25,6 +25,9 @@ import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.ReservationDetail;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
+import com.neversion.api.service.domain.model.Service;
+import com.neversion.api.shared.domain.model.enums.CategoryType;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 
 @SpringBootTest
 @DisplayName("ReservationRepositoryPort integration tests")
@@ -37,9 +40,13 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
     private ClientRepositoryPort clientRepositoryPort;
 
     @Autowired
+    private ServiceRepositoryPort serviceRepositoryPort;
+
+    @Autowired
     private EntityManager entityManager;
 
     private Client parentClient;
+    private Service parentService;
 
     @BeforeEach
     void setUp() {
@@ -48,6 +55,12 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
                         .name("Reservation Client")
                         .phone("55500001111")
                         .email("res-client-" + System.nanoTime() + "@test.com")
+                        .build());
+        parentService = serviceRepositoryPort.save(
+                Service.builder()
+                        .name("Test Service " + System.nanoTime())
+                        .category(CategoryType.STREAMING)
+                        .maxProfiles(1)
                         .build());
     }
 
@@ -153,8 +166,9 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
 
         ReservationDetail detail = new ReservationDetail(
                 null,
+                null, // uuid generated on persist
                 saved.getId(),
-                1L,
+                parentService.getId(), // serviceId — FK satisfied
                 2,
                 new BigDecimal("50.00"),
                 null); // subtotal is GENERATED — do not set
@@ -170,7 +184,7 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
 
         // Then
         assertThat(details).hasSize(1);
-        assertThat(details.get(0).inventoryId()).isEqualTo(1L);
+        assertThat(details.get(0).serviceId()).isEqualTo(parentService.getId());
         assertThat(details.get(0).qty()).isEqualTo(2);
         assertThat(details.get(0).unitPrice()).isEqualByComparingTo(new BigDecimal("50.00"));
         assertThat(details.get(0).subtotal()).isEqualByComparingTo(new BigDecimal("100.00"));
@@ -192,7 +206,7 @@ class ReservationRepositoryIT extends BaseIntegrationTest {
         assertThat(affected).isGreaterThanOrEqualTo(1);
 
         // Verify the status was changed — need a fresh read
-        Optional<Reservation> reloaded = reservationRepositoryPort.findById(saved.getId());
+        Optional<Reservation> reloaded = reservationRepositoryPort.findByUuid(saved.getUuid());
         assertThat(reloaded).isPresent();
         assertThat(reloaded.get().getStatus()).isEqualTo(ReservationStatus.EXPIRED);
     }

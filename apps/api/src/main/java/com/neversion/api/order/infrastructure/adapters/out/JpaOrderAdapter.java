@@ -37,7 +37,7 @@ public class JpaOrderAdapter implements OrderRepositoryPort {
     }
 
     @Override
-    public Optional<Order> findByReservationId(UUID reservationId) {
+    public Optional<Order> findByReservationId(Long reservationId) {
         return orderRepo.findByReservationId(reservationId).map(orderMapper::toDomain);
     }
 }

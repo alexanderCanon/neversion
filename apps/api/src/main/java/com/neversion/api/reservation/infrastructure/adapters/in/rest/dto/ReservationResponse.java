@@ -8,7 +8,7 @@ import java.util.UUID;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 
 public record ReservationResponse(
-                UUID id,
+                UUID uuid,
                 UUID clientId,
                 ReservationStatus status,
                 BigDecimal discount,

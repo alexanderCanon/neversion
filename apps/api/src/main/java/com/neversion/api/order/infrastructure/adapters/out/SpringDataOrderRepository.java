@@ -12,5 +12,5 @@ interface SpringDataOrderRepository extends JpaRepository<OrderEntity, Long> {
 
     Optional<OrderEntity> findByUuid(UUID uuid);
 
-    Optional<OrderEntity> findByReservationId(UUID reservationId);
+    Optional<OrderEntity> findByReservationId(Long reservationId);
 }

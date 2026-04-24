@@ -9,5 +9,5 @@ import com.neversion.api.order.domain.model.Order;
  */
 public interface CreateOrderUseCase {
 
-    Order createFromReservation(UUID reservationId, String notes);
+    Order createFromReservation(Long reservationId, String notes);
 }

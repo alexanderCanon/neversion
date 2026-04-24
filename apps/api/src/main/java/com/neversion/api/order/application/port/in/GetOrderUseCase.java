@@ -12,5 +12,5 @@ public interface GetOrderUseCase {
 
     Optional<Order> getByUuid(UUID uuid);
 
-    Optional<Order> getByReservationId(UUID reservationId);
+    Optional<Order> getByReservationId(Long reservationId);
 }

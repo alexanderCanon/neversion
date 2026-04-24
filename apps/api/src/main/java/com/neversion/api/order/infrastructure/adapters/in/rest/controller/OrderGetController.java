@@ -51,7 +51,7 @@ public class OrderGetController {
     @ApiResponse(responseCode = "200", description = "Order found")
     @ApiResponse(responseCode = "404", description = "No order found for the given reservation")
     public ResponseEntity<OrderResponse> getByReservationId(
-            @Parameter(description = "Reservation UUID") @PathVariable UUID reservationId) {
+            @Parameter(description = "Reservation internal ID") @PathVariable Long reservationId) {
 
         Order order = getOrderUseCase.getByReservationId(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException(

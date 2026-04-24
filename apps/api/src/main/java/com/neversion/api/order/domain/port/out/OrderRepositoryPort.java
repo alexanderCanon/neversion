@@ -15,5 +15,5 @@ public interface OrderRepositoryPort {
 
     Optional<Order> findByUuid(UUID uuid);
 
-    Optional<Order> findByReservationId(UUID reservationId);
+    Optional<Order> findByReservationId(Long reservationId);
 }

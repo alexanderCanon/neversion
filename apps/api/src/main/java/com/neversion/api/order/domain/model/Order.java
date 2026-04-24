@@ -27,8 +27,8 @@ public class Order {
     /** External identifier — exposed via API (US-008). */
     private UUID uuid;
 
-    /** FK to reservations — stays as UUID until US-009 normalizes reservations. */
-    private UUID reservationId;
+    /** FK to reservations.id — BIGINT after US-009 normalization. */
+    private Long reservationId;
 
     /** FK to vendors.id — multi-tenancy (ADR-02, US-008). */
     private Long vendorId;
@@ -42,7 +42,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long id, UUID uuid, UUID reservationId, Long vendorId,
+    public Order(Long id, UUID uuid, Long reservationId, Long vendorId,
             OrderStatus status, String notes, Instant createdAt) {
         this.id = id;
         this.uuid = uuid;

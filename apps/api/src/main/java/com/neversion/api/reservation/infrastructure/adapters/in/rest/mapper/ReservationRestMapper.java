@@ -21,7 +21,7 @@ public class ReservationRestMapper {
             return Collections.emptyList();
         }
         return items.stream()
-                .map(item -> new ReservationItemCommand(item.inventoryId(), item.qty()))
+                .map(item -> new ReservationItemCommand(item.serviceId(), item.qty()))
                 .collect(Collectors.toList());
     }
 
@@ -33,7 +33,7 @@ public class ReservationRestMapper {
                         .collect(Collectors.toList());
 
         return new ReservationResponse(
-                reservation.getId(),
+                reservation.getUuid(),
                 reservation.getClientUuid(),
                 reservation.getStatus(),
                 reservation.getDiscount(),
@@ -46,8 +46,8 @@ public class ReservationRestMapper {
 
     private ReservationDetailResponse toDetailResponse(ReservationDetail detail) {
         return new ReservationDetailResponse(
-                detail.id(),
-                detail.inventoryId(),
+                detail.uuid(),
+                detail.serviceId(),
                 detail.qty(),
                 detail.unitPrice(),
                 detail.subtotal());

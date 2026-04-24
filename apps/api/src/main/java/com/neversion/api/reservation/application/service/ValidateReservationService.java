@@ -37,7 +37,7 @@ public class ValidateReservationService implements ValidateReservationUseCase {
     @Transactional
     public Reservation validate(UUID reservationId, String notes) {
 
-        Reservation reservation = reservationRepositoryPort.findById(reservationId)
+        Reservation reservation = reservationRepositoryPort.findByUuid(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + reservationId));
 
@@ -52,7 +52,7 @@ public class ValidateReservationService implements ValidateReservationUseCase {
         Reservation updated = reservationRepositoryPort.update(reservation);
 
         // Create the associated Order
-        createOrderUseCase.createFromReservation(reservationId, notes);
+        createOrderUseCase.createFromReservation(updated.getId(), notes);
 
         return updated;
     }

@@ -24,7 +24,7 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     @Override
-    public Optional<Order> getByReservationId(UUID reservationId) {
+    public Optional<Order> getByReservationId(Long reservationId) {
         return orderRepositoryPort.findByReservationId(reservationId);
     }
 }

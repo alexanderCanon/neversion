@@ -43,7 +43,7 @@ public class OrderEntity {
     private UUID uuid;
 
     @Column(name = "reservation_id")
-    private UUID reservationId;
+    private Long reservationId;
 
     /** FK to vendors.id — multi-tenancy (ADR-02, US-008). DB FK by V14. */
     @Column(name = "vendor_id")

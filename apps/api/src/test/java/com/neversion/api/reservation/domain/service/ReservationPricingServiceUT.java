@@ -25,8 +25,9 @@ class ReservationPricingServiceUT {
     private ReservationDetail buildDetail(int qty, String unitPrice) {
         return new ReservationDetail(
                 null,
-                null,
-                1L,
+                null, // uuid
+                null, // reservationId
+                1L,   // serviceId
                 qty,
                 new BigDecimal(unitPrice),
                 new BigDecimal(unitPrice).multiply(BigDecimal.valueOf(qty)));
