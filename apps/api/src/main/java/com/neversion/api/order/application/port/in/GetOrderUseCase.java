@@ -10,7 +10,7 @@ import com.neversion.api.order.domain.model.Order;
  */
 public interface GetOrderUseCase {
 
-    Optional<Order> getById(UUID id);
+    Optional<Order> getByUuid(UUID uuid);
 
     Optional<Order> getByReservationId(UUID reservationId);
 }

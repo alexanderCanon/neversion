@@ -84,6 +84,10 @@ public class SubscriptionEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    /** FK to vendors.id — multi-tenancy (ADR-02, US-007). DB FK by V13. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

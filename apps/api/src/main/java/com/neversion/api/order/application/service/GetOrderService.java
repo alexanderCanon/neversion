@@ -19,8 +19,8 @@ public class GetOrderService implements GetOrderUseCase {
     }
 
     @Override
-    public Optional<Order> getById(UUID id) {
-        return orderRepositoryPort.findById(id);
+    public Optional<Order> getByUuid(UUID uuid) {
+        return orderRepositoryPort.findByUuid(uuid);
     }
 
     @Override

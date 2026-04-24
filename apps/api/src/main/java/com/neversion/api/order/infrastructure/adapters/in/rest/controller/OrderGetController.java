@@ -39,7 +39,7 @@ public class OrderGetController {
     public ResponseEntity<OrderResponse> getById(
             @Parameter(description = "Order UUID") @PathVariable UUID id) {
 
-        Order order = getOrderUseCase.getById(id)
+        Order order = getOrderUseCase.getByUuid(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Order not found with id: " + id));
 

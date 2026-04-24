@@ -9,7 +9,7 @@ import lombok.Builder;
 
 @Builder
 public record OrderResponse(
-        UUID id,
+        UUID uuid,
         UUID reservationId,
         OrderStatus status,
         String notes,
