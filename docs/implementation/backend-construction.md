@@ -17,3 +17,4 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-23 | EPIC-00 / US-008 | V14__normalize_orders_pk_bigint.sql — DROP+recreate orders con BIGINT PK, uuid, vendor_id. | Rewrite completo: domain, entity, port (findByUuid), adapter, mapper, use case, controller, response DTO. ITs PASS. |
 | 2026-04-23 | EPIC-00 / US-009+010+011 | V15__normalize_reservations_bigint.sql — DROP+recreate reservations + reservation_details con BIGINT PK, uuid, vendor_id, service_id. | Rewrite completo: 2 domain models, 2 entities, 2 repos, adapter, mapper, port, 3 services, controller, 4 DTOs. Fix 5 test files (4 UT + 1 IT). 23/23 PASS. |
 | 2026-04-23 | EPIC-00 / Profiles | V16__link_profiles_to_vendors.sql — ADD `vendor_id` to profiles. | Update domain + entity + mapper. ITs PASS. |
+

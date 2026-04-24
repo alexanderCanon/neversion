@@ -11,7 +11,7 @@ public class OrderRestMapper {
     public OrderResponse toResponse(Order order) {
         return order != null ? OrderResponse.builder()
                 .uuid(order.getUuid())
-                .reservationId(order.getReservationId())
+                // .reservationId(order.getReservationId())
                 .status(order.getStatus())
                 .notes(order.getNotes())
                 .createdAt(order.getCreatedAt())
