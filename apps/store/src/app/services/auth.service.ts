@@ -24,12 +24,16 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  public isLoggedIn(): boolean {
+    return this.currentUserSubject.value !== null;
+  }
+
   login(email: string, password: string): Observable<AuthResult> {
     this.isLoadingSubject.next(true);
     const promise = this.supabaseService.client.auth.signInWithPassword({ email, password });
 
     return from(promise).pipe(
-      map(response => this.handleAuthResponse(response)),
+      map(response => this.handleAuthResponse(response as unknown as AuthResponse)),
       catchError(err => this.handleError(err)),
       tap(() => this.isLoadingSubject.next(false))
     );
@@ -54,7 +58,7 @@ export class AuthService {
     });
 
     return from(promise).pipe(
-      map(response => this.handleAuthResponse(response)),
+      map(response => this.handleAuthResponse(response as unknown as AuthResponse)),
       catchError(err => this.handleError(err)),
       tap(() => this.isLoadingSubject.next(false))
     );
@@ -98,7 +102,7 @@ export class AuthService {
   }
 
   private listenToAuthChanges() {
-    this.supabaseService.client.auth.onAuthStateChange((event, session) => {
+    this.supabaseService.client.auth.onAuthStateChange((event: any, session: any) => {
       if (session) {
         this.handleAuthResponse({ data: session, error: null } as any);
       } else {

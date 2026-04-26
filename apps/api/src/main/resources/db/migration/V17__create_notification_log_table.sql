@@ -4,7 +4,9 @@
 -- Backend inserts; Agent Notifications consumes and dispatches.
 -- NFR-05: All notifications must be recorded here.
 -- ---------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS notification_log (
+DROP TABLE IF EXISTS notification_log;
+
+CREATE TABLE notification_log (
     id             BIGSERIAL PRIMARY KEY,
     uuid           UUID        NOT NULL DEFAULT gen_random_uuid(),
     type           VARCHAR(50) NOT NULL,   -- e.g. VENDOR_WELCOME, RENEWAL_REMINDER
@@ -17,7 +19,7 @@ CREATE TABLE IF NOT EXISTS notification_log (
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_notification_log_uuid ON notification_log (uuid);
-CREATE INDEX IF NOT EXISTS idx_notification_log_type        ON notification_log (type);
-CREATE INDEX IF NOT EXISTS idx_notification_log_status      ON notification_log (status);
-CREATE INDEX IF NOT EXISTS idx_notification_log_created_at  ON notification_log (created_at DESC);
+CREATE UNIQUE INDEX idx_notification_log_uuid ON notification_log (uuid);
+CREATE INDEX idx_notification_log_type        ON notification_log (type);
+CREATE INDEX idx_notification_log_status      ON notification_log (status);
+CREATE INDEX idx_notification_log_created_at  ON notification_log (created_at DESC);

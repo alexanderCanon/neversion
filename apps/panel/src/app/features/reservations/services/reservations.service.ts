@@ -74,7 +74,7 @@ export class ReservationsService {
     return {
       id: api.id || '',
       clientId: api.clientId || null,
-      status: (api.status as any) || 'PENDING',
+      status: (api.status as unknown as ReservationResponse['status']) || 'PENDING',
       discount: api.discount || 0,
       total: api.total || 0,
       receiptUrl: api.receiptUrl || null,

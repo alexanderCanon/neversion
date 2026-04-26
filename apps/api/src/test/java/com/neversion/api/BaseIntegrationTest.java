@@ -4,6 +4,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * Base class for all Spring Boot integration tests.
@@ -19,7 +20,8 @@ public abstract class BaseIntegrationTest {
     static final PostgreSQLContainer<?> POSTGRES;
 
     static {
-        POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+        DockerImageName myImage = DockerImageName.parse("mirror.gcr.io/library/postgres:16-alpine").asCompatibleSubstituteFor("postgres");
+        POSTGRES = new PostgreSQLContainer<>(myImage);
         POSTGRES.start();
     }
 

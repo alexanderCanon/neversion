@@ -47,9 +47,9 @@
 
                                 <!-- Main Action Button -->
                                 <div class="d-grid gap-2 mb-4">
-                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="loginForm.invalid || isLoading">
-                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                        {{ isLoading ? 'Cargando...' : 'Acceder' }}
+                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="loginForm.invalid || (isLoading$ | async)">
+                                        <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        {{ (isLoading$ | async) ? 'Cargando...' : 'Acceder' }}
                                     </button>
                                 </div>
 
@@ -183,9 +183,9 @@
 
                                 <!-- Submit Button -->
                                 <div class="d-grid gap-2 mb-4">
-                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="registerForm.invalid || isLoading">
-                                        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                                        {{ isLoading ? 'Creando cuenta...' : 'Crear una cuenta' }}
+                                    <button type="submit" class="btn btn-primary fw-bold py-2" [disabled]="registerForm.invalid || (isLoading$ | async)">
+                                        <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                        {{ (isLoading$ | async) ? 'Creando cuenta...' : 'Crear una cuenta' }}
                                     </button>
                                 </div>
 

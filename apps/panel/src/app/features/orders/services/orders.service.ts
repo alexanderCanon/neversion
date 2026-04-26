@@ -26,7 +26,7 @@ export class OrdersService {
     return {
       id: api.id || '',
       reservationId: api.reservationId || '',
-      status: (api.status as any) || 'PENDING',
+      status: (api.status as unknown as OrderResponse['status']) || 'PENDING',
       notes: api.notes || '',
       createdAt: api.createdAt || ''
     };

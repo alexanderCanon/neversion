@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { createSupabaseClient, SupabaseClient } from '@neversion/utils';
+import { createSupabaseClient } from '@neversion/utils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SupabaseService {
-  private _supabaseClient: SupabaseClient;
+  private _supabaseClient: any;
 
   constructor() {
     // These should ideally come from environment files
@@ -18,7 +18,7 @@ export class SupabaseService {
     });
   }
 
-  get client(): SupabaseClient {
+  get client(): any {
     return this._supabaseClient;
   }
 }

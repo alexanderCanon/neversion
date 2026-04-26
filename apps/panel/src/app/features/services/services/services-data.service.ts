@@ -83,7 +83,7 @@ export class ServicesDataService {
       } else if (api.category) {
         details.category = api.category;
       }
-    } catch (e) {
+    } catch {
       if (api.category) details.category = api.category;
     }
 
