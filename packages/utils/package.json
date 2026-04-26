@@ -3,5 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "dependencies": {
+    "@angular/core": "^16.0.0 || ^17.0.0",
+    "@angular/common": "^16.0.0 || ^17.0.0",
+    "@supabase/supabase-js": "^2.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  }
 }

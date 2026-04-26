@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, of } from 'rxjs';
+import { BehaviorSubject, Observable, from, of, switchMap } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
 import { User as SupaUser, AuthResponse } from '@supabase/supabase-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
+import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,13 @@ export class AuthService {
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.isLoadingSubject.asObservable();
 
-  constructor(private supabaseService: SupabaseService) {
+  // For EPIC-01, this UUID should come from environment or domain-based config
+  private readonly VENDOR_UUID = '00000000-0000-0000-0000-000000000000'; 
+
+  constructor(
+    private supabaseService: SupabaseService,
+    private authApiService: AuthApiService
+  ) {
     this.restoreSession();
     this.listenToAuthChanges();
   }
@@ -42,8 +49,6 @@ export class AuthService {
   register(userData: any): Observable<AuthResult> {
     this.isLoadingSubject.next(true);
     
-    // For US-013, we need to send name, lastname and phone in metadata
-    // and also the role 'cliente'.
     const promise = this.supabaseService.client.auth.signUp({
       email: userData.email,
       password: userData.password,
@@ -58,7 +63,22 @@ export class AuthService {
     });
 
     return from(promise).pipe(
-      map(response => this.handleAuthResponse(response as unknown as AuthResponse)),
+      switchMap(response => {
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+
+        const apiRequest: RegisterClientRequest = {
+          email: userData.email,
+          name: `${userData.name} ${userData.lastname}`,
+          phone: userData.phone,
+          vendorUuid: this.VENDOR_UUID
+        };
+
+        return this.authApiService.registerClient(apiRequest).pipe(
+          map(() => this.handleAuthResponse(response as unknown as AuthResponse))
+        );
+      }),
       catchError(err => this.handleError(err)),
       tap(() => this.isLoadingSubject.next(false))
     );

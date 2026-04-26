@@ -10,7 +10,7 @@ services:
   db:
     image: postgres:17
     container_name: neversion-db
-    restart: unless-stopped
+    restart: "no"
     environment:
       POSTGRES_DB: neversiondb
       POSTGRES_USER: postgres
@@ -29,7 +29,7 @@ services:
   app:
     build: .
     container_name: neversion-app
-    restart: unless-stopped
+    restart: "no"
     depends_on:
       db:
         condition: service_healthy

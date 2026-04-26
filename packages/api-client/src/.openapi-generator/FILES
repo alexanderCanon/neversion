@@ -1,10 +1,10 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.base.service.ts
 api.module.ts
 api/accounts.service.ts
 api/api.ts
+api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
 api/orders.service.ts
@@ -30,6 +30,10 @@ model/profileRequest.ts
 model/profileResponse.ts
 model/profileResult.ts
 model/profileSubscriptionResult.ts
+model/registerClientRequest.ts
+model/registerClientResponse.ts
+model/registerVendorRequest.ts
+model/registerVendorResponse.ts
 model/reservationDetailResponse.ts
 model/reservationItemRequest.ts
 model/reservationRequest.ts

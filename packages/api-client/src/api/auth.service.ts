@@ -17,7 +17,13 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { OrderResponse } from '../model/orderResponse';
+import { RegisterClientRequest } from '../model/registerClientRequest';
+// @ts-ignore
+import { RegisterClientResponse } from '../model/registerClientResponse';
+// @ts-ignore
+import { RegisterVendorRequest } from '../model/registerVendorRequest';
+// @ts-ignore
+import { RegisterVendorResponse } from '../model/registerVendorResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -29,27 +35,27 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class OrdersApiService extends BaseService {
+export class AuthApiService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * Get order by ID
-     * Retrieve an order by its UUID
-     * @endpoint get /api/v1/orders/{id}
-     * @param id Order UUID
+     * Register a new client (US-013)
+     * Public endpoint. Creates the platform user (role&#x3D;CLIENT), the client record linked to the specified vendor, and a CLIENT_REGISTRATION notification event.
+     * @endpoint post /api/v1/auth/clients
+     * @param registerClientRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getById4(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<OrderResponse>;
-    public getById4(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<OrderResponse>>;
-    public getById4(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<OrderResponse>>;
-    public getById4(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getById4.');
+    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<RegisterClientResponse>;
+    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterClientResponse>>;
+    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterClientResponse>>;
+    public registerClient(registerClientRequest: RegisterClientRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (registerClientRequest === null || registerClientRequest === undefined) {
+            throw new Error('Required parameter registerClientRequest was null or undefined when calling registerClient.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -69,6 +75,15 @@ export class OrdersApiService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -80,11 +95,12 @@ export class OrdersApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/orders/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/auth/clients`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<OrderResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<RegisterClientResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                body: registerClientRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -96,20 +112,20 @@ export class OrdersApiService extends BaseService {
     }
 
     /**
-     * Get order by reservation ID
-     * Retrieve the order linked to a specific reservation
-     * @endpoint get /api/v1/orders/by-reservation/{reservationId}
-     * @param reservationId Reservation internal ID
+     * Register a new vendor (US-012)
+     * Creates the platform user (role&#x3D;VENDOR), the vendor record, and a VENDOR_WELCOME notification event. MANUAL STEP: Create the Supabase Auth account separately.
+     * @endpoint post /api/v1/auth/vendors
+     * @param registerVendorRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getByReservationId(reservationId: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<OrderResponse>;
-    public getByReservationId(reservationId: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<OrderResponse>>;
-    public getByReservationId(reservationId: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<OrderResponse>>;
-    public getByReservationId(reservationId: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (reservationId === null || reservationId === undefined) {
-            throw new Error('Required parameter reservationId was null or undefined when calling getByReservationId.');
+    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<RegisterVendorResponse>;
+    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterVendorResponse>>;
+    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterVendorResponse>>;
+    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (registerVendorRequest === null || registerVendorRequest === undefined) {
+            throw new Error('Required parameter registerVendorRequest was null or undefined when calling registerVendor.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -129,6 +145,15 @@ export class OrdersApiService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -140,11 +165,12 @@ export class OrdersApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/orders/by-reservation/${this.configuration.encodeParam({name: "reservationId", value: reservationId, in: "path", style: "simple", explode: false, dataType: "number", dataFormat: "int64"})}`;
+        let localVarPath = `/api/v1/auth/vendors`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<OrderResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<RegisterVendorResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                body: registerVendorRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

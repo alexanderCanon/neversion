@@ -2,9 +2,10 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { User as SupaUser, Session, AuthResponse } from '@supabase/supabase-js';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, of, switchMap } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
 import { User, AuthResult, UserRole, RegisterVendorRequest } from '@neversion/models';
+import { AuthApiService, RegisterVendorRequest as ApiVendorRequest } from '@neversion/api-client';
 
 @Injectable({
     providedIn: 'root'
@@ -12,6 +13,7 @@ import { User, AuthResult, UserRole, RegisterVendorRequest } from '@neversion/mo
 export class AuthService {
 
     private readonly supabaseService = inject(SupabaseService);
+    private readonly authApiService = inject(AuthApiService);
     private readonly router = inject(Router);
 
     // ── Reactive State (Signals) ──────────────────────────────────
@@ -84,9 +86,9 @@ export class AuthService {
         this._isLoading.set(true);
         this._errorMessage.set(null);
 
-        const promise = this.supabaseService.client.auth.signUp({
+        const supaSignUpPromise = this.supabaseService.client.auth.signUp({
             email: request.email,
-            password: request.password || 'TemporaryPassword123!', // Backend should ideally handle password setting
+            password: request.password || 'TemporaryPassword123!',
             options: {
                 data: {
                     name: request.name,
@@ -98,8 +100,22 @@ export class AuthService {
             },
         });
 
-        return from(promise).pipe(
-            map((response: AuthResponse) => this.handleAuthResponse(response)),
+        return from(supaSignUpPromise).pipe(
+            switchMap((supaResponse: AuthResponse) => {
+                if (supaResponse.error) {
+                    throw new Error(supaResponse.error.message);
+                }
+
+                const apiRequest: ApiVendorRequest = {
+                    email: request.email,
+                    storeName: request.storeName,
+                    // Additional optional fields could be added here if the form is extended
+                };
+
+                return this.authApiService.registerVendor(apiRequest).pipe(
+                    map(() => this.handleAuthResponse(supaResponse))
+                );
+            }),
             catchError((err: unknown) => {
                 const message = err instanceof Error ? err.message : 'Error inesperado al registrar vendedor';
                 this._errorMessage.set(message);
