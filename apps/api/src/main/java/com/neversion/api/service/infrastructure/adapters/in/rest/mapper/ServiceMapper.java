@@ -1,14 +1,16 @@
 package com.neversion.api.service.infrastructure.adapters.in.rest.mapper;
 
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.infrastructure.adapters.in.rest.dto.ServiceRequest;
 import com.neversion.api.service.infrastructure.adapters.in.rest.dto.ServiceResponse;
-import com.neversion.api.shared.domain.model.enums.CategoryType;
+import org.springframework.stereotype.Component;
 
+/**
+ * Maps between ServiceRequest/ServiceResponse DTOs and the Service domain model.
+ * Manual mapping — no MapStruct per project conventions.
+ */
 @Component
 public class ServiceMapper {
 
@@ -26,15 +28,21 @@ public class ServiceMapper {
             try {
                 detailsNode = objectMapper.readTree(request.details());
             } catch (Exception e) {
-                throw new IllegalArgumentException("'details' field contains invalid JSON: " + e.getMessage());
+                throw new IllegalArgumentException(
+                        "'details' field contains invalid JSON: " + e.getMessage());
             }
         }
 
         return Service.builder()
                 .name(request.name())
+                .category(request.category())
+                .priceProfile(request.priceProfile())
+                .priceFull(request.priceFull())
+                .durationDays(request.durationDays())
                 .maxProfiles(request.maxProfiles())
+                .description(request.description())
+                .imageUrl(request.imageUrl())
                 .details(detailsNode)
-                .category(request.category() != null ? request.category() : CategoryType.STREAMING)
                 .build();
     }
 
@@ -49,9 +57,15 @@ public class ServiceMapper {
         return ServiceResponse.builder()
                 .id(service.getUuid())
                 .name(service.getName())
-                .maxProfiles(service.getMaxProfiles())
-                .details(detailsStr)
                 .category(service.getCategory())
+                .description(service.getDescription())
+                .imageUrl(service.getImageUrl())
+                .priceProfile(service.getPriceProfile())
+                .priceFull(service.getPriceFull())
+                .durationDays(service.getDurationDays())
+                .maxProfiles(service.getMaxProfiles())
+                .isActive(service.getIsActive())
+                .details(detailsStr)
                 .createdAt(service.getCreatedAt())
                 .build();
     }
