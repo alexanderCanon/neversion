@@ -88,7 +88,7 @@ export class ServicesDataService {
   deleteService(id: string): Observable<void> {
     return this.servicesApi._delete(id).pipe(
       tap(() => {
-        this._services.update((current) => current.filter((s) => s.id !== id));
+        this._services.update((current) => current.filter((a) => a.id !== id));
       })
     );
   }
@@ -98,7 +98,6 @@ export class ServicesDataService {
   }
 
   private getVendorUuid(): string | null {
-    // We access the signal value. If typed correctly via fixed import, id will be accessible.
     const user = this.authService.currentUser();
     return user ? user.id : null;
   }
@@ -109,7 +108,7 @@ export class ServicesDataService {
       name: api.name || '',
       category: api.category as any || 'STREAMING',
       priceProfile: api.priceProfile || 0,
-      priceFull: api.priceFull || 0,
+      priceComplete: api.priceComplete || 0,
       durationDays: api.durationDays || 30,
       maxProfiles: api.maxProfiles || 0,
       isActive: api.isActive ?? true,

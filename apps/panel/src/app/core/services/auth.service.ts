@@ -109,7 +109,7 @@ export class AuthService {
                 const apiRequest: ApiVendorRequest = {
                     email: request.email,
                     storeName: request.storeName,
-                    // Additional optional fields could be added here if the form is extended
+                    externalId: supaResponse.data.user?.id
                 };
 
                 return this.authApiService.registerVendor(apiRequest).pipe(

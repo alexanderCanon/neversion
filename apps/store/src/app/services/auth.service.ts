@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of, switchMap } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
-import { User as SupaUser, AuthResponse } from '@supabase/supabase-js';
+import { AuthResponse } from '@supabase/supabase-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
 import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
 
@@ -64,19 +64,21 @@ export class AuthService {
 
     return from(promise).pipe(
       switchMap(response => {
-        if (response.error) {
-          throw new Error(response.error.message);
+        const supaResponse = response as AuthResponse;
+        if (supaResponse.error) {
+          throw new Error(supaResponse.error.message);
         }
 
         const apiRequest: RegisterClientRequest = {
           email: userData.email,
           name: `${userData.name} ${userData.lastname}`,
           phone: userData.phone,
-          vendorUuid: this.VENDOR_UUID
+          vendorUuid: this.VENDOR_UUID,
+          externalId: supaResponse.data.user?.id
         };
 
         return this.authApiService.registerClient(apiRequest).pipe(
-          map(() => this.handleAuthResponse(response as unknown as AuthResponse))
+          map(() => this.handleAuthResponse(supaResponse))
         );
       }),
       catchError(err => this.handleError(err)),

@@ -24,7 +24,7 @@ export class OrdersService {
 
   private mapToModel(api: ApiOrderResponse): OrderResponse {
     return {
-      id: api.uuid || '',
+      id: api.id || '',
       reservationId: api.reservationId || '',
       status: (api.status as any) || 'PENDING',
       notes: api.notes || '',

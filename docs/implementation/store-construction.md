@@ -7,7 +7,10 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | Fecha | Épica / US | Descripción del Cambio | Decisión Técnica / Nota |
 | :--- | :--- | :--- | :--- |
 | 2026-04-23 | Setup | Estructura de documentación lista para implementación. | Esperando integración de EPIC-00 en backend. |
-| 2026-04-23 | US-013 | Implementación de `SupabaseService` y refactorización de `AuthService`. | Se elimina el mock de login/registro y se conecta a Supabase Auth. |
-| 2026-04-23 | US-014 | Lógica de redirección por rol en Login. | Redirección a `/customer-panel` para clientes. |
-| 2026-04-23 | US-015 | Control de acceso por rol. | Implementado `roleGuard` para panel de clientes. |
-| 2026-04-23 | US-016 | Cierre de sesión seguro. | Implementado logout con Supabase en Toolbar. |
+| 2026-04-25 | Infra | Sincronización de dependencias del workspace. | Corregido error de módulos no encontrados en `packages/utils` para el build de la tienda. |
+| 2026-04-27 | EPIC-01 / US-013 | Integración real de Registro de Clientes. | El flujo crea el usuario en Supabase y luego invoca al backend para crear el registro de cliente enviando el `externalId`. |
+| 2026-04-27 | EPIC-01 / US-014 | Lógica de redirección por rol en Login. | Redirección a `/customer-panel` para clientes. |
+| 2026-04-27 | EPIC-01 / US-015 | Control de acceso por rol. | Implementado `roleGuard` para panel de clientes. |
+| 2026-04-27 | EPIC-01 / US-016 | Cierre de sesión seguro. | Implementado logout con Supabase en Toolbar. |
+| 2026-04-27 | EPIC-02 / US-021 | Catálogo público real. | Refactorizado `PlatformService` para consumir `listActive` de la API real. Eliminadas consultas directas a Supabase. |
+| 2026-04-27 | Lenguaje | Alineación con Glosario B.1. | Los items del catálogo ahora muestran "Precio Perfil" y "Cuenta Completa" según el estándar del proyecto. |

@@ -73,7 +73,7 @@ export class ReservationsService {
 
   private mapToModel(api: ApiReservationResponse): ReservationResponse {
     return {
-      id: api.uuid || '',
+      id: api.id || '',
       clientId: api.clientId || null,
       status: (api.status as any) || 'PENDING',
       discount: api.discount || 0,
@@ -82,7 +82,7 @@ export class ReservationsService {
       expirationDate: api.expirationDate || '',
       createdAt: api.createdAt || '',
       details: (api.details || []).map(apiDetail => ({
-          id: apiDetail.uuid || '',
+          id: apiDetail.id || '',
           inventoryId: apiDetail.serviceId || 0,
           qty: apiDetail.qty || 0,
           unitPrice: apiDetail.unitPrice || 0,

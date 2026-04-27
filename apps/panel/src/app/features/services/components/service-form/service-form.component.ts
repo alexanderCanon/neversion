@@ -46,7 +46,7 @@ export class ServiceFormComponent {
       category: ['STREAMING', Validators.required],
       maxProfiles: [1, [Validators.required, Validators.min(1)]],
       priceProfile: [0, [Validators.required, Validators.min(0)]],
-      priceFull: [0, [Validators.required, Validators.min(0)]],
+      priceComplete: [0, [Validators.required, Validators.min(0)]],
       durationDays: [30, [Validators.required, Validators.min(1)]]
     });
   }
@@ -62,7 +62,7 @@ export class ServiceFormComponent {
         category: service.category,
         maxProfiles: service.maxProfiles,
         priceProfile: service.priceProfile,
-        priceFull: service.priceFull,
+        priceComplete: service.priceComplete,
         durationDays: service.durationDays
       });
     } else {
@@ -99,9 +99,10 @@ export class ServiceFormComponent {
                const modal = bootstrap.Modal.getInstance(modalEl);
                if(modal) modal.hide();
            } else {
-               modalEl.classList.remove('show');
+               modalEl.classList.add('show');
                modalEl.style.display = 'none';
                document.body.classList.remove('modal-open');
+               
                const backdrop = document.querySelector('.modal-backdrop');
                if(backdrop) backdrop.remove();
            }
@@ -118,7 +119,7 @@ export class ServiceFormComponent {
         category: formValue.category,
         maxProfiles: Number(formValue.maxProfiles),
         priceProfile: Number(formValue.priceProfile),
-        priceFull: Number(formValue.priceFull),
+        priceComplete: Number(formValue.priceComplete),
         durationDays: Number(formValue.durationDays),
         description: formValue.description,
         imageUrl: formValue.imageUrl
@@ -138,7 +139,7 @@ export class ServiceFormComponent {
       category: 'STREAMING',
       maxProfiles: 1,
       priceProfile: 0,
-      priceFull: 0,
+      priceComplete: 0,
       durationDays: 30
     });
   }

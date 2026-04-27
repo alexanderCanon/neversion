@@ -2,7 +2,7 @@ export interface ServiceRequest {
   name: string;
   category: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE';
   priceProfile: number;
-  priceFull: number;
+  priceComplete: number;
   durationDays: number;
   maxProfiles: number;
   description?: string;
@@ -15,7 +15,7 @@ export interface ServiceResponse {
   name: string;
   category: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE';
   priceProfile: number;
-  priceFull: number;
+  priceComplete: number;
   durationDays: number;
   maxProfiles: number;
   isActive: boolean;
