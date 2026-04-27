@@ -10,10 +10,42 @@
 
 
 export interface ServiceRequest { 
+    /**
+     * Service name, e.g. Netflix Premium
+     */
     name?: string;
-    maxProfiles?: number;
+    /**
+     * Service category
+     */
+    category: ServiceRequest.CategoryEnum;
+    /**
+     * Price per individual profile sale
+     */
+    priceProfile: number;
+    /**
+     * Price for a full account sale (Cuenta Completa)
+     */
+    priceComplete: number;
+    /**
+     * Subscription duration in days
+     */
+    durationDays: number;
+    /**
+     * Maximum profiles allowed per account
+     */
+    maxProfiles: number;
+    /**
+     * Optional service description
+     */
+    description?: string;
+    /**
+     * Optional URL to the service logo/image
+     */
+    imageUrl?: string;
+    /**
+     * Optional free-form JSON metadata
+     */
     details?: string;
-    category?: ServiceRequest.CategoryEnum;
 }
 export namespace ServiceRequest {
     export const CategoryEnum = {

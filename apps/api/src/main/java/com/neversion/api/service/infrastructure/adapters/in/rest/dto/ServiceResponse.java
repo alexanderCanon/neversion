@@ -33,8 +33,8 @@ public record ServiceResponse(
         @Schema(description = "Price per individual profile sale")
         BigDecimal priceProfile,
 
-        @Schema(description = "Price for full account sale")
-        BigDecimal priceFull,
+        @Schema(description = "Price for full account sale (Cuenta Completa)")
+        BigDecimal priceComplete,
 
         @Schema(description = "Subscription duration in days")
         Integer durationDays,

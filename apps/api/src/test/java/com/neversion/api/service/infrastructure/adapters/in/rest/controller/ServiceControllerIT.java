@@ -94,7 +94,7 @@ class ServiceControllerIT extends BaseIntegrationTest {
                 "name", "Netflix Premium",
                 "category", "STREAMING",
                 "priceProfile", 45.00,
-                "priceFull", 150.00,
+                "priceComplete", 150.00,
                 "durationDays", 30,
                 "maxProfiles", 5
         );

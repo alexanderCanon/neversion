@@ -5,11 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 /**
- * Response body returned after a successful vendor registration.
+ * Response body returned after a successful vendor registration (US-012).
  * <p>
  * Only public UUIDs are exposed — internal BIGINT IDs are never returned (NFR-01).
- * The temporaryPassword is included so the Super Admin can manually create
- * the Supabase Auth account (ADR-09 — manual step).
  */
 public record RegisterVendorResponse(
 
@@ -23,14 +21,6 @@ public record RegisterVendorResponse(
         String storeName,
 
         @Schema(description = "Vendor's email address")
-        String email,
-
-        @Schema(description = "System-generated temporary password. " +
-                "Use this to create the Supabase Auth account manually.")
-        String temporaryPassword,
-
-        @Schema(description = "Reminder: create the Supabase Auth account manually " +
-                "using the email and temporaryPassword above.")
-        String manualStep
+        String email
 ) {
 }

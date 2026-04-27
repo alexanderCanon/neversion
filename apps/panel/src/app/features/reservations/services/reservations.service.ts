@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { 
+  ServicesApiService, 
   ReservationResponse as ApiReservationResponse, 
   ReservationRequest as CreateReservationRequest,
   ReservationDetailResponse as ApiReservationDetailResponse
@@ -72,25 +73,21 @@ export class ReservationsService {
 
   private mapToModel(api: ApiReservationResponse): ReservationResponse {
     return {
-      id: api.id || '',
+      id: api.uuid || '',
       clientId: api.clientId || null,
-      status: (api.status as unknown as ReservationResponse['status']) || 'PENDING',
+      status: (api.status as any) || 'PENDING',
       discount: api.discount || 0,
       total: api.total || 0,
       receiptUrl: api.receiptUrl || null,
       expirationDate: api.expirationDate || '',
       createdAt: api.createdAt || '',
-      details: (api.details || []).map(this.mapDetailToModel)
-    };
-  }
-
-  private mapDetailToModel(api: ApiReservationDetailResponse): ReservationDetailResponse {
-    return {
-      id: api.id || '',
-      inventoryId: api.inventoryId || 0,
-      qty: api.qty || 0,
-      unitPrice: api.unitPrice || 0,
-      subtotal: api.subtotal || 0
+      details: (api.details || []).map(apiDetail => ({
+          id: apiDetail.uuid || '',
+          inventoryId: apiDetail.serviceId || 0,
+          qty: apiDetail.qty || 0,
+          unitPrice: apiDetail.unitPrice || 0,
+          subtotal: apiDetail.subtotal || 0
+      }))
     };
   }
 }

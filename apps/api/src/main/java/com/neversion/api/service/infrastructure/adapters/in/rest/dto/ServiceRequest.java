@@ -30,9 +30,9 @@ public record ServiceRequest(
         BigDecimal priceProfile,
 
         @NotNull(message = "Full account price is required")
-        @Positive(message = "priceFull must be positive")
-        @Schema(description = "Price for a full account sale", example = "150.00")
-        BigDecimal priceFull,
+        @Positive(message = "priceComplete must be positive")
+        @Schema(description = "Price for a full account sale (Cuenta Completa)", example = "150.00")
+        BigDecimal priceComplete,
 
         @NotNull(message = "Duration days is required")
         @Positive(message = "durationDays must be positive")

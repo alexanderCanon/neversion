@@ -27,8 +27,8 @@
               </div>
               <div class="col-12 col-md-auto ms-auto">
                   <select class="form-select text-secondary border" 
-                          [value]="selectedCategory()" 
-                          (change)="onCategoryChange($event)">
+                          [ngModel]="selectedCategory()" 
+                          (ngModelChange)="onCategoryChange($event)">
                       <option value="">Todas las categorías</option>
                       <option value="STREAMING">Streaming</option>
                       <option value="SOFTWARE">Software</option>
@@ -61,7 +61,9 @@
               </div>
           } @else {
              <app-services-table 
-                [services]="filteredServices()">
+                [services]="filteredServices()"
+                (editService)="onEditService($event)"
+                (toggleStatus)="onToggleStatus($event)">
              </app-services-table>
           }
       </div>

@@ -26,13 +26,5 @@ export interface RegisterClientResponse {
      * Client\'s email address
      */
     email?: string;
-    /**
-     * System-generated temporary password. Use this to create the Supabase Auth account manually.
-     */
-    temporaryPassword?: string;
-    /**
-     * Reminder: create the Supabase Auth account manually.
-     */
-    manualStep?: string;
 }
 

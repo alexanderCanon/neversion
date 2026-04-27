@@ -81,7 +81,6 @@ class RegisterClientServiceUT {
         assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
         assertThat(result.name()).isEqualTo("Juan Pérez");
         assertThat(result.email()).isEqualTo("cliente@correo.com");
-        assertThat(result.temporaryPassword()).isNotBlank().hasSize(12);
 
         // Assert — interactions
         verify(vendorRepositoryPort, times(1)).findByUuid(VENDOR_UUID);
@@ -101,7 +100,7 @@ class RegisterClientServiceUT {
 
         verify(userRepositoryPort).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getRole()).isEqualTo(UserRole.CLIENT);
-        assertThat(userCaptor.getValue().getExternalId()).startsWith("pending_");
+        assertThat(userCaptor.getValue().getExternalId()).isEqualTo("supabase-uuid-client-001");
     }
 
     @Test
@@ -132,7 +131,7 @@ class RegisterClientServiceUT {
         String payload = payloadCaptor.getValue();
         assertThat(payload).contains("cliente@correo.com");
         assertThat(payload).contains("Juan Pérez");
-        assertThat(payload).contains("temporaryPassword");
+        assertThat(payload).contains("externalId");
     }
 
     // ─── error case ──────────────────────────────────────────────────────────
@@ -157,6 +156,7 @@ class RegisterClientServiceUT {
     private RegisterClientCommand buildCommand() {
         return new RegisterClientCommand(
                 "cliente@correo.com",
+                "supabase-uuid-client-001",
                 "Juan Pérez",
                 "+502 5555-1234",
                 VENDOR_UUID);
@@ -170,7 +170,7 @@ class RegisterClientServiceUT {
 
         User savedUser = User.builder()
                 .id(USER_ID).uuid(USER_UUID)
-                .externalId("pending_x").role(UserRole.CLIENT).build();
+                .externalId("supabase-uuid-client-001").role(UserRole.CLIENT).build();
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
 
         Client savedClient = Client.builder()

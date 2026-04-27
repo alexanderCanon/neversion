@@ -10,11 +10,53 @@
 
 
 export interface ServiceResponse { 
+    /**
+     * Public UUID of the service
+     */
     id?: string;
+    /**
+     * Service name
+     */
     name?: string;
-    maxProfiles?: number;
-    details?: string;
+    /**
+     * Service category
+     */
     category?: ServiceResponse.CategoryEnum;
+    /**
+     * Service description
+     */
+    description?: string;
+    /**
+     * URL to the service logo/image
+     */
+    imageUrl?: string;
+    /**
+     * Price per individual profile sale
+     */
+    priceProfile?: number;
+    /**
+     * Price for full account sale (Cuenta Completa)
+     */
+    priceComplete?: number;
+    /**
+     * Subscription duration in days
+     */
+    durationDays?: number;
+    /**
+     * Maximum profiles allowed per account
+     */
+    maxProfiles?: number;
+    /**
+     * Whether the service is active and visible in the store
+     */
+    isActive?: boolean;
+    /**
+     * Free-form JSON metadata
+     */
+    details?: string;
+    /**
+     * Creation timestamp
+     */
     createdAt?: string;
 }
 export namespace ServiceResponse {

@@ -6,7 +6,7 @@ import com.neversion.api.user.domain.model.RegisterVendorCommand;
 import com.neversion.api.user.domain.model.RegisterVendorResult;
 
 /**
- * Stateless mapper between REST DTOs and domain objects for the auth module.
+ * Stateless mapper between REST DTOs and domain objects for the vendor auth module.
  * Manual mapping — no MapStruct per project conventions.
  */
 public final class RegisterVendorRequestMapper {
@@ -24,6 +24,7 @@ public final class RegisterVendorRequestMapper {
     public static RegisterVendorCommand toCommand(RegisterVendorRequest request) {
         return new RegisterVendorCommand(
                 request.email(),
+                request.externalId(),
                 request.storeName(),
                 request.logoUrl(),
                 request.bankDetails(),
@@ -32,7 +33,6 @@ public final class RegisterVendorRequestMapper {
 
     /**
      * Maps the domain result to the REST response DTO.
-     * Appends the manual Supabase step reminder (ADR-09).
      *
      * @param result domain result from RegisterVendorService
      * @return REST response DTO
@@ -42,11 +42,6 @@ public final class RegisterVendorRequestMapper {
                 result.userUuid(),
                 result.vendorUuid(),
                 result.storeName(),
-                result.email(),
-                result.temporaryPassword(),
-                "MANUAL STEP REQUIRED: Create the Supabase Auth account at " +
-                "https://app.supabase.com → Authentication → Users → Invite User, " +
-                "using email='" + result.email() + "' and the temporaryPassword above. " +
-                "Then update users.external_id in the database with the Supabase user UUID.");
+                result.email());
     }
 }

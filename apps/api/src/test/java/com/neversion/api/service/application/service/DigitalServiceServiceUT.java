@@ -83,7 +83,6 @@ class DigitalServiceServiceUT {
         @Test
         @DisplayName("should throw BusinessRuleException when name already exists")
         void create_shouldThrow_whenDuplicateName() {
-            stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             when(serviceRepositoryPort.existsByName("Netflix")).thenReturn(true);
 
             assertThatThrownBy(() -> sut.create(buildServiceInput(), EXTERNAL_ID))
@@ -130,7 +129,6 @@ class DigitalServiceServiceUT {
         @Test
         @DisplayName("should throw ResourceNotFoundException when service not found")
         void update_shouldThrow_whenServiceNotFound() {
-            stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> sut.update(SERVICE_UUID, buildServiceInput(), EXTERNAL_ID))

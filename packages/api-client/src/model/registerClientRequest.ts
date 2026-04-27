@@ -15,6 +15,10 @@ export interface RegisterClientRequest {
      */
     email?: string;
     /**
+     * Supabase Auth UUID assigned to this client after account creation
+     */
+    externalId?: string;
+    /**
      * Client\'s display name
      */
     name?: string;

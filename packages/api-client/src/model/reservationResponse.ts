@@ -11,7 +11,7 @@ import { ReservationDetailResponse } from './reservationDetailResponse';
 
 
 export interface ReservationResponse { 
-    uuid?: string;
+    id?: string;
     clientId?: string;
     status?: ReservationResponse.StatusEnum;
     discount?: number;

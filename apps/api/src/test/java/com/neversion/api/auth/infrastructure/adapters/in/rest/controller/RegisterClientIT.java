@@ -120,14 +120,14 @@ class RegisterClientIT extends BaseIntegrationTest {
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "Juan Pérez",
-                    "cliente@correo.com",
-                    "abc123xyz789"
+                    "cliente@correo.com"
             );
             when(registerClientUseCase.register(any())).thenReturn(mockResult);
 
             UUID vendorUuid = UUID.randomUUID();
             String body = objectMapper.writeValueAsString(Map.of(
                     "email", "cliente@correo.com",
+                    "externalId", "supabase-uuid-client-it-001",
                     "name", "Juan Pérez",
                     "phone", "+502 5555-1234",
                     "vendorUuid", vendorUuid.toString()
@@ -140,9 +140,7 @@ class RegisterClientIT extends BaseIntegrationTest {
                     .andExpect(jsonPath("$.clientUuid").isNotEmpty())
                     .andExpect(jsonPath("$.userUuid").isNotEmpty())
                     .andExpect(jsonPath("$.name").value("Juan Pérez"))
-                    .andExpect(jsonPath("$.email").value("cliente@correo.com"))
-                    .andExpect(jsonPath("$.temporaryPassword").value("abc123xyz789"))
-                    .andExpect(jsonPath("$.manualStep").isNotEmpty());
+                    .andExpect(jsonPath("$.email").value("cliente@correo.com"));
         }
     }
 }

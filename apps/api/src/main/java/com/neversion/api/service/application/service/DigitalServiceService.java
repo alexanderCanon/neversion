@@ -3,7 +3,6 @@ package com.neversion.api.service.application.service;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.service.application.port.in.ServiceUseCase;
-import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;

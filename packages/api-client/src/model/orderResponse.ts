@@ -10,7 +10,7 @@
 
 
 export interface OrderResponse { 
-    uuid?: string;
+    id?: string;
     reservationId?: string;
     status?: OrderResponse.StatusEnum;
     notes?: string;

@@ -16,4 +16,6 @@ export * from './services.service';
 import { ServicesApiService } from './services.service';
 export * from './subscriptions.service';
 import { SubscriptionsApiService } from './subscriptions.service';
-export const APIS = [AccountsApiService, AuthApiService, ClientsApiService, DashboardApiService, OrdersApiService, ProfilesApiService, ReservationsApiService, ServicesApiService, SubscriptionsApiService];
+export * from './vendorsPublic.service';
+import { VendorsPublicApiService } from './vendorsPublic.service';
+export const APIS = [AccountsApiService, AuthApiService, ClientsApiService, DashboardApiService, OrdersApiService, ProfilesApiService, ReservationsApiService, ServicesApiService, SubscriptionsApiService, VendorsPublicApiService];

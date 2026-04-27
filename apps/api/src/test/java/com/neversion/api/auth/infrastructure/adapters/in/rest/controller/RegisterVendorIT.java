@@ -87,6 +87,7 @@ class RegisterVendorIT extends BaseIntegrationTest {
     private String validBody() throws Exception {
         return objectMapper.writeValueAsString(Map.of(
                 "email", "newvendor@tienda.com",
+                "externalId", "supabase-uuid-vendor-it-001",
                 "storeName", "Mi Tienda Digital"
         ));
     }
@@ -194,8 +195,7 @@ class RegisterVendorIT extends BaseIntegrationTest {
                     UUID.randomUUID(),
                     UUID.randomUUID(),
                     "Mi Tienda Digital",
-                    "newvendor@tienda.com",
-                    "abc123xyz789"
+                    "newvendor@tienda.com"
             );
             when(registerVendorUseCase.register(any())).thenReturn(mockResult);
 
@@ -207,9 +207,7 @@ class RegisterVendorIT extends BaseIntegrationTest {
                     .andExpect(jsonPath("$.vendorUuid").isNotEmpty())
                     .andExpect(jsonPath("$.userUuid").isNotEmpty())
                     .andExpect(jsonPath("$.storeName").value("Mi Tienda Digital"))
-                    .andExpect(jsonPath("$.email").value("newvendor@tienda.com"))
-                    .andExpect(jsonPath("$.temporaryPassword").value("abc123xyz789"))
-                    .andExpect(jsonPath("$.manualStep").isNotEmpty());
+                    .andExpect(jsonPath("$.email").value("newvendor@tienda.com"));
         }
     }
 }

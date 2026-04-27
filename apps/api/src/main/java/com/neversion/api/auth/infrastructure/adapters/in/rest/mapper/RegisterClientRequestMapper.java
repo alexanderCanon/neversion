@@ -21,6 +21,7 @@ public final class RegisterClientRequestMapper {
     public static RegisterClientCommand toCommand(RegisterClientRequest request) {
         return new RegisterClientCommand(
                 request.email(),
+                request.externalId(),
                 request.name(),
                 request.phone(),
                 request.vendorUuid());
@@ -34,10 +35,6 @@ public final class RegisterClientRequestMapper {
                 result.userUuid(),
                 result.clientUuid(),
                 result.name(),
-                result.email(),
-                result.temporaryPassword(),
-                "MANUAL STEP REQUIRED: Create the Supabase Auth account using " +
-                "email='" + result.email() + "' and the temporaryPassword above. " +
-                "Then update users.external_id in the database with the Supabase user UUID.");
+                result.email());
     }
 }

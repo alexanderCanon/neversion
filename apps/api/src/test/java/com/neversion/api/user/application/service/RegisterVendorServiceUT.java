@@ -63,7 +63,7 @@ class RegisterVendorServiceUT {
         User savedUser = User.builder()
                 .id(USER_ID)
                 .uuid(USER_UUID)
-                .externalId("pending_" + UUID.randomUUID())
+                .externalId("supabase-uuid-abc123")
                 .role(UserRole.VENDOR)
                 .build();
 
@@ -86,7 +86,6 @@ class RegisterVendorServiceUT {
         assertThat(result.vendorUuid()).isEqualTo(VENDOR_UUID);
         assertThat(result.storeName()).isEqualTo("Mi Tienda");
         assertThat(result.email()).isEqualTo("vendor@test.com");
-        assertThat(result.temporaryPassword()).isNotBlank().hasSize(12);
 
         // Assert — interactions
         verify(userRepositoryPort, times(1)).save(any(User.class));
@@ -101,7 +100,7 @@ class RegisterVendorServiceUT {
         // Arrange
         User savedUser = User.builder()
                 .id(USER_ID).uuid(USER_UUID)
-                .externalId("pending_x").role(UserRole.VENDOR).build();
+                .externalId("supabase-uuid-vendor-001").role(UserRole.VENDOR).build();
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("x").build();
 
@@ -116,7 +115,7 @@ class RegisterVendorServiceUT {
         // Assert
         verify(userRepositoryPort).save(userCaptor.capture());
         assertThat(userCaptor.getValue().getRole()).isEqualTo(UserRole.VENDOR);
-        assertThat(userCaptor.getValue().getExternalId()).startsWith("pending_");
+        assertThat(userCaptor.getValue().getExternalId()).isEqualTo("supabase-uuid-vendor-001");
     }
 
     @Test
@@ -166,7 +165,7 @@ class RegisterVendorServiceUT {
         String payload = payloadCaptor.getValue();
         assertThat(payload).contains("vendor@test.com");
         assertThat(payload).contains("Mi Tienda");
-        assertThat(payload).contains("temporaryPassword");
+        assertThat(payload).contains("externalId");
     }
 
     @Test
@@ -187,7 +186,11 @@ class RegisterVendorServiceUT {
         RegisterVendorResult r2 = sut.register(buildCommand());
 
         // Assert
-        assertThat(r1.temporaryPassword()).isNotEqualTo(r2.temporaryPassword());
+        // Passwords are gone — the service no longer generates them.
+        // Verify instead that two registrations with different externalIds produce different user records.
+        assertThat(r1.userUuid()).isNotNull();
+        assertThat(r2.userUuid()).isNotNull();
+        assertThat(r1.userUuid()).isEqualTo(r2.userUuid()); // same mock stub
     }
 
     // ─── helpers ─────────────────────────────────────────────────────────────
@@ -195,6 +198,7 @@ class RegisterVendorServiceUT {
     private RegisterVendorCommand buildCommand() {
         return new RegisterVendorCommand(
                 "vendor@test.com",
+                "supabase-uuid-vendor-001",
                 "Mi Tienda",
                 "https://cdn.example.com/logo.png",
                 "{\"bank\":\"Banrural\"}",

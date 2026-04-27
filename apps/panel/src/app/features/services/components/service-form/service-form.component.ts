@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ServiceRequest } from '@neversion/models';
+import { ServiceRequest, ServiceResponse } from '@neversion/models';
 
 interface BootstrapModal {
   show(): void;
@@ -33,6 +33,8 @@ export class ServiceFormComponent {
   serviceForm: FormGroup;
   categories = ['STREAMING', 'SOFTWARE', 'GIFT_CARD', 'RECHARGE', 'DIGITAL_SERVICE'];
   isBrowser: boolean;
+  isEditMode = false;
+  editingServiceId: string | null = null;
   
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -42,12 +44,33 @@ export class ServiceFormComponent {
       description: [''],
       imageUrl: [''],
       category: ['STREAMING', Validators.required],
-      maxProfiles: [1, [Validators.required, Validators.min(1)]]
+      maxProfiles: [1, [Validators.required, Validators.min(1)]],
+      priceProfile: [0, [Validators.required, Validators.min(0)]],
+      priceFull: [0, [Validators.required, Validators.min(0)]],
+      durationDays: [30, [Validators.required, Validators.min(1)]]
     });
   }
 
-  openModal(): void {
-    this.resetForm();
+  openModal(service?: ServiceResponse): void {
+    if (service) {
+      this.isEditMode = true;
+      this.editingServiceId = service.id;
+      this.serviceForm.patchValue({
+        name: service.name,
+        description: service.description,
+        imageUrl: service.imageUrl,
+        category: service.category,
+        maxProfiles: service.maxProfiles,
+        priceProfile: service.priceProfile,
+        priceFull: service.priceFull,
+        durationDays: service.durationDays
+      });
+    } else {
+      this.isEditMode = false;
+      this.editingServiceId = null;
+      this.resetForm();
+    }
+
     if (this.isBrowser) {
         const modalEl = this.modalElement?.nativeElement;
         if(modalEl) {
@@ -59,7 +82,6 @@ export class ServiceFormComponent {
                modalEl.classList.add('show');
                modalEl.style.display = 'block';
                document.body.classList.add('modal-open');
-               
                const backdrop = document.createElement('div');
                backdrop.classList.add('modal-backdrop', 'fade', 'show');
                document.body.appendChild(backdrop);
@@ -80,13 +102,12 @@ export class ServiceFormComponent {
                modalEl.classList.remove('show');
                modalEl.style.display = 'none';
                document.body.classList.remove('modal-open');
-               
                const backdrop = document.querySelector('.modal-backdrop');
                if(backdrop) backdrop.remove();
            }
         }
-        this.resetForm();
      }
+     this.resetForm();
   }
 
   onSubmit(): void {
@@ -94,12 +115,13 @@ export class ServiceFormComponent {
       const formValue = this.serviceForm.value;
       const request: ServiceRequest = {
         name: formValue.name,
+        category: formValue.category,
         maxProfiles: Number(formValue.maxProfiles),
-        details: {
-          description: formValue.description,
-          imageUrl: formValue.imageUrl,
-          category: formValue.category
-        }
+        priceProfile: Number(formValue.priceProfile),
+        priceFull: Number(formValue.priceFull),
+        durationDays: Number(formValue.durationDays),
+        description: formValue.description,
+        imageUrl: formValue.imageUrl
       };
       
       this.saveService.emit(request);
@@ -112,11 +134,12 @@ export class ServiceFormComponent {
   }
 
   resetForm(): void {
-    if (this.serviceForm) {
-      this.serviceForm.reset({
-        category: 'STREAMING',
-        maxProfiles: 1
-      });
-    }
+    this.serviceForm.reset({
+      category: 'STREAMING',
+      maxProfiles: 1,
+      priceProfile: 0,
+      priceFull: 0,
+      durationDays: 30
+    });
   }
 }

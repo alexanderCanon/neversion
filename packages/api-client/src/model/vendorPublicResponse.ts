@@ -9,22 +9,18 @@
  */
 
 
-export interface RegisterVendorResponse { 
+export interface VendorPublicResponse { 
     /**
-     * Public UUID of the created platform user
+     * Public UUID of the vendor — used for multi-tenant API calls
      */
-    userUuid?: string;
+    id?: string;
     /**
-     * Public UUID of the created vendor record
-     */
-    vendorUuid?: string;
-    /**
-     * Vendor\'s store display name
+     * Display name of the vendor\'s store
      */
     storeName?: string;
     /**
-     * Vendor\'s email address
+     * URL to the vendor\'s logo image
      */
-    email?: string;
+    logoUrl?: string;
 }
 

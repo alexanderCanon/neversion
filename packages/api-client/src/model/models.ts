@@ -24,3 +24,4 @@ export * from './serviceResponse';
 export * from './subscriptionResponse';
 export * from './uploadReceiptRequest';
 export * from './validateReservationRequest';
+export * from './vendorPublicResponse';

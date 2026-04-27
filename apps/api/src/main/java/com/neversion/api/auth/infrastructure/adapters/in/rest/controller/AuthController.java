@@ -48,8 +48,8 @@ public class AuthController {
      * Registers a new vendor in the platform (US-012).
      * <p>
      * Creates the internal user + vendor records and records a VENDOR_WELCOME
-     * notification event. The Supabase Auth account must be created manually
-     * by the Super Admin using the returned temporaryPassword (ADR-09).
+     * notification event. The Supabase Auth account must be created by the frontend
+     * before calling this endpoint; the resulting externalId is provided in the request (ADR-09 revised).
      */
     @PostMapping("/vendors")
     @SecurityRequirement(name = "bearerAuth")

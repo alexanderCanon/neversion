@@ -10,7 +10,7 @@
 
 
 export interface ReservationDetailResponse { 
-    uuid?: string;
+    id?: string;
     serviceId?: number;
     qty?: number;
     unitPrice?: number;

@@ -3,7 +3,7 @@
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
-          <i class="bi bi-box-seam me-2"></i>Nuevo Servicio
+          <i class="bi bi-box-seam me-2"></i>{{ isEditMode ? 'Editar' : 'Nuevo' }} Servicio
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
       </div>
@@ -17,57 +17,60 @@
                    class="form-control" 
                    id="name" 
                    formControlName="name"
-                   placeholder="Ej. Netflix, Spotify, Amazon Prime">
+                   placeholder="Ej. Netflix Premium">
             @if(serviceForm.get('name')?.invalid && serviceForm.get('name')?.touched) {
                <div class="text-danger small mt-1">El nombre es requerido (mínimo 3 caracteres)</div>
             }
           </div>
 
-          <div class="mb-3">
-            <label for="category" class="form-label text-secondary fw-semibold">Categoría <span class="text-danger">*</span></label>
-            <select class="form-select" id="category" formControlName="category">
-                @for(cat of categories; track cat) {
-                    <option [value]="cat">{{ cat }}</option>
-                }
-            </select>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="category" class="form-label text-secondary fw-semibold">Categoría <span class="text-danger">*</span></label>
+              <select class="form-select" id="category" formControlName="category">
+                  @for(cat of categories; track cat) {
+                      <option [value]="cat">{{ cat }}</option>
+                  }
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="maxProfiles" class="form-label text-secondary fw-semibold">Perfiles Máx. <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="maxProfiles" formControlName="maxProfiles" min="1">
+            </div>
           </div>
-          
-          <div class="mb-3">
-            <label for="maxProfiles" class="form-label text-secondary fw-semibold">Perfiles Máximos Permitidos <span class="text-danger">*</span></label>
-            <input type="number" 
-                   class="form-control" 
-                   id="maxProfiles" 
-                   formControlName="maxProfiles"
-                   placeholder="Ej. 1, 4, 5"
-                   min="1">
-            @if(serviceForm.get('maxProfiles')?.invalid && serviceForm.get('maxProfiles')?.touched) {
-               <div class="text-danger small mt-1">El número de perfiles debe ser mayor a 0</div>
-            }
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="priceProfile" class="form-label text-secondary fw-semibold">Precio Perfil (Q) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="priceProfile" formControlName="priceProfile" min="0">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="priceFull" class="form-label text-secondary fw-semibold">Precio Completo (Q) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="priceFull" formControlName="priceFull" min="0">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="durationDays" class="form-label text-secondary fw-semibold">Duración (Días) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="durationDays" formControlName="durationDays" min="1">
+            </div>
           </div>
 
           <div class="mb-3">
             <label for="description" class="form-label text-secondary fw-semibold">Descripción (Opcional)</label>
-            <textarea class="form-control" 
-                      id="description" 
-                      formControlName="description" 
-                      rows="2" 
-                      placeholder="Breve descripción del servicio..."></textarea>
+            <textarea class="form-control" id="description" formControlName="description" rows="2"></textarea>
           </div>
 
           <div class="mb-3">
              <label for="imageUrl" class="form-label text-secondary fw-semibold">URL de la Imagen (Opcional)</label>
-             <input type="url" 
-                    class="form-control" 
-                    id="imageUrl" 
-                    formControlName="imageUrl"
-                    placeholder="https://ejemplo.com/logo.png">
+             <input type="url" class="form-control" id="imageUrl" formControlName="imageUrl" placeholder="https://...">
           </div>
 
         </div>
         <div class="modal-footer bg-light border-top-0">
           <button type="button" class="btn btn-outline-secondary px-4" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary px-4 fw-medium" [disabled]="!serviceForm.valid">
-             Guardar Servicio
+          <button type="submit" class="btn btn-primary px-4 fw-medium" [disabled]="serviceForm.invalid">
+             {{ isEditMode ? 'Guardar Cambios' : 'Crear Servicio' }}
           </button>
         </div>
       </form>

@@ -15,24 +15,17 @@ import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 /**
  * Application service implementing US-013 — Client Self-Registration.
  * <p>
- * Orchestrates the full client onboarding flow:
+ * Flow (ADR-09 revised — frontend-managed auth):
  * <ol>
  *   <li>Resolves the vendor by UUID (multi-tenancy: ADR-02).</li>
- *   <li>Generates a secure temporary password.</li>
- *   <li>Persists the internal User record (role=CLIENT).</li>
- *   <li>Persists the Client record linked to both user and vendor.</li>
- *   <li>Records a CLIENT_REGISTRATION event in notification_log
- *       so Agent Notifications can dispatch the confirmation email.</li>
+ *   <li>Frontend creates the Supabase Auth account and lets the user choose their password.</li>
+ *   <li>Frontend sends the resulting Supabase UUID as {@code externalId} in the request.</li>
+ *   <li>This service persists the internal User and Client records using that externalId.</li>
+ *   <li>Records a CLIENT_REGISTRATION event in notification_log for Agent Notifications.</li>
  * </ol>
- *
- * <p><b>MANUAL STEP REQUIRED (ADR-09):</b> After registration, the
- * Supabase Auth account must be created manually. The externalId
- * stored is a placeholder that must be updated with the Supabase user UUID.
  */
 @Service
 public class RegisterClientService implements RegisterClientUseCase {
@@ -61,16 +54,10 @@ public class RegisterClientService implements RegisterClientUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Vendor not found: " + command.vendorUuid()));
 
-        // BR-US013-01: Generate a secure temporary password for the client.
-        String temporaryPassword = generateTemporaryPassword();
-
-        // BR-US013-02: Placeholder external_id until Supabase Auth account is created.
-        String placeholderExternalId = "pending_" + UUID.randomUUID();
-
-        // Step 2 — Persist the internal platform user with role CLIENT
+        // Step 2 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(
                 User.builder()
-                        .externalId(placeholderExternalId)
+                        .externalId(command.externalId())
                         .role(UserRole.CLIENT)
                         .build());
 
@@ -85,28 +72,15 @@ public class RegisterClientService implements RegisterClientUseCase {
                         .build());
 
         // Step 4 — Record notification event for Agent Notifications (NFR-05)
-        String payload = buildNotificationPayload(
-                command.email(), command.name(), temporaryPassword, placeholderExternalId);
+        String payload = String.format(
+                "{\"email\":\"%s\",\"name\":\"%s\",\"externalId\":\"%s\"}",
+                command.email(), command.name(), command.externalId());
         notificationLogPort.record("CLIENT_REGISTRATION", command.email(), payload);
 
         return new RegisterClientResult(
                 user.getUuid(),
                 client.getUuid(),
                 client.getName(),
-                command.email(),
-                temporaryPassword);
-    }
-
-    private String generateTemporaryPassword() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 12);
-    }
-
-    private String buildNotificationPayload(
-            String email, String name, String temporaryPassword, String placeholderExternalId) {
-        return String.format(
-                "{\"email\":\"%s\",\"name\":\"%s\",\"temporaryPassword\":\"%s\"," +
-                "\"note\":\"Create Supabase Auth account manually with email=%s and this password. " +
-                "Then update users.external_id where external_id='%s'.\"}",
-                email, name, temporaryPassword, email, placeholderExternalId);
+                command.email());
     }
 }

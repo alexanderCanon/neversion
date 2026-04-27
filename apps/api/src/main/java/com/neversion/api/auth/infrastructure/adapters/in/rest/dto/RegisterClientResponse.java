@@ -21,13 +21,6 @@ public record RegisterClientResponse(
         String name,
 
         @Schema(description = "Client's email address")
-        String email,
-
-        @Schema(description = "System-generated temporary password. " +
-                "Use this to create the Supabase Auth account manually.")
-        String temporaryPassword,
-
-        @Schema(description = "Reminder: create the Supabase Auth account manually.")
-        String manualStep
+        String email
 ) {
 }
