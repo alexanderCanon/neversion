@@ -39,6 +39,20 @@ public class JpaClientAdapter implements ClientRepositoryPort {
         return clientRepo.findById(id).map(clientMapper::toDomain);
     }
 
+    /** US-029 — Lista clientes del vendor con filtros opcionales (null = sin filtro). */
+    @Override
+    public List<Client> findByVendorId(Long vendorId, String name, String phone, String email) {
+        return clientRepo.findByVendorId(vendorId, name, phone, email).stream()
+                .map(clientMapper::toDomain)
+                .toList();
+    }
+
+    /** US-031 — Validación de unicidad de email antes de persistir. */
+    @Override
+    public Optional<Client> findByEmail(String email) {
+        return clientRepo.findByEmail(email).map(clientMapper::toDomain);
+    }
+
     @Override
     public List<Client> findByName(String name) {
         return clientRepo.findByName(name).stream()

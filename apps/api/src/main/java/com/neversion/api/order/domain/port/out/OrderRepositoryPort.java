@@ -1,5 +1,6 @@
 package com.neversion.api.order.domain.port.out;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,4 +17,7 @@ public interface OrderRepositoryPort {
     Optional<Order> findByUuid(UUID uuid);
 
     Optional<Order> findByReservationId(Long reservationId);
+
+    /** US-030 — Historial de órdenes del cliente, ordenado por fecha desc. */
+    List<Order> findByClientId(Long clientId);
 }

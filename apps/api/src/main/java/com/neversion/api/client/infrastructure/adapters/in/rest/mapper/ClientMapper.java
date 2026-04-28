@@ -9,23 +9,39 @@ import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRespon
 @Component
 public class ClientMapper {
 
+    /** Maps a creation request to a domain Client (no vendorId — resolved in service). */
     public Client toDomain(ClientRequest request) {
-        return request != null ? Client.builder()
+        if (request == null) return null;
+        return Client.builder()
                 .name(request.name())
                 .email(request.email())
                 .phone(request.phone())
                 .notes(request.notes())
-                .build() : null;
+                .build();
     }
 
-    public ClientResponse toResponse(Client client) {
-        return client != null ? ClientResponse.builder()
+    /**
+     * Maps domain Client to ClientResponse.
+     * US-029: activeSubscriptionCount pre-calculated by the service layer.
+     */
+    public ClientResponse toResponse(Client client, long activeSubscriptionCount) {
+        if (client == null) return null;
+        return ClientResponse.builder()
                 .id(client.getUuid())
                 .name(client.getName())
                 .email(client.getEmail())
                 .phone(client.getPhone())
                 .notes(client.getNotes())
+                .activeSubscriptionCount(activeSubscriptionCount)
                 .createdAt(client.getCreatedAt())
-                .build() : null;
+                .build();
+    }
+
+    /**
+     * Convenience overload — activeSubscriptionCount = 0.
+     * Used for single-client operations (create, update, getById) where the count is not loaded.
+     */
+    public ClientResponse toResponse(Client client) {
+        return toResponse(client, 0L);
     }
 }

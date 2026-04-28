@@ -1,5 +1,6 @@
 package com.neversion.api.order.infrastructure.adapters.out;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,5 +40,13 @@ public class JpaOrderAdapter implements OrderRepositoryPort {
     @Override
     public Optional<Order> findByReservationId(Long reservationId) {
         return orderRepo.findByReservationId(reservationId).map(orderMapper::toDomain);
+    }
+
+    /** US-030 — Historial de órdenes del cliente (JOIN via reservations). */
+    @Override
+    public List<Order> findByClientId(Long clientId) {
+        return orderRepo.findByClientId(clientId).stream()
+                .map(orderMapper::toDomain)
+                .toList();
     }
 }
