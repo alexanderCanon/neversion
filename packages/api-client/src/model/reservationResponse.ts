@@ -17,6 +17,7 @@ export interface ReservationResponse {
     discount?: number;
     total?: number;
     receiptUrl?: string;
+    paymentMethod?: string;
     expirationDate?: string;
     createdAt?: string;
     details?: Array<ReservationDetailResponse>;
@@ -26,6 +27,7 @@ export namespace ReservationResponse {
         Pending: 'PENDING',
         Uploaded: 'UPLOADED',
         Validated: 'VALIDATED',
+        Rejected: 'REJECTED',
         Expired: 'EXPIRED',
         Cancelled: 'CANCELLED'
     } as const;

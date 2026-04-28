@@ -30,6 +30,7 @@ model/clientRequest.ts
 model/clientResponse.ts
 model/createSubscriptionRequest.ts
 model/models.ts
+model/orderDetailResponse.ts
 model/orderResponse.ts
 model/orderSummary.ts
 model/productSummaryResult.ts
@@ -49,6 +50,7 @@ model/reservationRequest.ts
 model/reservationResponse.ts
 model/serviceRequest.ts
 model/serviceResponse.ts
+model/statusChangeResponse.ts
 model/subscriptionResponse.ts
 model/updateClientRequest.ts
 model/uploadReceiptRequest.ts

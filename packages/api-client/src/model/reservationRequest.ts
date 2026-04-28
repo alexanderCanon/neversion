@@ -11,7 +11,8 @@ import { ReservationItemRequest } from './reservationItemRequest';
 
 
 export interface ReservationRequest { 
-    clientId?: string;
+    clientId: string;
     items: Array<ReservationItemRequest>;
+    paymentMethod?: string;
 }
 

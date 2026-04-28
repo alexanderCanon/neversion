@@ -10,7 +10,7 @@
 
 
 export interface ReservationItemRequest { 
-    serviceId: number;
+    serviceUuid: string;
     qty: number;
 }
 

@@ -15,3 +15,5 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-27 | EPIC-02 / US-021 | Catálogo público real. | Refactorizado `PlatformService` para consumir `listActive` de la API real. Eliminadas consultas directas a Supabase. |
 | 2026-04-27 | Lenguaje | Alineación con Glosario B.1. | Los items del catálogo ahora muestran "Precio Perfil" y "Cuenta Completa" según el estándar del proyecto. |
 | 2026-04-27 | Infra | Resolución de conflictos v16/v17. | Se forzó el uso de librerías locales en `tsconfig.json` y se bloqueó el hoisting cruzado en `.npmrc`. |
+| 2026-04-28 | EPIC-05 / US-033 | Implementación de `CartService` y `CheckoutComponent`. | Manejo de estado de carrito con RxJS `BehaviorSubject`. Integración con `createReservation`. |
+| 2026-04-28 | EPIC-05 / US-034 | Implementación de `PaymentPageComponent` y subida de comprobante. | Flujo de subida de archivos (simulado) con integración a `uploadReceipt`. |

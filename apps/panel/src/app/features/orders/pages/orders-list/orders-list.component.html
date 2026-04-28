@@ -6,10 +6,20 @@
     <div class="card shadow-sm mb-4">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="orderSearch" class="form-label">Buscar por ID de Orden o Reserva</label>
+                <div class="col-md-4">
+                    <label for="orderSearch" class="form-label">Buscar por ID</label>
                     <input id="orderSearch" type="text" class="form-control" placeholder="Escribe para buscar..." 
                            [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event); currentPage.set(1)">
+                </div>
+                <div class="col-md-4">
+                    <label for="statusFilter" class="form-label">Estado</label>
+                    <select id="statusFilter" class="form-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event); onFilterChange()">
+                        <option value="">Todos los estados</option>
+                        <option value="PENDING">Pendiente</option>
+                        <option value="COMPLETED">Completada</option>
+                        <option value="CANCELLED">Cancelada</option>
+                        <option value="REJECTED">Rechazada</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -65,7 +75,7 @@
                                         {{ order.createdAt | date:'short' }}
                                     </td>
                                     <td class="text-end">
-                                        <button class="btn btn-sm btn-outline-primary" title="Ver Detalles">
+                                        <button class="btn btn-sm btn-outline-primary" [routerLink]="['/orders', order.id]" title="Ver Detalles">
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </td>

@@ -56,6 +56,7 @@ class CreateReservationServiceUT {
     private static final UUID CLIENT_UUID = UUID.randomUUID();
     private static final Long CLIENT_ID = 10L;
     private static final Long VENDOR_ID = 5L;
+    private static final UUID SERVICE_UUID = UUID.randomUUID();
     private static final Long SERVICE_ID = 1L;
     private static final String PAYMENT_METHOD = "transferencia";
     private static final String DISCOUNT_CFG = """
@@ -86,14 +87,14 @@ class CreateReservationServiceUT {
 
     private com.neversion.api.service.domain.model.Service buildService() {
         return com.neversion.api.service.domain.model.Service.builder()
-                .id(SERVICE_ID).uuid(UUID.randomUUID()).name("Netflix")
+                .id(SERVICE_ID).uuid(SERVICE_UUID).name("Netflix")
                 .priceProfile(new BigDecimal("50.00")).vendorId(VENDOR_ID).build();
     }
 
     private void mockFullResolution() {
         when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
-        when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(buildService()));
+        when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(buildService()));
         when(profileRepositoryPort.countAvailableByServiceIdAndVendorId(SERVICE_ID, VENDOR_ID))
                 .thenReturn(10L); // plenty available
     }
@@ -124,7 +125,7 @@ class CreateReservationServiceUT {
         // Given
         mockFullResolution();
         stubSaveReturnsWithId();
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 1));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When
         Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
@@ -147,7 +148,7 @@ class CreateReservationServiceUT {
         // Given
         mockFullResolution();
         stubSaveReturnsWithId();
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 2));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 2));
 
         // When
         Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
@@ -163,7 +164,7 @@ class CreateReservationServiceUT {
         // Given
         mockFullResolution();
         stubSaveReturnsWithId();
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 4));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 4));
 
         // When
         Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
@@ -179,7 +180,7 @@ class CreateReservationServiceUT {
         // Given
         mockFullResolution();
         stubSaveReturnsWithId();
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 1));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When
         Instant before = Instant.now().plus(59, ChronoUnit.MINUTES);
@@ -196,7 +197,7 @@ class CreateReservationServiceUT {
     void create_clientNotFound_shouldThrow404() {
         // Given
         when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.empty());
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 1));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When / Then
         assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
@@ -210,8 +211,8 @@ class CreateReservationServiceUT {
         // Given
         when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
-        when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.empty());
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 1));
+        when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.empty());
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When / Then
         assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
@@ -225,10 +226,10 @@ class CreateReservationServiceUT {
         // Given
         when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
-        when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(buildService()));
+        when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(buildService()));
         when(profileRepositoryPort.countAvailableByServiceIdAndVendorId(SERVICE_ID, VENDOR_ID))
                 .thenReturn(1L); // only 1 available, but requesting 3
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 3));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 3));
 
         // When / Then — BR-US033-01
         assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
@@ -242,7 +243,7 @@ class CreateReservationServiceUT {
         // Given
         mockFullResolution();
         stubSaveReturnsWithId();
-        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_ID, 1));
+        List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When
         Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);

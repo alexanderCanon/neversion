@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Component({
@@ -14,24 +15,33 @@ import { OrderResponse, OrderStatus } from '@neversion/models';
 })
 export class OrdersListComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
+  private readonly authService = inject(AuthService);
 
   private readonly _orders = signal<OrderResponse[]>([]);
   readonly isLoading = signal(false);
 
+  statusFilter = signal<OrderStatus | ''>('');
   searchTerm = signal('');
   currentPage = signal(1);
   pageSize = 10;
 
   readonly filteredOrders = computed(() => {
+    let result = this._orders();
+    const status = this.statusFilter();
     const term = this.searchTerm().toLowerCase();
-    const allOrders = this._orders();
 
-    if (!term) return allOrders;
+    if (status) {
+      result = result.filter(o => o.status === status);
+    }
 
-    return allOrders.filter(o => 
-      o.id.toLowerCase().includes(term) || 
-      o.reservationId.toLowerCase().includes(term)
-    );
+    if (term) {
+      result = result.filter(o => 
+        o.id.toLowerCase().includes(term) || 
+        o.reservationId.toLowerCase().includes(term)
+      );
+    }
+
+    return result;
   });
 
   readonly paginatedOrders = computed(() => {
@@ -44,21 +54,27 @@ export class OrdersListComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    // Note: Since there is no "List all orders" endpoint in the current contract,
-    // this would typically be populated via a different flow or a new endpoint.
-    // For now, we scaffold it as a placeholder.
     this.loadOrders();
   }
 
   loadOrders(): void {
-    // Placeholder - orders.md doesn't specify a GET /orders list endpoint yet,
-    // only GET /orders/{id} and GET /orders/by-reservation/{id}.
-    // In a real scenario, we'd need a list endpoint or handle navigation to specific orders.
+    const user = this.authService.currentUser();
+    if (!user) return;
+
     this.isLoading.set(true);
-    // Simulating empty list for now as per contract limitations
-    setTimeout(() => {
+    this.ordersService.getOrdersByVendor(user.id).subscribe({
+      next: (data) => {
+        this._orders.set(data);
         this.isLoading.set(false);
-    }, 500);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  onFilterChange(): void {
+    this.currentPage.set(1);
   }
 
   prevPage(): void {

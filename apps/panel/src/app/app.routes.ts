@@ -81,6 +81,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'orders/:id',
+                loadComponent: () => import('./features/orders/pages/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
+                data: { allowedRoles: ['super_admin', 'vendedor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'vendors',
                 loadComponent: () => import('./features/vendors/pages/vendors-list/vendors-list.component').then(m => m.VendorsListComponent),
                 data: { allowedRoles: ['super_admin'] },

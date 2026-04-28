@@ -1,0 +1,141 @@
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a routerLink="/orders">Órdenes</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Detalle de Orden</li>
+            </ol>
+        </nav>
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Orden: <small class="text-muted">{{ order()?.id }}</small></h2>
+            <span class="badge fs-6" [ngClass]="getStatusBadgeClass(order()?.status)">
+                {{ order()?.status }}
+            </span>
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    } @else if (order()) {
+        <div class="row g-4">
+            <!-- Left Column: Details -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Servicios Contratados</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table mb-0">
+                                <thead class="table-light text-muted small">
+                                    <tr>
+                                        <th>Servicio</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (item of order()!.reservation?.details; track item.id) {
+                                        <tr>
+                                            <td>{{ item.serviceId }}</td>
+                                            <td>{{ item.qty }}</td>
+                                            <td>Q{{ item.unitPrice | number:'1.2-2' }}</td>
+                                            <td class="text-end fw-bold">Q{{ item.subtotal | number:'1.2-2' }}</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <td colspan="3" class="text-end">Descuento:</td>
+                                        <td class="text-end text-danger">-Q{{ order()!.discount | number:'1.2-2' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="text-end fw-bold fs-5">Q{{ order()!.total | number:'1.2-2' }}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Historial de Estados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline small">
+                            @for (history of order()!.statusHistory; track history.changedAt) {
+                                <div class="d-flex mb-3">
+                                    <div class="me-3 text-center" style="width: 80px;">
+                                        <div class="fw-bold">{{ history.changedAt | date:'HH:mm' }}</div>
+                                        <div class="text-muted extra-small">{{ history.changedAt | date:'dd/MM' }}</div>
+                                    </div>
+                                    <div class="border-start ps-3 pb-3 position-relative">
+                                        <div class="position-absolute top-0 start-0 translate-middle-x bg-primary rounded-circle" 
+                                             style="width: 10px; height: 10px; margin-left: -5px;"></div>
+                                        <div class="fw-bold text-primary">{{ history.newStatus }}</div>
+                                        <div class="text-muted">{{ history.notes }}</div>
+                                        @if (history.changedBy) {
+                                            <div class="text-muted extra-small mt-1">
+                                                <i class="bi bi-person me-1"></i> Por: {{ history.changedBy }}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Info and Receipt -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h6 class="text-muted small text-uppercase mb-3">Resumen de Transacción</h6>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Método de Pago:</span>
+                                <span class="fw-bold">{{ order()!.paymentMethod }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>ID de Reserva:</span>
+                                <span>{{ order()!.reservationId }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Creada el:</span>
+                                <span>{{ order()!.createdAt | date:'short' }}</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>Aprobada el:</span>
+                                <span>{{ order()!.approvedAt | date:'short' }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                @if (order()!.receiptUrl) {
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">Comprobante de Pago</h5>
+                        </div>
+                        <div class="card-body text-center bg-light">
+                            <img [src]="order()!.receiptUrl" class="img-fluid rounded border shadow-sm" style="max-height: 400px;" alt="Comprobante">
+                            <div class="mt-3">
+                                <a [href]="order()!.receiptUrl" target="_blank" class="btn btn-sm btn-outline-primary w-100">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver Comprobante
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

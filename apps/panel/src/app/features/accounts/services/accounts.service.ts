@@ -28,10 +28,10 @@ export class AccountsService {
     if (!user) return of([]);
 
     this._isLoading.set(true);
-    // listByVendor2(vendorUuid, serviceUuid, status)
-    return this.accountsApi.listByVendor2(user.id, filter?.serviceId, filter?.status as any).pipe(
+    // listByVendor3(vendorUuid, serviceUuid, status)
+    return this.accountsApi.listByVendor3(user.id, filter?.serviceId, filter?.status as any).pipe(
       map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
-      tap((accounts) => this._accounts.set(accounts)),
+      tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
       finalize(() => this._isLoading.set(false))
     );
   }

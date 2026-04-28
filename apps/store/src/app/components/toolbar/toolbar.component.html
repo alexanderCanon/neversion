@@ -31,8 +31,13 @@
 
     <!-- Right Section: Cart and Login -->
     <div class="d-flex align-items-center gap-3 ms-lg-3">
-      <a routerLink="checkout" class="cart-link" title="Carrito de compras">
+      <a routerLink="checkout" class="cart-link position-relative" title="Carrito de compras">
         <img src="/assets/cart.svg" alt="Cart" class="cart-icon">
+        <span *ngIf="cartItemCount$ | async as count" 
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              style="font-size: 0.65rem;">
+          {{ count }}
+        </span>
       </a>
 
       <ng-container *ngIf="currentUser$ | async as user; else loginBtn">

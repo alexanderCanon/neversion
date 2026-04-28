@@ -26,3 +26,6 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-28 | EPIC-04 / US-030 | Detalle de Cliente Completo | Creación de ClientDetailComponent con Tabs para Info, Suscripciones y Órdenes (US-030). |
 | 2026-04-28 | EPIC-04 / US-031 | Creación de Cliente (Validaciones) | Modificado ClientFormComponent para hacer correo requerido y teléfono opcional (US-031). |
 | 2026-04-28 | EPIC-04 / US-032 | Edición de Cliente (Email Bloqueado)| Añadida validación de readonly para campo email en modo EDIT (US-032). |
+| 2026-04-28 | EPIC-05 / US-035 | Validación de Reservas y Creación de Órdenes. | Implementado flujo de aprobación/rechazo en `ReservationDetailComponent`. |
+| 2026-04-28 | EPIC-05 / US-037 | Listado de Órdenes del Vendedor. | Integrado `getOrdersByVendor` con filtrado por estado y búsqueda. |
+| 2026-04-28 | EPIC-05 / US-038 | Detalle de Orden con Historial. | Implementado `OrderDetailComponent` incluyendo `statusHistory` y visualización de comprobante. |

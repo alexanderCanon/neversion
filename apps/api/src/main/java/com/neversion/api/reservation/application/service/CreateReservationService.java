@@ -89,13 +89,13 @@ public class CreateReservationService implements CreateReservationUseCase {
 
         for (ReservationItemCommand item : items) {
             com.neversion.api.service.domain.model.Service service =
-                    serviceRepositoryPort.findByInternalId(item.serviceId())
+                    serviceRepositoryPort.findById(item.serviceUuid())
                             .orElseThrow(() -> new ResourceNotFoundException(
-                                    "Service not found with id: " + item.serviceId()));
+                                    "Service not found with uuid: " + item.serviceUuid()));
 
             // BR-US033-01: Validate profile availability
             long availableProfiles = profileRepositoryPort
-                    .countAvailableByServiceIdAndVendorId(item.serviceId(), vendorId);
+                    .countAvailableByServiceIdAndVendorId(service.getId(), vendorId);
             if (availableProfiles < item.qty()) {
                 throw new BusinessRuleException(
                         "Not enough available profiles for service '" + service.getName()
@@ -111,7 +111,7 @@ public class CreateReservationService implements CreateReservationUseCase {
                     null,
                     null, // uuid generated on persist
                     null, // reservationId set after save
-                    item.serviceId(),
+                    service.getId(),
                     item.qty(),
                     unitPrice,
                     null)); // subtotal is DB-computed

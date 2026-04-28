@@ -1,24 +1,31 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { OrderResponse as ApiOrderResponse } from '@neversion/api-client';
-import { OrderResponse } from '@neversion/models';
+import { OrderResponse as ApiOrderResponse, OrderDetailResponse as ApiOrderDetailResponse } from '@neversion/api-client';
+import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/orders`;
 
-  getOrderById(id: string): Observable<OrderResponse> {
-    return this.http.get<ApiOrderResponse>(`${this.baseUrl}/${id}`).pipe(
-      map(api => this.mapToModel(api))
-    );
+  getOrderById(id: string): Observable<ApiOrderDetailResponse> {
+    return this.http.get<ApiOrderDetailResponse>(`${this.baseUrl}/${id}`);
   }
 
-  getOrderByReservationId(reservationId: string): Observable<OrderResponse> {
-    return this.http.get<ApiOrderResponse>(`${this.baseUrl}/by-reservation/${reservationId}`).pipe(
-      map(api => this.mapToModel(api))
+  getOrderByReservationId(reservationId: string): Observable<ApiOrderResponse> {
+    return this.http.get<ApiOrderResponse>(`${this.baseUrl}/by-reservation/${reservationId}`);
+  }
+
+  getOrdersByVendor(vendorUuid: string, status?: string): Observable<OrderResponse[]> {
+    let params = new HttpParams();
+    if (status) {
+      params = params.set('status', status);
+    }
+
+    return this.http.get<ApiOrderResponse[]>(`${this.baseUrl}/vendor/${vendorUuid}`, { params }).pipe(
+      map(apiRes => apiRes.map(api => this.mapToModel(api)))
     );
   }
 
@@ -26,8 +33,10 @@ export class OrdersService {
     return {
       id: api.id || '',
       reservationId: api.reservationId || '',
-      status: (api.status as any) || 'PENDING',
+      status: (api.status as unknown as OrderStatus) || 'PENDING',
       notes: api.notes || '',
+      total: api.total || 0,
+      paymentMethod: api.paymentMethod || '',
       createdAt: api.createdAt || ''
     };
   }

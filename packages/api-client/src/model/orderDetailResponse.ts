@@ -7,12 +7,14 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { ReservationResponse } from './reservationResponse';
+import { StatusChangeResponse } from './statusChangeResponse';
 
 
-export interface OrderResponse { 
+export interface OrderDetailResponse { 
     id?: string;
     reservationId?: string;
-    status?: OrderResponse.StatusEnum;
+    status?: OrderDetailResponse.StatusEnum;
     paymentMethod?: string;
     total?: number;
     discount?: number;
@@ -20,8 +22,10 @@ export interface OrderResponse {
     receiptUrl?: string;
     approvedAt?: string;
     createdAt?: string;
+    reservation?: ReservationResponse;
+    statusHistory?: Array<StatusChangeResponse>;
 }
-export namespace OrderResponse {
+export namespace OrderDetailResponse {
     export const StatusEnum = {
         Validated: 'VALIDATED',
         Completed: 'COMPLETED',

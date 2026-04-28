@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/orders")
-@Tag(name = "Orders", description = "Order management for vendors")
+@Tag(name = "Orders", description = "Order retrieval for admin and customer")
 public class OrderController {
 
     private final ChangeOrderStatusUseCase changeOrderStatusUseCase;

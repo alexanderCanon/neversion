@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PlatformService } from '../../services/platform.service';
+import { CartService } from '../../services/cart.service';
 import { Observable } from 'rxjs';
 import { ServiceResponse } from '@neversion/api-client';
 
@@ -10,11 +11,16 @@ import { ServiceResponse } from '@neversion/api-client';
 })
 export class PlatformsComponent implements OnInit {
 
-  platforms$!: Observable<ServiceResponse[]>;
+  private readonly _platformService = inject(PlatformService);
+  private readonly _cartService = inject(CartService);
 
-  constructor(private _platformService: PlatformService) { }
+  platforms$!: Observable<ServiceResponse[]>;
 
   ngOnInit(): void {
     this.platforms$ = this._platformService.getPlatforms();
+  }
+
+  addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {
+    this._cartService.addToCart(service, type);
   }
 }

@@ -21,7 +21,7 @@ public class ReservationRestMapper {
             return Collections.emptyList();
         }
         return items.stream()
-                .map(item -> new ReservationItemCommand(item.serviceId(), item.qty()))
+                .map(item -> new ReservationItemCommand(item.serviceUuid(), item.qty()))
                 .collect(Collectors.toList());
     }
 

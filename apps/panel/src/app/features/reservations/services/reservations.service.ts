@@ -8,7 +8,7 @@ import {
   ReservationRequest as CreateReservationRequest,
   ReservationDetailResponse as ApiReservationDetailResponse
 } from '@neversion/api-client';
-import { ReservationsFilter, ReservationResponse, ReservationDetailResponse } from '@neversion/models';
+import { ReservationsFilter, ReservationResponse, ReservationDetailResponse, ReservationStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsService {
@@ -75,7 +75,7 @@ export class ReservationsService {
     return {
       id: api.id || '',
       clientId: api.clientId || null,
-      status: (api.status as any) || 'PENDING',
+      status: (api.status as unknown as ReservationStatus) || 'PENDING',
       discount: api.discount || 0,
       total: api.total || 0,
       receiptUrl: api.receiptUrl || null,

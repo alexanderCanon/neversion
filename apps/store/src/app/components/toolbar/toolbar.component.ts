@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
+import { CartService } from '../../services/cart.service';
 import { User } from '@neversion/models';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 @Component({
@@ -10,14 +12,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./toolbar.component.css']
 })
 export class ToolbarComponent {
-  currentUser$: Observable<User | null>;
+  private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {
-    this.currentUser$ = this.authService.currentUser$;
-  }
+  currentUser$: Observable<User | null> = this.authService.currentUser$;
+  cartItemCount$: Observable<number> = this.cartService.items$.pipe(
+    map(items => items.reduce((acc, item) => acc + item.quantity, 0))
+  );
 
   logout(): void {
     this.authService.logout();
