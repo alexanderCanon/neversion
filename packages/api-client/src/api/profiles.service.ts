@@ -17,6 +17,8 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ChangeProfileStatusRequest } from '../model/changeProfileStatusRequest';
+// @ts-ignore
 import { ProfileRequest } from '../model/profileRequest';
 // @ts-ignore
 import { ProfileResponse } from '../model/profileResponse';
@@ -38,8 +40,82 @@ export class ProfilesApiService extends BaseService {
     }
 
     /**
+     * Change profile status (US-027)
+     * Manually sets status to AVAILABLE or BLOCKED. ACTIVE/RESERVED/OCCUPIED/EXPIRED are system-controlled.
+     * @endpoint patch /api/v1/profiles/{id}/status
+     * @param id 
+     * @param changeProfileStatusRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
+    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
+    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
+    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling changeStatus.');
+        }
+        if (changeProfileStatusRequest === null || changeProfileStatusRequest === undefined) {
+            throw new Error('Required parameter changeProfileStatusRequest was null or undefined when calling changeStatus.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/profiles/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/status`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ProfileResponse>('patch', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: changeProfileStatusRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Create a profile manually
-     * Creates a profile under an account. Auto-generation happens on account creation.
+     * Creates a profile under an account. Prefer POST /accounts/{id}/profiles/generate for bulk creation.
      * @endpoint post /api/v1/profiles
      * @param profileRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -226,7 +302,7 @@ export class ProfilesApiService extends BaseService {
 
     /**
      * List profiles by account
-     * Returns all profiles for a given account. Use ?available&#x3D;true to filter only unassigned ones.
+     * Returns all profiles for a given account. Use ?available&#x3D;true for unassigned only.
      * @endpoint get /api/v1/profiles
      * @param accountId 
      * @param available 
@@ -307,7 +383,8 @@ export class ProfilesApiService extends BaseService {
     }
 
     /**
-     * Update a profile (name, pin, isOwner)
+     * Update a profile (US-026)
+     * Updates name, pin, and/or isOwner. Status is not editable here. Requires ownership.
      * @endpoint put /api/v1/profiles/{id}
      * @param id 
      * @param profileRequest 

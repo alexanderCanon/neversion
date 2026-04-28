@@ -19,6 +19,7 @@ public class SubscriptionPersistenceMapper {
                 .monthsPaid(entity.getMonthsPaid())
                 .status(entity.getStatus())
                 .notes(entity.getNotes())
+                .vendorId(entity.getVendorId())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -35,6 +36,7 @@ public class SubscriptionPersistenceMapper {
                 .monthsPaid(domain.getMonthsPaid())
                 .status(domain.getStatus())
                 .notes(domain.getNotes())
+                .vendorId(domain.getVendorId())
                 .createdAt(domain.getCreatedAt())
                 .build();
     }

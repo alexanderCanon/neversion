@@ -38,9 +38,10 @@ class UploadReceiptServiceUT {
         uploadReceiptService = new UploadReceiptService(reservationRepositoryPort);
     }
 
-    private Reservation buildReservation(UUID id, ReservationStatus status) {
+    private Reservation buildReservation(UUID uuid, ReservationStatus status) {
         return Reservation.builder()
-                .id(id)
+                .id(1L)
+                .uuid(uuid)
                 .clientId(1L)
                 .discount(BigDecimal.ZERO)
                 .total(new BigDecimal("100.00"))
@@ -58,7 +59,7 @@ class UploadReceiptServiceUT {
         Reservation reservation = buildReservation(reservationId, ReservationStatus.PENDING);
         String receiptUrl = "https://s3.example.com/receipt-123.jpg";
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.of(reservation));
         when(reservationRepositoryPort.existsByReceiptUrl(receiptUrl)).thenReturn(false);
         when(reservationRepositoryPort.update(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -78,7 +79,7 @@ class UploadReceiptServiceUT {
         UUID reservationId = UUID.randomUUID();
         Reservation reservation = buildReservation(reservationId, ReservationStatus.VALIDATED);
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.of(reservation));
 
         // When / Then
         assertThatThrownBy(() -> uploadReceiptService.uploadReceipt(reservationId, "https://receipt.jpg"))
@@ -94,7 +95,7 @@ class UploadReceiptServiceUT {
         Reservation reservation = buildReservation(reservationId, ReservationStatus.PENDING);
         String duplicateUrl = "https://s3.example.com/duplicate-receipt.jpg";
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.of(reservation));
         when(reservationRepositoryPort.existsByReceiptUrl(duplicateUrl)).thenReturn(true);
 
         // When / Then
@@ -109,7 +110,7 @@ class UploadReceiptServiceUT {
         // Given
         UUID reservationId = UUID.randomUUID();
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.empty());
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.empty());
 
         // When / Then
         assertThatThrownBy(() -> uploadReceiptService.uploadReceipt(reservationId, "https://receipt.jpg"))

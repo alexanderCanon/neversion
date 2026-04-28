@@ -60,8 +60,9 @@ public class CreateReservationService implements CreateReservationUseCase {
         for (ReservationItemCommand item : items) {
             detailsToSave.add(new ReservationDetail(
                     null,
+                    null, // uuid generated on persist
                     null, // reservationId set after save
-                    item.inventoryId(),
+                    item.serviceId(),
                     item.qty(),
                     BigDecimal.ZERO,
                     null)); // subtotal is DB-computed
@@ -96,8 +97,9 @@ public class CreateReservationService implements CreateReservationUseCase {
         for (ReservationDetail detail : detailsToSave) {
             ReservationDetail linked = new ReservationDetail(
                     null,
+                    null, // uuid generated on persist
                     savedReservation.getId(),
-                    detail.inventoryId(),
+                    detail.serviceId(),
                     detail.qty(),
                     detail.unitPrice(),
                     null);

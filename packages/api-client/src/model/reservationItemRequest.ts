@@ -10,7 +10,7 @@
 
 
 export interface ReservationItemRequest { 
-    inventoryId: number;
+    serviceId: number;
     qty: number;
 }
 

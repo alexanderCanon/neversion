@@ -14,6 +14,12 @@ public interface ClientRepositoryPort {
 
     Optional<Client> findByInternalId(Long id);
 
+    /** US-029 — Buscar dentro del tenant del vendor con filtros opcionales. */
+    List<Client> findByVendorId(Long vendorId, String name, String phone, String email);
+
+    /** US-031 — Validación de unicidad de email antes de persistir. */
+    Optional<Client> findByEmail(String email);
+
     List<Client> findByName(String name);
 
     List<Client> findByPhone(String phone);

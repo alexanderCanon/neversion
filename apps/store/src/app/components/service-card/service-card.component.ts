@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Platforms } from '../../model/platforms.model';
+import { ServiceResponse } from '@neversion/api-client';
 
 @Component({
   selector: 'app-service-card',
@@ -7,6 +7,5 @@ import { Platforms } from '../../model/platforms.model';
   styleUrls: ['./service-card.component.css']
 })
 export class ServiceCardComponent {
-  @Input() platforms: Platforms | undefined;
+  @Input() platforms: ServiceResponse | undefined;
 }
-

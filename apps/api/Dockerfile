@@ -31,6 +31,11 @@ RUN ./mvnw package -DskipTests -B \
 # ══════════════════════════════════════════════════════════════════
 FROM eclipse-temurin:17-jre
 
+# Install curl for health check (eclipse-temurin is based on Ubuntu)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
 # ── Security: run as non-root user ──────────────────────────────
 # By default Docker runs as root, which is a security risk.
 # If the app is compromised, the attacker gets root inside the container.

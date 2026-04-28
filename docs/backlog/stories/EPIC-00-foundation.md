@@ -26,10 +26,10 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** una tabla `users` que vincule el usuario autenticado externamente con su rol interno, **para** que el control de acceso funcione correctamente.
 
 #### ✅ Criterios de Aceptación
-- [ ] Existe la tabla `users` con los campos: `id`, `uuid`, `external_id`, `role`, `created_at`.
-- [ ] El campo `role` acepta los valores: `super_admin`, `vendedor`, `cliente`.
-- [ ] El campo `external_id` permite la vinculación con el proveedor de autenticación externo.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Existe la tabla `users` con los campos: `id`, `uuid`, `external_id`, `role`, `created_at`.
+- [x] El campo `role` acepta los valores: `super_admin`, `vendedor`, `cliente`.
+- [x] El campo `external_id` permite la vinculación con el proveedor de autenticación externo.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
 
 ---
 
@@ -37,9 +37,9 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** una tabla `vendors` vinculada a un usuario con rol vendedor, **para** que cada negocio opere de forma independiente dentro del sistema.
 
 #### ✅ Criterios de Aceptación
-- [ ] Existe la tabla `vendors` con los campos: `id`, `uuid`, `user_id`, `store_name`, `logo_url`, `bank_details`, `discount_cfg`, `created_at`.
-- [ ] El campo `user_id` referencia correctamente a la tabla `users`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Existe la tabla `vendors` con los campos: `id`, `uuid`, `user_id`, `store_name`, `logo_url`, `bank_details`, `discount_cfg`, `created_at`.
+- [x] El campo `user_id` referencia correctamente a la tabla `users`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
 
 ---
 
@@ -47,10 +47,10 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que cada cliente esté vinculado a un usuario autenticado y a un vendedor específico, **para** mantener el aislamiento entre negocios.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `clients` incluye la columna `user_id` referenciando a `users`.
-- [ ] La tabla `clients` incluye la columna `vendor_id` referenciando a `vendors`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `clients` incluye la columna `user_id` referenciando a `users`.
+- [x] La tabla `clients` incluye la columna `vendor_id` referenciando a `vendors`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -58,9 +58,9 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que cada servicio pertenezca a un vendedor específico, **para** que cada negocio gestione su propio catálogo de forma independiente.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `services` incluye la columna `vendor_id` referenciando a `vendors`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `services` incluye la columna `vendor_id` referenciando a `vendors`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -68,10 +68,10 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que el pricing de los servicios esté en columnas explícitas, **para** poder realizar consultas, validaciones y cálculos sin depender de `JSONB`.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `services` incluye las columnas: `price_profile`, `price_full`, `duration_days`, `is_active`, `description`, `image_url`.
-- [ ] El campo `details` (JSONB) se mantiene únicamente para metadata no estructurada.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes se migran correctamente desde el anterior campo `JSONB`.
+- [x] La tabla `services` incluye las columnas: `price_profile`, `price_full`, `duration_days`, `is_active`, `description`, `image_url`.
+- [x] El campo `details` (JSONB) se mantiene únicamente para metadata no estructurada.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes se migran correctamente desde el anterior campo `JSONB`.
 
 ---
 
@@ -79,10 +79,10 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que las cuentas registren costo de adquisición, fuente, fecha de compra y estado, **para** tener trazabilidad operativa completa.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `accounts` incluye las columnas: `cost`, `source`, `purchased_at`, `status`, `vendor_id`.
-- [ ] El campo `status` acepta los valores: `available`, `partial`, `full`, `expired`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `accounts` incluye las columnas: `cost`, `source`, `purchased_at`, `status`, `vendor_id`.
+- [x] El campo `status` acepta los valores: `available`, `partial`, `full`, `expired`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -90,10 +90,10 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que cada perfil tenga un estado operativo explícito, **para** controlar la disponibilidad y asignación correctamente.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `profiles` incluye la columna `status`.
-- [ ] El campo `status` acepta los valores: `available`, `reserved`, `active`, `expired`, `blocked`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los perfiles existentes se inicializan por defecto en el estado `available`.
+- [x] La tabla `profiles` incluye la columna `status`.
+- [x] El campo `status` acepta los valores: `available`, `reserved`, `active`, `expired`, `blocked`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los perfiles existentes se inicializan por defecto en el estado `available`.
 
 ---
 
@@ -101,11 +101,11 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que las suscripciones registren servicio, tipo de venta, precio y orden de origen, **para** tener una trazabilidad financiera completa.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `subscriptions` incluye: `vendor_id`, `order_id`, `service_id`, `sale_mode`, `price_sold`, `discount_applied`.
-- [ ] La columna `payment_due_date` se renombra a `due_date`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Las vistas (ej: `upcoming_renewals`) se actualizan para reflejar el nuevo nombre de columna.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `subscriptions` incluye: `vendor_id`, `order_id`, `service_id`, `sale_mode`, `price_sold`, `discount_applied`.
+- [x] La columna `payment_due_date` se renombra a `due_date`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Las vistas (ej: `upcoming_renewals`) se actualizan para reflejar el nuevo nombre de columna.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -113,9 +113,9 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que las órdenes registren cliente, vendedor, método de pago y fecha de aprobación, **para** completar la trazabilidad del ciclo comercial.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `orders` incluye las columnas: `client_id`, `vendor_id`, `payment_method`, `approved_at`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `orders` incluye las columnas: `client_id`, `vendor_id`, `payment_method`, `approved_at`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -123,9 +123,9 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que cada reserva esté vinculada a un vendedor, **para** mantener el aislamiento entre negocios desde el inicio del flujo de compra.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `reservations` incluye la columna `vendor_id` referenciando a `vendors`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `reservations` incluye la columna `vendor_id` referenciando a `vendors`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.
 
 ---
 
@@ -133,6 +133,6 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 **Como** sistema, **necesito** que cada línea de detalle de reserva referencie explícitamente un servicio, **para** calcular precios y disponibilidad correctamente.
 
 #### ✅ Criterios de Aceptación
-- [ ] La tabla `reservation_details` incluye la columna `service_id` referenciando a `services`.
-- [ ] Migración Flyway creada y aplicada satisfactoriamente.
-- [ ] Los datos existentes no se pierden durante la migración.
+- [x] La tabla `reservation_details` incluye la columna `service_id` referenciando a `services`.
+- [x] Migración Flyway creada y aplicada satisfactoriamente.
+- [x] Los datos existentes no se pierden durante la migración.

@@ -60,7 +60,8 @@ class CreateReservationServiceUT {
         when(reservationRepositoryPort.save(any(Reservation.class)))
                 .thenAnswer(invocation -> {
                     Reservation r = invocation.getArgument(0);
-                    r.setId(UUID.randomUUID());
+                    r.setId(1L);
+                    r.setUuid(UUID.randomUUID());
                     r.setCreatedAt(Instant.now());
                     return r;
                 });
@@ -68,9 +69,10 @@ class CreateReservationServiceUT {
                 .thenAnswer(invocation -> {
                     ReservationDetail d = invocation.getArgument(0);
                     return new ReservationDetail(
+                            1L,
                             UUID.randomUUID(),
                             d.reservationId(),
-                            d.inventoryId(),
+                            d.serviceId(),
                             d.qty(),
                             d.unitPrice(),
                             d.subtotal());

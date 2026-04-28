@@ -17,9 +17,13 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { ClientDetail } from '../model/clientDetail';
+// @ts-ignore
 import { ClientRequest } from '../model/clientRequest';
 // @ts-ignore
 import { ClientResponse } from '../model/clientResponse';
+// @ts-ignore
+import { UpdateClientRequest } from '../model/updateClientRequest';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -38,7 +42,8 @@ export class ClientsApiService extends BaseService {
     }
 
     /**
-     * Register a client (CU-A02)
+     * Create client manually (US-031)
+     * Creates a client linked to the authenticated vendor. 400 if email already exists. Logs CLIENT_WELCOME notification.
      * @endpoint post /api/v1/clients
      * @param clientRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -224,19 +229,84 @@ export class ClientsApiService extends BaseService {
     }
 
     /**
-     * List clients
-     * Returns all clients. Filter by name or phone.
-     * @endpoint get /api/v1/clients
-     * @param name 
-     * @param phone 
+     * Client detail with subscriptions + orders (US-030)
+     * Returns full client data, active subscriptions and order history. 403 if the caller does not own the client.
+     * @endpoint get /api/v1/clients/{id}/detail
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public list2(name?: string, phone?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientResponse>>;
-    public list2(name?: string, phone?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientResponse>>>;
-    public list2(name?: string, phone?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientResponse>>>;
-    public list2(name?: string, phone?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getDetail(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<ClientDetail>;
+    public getDetail(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientDetail>>;
+    public getDetail(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientDetail>>;
+    public getDetail(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getDetail.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/clients/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/detail`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ClientDetail>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * List vendor clients (US-029)
+     * Returns all clients of the vendor with optional filters. Only the authenticated vendor can list their own clients.
+     * @endpoint get /api/v1/clients/vendor/{vendorUuid}
+     * @param vendorUuid 
+     * @param name 
+     * @param phone 
+     * @param email 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public listByVendor1(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientResponse>>;
+    public listByVendor1(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientResponse>>>;
+    public listByVendor1(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientResponse>>>;
+    public listByVendor1(vendorUuid: string, name?: string, phone?: string, email?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (vendorUuid === null || vendorUuid === undefined) {
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor1.');
+        }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -253,6 +323,15 @@ export class ClientsApiService extends BaseService {
             localVarQueryParameters,
             'phone',
             <any>phone,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'email',
+            <any>email,
             QueryParamStyle.Form,
             true,
         );
@@ -286,7 +365,7 @@ export class ClientsApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/clients`;
+        let localVarPath = `/api/v1/clients/vendor/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<ClientResponse>>('get', `${basePath}${localVarPath}`,
             {
@@ -303,23 +382,24 @@ export class ClientsApiService extends BaseService {
     }
 
     /**
-     * Update client data
+     * Update basic client data (US-032)
+     * Updates name, phone, notes. email is immutable (BR-US032-01). 403 if caller does not own the client.
      * @endpoint put /api/v1/clients/{id}
      * @param id 
-     * @param clientRequest 
+     * @param updateClientRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update2(id: string, clientRequest: ClientRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<ClientResponse>;
-    public update2(id: string, clientRequest: ClientRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientResponse>>;
-    public update2(id: string, clientRequest: ClientRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientResponse>>;
-    public update2(id: string, clientRequest: ClientRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public update2(id: string, updateClientRequest: UpdateClientRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<ClientResponse>;
+    public update2(id: string, updateClientRequest: UpdateClientRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ClientResponse>>;
+    public update2(id: string, updateClientRequest: UpdateClientRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ClientResponse>>;
+    public update2(id: string, updateClientRequest: UpdateClientRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling update2.');
         }
-        if (clientRequest === null || clientRequest === undefined) {
-            throw new Error('Required parameter clientRequest was null or undefined when calling update2.');
+        if (updateClientRequest === null || updateClientRequest === undefined) {
+            throw new Error('Required parameter updateClientRequest was null or undefined when calling update2.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -364,7 +444,7 @@ export class ClientsApiService extends BaseService {
         return this.httpClient.request<ClientResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: clientRequest,
+                body: updateClientRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

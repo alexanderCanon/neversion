@@ -9,6 +9,9 @@ import com.neversion.api.reservation.domain.model.ReservationDetail;
 import com.neversion.api.reservation.infrastructure.adapters.out.ReservationDetailEntity;
 import com.neversion.api.reservation.infrastructure.adapters.out.ReservationEntity;
 
+/**
+ * US-009/US-010: explicit mapper — Long PK, uuid, vendorId, serviceId.
+ */
 @Component
 public class ReservationPersistenceMapper {
 
@@ -16,13 +19,17 @@ public class ReservationPersistenceMapper {
         if (entity == null) return null;
         return Reservation.builder()
                 .id(entity.getId())
+                .uuid(entity.getUuid())
                 .clientId(entity.getClientId())
+                .vendorId(entity.getVendorId())
                 .discount(entity.getDiscount())
                 .total(entity.getTotal())
                 .receiptUrl(entity.getReceiptUrl())
                 .status(entity.getStatus())
-                .expirationDate(entity.getExpirationDate().toInstant())
-                .createdAt(entity.getCreatedAt().toInstant())
+                .expirationDate(entity.getExpirationDate() != null
+                        ? entity.getExpirationDate().toInstant() : null)
+                .createdAt(entity.getCreatedAt() != null
+                        ? entity.getCreatedAt().toInstant() : null)
                 .build();
     }
 
@@ -30,20 +37,24 @@ public class ReservationPersistenceMapper {
         if (domain == null) return null;
         return ReservationEntity.builder()
                 .id(domain.getId())
+                .uuid(domain.getUuid())
                 .clientId(domain.getClientId())
+                .vendorId(domain.getVendorId())
                 .discount(domain.getDiscount())
                 .total(domain.getTotal())
                 .receiptUrl(domain.getReceiptUrl())
                 .status(domain.getStatus())
-                .expirationDate(domain.getExpirationDate().atOffset(ZoneOffset.UTC))
+                .expirationDate(domain.getExpirationDate() != null
+                        ? domain.getExpirationDate().atOffset(ZoneOffset.UTC) : null)
                 .build();
     }
 
     public ReservationDetail toDomain(ReservationDetailEntity entity) {
         return new ReservationDetail(
                 entity.getId(),
+                entity.getUuid(),
                 entity.getReservationId(),
-                entity.getInventoryId(),
+                entity.getServiceId(),
                 entity.getQty(),
                 entity.getUnitPrice(),
                 entity.getSubtotal());
@@ -52,8 +63,9 @@ public class ReservationPersistenceMapper {
     public ReservationDetailEntity toEntity(ReservationDetail domain) {
         return ReservationDetailEntity.builder()
                 .id(domain.id())
+                .uuid(domain.uuid())
                 .reservationId(domain.reservationId())
-                .inventoryId(domain.inventoryId())
+                .serviceId(domain.serviceId())
                 .qty(domain.qty())
                 .unitPrice(domain.unitPrice())
                 .build();

@@ -8,39 +8,51 @@ export enum SaleMode {
 
 export enum AccountStatus {
   AVAILABLE = 'AVAILABLE',
-  ASSIGNED = 'ASSIGNED',
+  PARTIAL = 'PARTIAL',
+  FULL = 'FULL',
   EXPIRED = 'EXPIRED',
 }
 
 export interface AccountRequest {
   email: string;
-  password: string;
-  serviceId: number;
+  password?: string; // Maps to 'pass' in API
+  serviceId: string; // UUID
   saleMode: SaleMode;
   renewalDate: string;
-  notes?: string;
+  cost: number;
   plan?: string;
+  source?: string;
+  purchasedAt?: string;
+  notes?: string;
 }
 
 export interface AccountResponse {
   id: string; // UUID
   email: string;
-  password: string;
-  serviceId: number;
+  password?: string; // Optional because API might not return it in list/detail
+  serviceId: string;
   service?: ServiceResponse;
   saleMode: SaleMode;
+  status: AccountStatus;
   renewalDate: string;
-  notes?: string;
+  cost: number;
   plan?: string;
-  maxProfiles: number;
-  activeProfiles: number;
-  profiles: ProfileResponse[];
+  source?: string;
+  purchasedAt?: string;
+  notes?: string;
   createdAt: string;
-  status?: string; // Kept for frontend convenience if backend still sends it/can be inferred
+  
+  // Stats
+  totalProfiles: number;
+  availableProfiles: number;
+  occupiedProfiles: number;
+  blockedProfiles: number;
+  
+  // Legacy / UI helpers
+  profiles: ProfileResponse[];
 }
 
 export interface AccountsFilter {
-  serviceId?: number;
-  saleMode?: SaleMode;
-  isActive?: boolean; // You can still filter locally or adjust based on your API
+  serviceId?: string;
+  status?: AccountStatus;
 }

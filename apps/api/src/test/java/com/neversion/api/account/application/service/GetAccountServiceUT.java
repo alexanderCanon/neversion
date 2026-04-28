@@ -20,18 +20,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.account.infrastructure.adapters.in.rest.mapper.AccountMapper;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 /**
  * Unit tests for GetAccountService.
  * Validates: getById (UUID), getByServiceId, getAll.
+ * getDetail (US-028) is covered by the IT suite.
  */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("GetAccountService unit tests")
 class GetAccountServiceUT {
 
-    @Mock
-    private AccountRepositoryPort accountRepositoryPort;
+    @Mock private AccountRepositoryPort accountRepositoryPort;
+    @Mock private ProfileRepositoryPort profileRepositoryPort;
+    @Mock private UserRepositoryPort    userRepositoryPort;
+    @Mock private VendorRepositoryPort  vendorRepositoryPort;
+    @Mock private AccountMapper         accountMapper;
 
     private GetAccountService getAccountService;
 
@@ -39,7 +47,9 @@ class GetAccountServiceUT {
 
     @BeforeEach
     void setUp() {
-        getAccountService = new GetAccountService(accountRepositoryPort);
+        getAccountService = new GetAccountService(
+                accountRepositoryPort, profileRepositoryPort,
+                userRepositoryPort, vendorRepositoryPort, accountMapper);
     }
 
     private Account buildAccount() {

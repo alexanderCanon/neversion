@@ -2,10 +2,11 @@ import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountsService } from '../../services/accounts.service';
-import { AccountResponse } from '@neversion/models';
+import { AccountResponse, AccountStatus } from '@neversion/models';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';
+import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
 
 import { ActivatedRoute } from '@angular/router';
 
@@ -27,16 +28,14 @@ export class AccountsListComponent implements OnInit {
   readonly isLoading = this.accountsService.isLoading;
 
   searchTerm = signal('');
-  filterType = signal<'ALL' | 'AVAILABLE' | 'OCCUPIED'>('ALL');
+  filterType = signal<AccountStatus | 'ALL'>('ALL');
 
   readonly filteredAccounts = computed(() => {
     let result = this.accounts();
     const type = this.filterType();
 
-    if (type === 'AVAILABLE') {
-        result = result.filter(a => a.status === 'AVAILABLE');
-    } else if (type === 'OCCUPIED') {
-        result = result.filter(a => a.status === 'ASSIGNED'); // Or full
+    if (type !== 'ALL') {
+        result = result.filter(a => a.status === type);
     }
 
     const term = this.searchTerm().toLowerCase();
@@ -52,6 +51,9 @@ export class AccountsListComponent implements OnInit {
   });
 
   expandedAccounts = new Set<string>();
+  detailedData = signal<Record<string, AccountDetailResponse>>({});
+  loadingDetails = new Set<string>();
+
   currentPage = signal(1);
   pageSize = 5;
 
@@ -67,7 +69,7 @@ export class AccountsListComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
         if (params['filter']) {
-            this.filterType.set(params['filter'] as 'ALL' | 'AVAILABLE' | 'OCCUPIED');
+            this.filterType.set(params['filter'] as AccountStatus);
         }
         this.loadAccounts();
     });
@@ -82,7 +84,21 @@ export class AccountsListComponent implements OnInit {
       this.expandedAccounts.delete(accountId);
     } else {
       this.expandedAccounts.add(accountId);
+      this.loadAccountDetail(accountId);
     }
+  }
+
+  private loadAccountDetail(id: string): void {
+      if (this.detailedData()[id]) return;
+      
+      this.loadingDetails.add(id);
+      this.accountsService.getAccountDetail(id).subscribe({
+          next: (detail) => {
+              this.detailedData.update(prev => ({ ...prev, [id]: detail }));
+              this.loadingDetails.delete(id);
+          },
+          error: () => this.loadingDetails.delete(id)
+      });
   }
 
   isExpanded(accountId: string): boolean {
@@ -91,6 +107,12 @@ export class AccountsListComponent implements OnInit {
 
   onAccountCreated(): void {
     this.loadAccounts();
+  }
+
+  onProfilesChanged(accountId: string): void {
+      delete this.detailedData()[accountId]; // Clear cache
+      this.loadAccountDetail(accountId);
+      this.loadAccounts(); // Refresh summary list
   }
 
   deactivateAccount(account: AccountResponse): void {
@@ -105,15 +127,17 @@ export class AccountsListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'AVAILABLE':
-        return 'bg-success';
-      case 'ASSIGNED':
-        return 'bg-secondary';
-      case 'EXPIRED':
-        return 'bg-danger';
-      default:
-        return 'bg-info';
+      case 'AVAILABLE': return 'bg-success';
+      case 'PARTIAL':   return 'bg-warning text-dark';
+      case 'FULL':      return 'bg-danger';
+      case 'EXPIRED':   return 'bg-secondary';
+      default: return 'bg-info';
     }
+  }
+
+  getProfilesForAccount(id: string): any[] {
+      const detail = this.detailedData()[id];
+      return detail?.profiles || [];
   }
 
   onSearchChange(term: string): void {

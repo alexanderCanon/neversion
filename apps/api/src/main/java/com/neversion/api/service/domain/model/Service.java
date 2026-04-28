@@ -36,6 +36,9 @@ public class Service {
     /** Human-readable platform name, e.g. "Netflix", "Spotify Family". */
     private String name;
 
+    /** FK to vendors.id — multi-tenancy catalog isolation (ADR-02, US-004). */
+    private Long vendorId;
+
     /**
      * Default number of profiles per account for this service.
      * Acts as the ceiling for profile creation (BR-01).
@@ -55,19 +58,47 @@ public class Service {
      */
     private CategoryType category;
 
+    /** Human-readable description of the service (US-005). */
+    private String description;
+
+    /** URL to the service image/logo (US-005). */
+    private String imageUrl;
+
+    /** Price per individual profile sale (US-005). */
+    private java.math.BigDecimal priceProfile;
+
+    /** Price for full account sale (US-005). */
+    private java.math.BigDecimal priceFull;
+
+    /** Subscription duration in days for this service (US-005). */
+    private Integer durationDays;
+
+    /** Whether this service is currently available for sale (US-005). */
+    @lombok.Builder.Default
+    private Boolean isActive = true;
+
     private LocalDateTime createdAt;
 
     public Service() {
     }
 
-    public Service(Long id, UUID uuid, String name, Integer maxProfiles,
-            JsonNode details, CategoryType category, LocalDateTime createdAt) {
+    public Service(Long id, UUID uuid, String name, Long vendorId, Integer maxProfiles,
+            JsonNode details, CategoryType category, String description, String imageUrl,
+            java.math.BigDecimal priceProfile, java.math.BigDecimal priceFull,
+            Integer durationDays, Boolean isActive, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.name = name;
+        this.vendorId = vendorId;
         this.maxProfiles = maxProfiles;
         this.details = details;
         this.category = category;
+        this.description = description;
+        this.imageUrl = imageUrl;
+        this.priceProfile = priceProfile;
+        this.priceFull = priceFull;
+        this.durationDays = durationDays;
+        this.isActive = isActive;
         this.createdAt = createdAt;
     }
 }

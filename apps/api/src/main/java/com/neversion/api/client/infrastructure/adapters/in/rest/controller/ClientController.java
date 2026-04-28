@@ -1,10 +1,12 @@
 package com.neversion.api.client.infrastructure.adapters.in.rest.controller;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +18,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.client.application.port.in.ClientUseCase;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.UpdateClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.mapper.ClientMapper;
+import com.neversion.api.subscription.domain.model.enums.SubStatus;
+import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,26 +34,104 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/clients")
-@Tag(name = "Clients", description = "Client (end consumer) management")
+@Tag(name = "Clients", description = "Client (end consumer) management — EPIC-04")
 public class ClientController {
 
     private final ClientUseCase clientUseCase;
     private final ClientMapper clientMapper;
+    private final SubscriptionRepositoryPort subscriptionRepositoryPort;
 
-    public ClientController(ClientUseCase clientUseCase, ClientMapper clientMapper) {
+    public ClientController(ClientUseCase clientUseCase, ClientMapper clientMapper,
+            SubscriptionRepositoryPort subscriptionRepositoryPort) {
         this.clientUseCase = clientUseCase;
         this.clientMapper = clientMapper;
+        this.subscriptionRepositoryPort = subscriptionRepositoryPort;
     }
 
+    // ── US-029 — Listar clientes del vendor ────────────────────────────────
+
+    @GetMapping("/vendor/{vendorUuid}")
+    @Operation(summary = "List vendor clients (US-029)",
+            description = "Returns all clients of the vendor with optional filters. "
+                    + "Only the authenticated vendor can list their own clients.")
+    @ApiResponse(responseCode = "200", description = "Client list")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this vendor")
+    @ApiResponse(responseCode = "404", description = "Vendor not found")
+    public ResponseEntity<List<ClientResponse>> listByVendor(
+            @PathVariable UUID vendorUuid,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            JwtAuthenticationToken token) {
+
+        List<Client> clients = clientUseCase.listByVendor(
+                vendorUuid, name, phone, email, extractExternalId(token));
+
+        List<ClientResponse> response = clients.stream()
+                .map(c -> {
+                    long activeCount = subscriptionRepositoryPort.findByClientId(c.getId())
+                            .stream()
+                            .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                            .count();
+                    return clientMapper.toResponse(c, activeCount);
+                })
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    // ── US-030 — Detalle de cliente ────────────────────────────────────────
+
+    @GetMapping("/{id}/detail")
+    @Operation(summary = "Client detail with subscriptions + orders (US-030)",
+            description = "Returns full client data, active subscriptions and order history. "
+                    + "403 if the caller does not own the client.")
+    @ApiResponse(responseCode = "200", description = "Client detail")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this client")
+    @ApiResponse(responseCode = "404", description = "Client not found")
+    public ResponseEntity<ClientDetail> getDetail(
+            @PathVariable UUID id,
+            JwtAuthenticationToken token) {
+        return ResponseEntity.ok(clientUseCase.getDetail(id, extractExternalId(token)));
+    }
+
+    // ── US-031 — Crear cliente manual ──────────────────────────────────────
+
     @PostMapping
-    @Operation(summary = "Register a client (CU-A02)")
-    @ApiResponse(responseCode = "201", description = "Client registered")
-    @ApiResponse(responseCode = "400", description = "Validation error")
-    public ResponseEntity<ClientResponse> create(@Valid @RequestBody ClientRequest request) {
+    @Operation(summary = "Create client manually (US-031)",
+            description = "Creates a client linked to the authenticated vendor. "
+                    + "400 if email already exists. Logs CLIENT_WELCOME notification.")
+    @ApiResponse(responseCode = "201", description = "Client created")
+    @ApiResponse(responseCode = "400", description = "Validation error or duplicate email")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    public ResponseEntity<ClientResponse> create(
+            @Valid @RequestBody ClientRequest request,
+            JwtAuthenticationToken token) {
         Client client = clientMapper.toDomain(request);
-        Client created = clientUseCase.create(client);
+        Client created = clientUseCase.createForVendor(client, extractExternalId(token));
         return ResponseEntity.status(HttpStatus.CREATED).body(clientMapper.toResponse(created));
     }
+
+    // ── US-032 — Editar datos básicos ──────────────────────────────────────
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Update basic client data (US-032)",
+            description = "Updates name, phone, notes. email is immutable (BR-US032-01). "
+                    + "403 if caller does not own the client.")
+    @ApiResponse(responseCode = "200", description = "Client updated")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this client")
+    @ApiResponse(responseCode = "404", description = "Client not found")
+    public ResponseEntity<ClientResponse> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateClientRequest request,
+            JwtAuthenticationToken token) {
+        Client updated = clientUseCase.update(
+                id, request.name(), request.phone(), request.notes(),
+                extractExternalId(token));
+        return ResponseEntity.ok(clientMapper.toResponse(updated));
+    }
+
+    // ── Generic endpoints (legacy) ─────────────────────────────────────────
 
     @GetMapping("/{id}")
     @Operation(summary = "Get client by UUID")
@@ -57,36 +141,6 @@ public class ClientController {
         return ResponseEntity.ok(clientMapper.toResponse(clientUseCase.getById(id)));
     }
 
-    @GetMapping
-    @Operation(summary = "List clients", description = "Returns all clients. Filter by name or phone.")
-    @ApiResponse(responseCode = "200", description = "Client list")
-    public ResponseEntity<List<ClientResponse>> list(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String phone) {
-
-        List<Client> clients;
-        if (name != null && !name.isBlank()) {
-            clients = clientUseCase.getByName(name);
-        } else if (phone != null && !phone.isBlank()) {
-            clients = clientUseCase.getByPhone(phone);
-        } else {
-            clients = clientUseCase.getAll();
-        }
-
-        return ResponseEntity.ok(clients.stream().map(clientMapper::toResponse).toList());
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Update client data")
-    @ApiResponse(responseCode = "200", description = "Client updated")
-    @ApiResponse(responseCode = "404", description = "Client not found")
-    public ResponseEntity<ClientResponse> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody ClientRequest request) {
-        Client updated = clientUseCase.update(id, clientMapper.toDomain(request));
-        return ResponseEntity.ok(clientMapper.toResponse(updated));
-    }
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a client")
     @ApiResponse(responseCode = "204", description = "Client deleted")
@@ -94,5 +148,15 @@ public class ClientController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         clientUseCase.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ── Helper ─────────────────────────────────────────────────────────────
+
+    /** Extracts the Supabase externalId (sub claim) from the JWT. */
+    private String extractExternalId(Principal principal) {
+        if (principal instanceof JwtAuthenticationToken jwtToken) {
+            return jwtToken.getToken().getSubject();
+        }
+        throw new IllegalStateException("No JWT principal found in security context");
     }
 }

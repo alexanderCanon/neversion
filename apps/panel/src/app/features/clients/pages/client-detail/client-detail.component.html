@@ -1,0 +1,222 @@
+<div class="container-fluid py-4">
+  <div class="mb-4 d-flex align-items-center gap-3">
+    <a [routerLink]="['/clients']" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i> Volver
+    </a>
+    <h2 class="mb-0 fw-bold">Detalle de Cliente</h2>
+  </div>
+
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2 text-muted">Cargando información del cliente...</p>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+      {{ error() }}
+    </div>
+  } @else if (clientDetail()) {
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; font-size: 1.5rem;">
+            {{ clientDetail()?.client?.name?.charAt(0) | uppercase }}
+          </div>
+          <div>
+            <h3 class="mb-1">{{ clientDetail()?.client?.name }}</h3>
+            <p class="text-muted mb-0">
+              Registrado el {{ clientDetail()?.client?.createdAt | date:'longDate' }}
+            </p>
+          </div>
+        </div>
+
+        <ul class="nav nav-tabs mt-4">
+          <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab() === 'INFO'" (click)="setTab('INFO')">
+              <i class="bi bi-person-lines-fill me-2"></i>Información
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab() === 'SUBS'" (click)="setTab('SUBS')">
+              <i class="bi bi-card-checklist me-2"></i>Suscripciones Activas
+              <span class="badge bg-primary ms-1 rounded-pill">{{ clientDetail()?.activeSubscriptions?.length || 0 }}</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab() === 'ORDERS'" (click)="setTab('ORDERS')">
+              <i class="bi bi-receipt me-2"></i>Historial de Órdenes
+              <span class="badge bg-secondary ms-1 rounded-pill">{{ clientDetail()?.orderHistory?.length || 0 }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Contenido de las Pestañas -->
+    <div class="tab-content">
+
+      <!-- Pestaña INFO -->
+      @if (activeTab() === 'INFO') {
+        <div class="card shadow-sm border-top-0 rounded-top-0">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Datos de Contacto</h5>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <span class="text-muted small text-uppercase fw-bold">Correo Electrónico</span>
+                  <div class="mt-1">
+                    @if (clientDetail()?.client?.email) {
+                      <a [href]="'mailto:' + clientDetail()?.client?.email" class="text-decoration-none">
+                        <i class="bi bi-envelope me-2"></i>{{ clientDetail()?.client?.email }}
+                      </a>
+                    } @else {
+                      <span class="text-muted fst-italic">No registrado</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="d-flex flex-column">
+                  <span class="text-muted small text-uppercase fw-bold">Teléfono</span>
+                  <div class="mt-1">
+                    @if (clientDetail()?.client?.phone) {
+                      <a [href]="'tel:' + (clientDetail()?.client?.phone | phone)" class="text-decoration-none">
+                        <i class="bi bi-telephone me-2"></i>{{ clientDetail()?.client?.phone | phone }}
+                      </a>
+                    } @else {
+                      <span class="text-muted fst-italic">No registrado</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="d-flex flex-column">
+                  <span class="text-muted small text-uppercase fw-bold">Notas</span>
+                  <div class="mt-1 p-3 bg-light rounded border">
+                    @if (clientDetail()?.client?.notes) {
+                      {{ clientDetail()?.client?.notes }}
+                    } @else {
+                      <span class="text-muted fst-italic">Sin notas adicionales</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Pestaña SUBS -->
+      @if (activeTab() === 'SUBS') {
+        <div class="card shadow-sm border-top-0 rounded-top-0">
+          <div class="card-body">
+            @if (clientDetail()?.activeSubscriptions?.length === 0) {
+              <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted"></i>
+                <p class="mt-2 text-muted">El cliente no tiene suscripciones activas actualmente.</p>
+                <a [routerLink]="['/subscriptions']" [queryParams]="{clientId: clientDetail()?.client?.id}" class="btn btn-outline-primary mt-2">
+                  <i class="bi bi-plus-lg me-1"></i>Crear Suscripción
+                </a>
+              </div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Servicio</th>
+                      <th>Perfil</th>
+                      <th>Vencimiento</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (sub of clientDetail()?.activeSubscriptions; track sub.id) {
+                      <tr>
+                        <td>
+                          <strong>{{ sub.serviceName }}</strong>
+                        </td>
+                        <td>
+                          <i class="bi bi-person-badge me-2 text-muted"></i>{{ sub.profileName }}
+                        </td>
+                        <td>
+                          {{ sub.paymentDueDate | date:'shortDate' }}
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="{
+                            'bg-success': sub.status === 'ACTIVE',
+                            'bg-warning text-dark': sub.status === 'PENDING',
+                            'bg-danger': sub.status === 'SUSPENDED',
+                            'bg-secondary': sub.status === 'CANCELLED'
+                          }">
+                            {{ sub.status }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              <div class="mt-3 text-end">
+                  <a [routerLink]="['/subscriptions']" [queryParams]="{clientId: clientDetail()?.client?.id}" class="btn btn-outline-primary btn-sm">
+                      Ver todas las suscripciones
+                  </a>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Pestaña ORDERS -->
+      @if (activeTab() === 'ORDERS') {
+        <div class="card shadow-sm border-top-0 rounded-top-0">
+          <div class="card-body">
+            @if (clientDetail()?.orderHistory?.length === 0) {
+              <div class="text-center py-5">
+                <i class="bi bi-receipt fs-1 text-muted"></i>
+                <p class="mt-2 text-muted">El cliente no tiene historial de órdenes.</p>
+              </div>
+            } @else {
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>ID Orden</th>
+                      <th>Fecha</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (order of clientDetail()?.orderHistory; track order.id) {
+                      <tr>
+                        <td>
+                          <small class="font-monospace text-muted">{{ order.id.substring(0, 8) }}...</small>
+                        </td>
+                        <td>
+                          {{ order.createdAt | date:'medium' }}
+                        </td>
+                        <td>
+                          <span class="badge" [ngClass]="{
+                            'bg-success': order.status === 'COMPLETED',
+                            'bg-info': order.status === 'VALIDATED',
+                            'bg-warning text-dark': order.status === 'PENDING',
+                            'bg-danger': order.status === 'REJECTED' || order.status === 'CANCELLED'
+                          }">
+                            {{ order.status }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+</div>

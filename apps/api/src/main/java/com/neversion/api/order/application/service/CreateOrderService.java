@@ -24,7 +24,7 @@ public class CreateOrderService implements CreateOrderUseCase {
 
     @Override
     @Transactional
-    public Order createFromReservation(UUID reservationId, String notes) {
+    public Order createFromReservation(Long reservationId, String notes) {
         Order order = Order.builder()
                 .reservationId(reservationId)
                 .status(OrderStatus.VALIDATED)

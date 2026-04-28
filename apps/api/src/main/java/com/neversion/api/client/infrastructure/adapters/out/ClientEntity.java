@@ -45,6 +45,14 @@ public class ClientEntity {
             columnDefinition = "uuid DEFAULT gen_random_uuid()")
     private UUID uuid;
 
+    /** FK to users.id — authenticated identity (US-003). DB FK enforced by V9. */
+    @Column(name = "user_id")
+    private Long userId;
+
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02, US-003). DB FK enforced by V9. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
+
     @Column(name = "name", nullable = false, length = 255)
     private String name;
 

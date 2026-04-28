@@ -10,7 +10,7 @@
 
 
 export interface ProfileRequest { 
-    accountId: number;
+    accountId: string;
     name?: string;
     pin?: string;
     isOwner?: boolean;

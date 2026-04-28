@@ -15,6 +15,19 @@ export interface ProfileResponse {
     name?: string;
     pin?: string;
     isOwner?: boolean;
+    status?: ProfileResponse.StatusEnum;
     createdAt?: string;
 }
+export namespace ProfileResponse {
+    export const StatusEnum = {
+        Available: 'AVAILABLE',
+        Active: 'ACTIVE',
+        Reserved: 'RESERVED',
+        Occupied: 'OCCUPIED',
+        Blocked: 'BLOCKED',
+        Expired: 'EXPIRED'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+}
+
 

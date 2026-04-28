@@ -1,6 +1,5 @@
 package com.neversion.api.reservation.infrastructure.adapters.out;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +13,9 @@ import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.reservation.infrastructure.adapters.out.mapper.ReservationPersistenceMapper;
 
+/**
+ * US-009: Long PK internally, findByUuid externally.
+ */
 @Repository
 public class JpaReservationAdapter implements ReservationRepositoryPort {
 
@@ -38,7 +40,6 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     @Override
     public Reservation save(Reservation reservation) {
         ReservationEntity entity = mapper.toEntity(reservation);
-        entity.setCreatedAt(OffsetDateTime.now());
         ReservationEntity saved = reservationRepository.saveAndFlush(entity);
         return mapper.toDomain(saved);
     }
@@ -53,11 +54,11 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     }
 
     @Override
-    public Optional<Reservation> findById(UUID id) {
-        return reservationRepository.findById(id)
+    public Optional<Reservation> findByUuid(UUID uuid) {
+        return reservationRepository.findByUuid(uuid)
                 .map(entity -> {
                     Reservation reservation = mapper.toDomain(entity);
-                    List<ReservationDetail> details = findDetailsByReservationId(id);
+                    List<ReservationDetail> details = findDetailsByReservationId(entity.getId());
                     reservation.setDetails(details);
                     return reservation;
                 });
@@ -91,7 +92,7 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     }
 
     @Override
-    public List<ReservationDetail> findDetailsByReservationId(UUID reservationId) {
+    public List<ReservationDetail> findDetailsByReservationId(Long reservationId) {
         return detailRepository.findByReservationId(reservationId)
                 .stream()
                 .map(mapper::toDomain)

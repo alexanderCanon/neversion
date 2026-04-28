@@ -77,6 +77,9 @@ public class Subscription {
     /** Admin notes for this subscription (e.g. "has 35 credit"). */
     private String notes;
 
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02, US-007). */
+    private Long vendorId;
+
     private LocalDateTime createdAt;
 
     public Subscription() {
@@ -85,7 +88,8 @@ public class Subscription {
     public Subscription(Long id, UUID uuid, Long clientId, Long profileId,
             UUID profileUuid, UUID clientUuid, UUID accountUuid,
             LocalDate startDate, LocalDate paymentDueDate,
-            Long monthsPaid, SubStatus status, String notes, LocalDateTime createdAt) {
+            Long monthsPaid, SubStatus status, String notes, Long vendorId,
+            LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
@@ -98,6 +102,7 @@ public class Subscription {
         this.monthsPaid = monthsPaid;
         this.status = status;
         this.notes = notes;
+        this.vendorId = vendorId;
         this.createdAt = createdAt;
     }
 }

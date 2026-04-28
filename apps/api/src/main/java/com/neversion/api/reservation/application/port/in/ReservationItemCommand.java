@@ -4,6 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record ReservationItemCommand(
-        @NotNull Long inventoryId,
+        @NotNull Long serviceId,
         @NotNull @Positive Integer qty) {
 }

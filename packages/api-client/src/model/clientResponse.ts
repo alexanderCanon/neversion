@@ -15,6 +15,7 @@ export interface ClientResponse {
     email?: string;
     phone?: string;
     notes?: string;
+    activeSubscriptionCount?: number;
     createdAt?: string;
 }
 

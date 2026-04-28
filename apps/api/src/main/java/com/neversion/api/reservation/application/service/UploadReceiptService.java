@@ -33,7 +33,7 @@ public class UploadReceiptService implements UploadReceiptUseCase {
     @Transactional
     public Reservation uploadReceipt(UUID reservationId, String receiptUrl) {
 
-        Reservation reservation = reservationRepositoryPort.findById(reservationId)
+        Reservation reservation = reservationRepositoryPort.findByUuid(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + reservationId));
 

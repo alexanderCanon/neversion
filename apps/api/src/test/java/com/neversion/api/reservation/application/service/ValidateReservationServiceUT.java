@@ -45,9 +45,10 @@ class ValidateReservationServiceUT {
                 reservationRepositoryPort, createOrderUseCase);
     }
 
-    private Reservation buildReservation(UUID id, ReservationStatus status) {
+    private Reservation buildReservation(UUID uuid, ReservationStatus status) {
         return Reservation.builder()
-                .id(id)
+                .id(1L)
+                .uuid(uuid)
                 .clientId(1L)
                 .discount(BigDecimal.ZERO)
                 .total(new BigDecimal("100.00"))
@@ -65,7 +66,7 @@ class ValidateReservationServiceUT {
         Reservation reservation = buildReservation(reservationId, ReservationStatus.UPLOADED);
         String notes = "Payment verified";
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.of(reservation));
         when(reservationRepositoryPort.update(any(Reservation.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -74,7 +75,7 @@ class ValidateReservationServiceUT {
 
         // Then
         assertThat(result.getStatus()).isEqualTo(ReservationStatus.VALIDATED);
-        verify(createOrderUseCase).createFromReservation(eq(reservationId), eq(notes));
+        verify(createOrderUseCase).createFromReservation(eq(1L), eq(notes));
     }
 
     @Test
@@ -84,7 +85,7 @@ class ValidateReservationServiceUT {
         UUID reservationId = UUID.randomUUID();
         Reservation reservation = buildReservation(reservationId, ReservationStatus.PENDING);
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.of(reservation));
 
         // When / Then
         assertThatThrownBy(() -> validateReservationService.validate(reservationId, "notes"))
@@ -99,7 +100,7 @@ class ValidateReservationServiceUT {
         // Given
         UUID reservationId = UUID.randomUUID();
 
-        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.empty());
+        when(reservationRepositoryPort.findByUuid(reservationId)).thenReturn(Optional.empty());
 
         // When / Then
         assertThatThrownBy(() -> validateReservationService.validate(reservationId, "notes"))

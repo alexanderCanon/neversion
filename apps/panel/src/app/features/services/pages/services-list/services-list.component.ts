@@ -14,12 +14,12 @@ import { ServiceFormComponent } from '../../components/service-form/service-form
   styleUrls: ['./services-list.component.scss']
 })
 export class ServicesListComponent implements OnInit {
-  @ViewChild(ServiceFormComponent) newServiceModal!: ServiceFormComponent;
+  @ViewChild(ServiceFormComponent) serviceModal!: ServiceFormComponent;
 
   private readonly servicesDataService = inject(ServicesDataService);
 
-  services = signal<ServiceResponse[]>([]);
-  isLoading = signal(true);
+  services = this.servicesDataService.services;
+  isLoading = this.servicesDataService.isLoading;
 
   // Filters
   searchTerm = signal('');
@@ -28,10 +28,12 @@ export class ServicesListComponent implements OnInit {
   // Computed state
   filteredServices = computed(() => {
     const term = this.searchTerm().toLowerCase();
+    const category = this.selectedCategory();
     
     return this.services().filter(s => {
-      const matchName = s.name?.toLowerCase().includes(term) ?? false;
-      return matchName;
+      const matchName = term ? (s.name?.toLowerCase().includes(term) ?? false) : true;
+      const matchCategory = category ? (s.category === category) : true;
+      return matchName && matchCategory;
     });
   });
 
@@ -40,44 +42,46 @@ export class ServicesListComponent implements OnInit {
   }
 
   loadServices(): void {
-    this.isLoading.set(true);
-    this.servicesDataService.getServices().subscribe({
-      next: (data) => {
-        this.services.set(data);
-        this.isLoading.set(false);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to fetch services', err);
-        this.isLoading.set(false);
-      }
-    });
+    this.servicesDataService.getServices().subscribe();
   }
 
   onSearchChange(term: string): void {
     this.searchTerm.set(term);
   }
 
-  onCategoryChange(event: Event): void {
-    const element = event.target as HTMLSelectElement;
-    this.selectedCategory.set(element.value);
+  onCategoryChange(category: string): void {
+    this.selectedCategory.set(category);
   }
 
   openNewServiceModal(): void {
-    if (this.newServiceModal) {
-      this.newServiceModal.openModal();
+    if (this.serviceModal) {
+      this.serviceModal.openModal();
     }
   }
 
+  onEditService(service: ServiceResponse): void {
+    if (this.serviceModal) {
+      this.serviceModal.openModal(service);
+    }
+  }
+
+  onToggleStatus(id: string): void {
+    this.servicesDataService.toggleServiceStatus(id).subscribe();
+  }
+
   onSaveService(request: ServiceRequest): void {
-    this.servicesDataService.createService(request).subscribe({
-      next: () => {
-        this.loadServices();
-      },
-      error: (err: unknown) => {
-        console.error('Failed to create service', err);
-        alert('Error al crear el servicio. Verifique su conexión y vuelva a intentarlo.');
-        this.loadServices(); // reload in case it passed something
-      }
-    });
+    const editId = this.serviceModal.editingServiceId;
+
+    if (editId) {
+      this.servicesDataService.updateService(editId, request).subscribe({
+        next: () => this.loadServices(),
+        error: (err) => console.error('Failed to update service', err)
+      });
+    } else {
+      this.servicesDataService.createService(request).subscribe({
+        next: () => this.loadServices(),
+        error: (err) => console.error('Failed to create service', err)
+      });
+    }
   }
 }

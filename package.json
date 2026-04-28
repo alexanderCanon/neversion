@@ -2,7 +2,7 @@
   "name": "neversion",
   "private": true,
   "scripts": {
-    "build": "pnpm -r run build",
+    "build": "pnpm -r build",
     "api:sync": "openapi-generator-cli generate -i ${API_URL:-http://localhost:8080/v3/api-docs} -g typescript-angular -o packages/api-client/src --additional-properties=providedInRoot=true,serviceSuffix=ApiService,apiModulePrefix=Neversion",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"

@@ -12,7 +12,7 @@ import { ServiceResponse } from '@neversion/models';
 export class ServicesTableComponent {
   @Input() services: ServiceResponse[] = [];
   @Output() editService = new EventEmitter<ServiceResponse>();
-  @Output() deleteService = new EventEmitter<string>();
+  @Output() toggleStatus = new EventEmitter<string>();
 
   getCategoryBadgeClass(category: string | undefined): string {
     switch (category) {

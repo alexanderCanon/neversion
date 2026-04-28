@@ -47,8 +47,8 @@ export class ClientFormComponent implements OnInit {
   private initForm(): void {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      email: ['', [Validators.email, Validators.maxLength(255)]],
-      phone: ['', [Validators.required, Validators.maxLength(50)]], // Phone is required now
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      phone: ['', [Validators.maxLength(50)]],
     });
   }
 
@@ -107,7 +107,7 @@ export class ClientFormComponent implements OnInit {
 
       const clientRequest: ClientRequest = {
         name: formValue.name,
-        email: formValue.email || undefined,
+        email: formValue.email,
         phone: formValue.phone || undefined,
       };
 

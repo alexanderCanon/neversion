@@ -108,7 +108,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> getReservation(
             @Parameter(description = "Reservation UUID") @PathVariable UUID id) {
 
-        Reservation reservation = reservationRepositoryPort.findById(id)
+        Reservation reservation = reservationRepositoryPort.findByUuid(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + id));
 
@@ -156,7 +156,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponse> cancelReservation(
             @Parameter(description = "Reservation UUID") @PathVariable UUID id) {
 
-        Reservation reservation = reservationRepositoryPort.findById(id)
+        Reservation reservation = reservationRepositoryPort.findByUuid(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + id));
 
@@ -182,7 +182,7 @@ public class ReservationController {
             @Parameter(description = "Reservation UUID") @PathVariable UUID id,
             @RequestParam UUID clientId) {
 
-        Reservation reservation = reservationRepositoryPort.findById(id)
+        Reservation reservation = reservationRepositoryPort.findByUuid(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Reservation not found with id: " + id));
 

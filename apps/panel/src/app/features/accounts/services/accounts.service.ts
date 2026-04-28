@@ -1,14 +1,18 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize, map } from 'rxjs';
-import { AccountRequest as ApiAccountRequest, AccountResponse as ApiAccountResponse } from '@neversion/api-client';
-import { AccountsFilter, AccountRequest, AccountResponse } from '@neversion/models';
-import { environment } from '../../../../environments/environment';
+import { Observable, tap, finalize, map, of } from 'rxjs';
+import { 
+    AccountsApiService, 
+    AccountRequest as ApiAccountRequest, 
+    AccountResponse as ApiAccountResponse,
+    AccountDetailResponse as ApiAccountDetailResponse
+} from '@neversion/api-client';
+import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly accountsApi = inject(AccountsApiService);
+  private readonly authService = inject(AuthService);
 
   private readonly _accounts = signal<AccountResponse[]>([]);
   readonly accounts = this._accounts.asReadonly();
@@ -16,37 +20,43 @@ export class AccountsService {
   private readonly _isLoading = signal<boolean>(false);
   readonly isLoading = this._isLoading.asReadonly();
 
+  /**
+   * List accounts for the current authenticated vendor (US-024)
+   */
   getAccounts(filter?: AccountsFilter): Observable<AccountResponse[]> {
-    let params = new HttpParams();
-    if (filter?.serviceId) params = params.set('serviceId', filter.serviceId.toString());
-    if (filter?.saleMode) params = params.set('saleMode', filter.saleMode);
-    if (filter?.isActive !== undefined) params = params.set('isActive', String(filter.isActive));
+    const user = this.authService.currentUser();
+    if (!user) return of([]);
 
     this._isLoading.set(true);
-    return this.http.get<ApiAccountResponse[]>(`${this.baseUrl}/accounts`, { params }).pipe(
-      map(apiAccounts => apiAccounts.map(api => this.mapToModel(api))),
+    // listByVendor2(vendorUuid, serviceUuid, status)
+    return this.accountsApi.listByVendor2(user.id, filter?.serviceId, filter?.status as any).pipe(
+      map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
       tap((accounts) => this._accounts.set(accounts)),
       finalize(() => this._isLoading.set(false))
     );
   }
 
   getAccountById(id: string): Observable<AccountResponse> {
-    return this.http.get<ApiAccountResponse>(`${this.baseUrl}/accounts/${id}`).pipe(
+    return this.accountsApi.getById3(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
 
+  /**
+   * Detailed view with profiles (US-028)
+   */
+  getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
+      return this.accountsApi.getDetail1(id);
+  }
+
   createAccount(account: AccountRequest): Observable<AccountResponse> {
     const apiRequest: ApiAccountRequest = {
-      email: account.email,
+      ...account,
       pass: account.password,
-      serviceId: account.serviceId,
-      saleMode: account.saleMode as any,
-      renewalDate: account.renewalDate,
-      notes: account.notes
+      saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.http.post<ApiAccountResponse>(`${this.baseUrl}/accounts`, apiRequest).pipe(
+    return this.accountsApi.create3(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newAccount) => {
         this._accounts.update((current) => [...current, newAccount]);
@@ -54,8 +64,25 @@ export class AccountsService {
     );
   }
 
+  updateAccount(id: string, account: AccountRequest): Observable<AccountResponse> {
+    const apiRequest: ApiAccountRequest = {
+        ...account,
+        pass: account.password,
+        saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
+    };
+
+    return this.accountsApi.update3(id, apiRequest).pipe(
+      map(api => this.mapToModel(api)),
+      tap((updatedAccount) => {
+        this._accounts.update((current) => 
+            current.map(a => a.id === id ? updatedAccount : a)
+        );
+      })
+    );
+  }
+
   deactivateAccount(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/accounts/${id}`).pipe(
+    return this.accountsApi.delete3(id).pipe(
       tap(() => {
         this._accounts.update((current) => current.filter((a) => a.id !== id));
       })
@@ -70,16 +97,23 @@ export class AccountsService {
     return {
       id: api.id || '',
       email: api.email || '',
-      password: api.pass || '',
-      serviceId: api.serviceId || 0,
-      saleMode: api.saleMode as any,
+      // Password is intentionally omitted if not present in the response
+      password: (api as any).pass || undefined, 
+      serviceId: String(api.serviceId || ''),
+      saleMode: api.saleMode as unknown as SaleMode,
+      status: api.status as unknown as AccountStatus,
       renewalDate: api.renewalDate || '',
-      notes: api.notes || '',
+      cost: api.cost || 0,
       plan: api.plan || '',
-      activeProfiles: 0,
-      maxProfiles: 0,
-      profiles: [],
-      createdAt: api.createdAt || ''
+      source: api.source || '',
+      purchasedAt: api.purchasedAt || '',
+      notes: api.notes || '',
+      createdAt: api.createdAt || '',
+      totalProfiles: api.totalProfiles || 0,
+      availableProfiles: api.availableProfiles || 0,
+      occupiedProfiles: api.occupiedProfiles || 0,
+      blockedProfiles: api.blockedProfiles || 0,
+      profiles: []
     };
   }
 }

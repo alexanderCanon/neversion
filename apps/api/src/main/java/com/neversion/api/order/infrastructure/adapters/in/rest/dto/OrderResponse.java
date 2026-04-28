@@ -1,12 +1,15 @@
 package com.neversion.api.order.infrastructure.adapters.in.rest.dto;
 
+import com.neversion.api.order.domain.model.enums.OrderStatus;
+import lombok.Builder;
+
 import java.time.Instant;
 import java.util.UUID;
 
-import com.neversion.api.order.domain.model.enums.OrderStatus;
-
-import lombok.Builder;
-
+/**
+ * Response body for order operations.
+ * 'id' maps to the order's public UUID — internal BIGINT IDs are never exposed (NFR-01).
+ */
 @Builder
 public record OrderResponse(
         UUID id,
