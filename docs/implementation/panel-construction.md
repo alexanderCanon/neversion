@@ -17,3 +17,8 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-27 | EPIC-02 / US-019 | Activación/Desactivación de Servicios. | Implementado `PATCH /status` para toggle de visibilidad (US-019). |
 | 2026-04-27 | EPIC-02 / US-020 | Listado de servicios del vendedor. | Refactorizado para usar `listByVendor` con filtrado por categoría y estado. |
 | 2026-04-27 | Lenguaje | Alineación con Glosario B.1. | Renombrado `priceFull` -> `priceComplete`. Labels en UI actualizados a "Cuenta Completa" y "Precio Perfil". |
+| 2026-04-27 | EPIC-03 / US-022 | Gestión de Cuentas Maestras. | Formulario actualizado con campos financieros (`cost`, `source`, `purchasedAt`). |
+| 2026-04-27 | EPIC-03 / US-025 | Generación Masiva de Perfiles. | Integrado botón de acción rápida para bulk generation desde el detalle de cuenta. |
+| 2026-04-27 | EPIC-03 / US-027 | Control Manual de Perfiles. | Implementado bloqueo/desbloqueo quirúrgico con `PATCH /status`. |
+| 2026-04-27 | EPIC-03 / US-028 | Detalle de Cuenta (Acordeón). | Implementada carga bajo demanda de perfiles al expandir una cuenta maestra. |
+| 2026-04-27 | Infra | Aislamiento Estricto (npmrc). | Configurado `shamefully-hoist=false` para separar físicamente los node_modules de Angular 16 y 17. |
