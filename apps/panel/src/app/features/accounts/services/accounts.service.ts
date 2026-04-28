@@ -28,8 +28,9 @@ export class AccountsService {
     if (!user) return of([]);
 
     this._isLoading.set(true);
-    return this.accountsApi.listByVendor1(user.id, filter?.serviceId, filter?.status as any).pipe(
-      map(apiAccounts => apiAccounts.map(api => this.mapToModel(api))),
+    // listByVendor2(vendorUuid, serviceUuid, status)
+    return this.accountsApi.listByVendor2(user.id, filter?.serviceId, filter?.status as any).pipe(
+      map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
       tap((accounts) => this._accounts.set(accounts)),
       finalize(() => this._isLoading.set(false))
     );
@@ -45,7 +46,7 @@ export class AccountsService {
    * Detailed view with profiles (US-028)
    */
   getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
-      return this.accountsApi.getDetail(id);
+      return this.accountsApi.getDetail1(id);
   }
 
   createAccount(account: AccountRequest): Observable<AccountResponse> {
