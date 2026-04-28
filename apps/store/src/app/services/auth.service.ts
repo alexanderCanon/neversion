@@ -63,9 +63,10 @@ export class AuthService {
     });
 
     return from(promise).pipe(
-      switchMap(response => {
-        if (response.error) {
-          throw new Error(response.error.message);
+      switchMap((response) => {
+        const authResponse = response as unknown as AuthResponse;
+        if (authResponse.error) {
+          throw new Error(authResponse.error.message);
         }
 
         const apiRequest: RegisterClientRequest = {
@@ -76,7 +77,7 @@ export class AuthService {
         };
 
         return this.authApiService.registerClient(apiRequest).pipe(
-          map(() => this.handleAuthResponse(response as unknown as AuthResponse))
+          map(() => this.handleAuthResponse(authResponse))
         );
       }),
       catchError(err => this.handleError(err)),
