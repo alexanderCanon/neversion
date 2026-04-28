@@ -22,3 +22,7 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-27 | EPIC-03 / US-027 | Control Manual de Perfiles. | Implementado bloqueo/desbloqueo quirúrgico con `PATCH /status`. |
 | 2026-04-27 | EPIC-03 / US-028 | Detalle de Cuenta (Acordeón). | Implementada carga bajo demanda de perfiles al expandir una cuenta maestra. |
 | 2026-04-27 | Infra | Aislamiento Estricto (npmrc). | Configurado `shamefully-hoist=false` para separar físicamente los node_modules de Angular 16 y 17. |
+| 2026-04-28 | EPIC-04 / US-029 | Listado de Clientes con Suscripciones | Añadida columna con la cuenta de suscripciones activas (US-029). |
+| 2026-04-28 | EPIC-04 / US-030 | Detalle de Cliente Completo | Creación de ClientDetailComponent con Tabs para Info, Suscripciones y Órdenes (US-030). |
+| 2026-04-28 | EPIC-04 / US-031 | Creación de Cliente (Validaciones) | Modificado ClientFormComponent para hacer correo requerido y teléfono opcional (US-031). |
+| 2026-04-28 | EPIC-04 / US-032 | Edición de Cliente (Email Bloqueado)| Añadida validación de readonly para campo email en modo EDIT (US-032). |

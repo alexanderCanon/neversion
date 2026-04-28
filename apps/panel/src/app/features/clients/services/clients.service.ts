@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize, map } from 'rxjs';
 import { ClientRequest as ApiClientRequest, ClientResponse as ApiClientResponse } from '@neversion/api-client';
-import { ClientsFilter, ClientRequest, ClientResponse } from '@neversion/models';
+import { ClientsFilter, ClientRequest, ClientResponse, ClientDetail } from '@neversion/models';
 import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -32,6 +32,29 @@ export class ClientsService {
   getClientById(id: string): Observable<ClientResponse> {
     return this.http.get<ApiClientResponse>(`${this.baseUrl}/clients/${id}`).pipe(
       map(api => this.mapToModel(api))
+    );
+  }
+
+  getClientDetail(id: string): Observable<ClientDetail> {
+    return this.http.get<unknown>(`${this.baseUrl}/clients/${id}/detail`).pipe(
+      map(apiUnknown => {
+        const api = apiUnknown as Record<string, unknown>;
+        return {
+          client: api['client'] ? this.mapToModel(api['client'] as unknown as ApiClientResponse) : {} as ClientResponse,
+          activeSubscriptions: ((api['activeSubscriptions'] || []) as Record<string, string>[]).map(s => ({
+            id: s['id'] || '',
+            serviceName: s['serviceName'] || '',
+            profileName: s['profileName'] || '',
+            paymentDueDate: s['paymentDueDate'] || '',
+            status: s['status'] || ''
+          })),
+          orderHistory: ((api['orderHistory'] || []) as Record<string, string>[]).map(o => ({
+            id: o['id'] || '',
+            status: o['status'] || '',
+            createdAt: o['createdAt'] || ''
+          }))
+        };
+      })
     );
   }
 
@@ -83,11 +106,12 @@ export class ClientsService {
 
   private mapToModel(api: ApiClientResponse): ClientResponse {
     return {
-      id: api.id || '',
+      id: api.id || (api as unknown as Record<string, string>)['uuid'] || '', // Handle potential fallback if 'uuid' was used in some backend responses
       name: api.name || '',
       email: api.email || '',
       phone: api.phone || '',
       notes: api.notes || '',
+      activeSubscriptionCount: api.activeSubscriptionCount || 0,
       createdAt: api.createdAt || ''
     };
   }

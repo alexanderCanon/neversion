@@ -51,6 +51,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'clients/:id',
+                loadComponent: () => import('./features/clients/pages/client-detail/client-detail.component').then(m => m.ClientDetailComponent),
+                data: { allowedRoles: ['super_admin', 'vendedor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'subscriptions',
                 loadComponent: () => import('./features/subscriptions/pages/subscriptions-list/subscriptions-list.component').then(m => m.SubscriptionsListComponent),
                 data: { allowedRoles: ['super_admin', 'vendedor'] },

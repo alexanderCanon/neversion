@@ -55,6 +55,7 @@
                 <th>Nombre</th>
                 <th>Correo</th>
                 <th>Teléfono</th>
+                <th class="text-center">Suscripciones</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -79,13 +80,17 @@
                       <span class="text-muted">—</span>
                     }
                   </td>
+                  <td class="text-center">
+                    <span class="badge" [ngClass]="client.activeSubscriptionCount > 0 ? 'bg-success' : 'bg-secondary'">
+                      {{ client.activeSubscriptionCount }}
+                    </span>
+                  </td>
                   <td>
                     <div class="d-flex gap-2 justify-content-end">
                       <a
                         class="btn btn-sm btn-outline-info"
-                        [routerLink]="['/subscriptions']"
-                        [queryParams]="{clientId: client.id}"
-                        title="Ver Suscripciones"
+                        [routerLink]="['/clients', client.id]"
+                        title="Ver Detalle"
                       >
                         <i class="bi bi-eye"></i>
                       </a>
