@@ -1,81 +1,86 @@
-# GEMINI.md - Neversion System Context
+# GEMINI.md — Project Overview & Instructions
 
-This file serves as the primary instructional context for Gemini CLI when working on the Neversion project. It defines the permanent engineering standards and operational protocols.
+Welcome to the **Neversion** repository. This file serves as the primary instructional context for Gemini CLI agents. It provides a high-level overview of the project, architecture, and development standards.
 
-## 🚀 Project Overview
-Neversion is a decoupled, API-driven system designed for managing accounts, subscriptions, and orders. It consists of a Java/Spring Boot backend and two Angular-based frontends.
+## Project Overview
+**Neversion** is a SaaS platform designed for the management and resale of digital services. It enables vendors to manage accounts, profiles (perfiles), and subscriptions, while providing clients with a seamless store interface for purchasing and managing their digital access.
 
-- **Backend (`api`):** Spring Boot 3 REST API (Java 17).
-- **Admin Panel (`panel`):** Angular 17 Administrative Dashboard.
-- **Storefront (`store`):** Angular 16 Customer-facing site.
-
----
-
-## 🏗️ Architecture & Tech Stack
-
-### System Architecture
-The system follows a decoupled architecture where frontends consume a secure RESTful API.
-- **Auth:** Supabase Auth (OAuth2 / JWT).
-- **Database:** PostgreSQL (Supabase) with Flyway migrations.
-- **Storage:** AWS S3 for receipt images.
-
-### Backend (`api`) - Hexagonal Architecture & DDD
-Strict adherence to **Hexagonal Architecture (Ports & Adapters)** and **Domain-Driven Design (DDD)**.
-- **Domain Layer:** Pure Java, no framework dependencies.
-- **Application Layer:** Orchestrates business logic via Use Case interfaces.
-- **Infrastructure Layer:** Framework-specific adapters (REST, JPA, S3).
-- **Style:** Constructor-only injection, Java Records for DTOs, Manual mappers.
-
-### Frontend (`panel`) - Angular 17+ Modern Paradigms
-- **Standalone Components:** No `NgModule`.
-- **Reactive State:** Angular Signals (`signal`, `computed`, `effect`).
-- **Dependency Injection:** Mandatory use of `inject()` function.
-- **Control Flow:** Prefer `@if`, `@for`, `@defer` over structural directives.
-
-### Frontend (`store`) - Angular 16 Standard
-- **Module-based:** Uses `NgModule`.
-- **Reactive State:** RxJS Observables with clean `async` pipe usage.
-- **UI:** Bootstrap 5 (utility-first).
+### Core Technologies
+- **Monorepo Manager:** `pnpm` workspaces.
+- **Backend:** Java 17, Spring Boot, Maven, PostgreSQL.
+- **Frontend:** Angular 17 (Typescript, RxJS, Signals).
+- **Infrastructure:** Docker, Docker Compose.
+- **API Integration:** OpenAPI / Swagger with generated TypeScript clients.
 
 ---
 
-## 💎 Frontend Engineering Pillars (The "Surgical" Code)
-
-### 1. Absolute Type Safety (No `any`)
-- The use of `any` is strictly prohibited.
-- Use explicit interfaces from `@neversion/models`.
-- If a type is truly dynamic or unknown (e.g., API error payloads), use `unknown` combined with **Type Guards**.
-
-### 2. Framework Excellence
-- **Panel (A17):** Leverage Signals for local state and `inject()` for cleaner DI.
-- **Store (A16):** Ensure clean RxJS streams, avoid manual subscriptions (prefer `async` pipe), and respect the modular structure.
-- **Global:** Keep components "Dumb" (UI only) and delegate logic to "Smart" services.
-
-### 3. API-First & Contract Sync
-- Never "guess" or manually create API models if a contract exists.
-- Always verify that `pnpm run api:sync` has been executed before implementing new features.
-- All frontend data mapping must align with the generated `@neversion/api-client`.
-
----
-
-## 🛡️ Context Isolation & Preciseness
-
-To avoid information overload and maintain surgical precision when working on both apps:
-
-1. **Explicit Switching:** When switching work from `panel` to `store` (or vice versa), state it explicitly in the plan.
-2. **Path Mapping:** Always use absolute path aliases (e.g., `@app/core/...`) where configured to avoid relative path confusion.
-3. **Surgical Edits:** Apply changes step-by-step. Do not refactor unrelated files.
-4. **Validation Reliance:** The human operator is responsible for executing `pnpm lint` and `pnpm build`. The agent must wait for the report of these commands to proceed or fix errors.
+## Project Structure
+```text
+.
+├── apps/
+│   ├── api/          # Backend (Spring Boot)
+│   ├── panel/        # Admin & Vendor UI (Angular)
+│   └── store/        # Client Store UI (Angular)
+├── packages/
+│   ├── api-client/   # Generated API client (Angular services)
+│   ├── models/       # Shared TypeScript models
+│   └── utils/        # Shared utilities
+├── docs/             # Comprehensive documentation (Spanish)
+│   ├── agents/       # Agent-specific protocols (CRITICAL)
+│   ├── domain/       # Ubiquitous language and business rules
+│   └── implementation/# Progress logs (Bitácoras)
+├── infra/            # Docker and deployment configurations
+└── Makefile          # Root command hub
+```
 
 ---
 
-## ⚖️ Interaction and Planning Protocol
+## Getting Started: Agent Protocols
+Before performing any task, you **MUST** read the relevant protocol in `docs/agents/`:
 
-1. **Analysis & Diagnosis:** Explain the error or requirement and its impact.
-2. **Proposed Solution:** Technical strategy aligned with the pillars above.
-3. **Implementation Plan:** Sequential steps with testing strategy.
-4. **Execution:** Surgical application of changes.
-5. **Validation:** Wait for human feedback on build/lint status.
+1.  **Global Entry Point:** `docs/agents/AGENTS.md` - Rules for all agents.
+2.  **Backend Tasks:** `docs/agents/CLAUDE.md` - Protocol for `/apps/api`.
+3.  **Frontend Tasks:** `docs/agents/GEMINI.md` - Protocol for `/apps/panel` and `/apps/store`.
+
+### Mandatory Rules for Agents
+- **Isolation:** Work only in your assigned app directory. Do not modify other apps.
+- **API-First:** Frontend agents must consume the API and never access the database.
+- **Logging:** Every change must be recorded in the implementation logs (bitácoras) in `docs/implementation/`.
+- **Language:** Code and comments in **English**; UI labels and user messages in **Spanish**.
+- **Zero Guesswork:** If a requirement is unclear, stop and report a **BLOCKER** as defined in `AGENTS.md`.
 
 ---
-*Last Updated: 2026-04-25*
+
+## Common Commands
+
+### Root Level
+- `make help`: Show all available commands in the root Hub.
+- `pnpm install`: Install all dependencies for the monorepo.
+- `pnpm -r build`: Build all projects in the workspace.
+- `pnpm api:sync`: Regenerate the `api-client` package from the backend OpenAPI spec.
+
+### Docker Orchestration
+- `make up-local`: Start the full stack (API, DB, Panel) locally.
+- `make down-local`: Stop the local stack.
+
+### Backend (`apps/api`)
+- `./mvnw clean install`: Build the backend.
+- `./mvnw test`: Run backend unit tests.
+- `./mvnw verify`: Run backend integration tests.
+
+### Frontend (`apps/panel` or `apps/store`)
+- `pnpm run build`: Build the specific frontend app.
+- `pnpm run test`: Run unit tests (Karma).
+- `pnpm run lint`: Run ESLint checks.
+
+---
+
+## Development Workflow
+1.  **Research:** Read the documentation in `docs/` (Domain, Epics, Stories).
+2.  **Plan:** Create a strategy and update the implementation bitácora.
+3.  **Implement:** Write surgical, idiomatic code.
+4.  **Validate:** Run tests and linting. A module is only done when tests are green.
+5.  **Sync:** If the API changed, run `pnpm api:sync` to update the frontend client.
+
+---
+*Last Updated: April 2026*
