@@ -16,6 +16,10 @@ public class AccountMapper {
                 .serviceId(request.serviceId())
                 .saleMode(request.saleMode())
                 .renewalDate(request.renewalDate())
+                .plan(request.plan())
+                .cost(request.cost())
+                .source(request.source())
+                .purchasedAt(request.purchasedAt())
                 .notes(request.notes())
                 .build() : null;
     }
@@ -24,11 +28,15 @@ public class AccountMapper {
         return account != null ? AccountResponse.builder()
                 .id(account.getUuid())
                 .email(account.getEmail())
-                .pass(account.getPassword())
+                // password intentionally omitted from response (security)
                 .serviceId(account.getServiceId())
                 .saleMode(account.getSaleMode())
+                .status(account.getStatus())
                 .renewalDate(account.getRenewalDate())
                 .plan(account.getPlan())
+                .cost(account.getCost())
+                .source(account.getSource())
+                .purchasedAt(account.getPurchasedAt())
                 .notes(account.getNotes())
                 .createdAt(account.getCreatedAt())
                 .build() : null;

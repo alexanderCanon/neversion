@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
 public interface AccountRepositoryPort {
 
@@ -15,6 +16,15 @@ public interface AccountRepositoryPort {
     Optional<Account> findByInternalId(Long id);
 
     List<Account> findByServiceId(Long serviceId);
+
+    /** US-024: All accounts for a vendor. */
+    List<Account> findByVendorId(Long vendorId);
+
+    /**
+     * US-024: Accounts for a vendor with optional filters.
+     * Pass null to skip a filter.
+     */
+    List<Account> findByVendorIdFiltered(Long vendorId, Long serviceId, AccountStatus status);
 
     List<Account> findAll();
 

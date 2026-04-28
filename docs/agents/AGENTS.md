@@ -7,6 +7,19 @@ This file serves as the **Single Source of Truth** for AI agents participating i
 
 ---
 
+## Mandatory Session Start — Backend Agent (Claude)
+
+**If you are Claude and you are working on `/apps/api`**, your very first action in every new session — before reading anything else, before writing any code, before answering — must be:
+
+```
+1. Read: /home/alexavers/projects/neversion/docs/agents/CLAUDE.md
+2. Follow the protocol defined there exactly.
+```
+
+This file contains your operational protocol (bitácora-first orientation, selective doc reading, structured planning, module-by-module test gates). Skipping it means operating without memory of past decisions.
+
+---
+
 ## Project Architecture
 
 ```text
@@ -63,6 +76,26 @@ To ensure API-first consistency, development follows a strictly sequential modul
 - **Development Language**: All code, comments, and internal logs must be in **English**.
 - **User Interface**: Labels, placeholders, and user-facing messages must be in **Spanish**.
 - **Domain Accuracy**: Terminology must align 100% with the Domain Glossary.
+
+### 4. Module Gate — No False Positives (ALL AGENTS — NON-NEGOTIABLE)
+
+Each module (one US) must be validated with tests **before** moving to the next module.
+
+- After completing a module, **stop** and explicitly request the user to run the relevant tests.
+- Do **not** proceed to the next module until the user confirms tests are green.
+- If tests fail, fix them and re-request before continuing.
+
+**Signature change protocol (Backend Agent):** Whenever a public API signature changes
+(use case interface method, service constructor, repository port method), the agent MUST:
+1. Run `grep -r "ClassName" src/test --include="*.java" -l` to find all test callers.
+2. Update every file returned **before** declaring the module done.
+3. Run `./mvnw test -Dtest="AffectedUT,AffectedIT"` — not just `./mvnw compile`.
+
+> [!CAUTION]
+> `./mvnw compile` compiles ONLY `src/main`. It does NOT compile or run `src/test`.
+> A green compile is NOT confirmation a module works — it is a **false positive**.
+> The user discovering test failures the agent should have caught is a **protocol failure**.
+
 
 ---
 

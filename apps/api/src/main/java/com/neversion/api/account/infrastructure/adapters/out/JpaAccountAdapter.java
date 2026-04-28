@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.account.infrastructure.adapters.out.mapper.AccountPersistenceMapper;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
 @Repository
 public class JpaAccountAdapter implements AccountRepositoryPort {
@@ -42,6 +43,20 @@ public class JpaAccountAdapter implements AccountRepositoryPort {
     @Override
     public List<Account> findByServiceId(Long serviceId) {
         return accountRepo.findByServiceId(serviceId).stream()
+                .map(accountMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Account> findByVendorId(Long vendorId) {
+        return accountRepo.findByVendorId(vendorId).stream()
+                .map(accountMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Account> findByVendorIdFiltered(Long vendorId, Long serviceId, AccountStatus status) {
+        return accountRepo.findByVendorIdFiltered(vendorId, serviceId, status).stream()
                 .map(accountMapper::toDomain)
                 .toList();
     }

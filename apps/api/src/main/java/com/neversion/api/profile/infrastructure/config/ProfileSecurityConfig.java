@@ -7,6 +7,7 @@ import com.neversion.api.config.HttpSecurityCustomizer;
 
 /**
  * Profiles: vendor manages account profiles, super_admin has full access.
+ * Covers: POST, GET, PUT, PATCH /status (US-027), DELETE.
  * US-015 / ADR-08: RBAC aligned with platform roles.
  */
 @Configuration

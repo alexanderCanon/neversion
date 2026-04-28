@@ -17,6 +17,7 @@ public class ProfilePersistenceMapper {
                 .name(entity.getName())
                 .pin(entity.getPin())
                 .isOwner(entity.getIsOwner())
+                .status(entity.getStatus())
                 .vendorId(entity.getVendorId())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -31,6 +32,7 @@ public class ProfilePersistenceMapper {
                 .name(domain.getName())
                 .pin(domain.getPin())
                 .isOwner(domain.getIsOwner())
+                .status(domain.getStatus())
                 .vendorId(domain.getVendorId())
                 .createdAt(domain.getCreatedAt())
                 .build();

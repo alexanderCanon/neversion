@@ -25,6 +25,7 @@ public class ProfileMapper {
                 .name(profile.getName())
                 .pin(profile.getPin())
                 .isOwner(profile.getIsOwner())
+                .status(profile.getStatus())
                 .createdAt(profile.getCreatedAt())
                 .build() : null;
     }

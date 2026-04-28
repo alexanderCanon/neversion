@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a monorepo for the **Neversion System**, a reservation management platform for streaming service subscriptions. The project consists of three main components:
+This is a monorepo for the **Neversion System**, a platform for managing digital service subscriptions (streaming, gift cards, mobile top-ups). The project consists of:
 
-- **`api/`**: Spring Boot 3 REST API (Java 17)
-- **`panel/`**: Angular 17 admin panel (TypeScript)
-- **`store/`**: Angular 16 customer-facing site (TypeScript)
-- **`docs/`**: Comprehensive documentation (architecture, business rules, API contracts)
+- **`apps/api/`**: Spring Boot 3 REST API (Java 17) — Hexagonal Architecture + DDD
+- **`apps/panel/`**: Angular 17 admin panel (TypeScript)
+- **`apps/store/`**: Angular 16 customer-facing storefront (TypeScript)
+- **`docs/`**: Architecture, business rules, ADRs, EPICs, bitácora
 
 ## High-Level Architecture
 
@@ -67,10 +67,10 @@ The `api/` requires environment variables. Copy `api/.env.example` to `api/.env`
 ## API (Backend) Commands
 
 ### Working Directory
-All backend commands must be run from the `api/` directory.
+All backend commands must be run from the `apps/api/` directory.
 
 ```bash
-cd api
+cd apps/api
 
 # Start development server
 ./mvnw spring-boot:run
@@ -112,10 +112,13 @@ api/src/main/java/com/neversion/api/<feature>/
 │   └── service/            # Use case implementations (orchestration only)
 └── infrastructure/
     ├── adapters/in/rest/   # REST controllers, DTOs, request/response mappers
-    └── adapters/out/       # JPA entities, Spring Data repositories, persistence mappers
+    ├── adapters/out/       # JPA entities, Spring Data repositories, persistence mappers
+    └── config/             # Per-module SecurityConfig (HttpSecurityCustomizer)
 ```
 
-**Key Features:** `account`, `profile`, `product`, `inventory`, `reservation`, `order`, `subscription`, `userguest`, `dashboard`, `profile`
+**Active modules:** `user`, `vendor`, `client`, `service`, `account`, `profile`, `reservation`, `order`, `subscription`
+
+**Agent protocol:** See `docs/agents/CLAUDE.md` for the backend agent's operational protocol (plan → code → test → log).
 
 ### Backend Guidelines
 
@@ -139,10 +142,10 @@ Flyway migrations are versioned SQL files in `api/src/main/resources/db/migratio
 ## Panel (Admin Frontend) Commands
 
 ### Working Directory
-All panel commands must be run from the `panel/` directory.
+All panel commands must be run from the `apps/panel/` directory.
 
 ```bash
-cd panel
+cd apps/panel
 
 # Install dependencies (use pnpm)
 pnpm install
@@ -197,10 +200,10 @@ panel/src/app/
 ## Store (Customer Site) Commands
 
 ### Working Directory
-All store commands must be run from the `store/` directory.
+All store commands must be run from the `apps/store/` directory.
 
 ```bash
-cd store
+cd apps/store
 
 # Install dependencies (use npm)
 npm install
@@ -362,13 +365,14 @@ Three agents are available in `.claude/agents/` and are triggered automatically 
 ## Important Notes
 
 - **Authentication**: All protected routes require JWT Bearer token from Supabase
+- **Auth flow**: Frontend creates Supabase account → sends `externalId` (Supabase UUID) to backend (ADR-09 revised)
 - **API Base URL**: All endpoints start with `/api/v1/`
+- **Public identifier**: Always `id` in responses (maps to UUID — BIGINT never exposed)
+- **Price naming**: `priceComplete` (not `priceFull`) — aligns with Glosario B.1 "Cuenta Completa"
 - **CORS**: Configured in Spring Boot for frontend origins
-- **Soft Delete**: Entities use `@SQLDelete` and `@SQLRestriction` annotations
-- **Optimistic Locking**: Use `@Version` for concurrent updates
-- **Color Palette**: Use OKLCH CSS variables in `src/styles.scss` (panel)
 - **Package Manager**: Use `pnpm` for panel, `npm` for store
-- **Git**: No git repository at the root level; use the root `Makefile` for cross-project commands. `api/` has its own git repository
+- **Bitácora**: `/docs/implementation/backend-construction.md` — source of truth for project state
+- **Git**: No git repository at the root level; use the root `Makefile` for cross-project commands
 
 ## OpenAPI Documentation
 
