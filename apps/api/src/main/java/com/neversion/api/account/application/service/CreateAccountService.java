@@ -51,15 +51,16 @@ public class CreateAccountService implements CreateAccountUseCase {
         // Resolve vendorId from JWT caller (ADR-09)
         Long vendorId = resolveVendorId(callerExternalId);
 
+        // Resolve service UUID → internal Long (frontend sends UUID only)
         com.neversion.api.service.domain.model.Service service =
-                serviceRepositoryPort.findByInternalId(account.getServiceId())
+                serviceRepositoryPort.findById(account.getServiceUuid())
                         .orElseThrow(() -> new ResourceNotFoundException(
-                                "Service not found: " + account.getServiceId()));
+                                "Service not found: " + account.getServiceUuid()));
 
         Account toSave = Account.builder()
                 .email(account.getEmail())
                 .password(account.getPassword())
-                .serviceId(account.getServiceId())
+                .serviceId(service.getId())          // resolved internal Long
                 .saleMode(account.getSaleMode())
                 .renewalDate(account.getRenewalDate())
                 .plan(account.getPlan())

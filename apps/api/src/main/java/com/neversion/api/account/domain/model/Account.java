@@ -34,6 +34,13 @@ public class Account {
     /** FK to Service — the platform this account belongs to. */
     private Long serviceId;
 
+    /**
+     * Transient — carries the service UUID from the REST request to the service layer.
+     * Resolved to serviceId (Long) by CreateAccountService / UpdateAccountService.
+     * Never persisted.
+     */
+    private UUID serviceUuid;
+
     /** Master email credential used to log into the streaming platform. */
     private String email;
 
@@ -76,13 +83,14 @@ public class Account {
 
     private LocalDateTime createdAt;
 
-    public Account(Long id, UUID uuid, Long serviceId, String email, String password,
+    public Account(Long id, UUID uuid, Long serviceId, UUID serviceUuid, String email, String password,
             LocalDate renewalDate, String plan, SaleMode saleMode, String notes,
             java.math.BigDecimal cost, String source, LocalDate purchasedAt,
             AccountStatus status, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.serviceId = serviceId;
+        this.serviceUuid = serviceUuid;
         this.email = email;
         this.password = password;
         this.renewalDate = renewalDate;

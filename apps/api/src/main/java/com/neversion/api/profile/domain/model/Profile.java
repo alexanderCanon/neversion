@@ -33,6 +33,13 @@ public class Profile {
     /** FK to Account — the master credential this profile belongs to. */
     private Long accountId;
 
+    /**
+     * Transient — carries the account UUID from the REST request to the service layer.
+     * Resolved to accountId (Long) by ProfileService.save().
+     * Never persisted.
+     */
+    private UUID accountUuid;
+
     /** Screen name configured inside the streaming platform (e.g. "Victor R"). */
     private String name;
 
@@ -57,11 +64,12 @@ public class Profile {
 
     private LocalDateTime createdAt;
 
-    public Profile(Long id, UUID uuid, Long accountId, String name, String pin,
+    public Profile(Long id, UUID uuid, Long accountId, UUID accountUuid, String name, String pin,
             Boolean isOwner, ProfileStatus status, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.accountId = accountId;
+        this.accountUuid = accountUuid;
         this.name = name;
         this.pin = pin;
         this.isOwner = isOwner;

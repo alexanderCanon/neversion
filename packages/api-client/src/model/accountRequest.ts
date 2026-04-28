@@ -15,6 +15,10 @@ export interface AccountRequest {
     serviceId: number;
     saleMode: AccountRequest.SaleModeEnum;
     renewalDate: string;
+    plan?: string;
+    cost?: number;
+    source?: string;
+    purchasedAt?: string;
     notes?: string;
 }
 export namespace AccountRequest {

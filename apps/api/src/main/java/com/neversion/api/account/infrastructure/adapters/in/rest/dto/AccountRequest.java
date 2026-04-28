@@ -2,6 +2,7 @@ package com.neversion.api.account.infrastructure.adapters.in.rest.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
 
@@ -12,7 +13,8 @@ import lombok.Builder;
 
 /**
  * Request body for creating or updating a master account (US-022 / US-023).
- * vendorId is NOT accepted here — resolved from the JWT caller (ADR-09 / EPIC-02 pattern).
+ * vendorId: NOT accepted — resolved from JWT (ADR-09).
+ * serviceId: UUID (external identifier only — backend resolves to internal Long).
  */
 @Builder
 public record AccountRequest(
@@ -20,7 +22,7 @@ public record AccountRequest(
 
         @NotBlank(message = "Password is required") String pass,
 
-        @NotNull(message = "Service ID is required") Long serviceId,
+        @NotNull(message = "Service ID is required") UUID serviceId,
 
         @NotNull(message = "Sale mode is required") SaleMode saleMode,
 
@@ -29,8 +31,8 @@ public record AccountRequest(
         /** Quality tier, e.g. "Familiar", "4K Ultra HD". Optional. */
         String plan,
 
-        /** Acquisition cost paid to the wholesaler (US-022). Optional. */
-        BigDecimal cost,
+        /** Acquisition cost paid to the wholesaler (US-022). Required. */
+        @NotNull(message = "Acquisition cost is required") BigDecimal cost,
 
         /** Source/supplier where this account was purchased. Optional. */
         String source,

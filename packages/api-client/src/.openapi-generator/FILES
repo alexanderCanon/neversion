@@ -17,9 +17,12 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/accountDetailResponse.ts
 model/accountGroupResult.ts
 model/accountRequest.ts
 model/accountResponse.ts
+model/accountSummaryResponse.ts
+model/changeProfileStatusRequest.ts
 model/clientRequest.ts
 model/clientResponse.ts
 model/createSubscriptionRequest.ts
@@ -31,6 +34,7 @@ model/profileRequest.ts
 model/profileResponse.ts
 model/profileResult.ts
 model/profileSubscriptionResult.ts
+model/profileSummaryResponse.ts
 model/registerClientRequest.ts
 model/registerClientResponse.ts
 model/registerVendorRequest.ts

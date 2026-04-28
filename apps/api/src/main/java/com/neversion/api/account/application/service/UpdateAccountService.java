@@ -10,6 +10,7 @@ import com.neversion.api.account.application.port.in.UpdateAccountUseCase;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
@@ -22,13 +23,16 @@ import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 public class UpdateAccountService implements UpdateAccountUseCase {
 
     private final AccountRepositoryPort accountRepositoryPort;
+    private final ServiceRepositoryPort serviceRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
 
     public UpdateAccountService(AccountRepositoryPort accountRepositoryPort,
+            ServiceRepositoryPort serviceRepositoryPort,
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort) {
         this.accountRepositoryPort = accountRepositoryPort;
+        this.serviceRepositoryPort = serviceRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
     }
@@ -45,10 +49,18 @@ public class UpdateAccountService implements UpdateAccountUseCase {
             throw new AccessDeniedException("Access denied: you do not own account " + uuid);
         }
 
+        // Resolve service UUID → internal Long if provided
+        Long resolvedServiceId = existing.getServiceId();
+        if (updates.getServiceUuid() != null) {
+            var service = serviceRepositoryPort.findById(updates.getServiceUuid())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Service not found: " + updates.getServiceUuid()));
+            resolvedServiceId = service.getId();
+        }
         // Apply all editable fields — id, uuid, vendorId are immutable
         existing.setEmail(updates.getEmail());
         existing.setPassword(updates.getPassword());
-        existing.setServiceId(updates.getServiceId());
+        existing.setServiceId(resolvedServiceId);
         existing.setSaleMode(updates.getSaleMode());
         existing.setRenewalDate(updates.getRenewalDate());
         existing.setPlan(updates.getPlan());

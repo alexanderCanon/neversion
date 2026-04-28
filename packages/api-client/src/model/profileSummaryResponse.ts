@@ -9,16 +9,14 @@
  */
 
 
-export interface ProfileResponse { 
+export interface ProfileSummaryResponse { 
     id?: string;
-    accountId?: number;
     name?: string;
     pin?: string;
     isOwner?: boolean;
-    status?: ProfileResponse.StatusEnum;
-    createdAt?: string;
+    status?: ProfileSummaryResponse.StatusEnum;
 }
-export namespace ProfileResponse {
+export namespace ProfileSummaryResponse {
     export const StatusEnum = {
         Available: 'AVAILABLE',
         Active: 'ACTIVE',

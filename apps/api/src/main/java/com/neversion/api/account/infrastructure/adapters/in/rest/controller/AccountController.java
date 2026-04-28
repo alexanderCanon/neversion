@@ -111,7 +111,12 @@ public class AccountController {
             @RequestParam(required = false) UUID serviceUuid,
             @RequestParam(required = false) AccountStatus status) {
         List<Account> accounts = listAccountsUseCase.listByVendor(vendorUuid, serviceUuid, status);
-        return ResponseEntity.ok(accounts.stream().map(accountMapper::toResponse).toList());
+        List<AccountResponse> response = accounts.stream()
+                .map(account -> accountMapper.toResponse(
+                        account,
+                        profileUseCase.findByAccountId(account.getId())))
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     // ─── US-025: Generate profiles ────────────────────────────────────────────

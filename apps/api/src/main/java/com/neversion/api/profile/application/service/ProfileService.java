@@ -58,6 +58,13 @@ public class ProfileService implements ProfileUseCase {
     @Override
     @Transactional
     public Profile save(Profile profile) {
+        // Resolve accountUuid → accountId when coming from REST request (US-022 / US-026)
+        if (profile.getAccountId() == null && profile.getAccountUuid() != null) {
+            var account = accountRepositoryPort.findById(profile.getAccountUuid())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Account not found: " + profile.getAccountUuid()));
+            profile.setAccountId(account.getId());
+        }
         return profileRepositoryPort.save(profile);
     }
 

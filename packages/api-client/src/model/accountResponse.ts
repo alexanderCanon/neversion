@@ -12,11 +12,14 @@
 export interface AccountResponse { 
     id?: string;
     email?: string;
-    pass?: string;
     serviceId?: number;
     saleMode?: AccountResponse.SaleModeEnum;
+    status?: AccountResponse.StatusEnum;
     renewalDate?: string;
     plan?: string;
+    cost?: number;
+    source?: string;
+    purchasedAt?: string;
     notes?: string;
     createdAt?: string;
 }
@@ -26,6 +29,13 @@ export namespace AccountResponse {
         FullAccount: 'FULL_ACCOUNT'
     } as const;
     export type SaleModeEnum = typeof SaleModeEnum[keyof typeof SaleModeEnum];
+    export const StatusEnum = {
+        Available: 'AVAILABLE',
+        Partial: 'PARTIAL',
+        Full: 'FULL',
+        Expired: 'EXPIRED'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
 

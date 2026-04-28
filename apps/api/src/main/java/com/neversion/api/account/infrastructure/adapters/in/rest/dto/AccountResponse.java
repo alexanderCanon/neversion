@@ -13,6 +13,7 @@ import lombok.Builder;
 /**
  * Response for any account operation (US-022 .. US-028).
  * Includes status in all responses per operational consistency (confirmed).
+ * Profile counters (US-024): populated in list views; zero-valued in create/update responses.
  */
 @Builder
 public record AccountResponse(
@@ -27,6 +28,12 @@ public record AccountResponse(
         String source,
         LocalDate purchasedAt,
         String notes,
-        LocalDateTime createdAt) {
+        LocalDateTime createdAt,
+
+        /** US-024 — profile counters for listing view. */
+        int totalProfiles,
+        int availableProfiles,
+        int occupiedProfiles,
+        int blockedProfiles) {
 }
 

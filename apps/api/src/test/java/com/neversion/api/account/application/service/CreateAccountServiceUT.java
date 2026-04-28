@@ -52,6 +52,7 @@ class CreateAccountServiceUT {
     private CreateAccountService createAccountService;
 
     private static final Long    SERVICE_ID    = 1L;
+    private static final UUID    SERVICE_UUID  = UUID.randomUUID();
     private static final Long    VENDOR_ID     = 42L;
     private static final Long    USER_ID       = 7L;
     private static final String  EXTERNAL_ID   = "supabase-uuid-test";
@@ -75,7 +76,7 @@ class CreateAccountServiceUT {
         return Account.builder()
                 .email("netflix@example.com")
                 .password("pass123")
-                .serviceId(SERVICE_ID)
+                .serviceUuid(SERVICE_UUID)          // UUID — as sent by frontend
                 .renewalDate(LocalDate.now().plusDays(30))
                 .plan("Premium")
                 .saleMode(saleMode)
@@ -85,6 +86,7 @@ class CreateAccountServiceUT {
     private Service buildService(Integer maxProfiles) {
         return Service.builder()
                 .id(SERVICE_ID)
+                .uuid(SERVICE_UUID)
                 .name("Netflix")
                 .maxProfiles(maxProfiles)
                 .build();
@@ -106,7 +108,7 @@ class CreateAccountServiceUT {
 
             Service service = buildService(5);
 
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(any(Account.class))).thenReturn(saved);
 
             // When
@@ -130,7 +132,7 @@ class CreateAccountServiceUT {
 
             Service service = buildService(5);
 
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(any(Account.class))).thenReturn(saved);
 
             // When
@@ -164,7 +166,7 @@ class CreateAccountServiceUT {
             // Given
             stubJwtChain();
             Account account = buildAccount(SaleMode.BY_PROFILE);
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.empty());
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.empty());
 
             // When / Then
             assertThatThrownBy(() -> createAccountService.create(account, EXTERNAL_ID))
@@ -184,7 +186,7 @@ class CreateAccountServiceUT {
 
             Service service = buildService(null);
 
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID)).thenReturn(Optional.of(service));
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
             when(accountRepositoryPort.save(any(Account.class))).thenReturn(saved);
 
             // When
