@@ -9,13 +9,11 @@
  */
 
 
-export interface ClientResponse { 
+export interface ActiveSubscriptionSummary { 
     id?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    notes?: string;
-    activeSubscriptionCount?: number;
-    createdAt?: string;
+    serviceName?: string;
+    profileName?: string;
+    paymentDueDate?: string;
+    status?: string;
 }
 

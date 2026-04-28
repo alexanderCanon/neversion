@@ -9,13 +9,15 @@
  */
 
 
-export interface ClientResponse { 
-    id?: string;
+export interface Client { 
+    id?: number;
+    uuid?: string;
+    userId?: number;
+    vendorId?: number;
     name?: string;
-    email?: string;
     phone?: string;
+    email?: string;
     notes?: string;
-    activeSubscriptionCount?: number;
     createdAt?: string;
 }
 

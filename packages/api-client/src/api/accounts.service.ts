@@ -311,12 +311,12 @@ export class AccountsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getDetail(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<AccountDetailResponse>;
-    public getDetail(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AccountDetailResponse>>;
-    public getDetail(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AccountDetailResponse>>;
-    public getDetail(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getDetail1(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<AccountDetailResponse>;
+    public getDetail1(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AccountDetailResponse>>;
+    public getDetail1(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AccountDetailResponse>>;
+    public getDetail1(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getDetail.');
+            throw new Error('Required parameter id was null or undefined when calling getDetail1.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -373,12 +373,12 @@ export class AccountsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendor1(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<AccountResponse>>;
-    public listByVendor1(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AccountResponse>>>;
-    public listByVendor1(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AccountResponse>>>;
-    public listByVendor1(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendor2(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<AccountResponse>>;
+    public listByVendor2(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<AccountResponse>>>;
+    public listByVendor2(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<AccountResponse>>>;
+    public listByVendor2(vendorUuid: string, serviceUuid?: string, status?: 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor1.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor2.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

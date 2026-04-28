@@ -9,13 +9,9 @@
  */
 
 
-export interface ClientResponse { 
+export interface OrderSummary { 
     id?: string;
-    name?: string;
-    email?: string;
-    phone?: string;
-    notes?: string;
-    activeSubscriptionCount?: number;
+    status?: string;
     createdAt?: string;
 }
 

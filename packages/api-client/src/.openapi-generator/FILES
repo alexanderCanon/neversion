@@ -22,12 +22,16 @@ model/accountGroupResult.ts
 model/accountRequest.ts
 model/accountResponse.ts
 model/accountSummaryResponse.ts
+model/activeSubscriptionSummary.ts
 model/changeProfileStatusRequest.ts
+model/client.ts
+model/clientDetail.ts
 model/clientRequest.ts
 model/clientResponse.ts
 model/createSubscriptionRequest.ts
 model/models.ts
 model/orderResponse.ts
+model/orderSummary.ts
 model/productSummaryResult.ts
 model/profileCustomerResult.ts
 model/profileRequest.ts
@@ -46,6 +50,7 @@ model/reservationResponse.ts
 model/serviceRequest.ts
 model/serviceResponse.ts
 model/subscriptionResponse.ts
+model/updateClientRequest.ts
 model/uploadReceiptRequest.ts
 model/validateReservationRequest.ts
 model/vendorPublicResponse.ts
