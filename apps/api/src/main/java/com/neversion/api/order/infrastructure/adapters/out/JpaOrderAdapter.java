@@ -49,4 +49,11 @@ public class JpaOrderAdapter implements OrderRepositoryPort {
                 .map(orderMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Order> findByVendorIdFiltered(Long vendorId, Long clientId, com.neversion.api.order.domain.model.enums.OrderStatus status) {
+        return orderRepo.findByVendorIdFiltered(vendorId, clientId, status).stream()
+                .map(orderMapper::toDomain)
+                .toList();
+    }
 }

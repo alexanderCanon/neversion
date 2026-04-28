@@ -65,6 +65,17 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     }
 
     @Override
+    public Optional<Reservation> findById(Long id) {
+        return reservationRepository.findById(id)
+                .map(entity -> {
+                    Reservation reservation = mapper.toDomain(entity);
+                    List<ReservationDetail> details = findDetailsByReservationId(entity.getId());
+                    reservation.setDetails(details);
+                    return reservation;
+                });
+    }
+
+    @Override
     public List<Reservation> findAll() {
         return reservationRepository.findAll().stream()
                 .map(mapper::toDomain)

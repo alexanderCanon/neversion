@@ -9,5 +9,5 @@ import com.neversion.api.reservation.domain.model.Reservation;
  */
 public interface ValidateReservationUseCase {
 
-    Reservation validate(UUID reservationId, String notes);
+    Reservation validate(UUID reservationId, String notes, String callerExternalId);
 }

@@ -66,6 +66,15 @@ public class OrderEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "receipt_url")
+    private String receiptUrl;
+
+    @Column(name = "total", precision = 10, scale = 2)
+    private java.math.BigDecimal total;
+
+    @Column(name = "discount", precision = 10, scale = 2)
+    private java.math.BigDecimal discount;
+
     /** Timestamp when the vendor approved the receipt (US-035). */
     @Column(name = "approved_at")
     private OffsetDateTime approvedAt;

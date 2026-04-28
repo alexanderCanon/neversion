@@ -20,4 +20,7 @@ public interface OrderRepositoryPort {
 
     /** US-030 — Historial de órdenes del cliente, ordenado por fecha desc. */
     List<Order> findByClientId(Long clientId);
+
+    /** US-037 — Listado de órdenes para panel de vendedor con filtros. */
+    List<Order> findByVendorIdFiltered(Long vendorId, Long clientId, com.neversion.api.order.domain.model.enums.OrderStatus status);
 }

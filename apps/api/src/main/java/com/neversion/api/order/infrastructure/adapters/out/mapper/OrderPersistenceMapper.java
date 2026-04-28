@@ -24,6 +24,9 @@ public class OrderPersistenceMapper {
                 .status(entity.getStatus())
                 .paymentMethod(entity.getPaymentMethod())
                 .notes(entity.getNotes())
+                .receiptUrl(entity.getReceiptUrl())
+                .total(entity.getTotal())
+                .discount(entity.getDiscount())
                 .approvedAt(entity.getApprovedAt() != null ? entity.getApprovedAt().toInstant() : null)
                 .createdAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toInstant() : null)
                 .build() : null;
@@ -39,6 +42,9 @@ public class OrderPersistenceMapper {
                 .status(domain.getStatus())
                 .paymentMethod(domain.getPaymentMethod())
                 .notes(domain.getNotes())
+                .receiptUrl(domain.getReceiptUrl())
+                .total(domain.getTotal())
+                .discount(domain.getDiscount())
                 .approvedAt(domain.getApprovedAt() != null
                         ? domain.getApprovedAt().atOffset(ZoneOffset.UTC) : null)
                 .build() : null;

@@ -9,5 +9,6 @@ import com.neversion.api.order.domain.model.Order;
  */
 public interface CreateOrderUseCase {
 
-    Order createFromReservation(Long reservationId, String notes);
+    Order createFromReservation(Long reservationId, UUID reservationUuid, Long clientId, Long vendorId,
+            String paymentMethod, String receiptUrl, java.math.BigDecimal total, java.math.BigDecimal discount, String notes);
 }

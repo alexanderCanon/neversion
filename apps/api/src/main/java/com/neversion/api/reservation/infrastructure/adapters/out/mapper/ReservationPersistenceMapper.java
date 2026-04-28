@@ -31,6 +31,7 @@ public class ReservationPersistenceMapper {
                         ? entity.getExpirationDate().toInstant() : null)
                 .createdAt(entity.getCreatedAt() != null
                         ? entity.getCreatedAt().toInstant() : null)
+                .notes(entity.getNotes())
                 .build();
     }
 
@@ -48,6 +49,7 @@ public class ReservationPersistenceMapper {
                 .status(domain.getStatus())
                 .expirationDate(domain.getExpirationDate() != null
                         ? domain.getExpirationDate().atOffset(ZoneOffset.UTC) : null)
+                .notes(domain.getNotes())
                 .build();
     }
 

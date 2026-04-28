@@ -1,12 +1,15 @@
 package com.neversion.api.order.domain.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
 import com.neversion.api.order.domain.model.enums.OrderStatus;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -20,6 +23,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Order {
 
     /** Internal DB PK — BIGINT IDENTITY (US-008). */
@@ -30,6 +35,9 @@ public class Order {
 
     /** FK to reservations.id — BIGINT after US-009 normalization. */
     private Long reservationId;
+
+    /** External identifier of the reservation. */
+    private UUID reservationUuid;
 
     /** FK to clients.id — the client who placed the order (EPIC-05). */
     private Long clientId;
@@ -45,26 +53,14 @@ public class Order {
 
     private String notes;
 
+    private String receiptUrl;
+
+    /** De-normalized from reservation at creation (US-037 listing). */
+    private BigDecimal total;
+    private BigDecimal discount;
+
     /** Timestamp when the vendor approved the receipt (US-035). */
     private Instant approvedAt;
 
     private Instant createdAt;
-
-    public Order() {
-    }
-
-    public Order(Long id, UUID uuid, Long reservationId, Long clientId, Long vendorId,
-            OrderStatus status, String paymentMethod, String notes,
-            Instant approvedAt, Instant createdAt) {
-        this.id = id;
-        this.uuid = uuid;
-        this.reservationId = reservationId;
-        this.clientId = clientId;
-        this.vendorId = vendorId;
-        this.status = status;
-        this.paymentMethod = paymentMethod;
-        this.notes = notes;
-        this.approvedAt = approvedAt;
-        this.createdAt = createdAt;
-    }
 }

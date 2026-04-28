@@ -14,9 +14,13 @@ public class OrderRestMapper {
     public OrderResponse toResponse(Order order) {
         return order != null ? OrderResponse.builder()
                 .id(order.getUuid())
+                .reservationId(order.getReservationUuid())
                 .status(order.getStatus())
                 .paymentMethod(order.getPaymentMethod())
                 .notes(order.getNotes())
+                .receiptUrl(order.getReceiptUrl())
+                .total(order.getTotal())
+                .discount(order.getDiscount())
                 .approvedAt(order.getApprovedAt())
                 .createdAt(order.getCreatedAt())
                 .build() : null;

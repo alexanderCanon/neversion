@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
@@ -20,6 +22,7 @@ import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
+import com.neversion.api.reservation.application.port.in.RejectReservationUseCase;
 import com.neversion.api.reservation.application.port.in.UploadReceiptUseCase;
 import com.neversion.api.reservation.application.port.in.ValidateReservationUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
@@ -45,6 +48,7 @@ public class ReservationController {
     private final CreateReservationUseCase createReservationUseCase;
     private final UploadReceiptUseCase uploadReceiptUseCase;
     private final ValidateReservationUseCase validateReservationUseCase;
+    private final RejectReservationUseCase rejectReservationUseCase;
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
     private final ReservationRestMapper reservationRestMapper;
@@ -53,12 +57,14 @@ public class ReservationController {
             CreateReservationUseCase createReservationUseCase,
             UploadReceiptUseCase uploadReceiptUseCase,
             ValidateReservationUseCase validateReservationUseCase,
+            RejectReservationUseCase rejectReservationUseCase,
             ReservationRepositoryPort reservationRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             ReservationRestMapper reservationRestMapper) {
         this.createReservationUseCase = createReservationUseCase;
         this.uploadReceiptUseCase = uploadReceiptUseCase;
         this.validateReservationUseCase = validateReservationUseCase;
+        this.rejectReservationUseCase = rejectReservationUseCase;
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.reservationRestMapper = reservationRestMapper;
@@ -134,16 +140,34 @@ public class ReservationController {
     // ── UC3: Validate Payment (Admin Only) ──────────────────────────────
 
     @PutMapping("/{id}/validate")
-    @Operation(summary = "Validate payment and create order", description = "UC3: Admin validates payment receipt. Transitions UPLOADED → VALIDATED and creates an Order.")
+    @Operation(summary = "Validate payment and create order", description = "US-035: Admin/Vendor validates payment receipt. Transitions UPLOADED → VALIDATED and creates an Order.")
     @ApiResponse(responseCode = "200", description = "Payment validated, order created")
     @ApiResponse(responseCode = "400", description = "Invalid status (not UPLOADED)")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this reservation")
     @ApiResponse(responseCode = "404", description = "Reservation not found")
     public ResponseEntity<ReservationResponse> validateReservation(
             @Parameter(description = "Reservation UUID") @PathVariable UUID id,
-            @RequestBody(required = false) ValidateReservationRequest request) {
+            @RequestBody(required = false) ValidateReservationRequest request,
+            JwtAuthenticationToken token) {
 
         String notes = request != null ? request.notes() : null;
-        Reservation reservation = validateReservationUseCase.validate(id, notes);
+        Reservation reservation = validateReservationUseCase.validate(id, notes, extractExternalId(token));
+        return ResponseEntity.ok(reservationRestMapper.toResponse(reservation));
+    }
+
+    @PutMapping("/{id}/reject")
+    @Operation(summary = "Reject payment receipt", description = "US-036: Admin/Vendor rejects the payment receipt. Transitions UPLOADED → REJECTED. Requires rejection reason.")
+    @ApiResponse(responseCode = "200", description = "Receipt rejected successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid status or missing reason")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this reservation")
+    @ApiResponse(responseCode = "404", description = "Reservation not found")
+    public ResponseEntity<ReservationResponse> rejectReservation(
+            @Parameter(description = "Reservation UUID") @PathVariable UUID id,
+            @RequestBody ValidateReservationRequest request,
+            JwtAuthenticationToken token) {
+
+        String reason = request != null ? request.notes() : null;
+        Reservation reservation = rejectReservationUseCase.reject(id, reason, extractExternalId(token));
         return ResponseEntity.ok(reservationRestMapper.toResponse(reservation));
     }
 
@@ -196,5 +220,15 @@ public class ReservationController {
         reservation.setClientUuid(clientId);
         Reservation updated = reservationRepositoryPort.update(reservation);
         return ResponseEntity.ok(reservationRestMapper.toResponse(updated));
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /** Extracts the Supabase externalId (sub claim) from the JWT. */
+    private String extractExternalId(java.security.Principal principal) {
+        if (principal instanceof JwtAuthenticationToken jwtToken) {
+            return jwtToken.getToken().getSubject();
+        }
+        throw new IllegalStateException("No JWT principal found in security context");
     }
 }

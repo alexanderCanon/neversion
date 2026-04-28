@@ -70,6 +70,9 @@ public class ReservationEntity {
     @Column(name = "expiration_date")
     private OffsetDateTime expirationDate;
 
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 

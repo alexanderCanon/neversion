@@ -1,19 +1,19 @@
 package com.neversion.api.order.infrastructure.adapters.in.rest.dto;
 
 import com.neversion.api.order.domain.model.enums.OrderStatus;
+import com.neversion.api.reservation.infrastructure.adapters.in.rest.dto.ReservationResponse;
 import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Response body for order operations.
- * 'id' maps to the order's public UUID — internal BIGINT IDs are never exposed (NFR-01).
- * EPIC-05: Added paymentMethod, approvedAt, total.
+ * US-038: Full order detail including reservation origin data and status history.
  */
 @Builder
-public record OrderResponse(
+public record OrderDetailResponse(
         UUID id,
         UUID reservationId,
         OrderStatus status,
@@ -23,5 +23,7 @@ public record OrderResponse(
         String notes,
         String receiptUrl,
         Instant approvedAt,
-        Instant createdAt) {
+        Instant createdAt,
+        ReservationResponse reservation,
+        List<StatusChangeResponse> statusHistory) {
 }

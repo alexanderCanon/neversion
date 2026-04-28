@@ -21,6 +21,8 @@ public interface ReservationRepositoryPort {
 
     Optional<Reservation> findByUuid(UUID uuid);
 
+    Optional<Reservation> findById(Long id);
+
     List<Reservation> findAll();
 
     List<Reservation> findByStatus(ReservationStatus status);

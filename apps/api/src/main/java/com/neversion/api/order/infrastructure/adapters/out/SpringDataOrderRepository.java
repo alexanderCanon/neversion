@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.neversion.api.order.domain.model.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +29,17 @@ interface SpringDataOrderRepository extends JpaRepository<OrderEntity, Long> {
             + "ORDER BY o.created_at DESC",
             nativeQuery = true)
     List<OrderEntity> findByClientId(@Param("clientId") Long clientId);
+
+    /**
+     * US-037 — Listado de órdenes para panel de vendedor con filtros opcionales.
+     */
+    @Query("SELECT o FROM OrderEntity o " +
+           "WHERE o.vendorId = :vendorId " +
+           "AND (:clientId IS NULL OR o.clientId = :clientId) " +
+           "AND (:status IS NULL OR o.status = :status) " +
+           "ORDER BY o.createdAt ASC")
+    List<OrderEntity> findByVendorIdFiltered(
+            @Param("vendorId") Long vendorId,
+            @Param("clientId") Long clientId,
+            @Param("status") OrderStatus status);
 }
