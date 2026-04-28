@@ -12,11 +12,11 @@
 export interface AccountRequest { 
     email?: string;
     pass?: string;
-    serviceId: number;
+    serviceId: string;
     saleMode: AccountRequest.SaleModeEnum;
     renewalDate: string;
     plan?: string;
-    cost?: number;
+    cost: number;
     source?: string;
     purchasedAt?: string;
     notes?: string;

@@ -91,7 +91,7 @@
             </div>
 
             <div class="col-md-6">
-              <label for="renewalDate" class="form-label">Fecha de Renovación Vencimiento<span class="text-danger">*</span></label>
+              <label for="renewalDate" class="form-label">Fecha de Renovación / Vencimiento <span class="text-danger">*</span></label>
               <input
                 type="date"
                 class="form-control"
@@ -99,13 +99,25 @@
                 formControlName="renewalDate"
                 [class.is-invalid]="accountForm.get('renewalDate')?.invalid && accountForm.get('renewalDate')?.touched"
               />
-              @if (accountForm.get('renewalDate')?.invalid && accountForm.get('renewalDate')?.touched) {
-                <div class="invalid-feedback">La fecha de renovación es requerida</div>
-              }
+            </div>
+
+            <div class="col-md-4">
+              <label for="cost" class="form-label">Costo (Q) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="cost" formControlName="cost" min="0">
+            </div>
+
+            <div class="col-md-4">
+              <label for="purchasedAt" class="form-label">Fecha Compra</label>
+              <input type="date" class="form-control" id="purchasedAt" formControlName="purchasedAt">
+            </div>
+
+            <div class="col-md-4">
+              <label for="source" class="form-label">Fuente</label>
+              <input type="text" class="form-control" id="source" formControlName="source" placeholder="Ej. AliExpress, Discord">
             </div>
 
             <div class="col-12">
-              <label for="notes" class="form-label">Notas / URL Factura (Opcional)</label>
+              <label for="notes" class="form-label">Notas (Opcional)</label>
               <textarea
                 class="form-control"
                 id="notes"
@@ -121,7 +133,7 @@
           <button type="button" class="btn btn-secondary" (click)="closeModal()">
             Cancelar
           </button>
-          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || accountForm.invalid">
             @if (isSubmitting) {
               <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
             }

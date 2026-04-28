@@ -1,7 +1,7 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileRequest, ProfileResponse } from '@neversion/models';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ProfileRequest, ProfileResponse, ProfileStatus } from '@neversion/models';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { ToastService } from '../../../../core/services/toast.service';
 
@@ -22,13 +22,14 @@ declare const bootstrap: Bootstrap;
 @Component({
   selector: 'app-profile-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './profile-list.component.html',
   styleUrls: [],
 })
 export class ProfileListComponent {
   @Input() accountId!: string;
   @Input() profiles: ProfileResponse[] = [];
+  @Output() profilesChanged = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
@@ -43,13 +44,53 @@ export class ProfileListComponent {
   selectedProfileId: string | null = null;
   isSubmitting = false;
   isLoading = false;
+  generateCount = 1;
 
   getStatusClass(profile: ProfileResponse): string {
-    return profile.isOwner ? 'bg-primary' : 'bg-warning text-dark';
+    switch (profile.status) {
+      case ProfileStatus.AVAILABLE: return 'bg-success-subtle text-success border border-success-subtle';
+      case ProfileStatus.ACTIVE:    return 'bg-primary-subtle text-primary border border-primary-subtle';
+      case ProfileStatus.RESERVED:  return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+      case ProfileStatus.BLOCKED:   return 'bg-danger-subtle text-danger border border-danger-subtle';
+      default: return 'bg-light text-secondary border';
+    }
   }
 
   getStatusLabel(profile: ProfileResponse): string {
-    return profile.isOwner ? 'Dueño' : 'Ocupado';
+    const labels: Record<string, string> = {
+      AVAILABLE: 'Disponible',
+      ACTIVE:    'Activo',
+      RESERVED:  'Reservado',
+      OCCUPIED:  'Ocupado',
+      BLOCKED:   'Bloqueado',
+      EXPIRED:   'Expirado'
+    };
+    let label = labels[profile.status] || profile.status;
+    if (profile.isOwner) label += ' (Dueño)';
+    return label;
+  }
+
+  onGenerateProfiles(): void {
+      if (this.generateCount < 1) return;
+      this.isSubmitting = true;
+      this.profileService.generateProfiles(this.accountId, this.generateCount).subscribe({
+          next: () => {
+              this.toastService.success(`Se han generado ${this.generateCount} perfiles.`);
+              this.profilesChanged.emit();
+              this.isSubmitting = false;
+          },
+          error: () => this.isSubmitting = false
+      });
+  }
+
+  toggleBlocked(profile: ProfileResponse): void {
+      const newStatus = profile.status === ProfileStatus.BLOCKED ? ProfileStatus.AVAILABLE : ProfileStatus.BLOCKED;
+      this.profileService.changeStatus(profile.id, { status: newStatus }).subscribe({
+          next: () => {
+              this.toastService.success('Estado del perfil actualizado.');
+              this.profilesChanged.emit();
+          }
+      });
   }
 
   openEditModal(profile: ProfileResponse): void {

@@ -22,6 +22,10 @@ export interface AccountResponse {
     purchasedAt?: string;
     notes?: string;
     createdAt?: string;
+    totalProfiles?: number;
+    availableProfiles?: number;
+    occupiedProfiles?: number;
+    blockedProfiles?: number;
 }
 export namespace AccountResponse {
     export const SaleModeEnum = {

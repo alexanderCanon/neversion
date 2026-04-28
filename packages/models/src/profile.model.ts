@@ -1,15 +1,29 @@
+export enum ProfileStatus {
+  AVAILABLE = 'AVAILABLE',
+  ACTIVE = 'ACTIVE',
+  RESERVED = 'RESERVED',
+  OCCUPIED = 'OCCUPIED',
+  BLOCKED = 'BLOCKED',
+  EXPIRED = 'EXPIRED',
+}
+
 export interface ProfileRequest {
-  accountId: number;
-  name: string;
-  pin: string;
-  isOwner: boolean;
+  accountId: string; // UUID
+  name?: string;
+  pin?: string;
+  isOwner?: boolean;
 }
 
 export interface ProfileResponse {
-  id: string;
-  accountId: number;
+  id: string; // UUID
+  accountId: string;
   name: string;
-  pin: string;
+  pin?: string;
   isOwner: boolean;
+  status: ProfileStatus;
   createdAt: string;
+}
+
+export interface ChangeProfileStatusRequest {
+  status: ProfileStatus;
 }
