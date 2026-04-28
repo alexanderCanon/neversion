@@ -25,6 +25,7 @@ public class ReservationPersistenceMapper {
                 .discount(entity.getDiscount())
                 .total(entity.getTotal())
                 .receiptUrl(entity.getReceiptUrl())
+                .paymentMethod(entity.getPaymentMethod())
                 .status(entity.getStatus())
                 .expirationDate(entity.getExpirationDate() != null
                         ? entity.getExpirationDate().toInstant() : null)
@@ -43,6 +44,7 @@ public class ReservationPersistenceMapper {
                 .discount(domain.getDiscount())
                 .total(domain.getTotal())
                 .receiptUrl(domain.getReceiptUrl())
+                .paymentMethod(domain.getPaymentMethod())
                 .status(domain.getStatus())
                 .expirationDate(domain.getExpirationDate() != null
                         ? domain.getExpirationDate().atOffset(ZoneOffset.UTC) : null)

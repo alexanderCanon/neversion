@@ -37,6 +37,9 @@ public class Reservation {
     private BigDecimal total;
     private String receiptUrl;
 
+    /** Payment method selected by the client at checkout (EPIC-05, BR-06). */
+    private String paymentMethod;
+
     @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
 
@@ -48,7 +51,7 @@ public class Reservation {
     }
 
     public Reservation(Long id, UUID uuid, Long clientId, UUID clientUuid, Long vendorId,
-            BigDecimal discount, BigDecimal total, String receiptUrl,
+            BigDecimal discount, BigDecimal total, String receiptUrl, String paymentMethod,
             ReservationStatus status, Instant expirationDate,
             Instant createdAt, List<ReservationDetail> details) {
         this.id = id;
@@ -59,6 +62,7 @@ public class Reservation {
         this.discount = discount;
         this.total = total;
         this.receiptUrl = receiptUrl;
+        this.paymentMethod = paymentMethod;
         this.status = status;
         this.expirationDate = expirationDate;
         this.createdAt = createdAt;

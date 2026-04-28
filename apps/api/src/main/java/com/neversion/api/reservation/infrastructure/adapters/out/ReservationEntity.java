@@ -63,6 +63,10 @@ public class ReservationEntity {
     @Column(name = "receipt_url", unique = true)
     private String receiptUrl;
 
+    /** Payment method selected by the client at checkout (EPIC-05, BR-06). */
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod;
+
     @Column(name = "expiration_date")
     private OffsetDateTime expirationDate;
 

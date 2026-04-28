@@ -42,6 +42,13 @@ public class JpaVendorAdapter implements VendorRepositoryPort {
                 .map(VendorPersistenceMapper::toDomain);
     }
 
+    /** US-033: Lookup by internal PK. */
+    @Override
+    public Optional<Vendor> findByInternalId(Long id) {
+        return vendorRepository.findById(id)
+                .map(VendorPersistenceMapper::toDomain);
+    }
+
     @Override
     public List<Vendor> findAll() {
         return vendorRepository.findAll().stream()

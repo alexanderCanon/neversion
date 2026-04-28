@@ -7,8 +7,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * Request body for creating a reservation (US-033).
+ * EPIC-05: Added paymentMethod (selected by client at checkout).
+ */
 public record ReservationRequest(
 
-        UUID clientId,
-        @NotNull @NotEmpty List<@Valid ReservationItemRequest> items) {
+        @NotNull UUID clientId,
+        @NotNull @NotEmpty List<@Valid ReservationItemRequest> items,
+        String paymentMethod) {
 }

@@ -16,6 +16,9 @@ public interface VendorRepositoryPort {
 
     Optional<Vendor> findByUuid(UUID uuid);
 
+    /** US-033: Lookup by internal PK when only the Long id is available (e.g., from client.vendorId). */
+    Optional<Vendor> findByInternalId(Long id);
+
     Optional<Vendor> findByUserId(Long userId);
 
     List<Vendor> findAll();

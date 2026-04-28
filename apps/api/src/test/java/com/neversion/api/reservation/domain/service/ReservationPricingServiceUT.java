@@ -12,10 +12,27 @@ import org.junit.jupiter.api.Test;
 
 import com.neversion.api.reservation.domain.model.ReservationDetail;
 
+/**
+ * Unit tests for ReservationPricingService — BR-13 tier-based discounts.
+ */
 @DisplayName("ReservationPricingService unit tests")
 class ReservationPricingServiceUT {
 
     private ReservationPricingService pricingService;
+
+    /**
+     * Standard vendor discount_cfg for testing:
+     * min_items=2, tier1: 2-3 items = 5%, tier2: 4+ items = 10%
+     */
+    private static final String DISCOUNT_CFG = """
+            {
+              "min_items": 2,
+              "tiers": [
+                { "from": 2, "to": 3, "discount_pct": 5 },
+                { "from": 4, "to": null, "discount_pct": 10 }
+              ]
+            }
+            """;
 
     @BeforeEach
     void setUp() {
@@ -36,69 +53,77 @@ class ReservationPricingServiceUT {
     @Test
     @DisplayName("calculateGrossTotal - should sum qty times unitPrice for all items")
     void calculateGrossTotal_shouldSumQtyTimesUnitPrice_forAllItems() {
-        // Given
         List<ReservationDetail> details = List.of(
                 buildDetail(2, "50.00"),  // 100.00
                 buildDetail(1, "30.00"),  // 30.00
                 buildDetail(3, "10.00")); // 30.00
 
-        // When
         BigDecimal grossTotal = pricingService.calculateGrossTotal(details);
 
-        // Then
         assertThat(grossTotal).isEqualByComparingTo(new BigDecimal("160.00"));
     }
 
     @Test
     @DisplayName("calculateGrossTotal - should return zero when no items")
     void calculateGrossTotal_shouldReturnZero_whenNoItems() {
-        // Given
-        List<ReservationDetail> details = Collections.emptyList();
+        BigDecimal grossTotal = pricingService.calculateGrossTotal(Collections.emptyList());
 
-        // When
-        BigDecimal grossTotal = pricingService.calculateGrossTotal(details);
-
-        // Then
         assertThat(grossTotal).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
-    @DisplayName("calculateComboDiscount - should return zero when single item (BR-03)")
-    void calculateComboDiscount_shouldReturnZero_whenSingleItem() {
-        // Given
-        BigDecimal grossTotal = new BigDecimal("100.00");
+    @DisplayName("calculateComboDiscount - should return zero when below min_items threshold")
+    void calculateComboDiscount_shouldReturnZero_whenBelowThreshold() {
+        BigDecimal discount = pricingService.calculateComboDiscount(
+                new BigDecimal("100.00"), 1, DISCOUNT_CFG);
 
-        // When
-        BigDecimal discount = pricingService.calculateComboDiscount(grossTotal, 1);
-
-        // Then
         assertThat(discount).isEqualByComparingTo(BigDecimal.ZERO);
     }
 
     @Test
-    @DisplayName("calculateComboDiscount - should return 2 percent when multiple items (BR-03)")
-    void calculateComboDiscount_shouldReturn2Percent_whenMultipleItems() {
-        // Given
-        BigDecimal grossTotal = new BigDecimal("200.00");
+    @DisplayName("calculateComboDiscount - should apply 5% for 2-3 items (BR-13 tier 1)")
+    void calculateComboDiscount_shouldApply5Percent_forTier1() {
+        BigDecimal discount = pricingService.calculateComboDiscount(
+                new BigDecimal("200.00"), 2, DISCOUNT_CFG);
 
-        // When
-        BigDecimal discount = pricingService.calculateComboDiscount(grossTotal, 2);
-
-        // Then
-        assertThat(discount).isEqualByComparingTo(new BigDecimal("4.00")); // 200 * 0.02 = 4.00
+        // 200 * 5 / 100 = 10.00
+        assertThat(discount).isEqualByComparingTo(new BigDecimal("10.00"));
     }
 
     @Test
-    @DisplayName("calculateFinalTotal - should subtract discount")
+    @DisplayName("calculateComboDiscount - should apply 10% for 4+ items (BR-13 tier 2)")
+    void calculateComboDiscount_shouldApply10Percent_forTier2() {
+        BigDecimal discount = pricingService.calculateComboDiscount(
+                new BigDecimal("200.00"), 5, DISCOUNT_CFG);
+
+        // 200 * 10 / 100 = 20.00
+        assertThat(discount).isEqualByComparingTo(new BigDecimal("20.00"));
+    }
+
+    @Test
+    @DisplayName("calculateComboDiscount - should return zero when discountCfg is null")
+    void calculateComboDiscount_shouldReturnZero_whenCfgNull() {
+        BigDecimal discount = pricingService.calculateComboDiscount(
+                new BigDecimal("200.00"), 3, null);
+
+        assertThat(discount).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("calculateComboDiscount - should return zero when discountCfg is malformed JSON")
+    void calculateComboDiscount_shouldReturnZero_whenCfgMalformed() {
+        BigDecimal discount = pricingService.calculateComboDiscount(
+                new BigDecimal("200.00"), 3, "not-valid-json");
+
+        assertThat(discount).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("calculateFinalTotal - should subtract discount from gross total")
     void calculateFinalTotal_shouldSubtractDiscount() {
-        // Given
-        BigDecimal grossTotal = new BigDecimal("200.00");
-        BigDecimal discount = new BigDecimal("4.00");
+        BigDecimal finalTotal = pricingService.calculateFinalTotal(
+                new BigDecimal("200.00"), new BigDecimal("10.00"));
 
-        // When
-        BigDecimal finalTotal = pricingService.calculateFinalTotal(grossTotal, discount);
-
-        // Then
-        assertThat(finalTotal).isEqualByComparingTo(new BigDecimal("196.00"));
+        assertThat(finalTotal).isEqualByComparingTo(new BigDecimal("190.00"));
     }
 }

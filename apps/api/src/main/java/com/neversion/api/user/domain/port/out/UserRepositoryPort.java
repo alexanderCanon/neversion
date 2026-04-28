@@ -13,6 +13,9 @@ public interface UserRepositoryPort {
 
     User save(User user);
 
+    /** US-034: Lookup by internal PK for cross-module notification resolution. */
+    Optional<User> findById(Long id);
+
     Optional<User> findByUuid(UUID uuid);
 
     Optional<User> findByExternalId(String externalId);

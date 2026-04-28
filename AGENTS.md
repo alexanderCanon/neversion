@@ -129,7 +129,7 @@ Suggest the appropriate model to Alex based on the complexity of the task:
 | Multi-step planning + long context analysis | Claude Sonnet 4.6 (extended thinking) / Gemini 2.5 Pro |
 | Frontend UI with visual iteration | Gemini 2.5 Pro / Claude Sonnet 4.6 |
 
-Include the model suggestion at the start of your implementation plan when relevant.
+Include the model suggestion at the start of your implementation plan when relevant, but first ask what model who you are.
 
 ---
 

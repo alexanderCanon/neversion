@@ -64,17 +64,18 @@ public class ReservationController {
         this.reservationRestMapper = reservationRestMapper;
     }
 
-    // ── UC1: Create Reservation (Checkout) ──────────────────────────────
+    // ── UC1: Create Reservation (Checkout) — US-033 ────────────────────────
 
     @PostMapping
-    @Operation(summary = "Create a reservation", description = "UC1: Create a new reservation with items. clientId is optional and can be attached later.")
+    @Operation(summary = "Create a reservation", description = "US-033: Create a new reservation with items. Requires clientId and validates profile availability.")
     @ApiResponse(responseCode = "201", description = "Reservation created successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid request or insufficient stock")
+    @ApiResponse(responseCode = "400", description = "Invalid request, insufficient profiles, or client not found")
     public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody ReservationRequest request) {
 
         List<ReservationItemCommand> items = reservationRestMapper.toItemCommands(request.items());
-        Reservation reservation = createReservationUseCase.create(request.clientId(), items);
+        Reservation reservation = createReservationUseCase.create(
+                request.clientId(), items, request.paymentMethod());
         ReservationResponse response = reservationRestMapper.toResponse(reservation);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

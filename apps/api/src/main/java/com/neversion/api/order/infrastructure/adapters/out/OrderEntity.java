@@ -23,6 +23,7 @@ import lombok.Setter;
 /**
  * JPA Entity for the 'orders' table.
  * US-008: PK migrated to BIGINT IDENTITY. UUID is now a separate column.
+ * EPIC-05: Added client_id, payment_method, approved_at.
  */
 @Entity
 @Table(name = "orders")
@@ -45,6 +46,10 @@ public class OrderEntity {
     @Column(name = "reservation_id")
     private Long reservationId;
 
+    /** FK to clients.id — the client who placed the order (EPIC-05). */
+    @Column(name = "client_id")
+    private Long clientId;
+
     /** FK to vendors.id — multi-tenancy (ADR-02, US-008). DB FK by V14. */
     @Column(name = "vendor_id")
     private Long vendorId;
@@ -54,8 +59,16 @@ public class OrderEntity {
     @Builder.Default
     private OrderStatus status = OrderStatus.PENDING;
 
+    /** Payment method provided by the client at checkout (BR-06). */
+    @Column(name = "payment_method", length = 50)
+    private String paymentMethod;
+
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
+
+    /** Timestamp when the vendor approved the receipt (US-035). */
+    @Column(name = "approved_at")
+    private OffsetDateTime approvedAt;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

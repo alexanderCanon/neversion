@@ -10,6 +10,7 @@ import java.util.UUID;
 /**
  * Response body for reservation operations.
  * 'id' maps to the reservation's public UUID — internal BIGINT IDs are never exposed (NFR-01).
+ * EPIC-05: Added paymentMethod.
  */
 public record ReservationResponse(
         UUID id,
@@ -18,6 +19,7 @@ public record ReservationResponse(
         BigDecimal discount,
         BigDecimal total,
         String receiptUrl,
+        String paymentMethod,
         Instant expirationDate,
         Instant createdAt,
         List<ReservationDetailResponse> details) {

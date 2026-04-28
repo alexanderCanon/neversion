@@ -29,6 +29,12 @@ public class JpaUserAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findById(Long id) {
+        return repository.findById(id)
+                .map(UserPersistenceMapper::toDomain);
+    }
+
+    @Override
     public Optional<User> findByUuid(UUID uuid) {
         return repository.findByUuid(uuid)
                 .map(UserPersistenceMapper::toDomain);
