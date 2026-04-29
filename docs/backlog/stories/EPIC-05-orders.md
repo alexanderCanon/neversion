@@ -5,6 +5,9 @@ Este documento detalla las historias de usuario que componen el backlog del proy
 ## 📑 EPIC-05 — Órdenes y Comprobantes
 Esta épica cubre el flujo transaccional desde que el cliente reserva un servicio hasta que el vendedor valida el pago y genera la orden definitiva.
 
+> [!IMPORTANT]
+> Estado backend vigente: checkout valida disponibilidad, pero no bloquea perfiles específicos. La asignación real del perfil o cuenta completa ocurre en EPIC-06. Al aprobar un comprobante, la reservación pasa a `VALIDATED` y la orden nace en `VALIDATED`, lista para asignación.
+
 ### 📋 Resumen de Historias
 | ID | Título | Prioridad |
 | :--- | :--- | :--- |
@@ -27,6 +30,7 @@ Esta épica cubre el flujo transaccional desde que el cliente reserva un servici
 - [ ] La reservación inicia en estado `pending`.
 - [ ] El sistema expira automáticamente la reservación después de **1 hora** si no se ha subido un comprobante.
 - [ ] El sistema retorna un error `400 Bad Request` si no hay perfiles disponibles para alguno de los servicios seleccionados al momento de intentar reservar.
+- [ ] No se asignan ni bloquean perfiles concretos durante checkout; la selección del recurso ocurre en EPIC-06.
 
 ---
 
@@ -46,7 +50,7 @@ Esta épica cubre el flujo transaccional desde que el cliente reserva un servici
 
 #### ✅ Criterios de Aceptación
 - [ ] Se crea un registro en la tabla `orders` vinculado a la `reservation_id`, `client_id` y `vendor_id`.
-- [ ] La nueva orden inicia en estado `pending`.
+- [ ] La nueva orden inicia en estado `validated`.
 - [ ] La reservación origen transita al estado `validated`.
 - [ ] El cliente recibe un correo electrónico confirmando que su pago fue aprobado satisfactoriamente.
 - [ ] El campo `approved_at` queda registrado en la orden con la fecha y hora actual.
@@ -58,9 +62,9 @@ Esta épica cubre el flujo transaccional desde que el cliente reserva un servici
 **Como** Vendedor, **necesito** poder rechazar un comprobante inválido o erróneo, **para** notificar al cliente y liberar el inventario reservado.
 
 #### ✅ Criterios de Aceptación
-- [ ] La reservación transita al estado `cancelled`.
+- [ ] La reservación transita al estado `rejected`.
 - [ ] El cliente recibe un correo electrónico notificando el rechazo junto con las observaciones o motivos proporcionados por el vendedor.
-- [ ] Los perfiles que estaban bloqueados durante el checkout quedan liberados inmediatamente para otros clientes.
+- [ ] No se liberan perfiles concretos porque checkout no bloquea inventario específico.
 - [ ] El sistema retorna un error `400 Bad Request` si la reservación no se encuentra en estado `uploaded`.
 
 ---
@@ -69,7 +73,7 @@ Esta épica cubre el flujo transaccional desde que el cliente reserva un servici
 **Como** Vendedor, **necesito** ver el listado de órdenes que requieren mi gestión, **para** priorizar la entrega de accesos y mantener la eficiencia operativa.
 
 #### ✅ Criterios de Aceptación
-- [ ] El listado muestra únicamente las órdenes en estado `pending` del vendedor autenticado.
+- [ ] El listado permite filtrar las órdenes del vendedor autenticado por estado; para asignación, el estado operativo pendiente es `validated`.
 - [ ] Se visualiza: información del cliente, servicios solicitados, monto total, método de pago y fecha de creación.
 - [ ] Las órdenes aparecen ordenadas por fecha de creación ascendente (las más antiguas primero para asegurar el orden de llegada).
 

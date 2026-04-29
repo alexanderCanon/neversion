@@ -103,12 +103,9 @@ erDiagram
         bigint profile_id FK
         bigint vendor_id FK
         bigint order_id FK
-        bigint service_id FK
-        string sale_mode
         date start_date
         date end_date
-        decimal price_sold
-        decimal discount_applied
+        date payment_due_date
         int months_paid
         string status
         text notes
@@ -167,7 +164,6 @@ erDiagram
     VENDORS ||--o{ ORDERS : owns
 
     SERVICES ||--o{ ACCOUNTS : provides
-    SERVICES ||--o{ SUBSCRIPTIONS : sold_as
     SERVICES ||--o{ RESERVATION_DETAILS : reserved_as
 
     ACCOUNTS ||--o{ PROFILES : contains
@@ -183,3 +179,6 @@ erDiagram
 
     ORDERS ||--o{ SUBSCRIPTIONS : generates
 ```
+
+> [!NOTE]
+> Campos de snapshot financiero en `subscriptions` (`service_id`, `sale_mode`, `price_sold`, `discount_applied`) están identificados como candidatos para EPIC-07/KPIs, pero no existen en el esquema backend vigente hasta EPIC-06. Para cuenta completa, `subscriptions.profile_id` apunta al perfil dueño (`is_owner = true`).

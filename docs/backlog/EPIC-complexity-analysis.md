@@ -1,12 +1,15 @@
-# Análisis de Complejidad — EPICs Restantes (Backend)
+# Análisis de Complejidad — Backend
+
+> [!NOTE]
+> Saneamiento 2026-04-29: EPIC-04, EPIC-05 y EPIC-06 ya fueron implementadas. Este documento conserva el razonamiento histórico y mantiene como foco activo EPIC-07 en adelante.
 
 ## Resumen ejecutivo
 
 | EPIC | US | Complejidad | Razonamiento | Código existente | Modelo recomendado |
 |---|:---:|:---:|:---:|:---:|---|
-| **EPIC-04** Clientes | 4 | 🟢 Baja | Bajo | ~80% scaffolded | **Sonnet** |
-| **EPIC-05** Órdenes | 6 | 🟡 Media | Medio | ~60% scaffolded | **Sonnet** |
-| **EPIC-06** Asignación | 4 | 🔴 Alta | **Alto** | ~30% scaffolded | **Opus** |
+| **EPIC-04** Clientes | 4 | ✅ Completada | Bajo | Implementado | **N/A** |
+| **EPIC-05** Órdenes | 6 | ✅ Completada | Medio | Implementado | **N/A** |
+| **EPIC-06** Asignación | 4 | ✅ Completada | Alto | Implementado | **N/A** |
 | **EPIC-07** Suscripciones | 6 | 🔴 Alta | **Alto** | ~50% scaffolded | **Opus** |
 | **EPIC-08** Notificaciones | 8 | 🟡 Media | Medio | 0% (greenfield) | **Sonnet** / Opus |
 | **EPIC-09** Panel Cliente | 6 | 🟢 Baja | Bajo | N/A (frontend) | **Gemini** |
@@ -26,7 +29,7 @@
 **¿Por qué es simple?**
 - El módulo `client/` ya está **completamente scaffolded**: domain, entity, mapper, repository, controller, security config, request/response DTOs — todo existe desde EPIC-00.
 - El patrón es **idéntico** al de EPIC-03 (ownership por vendorId, listado con filtros, detalle con hijos, CRUD con JWT).
-- La única pieza nueva es US-031 que crea un `User` con rol `CLIENT` + envío de email de bienvenida — pero la creación de User ya existe en EPIC-01 (`RegisterClientService`).
+- Decisión vigente: US-031 no crea automáticamente un `User` con rol `CLIENT`; crea `Client` manual y registra `CLIENT_WELCOME`. La identidad autenticable se gestiona por Supabase/registro cuando aplique.
 
 **Razonamiento requerido:** Mínimo. Es "seguir el patrón de EPIC-03 sobre código que ya existe".
 
@@ -42,12 +45,12 @@
 
 **¿Por qué es media?**
 - Los módulos `reservation/` y `order/` ya están **scaffolded al ~60%**: domain models, entities, repositories, pricing service, scheduler de expiración — todo existe.
-- **US-033** (crear reservación) es la más compleja — involucra carrito multi-item, pricing con descuento combo, bloqueo de perfiles, timer de expiración 1h. Pero `CreateReservationService`, `ReservationPricingService`, y `ReservationExpirationScheduler` ya están implementados parcialmente.
+- **US-033** (crear reservación) valida disponibilidad, calcula pricing con descuento combo y expira en 1h, pero no bloquea perfiles específicos. La selección real de inventario ocurre en EPIC-06.
 - **US-034** (subir comprobante) ya tiene `UploadReceiptService` + integración S3 implementada.
 - **US-035/036** ya tienen `ValidateReservationService` con lógica de transición de estados.
 - **US-037/038** son lecturas puras — triviales.
 
-**Razonamiento requerido:** Medio. Las state machines de reservación (`pending → uploaded → validated/cancelled`) y la coordinación de transiciones entre módulos (reservación ↔ orden ↔ perfil status) necesitan cuidado, pero la lógica ya está documentada.
+**Razonamiento requerido:** Medio. Las state machines de reservación (`pending → uploaded → validated/rejected`) y la coordinación de transiciones entre módulos (reservación ↔ orden ↔ asignación) necesitan cuidado, pero la lógica ya está documentada.
 
 **Riesgo:** La integración S3 puede necesitar ajustes de configuración en tests. El scheduler de expiración puede necesitar tests específicos.
 
@@ -66,7 +69,7 @@ Esta es la **épica más difícil del proyecto** por las siguientes razones:
 1. **Orquestación multi-módulo:** Un solo flujo (US-040: confirmar asignación) toca **5 módulos simultáneamente**:
    - `Profile` → status `available` → `active`
    - `Subscription` → crear registro nuevo
-   - `Order` → status `pending` → `completed`
+   - `Order` → status `validated` → `completed`
    - `Account` → recalcular status (available/partial/full)
    - `Notification` → enviar credenciales por email
 
@@ -82,7 +85,7 @@ Esta es la **épica más difícil del proyecto** por las siguientes razones:
 
 **Razonamiento requerido:** **Alto.** Diseño de orquestador, decisiones de transaccionalidad, algoritmo de sugerencia, manejo de fallos parciales.
 
-**Código existente:** `SubscriptionService` tiene `assign()` parcial. `ProfileService` tiene cambio de estado. Pero el **orquestador** que los conecta no existe.
+**Código existente:** EPIC-06 ya implementó el módulo `assignment` con sugerencia, confirmación, entrega por `notification_log` y asignación manual. Para `FULL_ACCOUNT`, usa perfil dueño como ancla técnica.
 
 **Estimación:** ~3-4 horas de sesión con Opus.
 
@@ -95,14 +98,14 @@ Esta es la **épica más difícil del proyecto** por las siguientes razones:
 **¿Por qué es compleja?**
 
 1. **US-045: Renovación con BR-07.** La regla de negocio de renovación es la más compleja del proyecto:
-   - Si pago ≤ 2 días post-vencimiento → nueva `due_date` = vieja `due_date` + duración.
-   - Si pago > 2 días post-vencimiento → nueva `due_date` = fecha de pago + duración.
+   - Si pago ≤ 2 días post-vencimiento → nueva fecha de vencimiento = fecha de vencimiento anterior + duración.
+   - Si pago > 2 días post-vencimiento → nueva fecha de vencimiento = fecha de pago + duración.
    - Incrementar `months_paid`, mantener perfil `active`, enviar email.
    - Esto requiere **razonamiento temporal** y manejo de edge cases (¿qué pasa si la suscripción ya está `cancelled`? ¿qué si el perfil fue reasignado?).
 
 2. **US-047: Cron job de detección.** Infraestructura nueva:
    - `@Scheduled` que corre diariamente.
-   - Identifica `active` con `due_date = today`.
+   - Identifica `active` con fecha de vencimiento = today (`payment_due_date` / `end_date` según el contrato final de EPIC-07).
    - Transita suscripción → `suspended`, perfil → `expired`.
    - Envía notificación consolidada al vendedor.
    - Debe ser **idempotente** (si corre 2 veces el mismo día, no duplica transiciones).
@@ -177,7 +180,7 @@ Este EPIC es **100% frontend** (`/apps/store` — Angular 16). No requiere endpo
 
 **La complejidad está en:**
 - US-063: Query con rangos de fechas (`hoy`, `mañana`, `esta semana`) + join suscripciones ↔ clientes ↔ perfiles.
-- US-067: Cálculo financiero `SUM(price_sold - discount_applied)` con filtro de período + moneda.
+- US-067: Cálculo financiero con filtro de período + moneda. Si EPIC-07 agrega snapshots financieros, usar `SUM(price_sold - discount_applied)`; si no, derivar desde el snapshot de órdenes/suscripciones disponible.
 - Las queries JPQL pueden ser verbose pero no difíciles conceptualmente.
 
 **Razonamiento requerido:** Medio. Diseño de DTOs de respuesta y optimización de queries. Sin decisiones arquitectónicas.

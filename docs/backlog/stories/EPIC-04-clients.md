@@ -39,12 +39,15 @@ Esta épica centraliza todas las funciones necesarias para que el vendedor admin
 ### 🛠️ US-031 — Crear cliente manualmente
 **Como** Vendedor, **necesito** poder registrar un cliente manualmente desde el panel, **para** incorporar a aquellos que llegan por canales externos (ej: WhatsApp).
 
+> [!IMPORTANT]
+> Decisión vigente ADR-09: crear un cliente manual no crea obligatoriamente una identidad autenticable en `users` ni una cuenta Supabase. El backend persiste `clients`, lo vincula al vendedor y registra `CLIENT_WELCOME` en `notification_log`; la creación de acceso autenticable queda para el flujo de registro/Supabase cuando aplique.
+
 #### ✅ Criterios de Aceptación
 - [ ] Se crea un registro en la tabla `clients` vinculado al `vendor_id` del vendedor autenticado.
 - [ ] Validación de campos requeridos: `nombre`, `correo`.
 - [ ] Soporte para campos opcionales: `teléfono`, `notas`.
-- [ ] Se crea automáticamente un registro en la tabla `users` con el rol `cliente` vinculado.
-- [ ] El cliente recibe un correo electrónico automático con instrucciones para establecer su contraseña.
+- [ ] Se registra una notificación `CLIENT_WELCOME` para procesamiento posterior.
+- [ ] No se generan contraseñas desde el backend.
 - [ ] El sistema retorna un error `400 Bad Request` si el correo electrónico ya existe en la plataforma.
 
 ---

@@ -61,6 +61,7 @@ Esta épica define los indicadores clave de desempeño (KPIs) que permiten al ve
 
 #### ✅ Criterios de Aceptación
 - [ ] La ganancia se calcula como la sumatoria de (`price_sold` - `discount_applied`) de todas las suscripciones creadas o renovadas en el período.
+- [ ] Si EPIC-07 no agrega snapshots financieros a `subscriptions`, este KPI debe calcularse desde órdenes/suscripciones usando el snapshot financiero disponible sin depender de precios vivos del catálogo.
 - [ ] El período de tiempo predeterminado es el mes calendario en curso.
 - [ ] El reporte solo incluye datos financieros de las suscripciones del vendedor autenticado.
 - [ ] El valor monetario se expresa en **Quetzales (GTQ)**.

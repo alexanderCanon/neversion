@@ -5,6 +5,9 @@ Este documento detalla las historias de usuario que componen el backlog del proy
 ## 📺 EPIC-02 — Gestión de Servicios
 Esta épica abarca la administración del catálogo de servicios digitales por parte del vendedor y su visualización en la tienda pública.
 
+> [!NOTE]
+> Convención de contrato vigente: el API expone el precio de cuenta completa como `priceComplete`. El dominio y la base de datos conservan `priceFull` / `price_full` por compatibilidad interna.
+
 ### 📋 Resumen de Historias
 | ID | Título | Prioridad |
 | :--- | :--- | :--- |

@@ -18,13 +18,13 @@
 ## Transacciones y Procesos
 | Término | Definición |
 | :--- | :--- |
-| **Reservación** | Orden temporal creada durante el checkout con expiración de 1 hora. Actúa como puente antes de generar una orden persistente. Permite reservar disponibilidad sin comprometer el inventario permanentemente. |
-| **Orden** | Transacción comercial que origina una compra. Contiene items, comprobante de pago y ciclo de aprobación. |
+| **Reservación** | Orden temporal creada durante el checkout con expiración de 1 hora. Actúa como puente antes de generar una orden persistente. Valida disponibilidad, pero no bloquea perfiles concretos en el backend vigente. |
+| **Orden** | Transacción comercial que origina una compra. Contiene items, comprobante de pago y ciclo de aprobación. Al aprobar el comprobante, nace en estado `VALIDATED` y queda lista para asignación. |
 | **Comprobante** | Evidencia de pago subida por el cliente para validación manual por el vendedor. |
 | **Asignación** | Acto de vincular un perfil o cuenta completa a una suscripción, confirmado por el vendedor. |
 | **Renovación** | Extensión de una suscripción existente. Sujeta a una regla de gracia de 2 días. |
 | **Revocación** | Eliminación del acceso de un perfil cuando una suscripción no se renueva. |
-| **Fecha de vencimiento** | Fecha en que expira una suscripción (`due_date` en la base de datos). |
+| **Fecha de vencimiento** | Fecha en que expira una suscripción. El backend vigente conserva `payment_due_date` y expone `endDate` en el contrato de suscripción; `due_date` queda como nombre conceptual, no como columna actual. |
 | **Migración inicial** | Carga manual de datos existentes (clientes, cuentas, suscripciones) antes del arranque del sistema. |
 
 ## Espacios e Interfaces

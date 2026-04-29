@@ -46,6 +46,9 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 ### 🛠️ US-003 — Vincular clients a users y vendors
 **Como** sistema, **necesito** que cada cliente esté vinculado a un usuario autenticado y a un vendedor específico, **para** mantener el aislamiento entre negocios.
 
+> [!NOTE]
+> Decisión vigente tras ADR-09: `clients.user_id` puede ser nulo para clientes creados manualmente desde el panel del vendedor. La identidad de acceso se gestiona con Supabase Auth y se vincula al backend mediante `users.external_id` cuando existe cuenta autenticable.
+
 #### ✅ Criterios de Aceptación
 - [x] La tabla `clients` incluye la columna `user_id` referenciando a `users`.
 - [x] La tabla `clients` incluye la columna `vendor_id` referenciando a `vendors`.
@@ -100,11 +103,13 @@ Esta épica se centra en la normalización de la base de datos y la creación de
 ### 🛠️ US-008 — Completar tabla subscriptions
 **Como** sistema, **necesito** que las suscripciones registren servicio, tipo de venta, precio y orden de origen, **para** tener una trazabilidad financiera completa.
 
+> [!IMPORTANT]
+> Estado backend vigente hasta EPIC-06: `subscriptions` conserva `payment_due_date` y agrega `order_id` + `end_date`. Los campos financieros denormalizados (`service_id`, `sale_mode`, `price_sold`, `discount_applied`) quedan pendientes para EPIC-07 o un saneamiento de esquema posterior. No se renombra `payment_due_date` a `due_date` para evitar una migración destructiva innecesaria antes de cerrar el ciclo de suscripciones.
+
 #### ✅ Criterios de Aceptación
-- [x] La tabla `subscriptions` incluye: `vendor_id`, `order_id`, `service_id`, `sale_mode`, `price_sold`, `discount_applied`.
-- [x] La columna `payment_due_date` se renombra a `due_date`.
-- [x] Migración Flyway creada y aplicada satisfactoriamente.
-- [x] Las vistas (ej: `upcoming_renewals`) se actualizan para reflejar el nuevo nombre de columna.
+- [x] La tabla `subscriptions` incluye: `vendor_id`, `order_id`, `start_date`, `end_date`, `payment_due_date`, `months_paid`, `status`, `notes`.
+- [ ] Pendiente EPIC-07: evaluar y agregar `service_id`, `sale_mode`, `price_sold`, `discount_applied` si el módulo de renovaciones/KPIs los requiere como snapshot financiero.
+- [x] Migraciones Flyway creadas y aplicadas satisfactoriamente.
 - [x] Los datos existentes no se pierden durante la migración.
 
 ---

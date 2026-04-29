@@ -5,6 +5,9 @@ Este documento detalla las historias de usuario que componen el backlog del proy
 ## 🔄 EPIC-07 — Suscripciones
 Esta épica abarca la gestión del ciclo de vida de las suscripciones activas, incluyendo renovaciones, detecciones de vencimiento y revocaciones de acceso.
 
+> [!IMPORTANT]
+> Punto de entrada vigente tras EPIC-06: `subscriptions.profile_id` siempre apunta a un perfil. Para `FULL_ACCOUNT`, apunta al perfil dueño (`is_owner = true`) y EPIC-07 debe liberar todos los perfiles de la cuenta y marcar la cuenta `available` al vencer o revocar. El esquema actual conserva `payment_due_date` y expone `endDate`; `due_date` se usa solo como nombre conceptual.
+
 ### 📋 Resumen de Historias
 | ID | Título | Prioridad |
 | :--- | :--- | :--- |
@@ -32,7 +35,8 @@ Esta épica abarca la gestión del ciclo de vida de las suscripciones activas, i
 **Como** Vendedor, **necesito** ver el detalle completo de una suscripción específica, **para** conocer su historial, precios pactados y el origen comercial.
 
 #### ✅ Criterios de Aceptación
-- [ ] Se muestran todos los datos maestros de la suscripción, incluyendo `precio_vendido`, `descuento_aplicado` y la orden de origen.
+- [ ] Se muestran todos los datos maestros de la suscripción, incluyendo fecha de inicio, fecha de vencimiento, estado y la orden de origen cuando exista.
+- [ ] Pendiente de decisión en EPIC-07: si se agregan snapshots financieros (`price_sold`, `discount_applied`, `sale_mode`, `service_id`), deben mostrarse en el detalle.
 - [ ] Se visualiza la información del cliente y del perfil técnico asignado.
 - [ ] El sistema retorna un error `403 Forbidden` si la suscripción no pertenece al vendedor autenticado.
 
@@ -42,11 +46,12 @@ Esta épica abarca la gestión del ciclo de vida de las suscripciones activas, i
 **Como** Vendedor, **necesito** poder renovar una suscripción existente, **para** extender el acceso del cliente al servicio contratado.
 
 #### ✅ Criterios de Aceptación
-- [ ] **Lógica BR-07:** Si el pago se registra dentro de los 2 días post-vencimiento, la nueva `due_date` se calcula desde la fecha de vencimiento original.
-- [ ] **Lógica BR-07:** Si el pago se registra 3 días o más después del vencimiento, la nueva `due_date` se calcula desde la fecha de pago actual.
+- [ ] **Lógica BR-07:** Si el pago se registra dentro de los 2 días post-vencimiento, la nueva fecha de vencimiento se calcula desde la fecha de vencimiento original.
+- [ ] **Lógica BR-07:** Si el pago se registra 3 días o más después del vencimiento, la nueva fecha de vencimiento se calcula desde la fecha de pago actual.
 - [ ] El campo `months_paid` se incrementa en una unidad.
 - [ ] La suscripción transita o se mantiene en estado `active`.
 - [ ] El perfil técnico vinculado se mantiene en estado `active`.
+- [ ] Para `FULL_ACCOUNT`, todos los perfiles de la cuenta permanecen `active` y la cuenta permanece `full`.
 - [ ] El cliente recibe un correo electrónico confirmando la renovación exitosa.
 - [ ] El envío de la notificación queda registrado en el `notification_log`.
 
@@ -57,7 +62,8 @@ Esta épica abarca la gestión del ciclo de vida de las suscripciones activas, i
 
 #### ✅ Criterios de Aceptación
 - [ ] La suscripción transita al estado `cancelled`.
-- [ ] El perfil vinculado transita automáticamente al estado `available`.
+- [ ] Si la suscripción es `BY_PROFILE`, el perfil vinculado transita automáticamente al estado `available`.
+- [ ] Si la suscripción es `FULL_ACCOUNT`, todos los perfiles de la cuenta transitan a `available` y la cuenta transita a `available`.
 - [ ] El cliente recibe un correo electrónico notificando la revocación del acceso al servicio.
 - [ ] El envío de la notificación queda registrado en el `notification_log`.
 - [ ] El sistema retorna un error `400 Bad Request` si la suscripción ya se encuentra en estado `cancelled`.
@@ -68,9 +74,10 @@ Esta épica abarca la gestión del ciclo de vida de las suscripciones activas, i
 **Como** sistema, **necesito** detectar automáticamente las suscripciones que han llegado a su fecha de corte sin renovarse, **para** actualizar sus estados y alertar al vendedor.
 
 #### ✅ Criterios de Aceptación
-- [ ] El proceso identifica suscripciones con `due_date` igual a la fecha actual y estado `active`.
+- [ ] El proceso identifica suscripciones con fecha de vencimiento igual a la fecha actual y estado `active`.
 - [ ] La suscripción transita automáticamente al estado `suspended`.
-- [ ] El perfil técnico vinculado transita al estado `expired`.
+- [ ] Si la suscripción es `BY_PROFILE`, el perfil técnico vinculado transita al estado `expired`.
+- [ ] Si la suscripción es `FULL_ACCOUNT`, todos los perfiles de la cuenta transitan a `expired` y la cuenta transita a `expired` hasta renovación, revocación o liberación controlada.
 - [ ] El vendedor recibe una notificación diaria con el resumen de las suscripciones vencidas del día.
 - [ ] Este proceso se ejecuta de forma automática una vez al día (cron job).
 

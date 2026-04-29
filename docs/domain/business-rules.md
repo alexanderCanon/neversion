@@ -35,6 +35,7 @@ Este documento define las reglas de negocio que rigen el comportamiento del sist
 ### BR-01 — Modalidades de venta
 - El sistema soporta dos modalidades: **venta por perfil individual** y **venta de cuenta completa**.
 - Una orden puede contener items de ambas modalidades simultáneamente.
+- Alcance backend vigente hasta EPIC-06: la asignación automática soporta órdenes de un solo ítem. Las órdenes multi-ítem quedan pendientes para una iteración posterior y deben rechazarse con error controlado en asignación.
 
 ### BR-13 — Descuentos por combo
 - El descuento se calcula automáticamente al agregar servicios a la reservación.
@@ -55,7 +56,8 @@ Este documento define las reglas de negocio que rigen el comportamiento del sist
 
 ### BR-14 — Pricing configurable
 - El precio de un servicio puede variar según el vendedor y la duración elegida.
-- Los precios deben persistirse en la orden al momento de la creación para evitar cambios retroactivos.
+- La orden persiste `total` y `discount` como snapshot del checkout.
+- Pendiente EPIC-07/KPIs: evaluar snapshots por suscripción (`price_sold`, `discount_applied`, `sale_mode`, `service_id`) para evitar cambios retroactivos en renovaciones y métricas.
 
 ### BR-16 — Alcance geográfico y monetario
 - El MVP opera únicamente en **Guatemala**.
@@ -78,14 +80,15 @@ Este documento define las reglas de negocio que rigen el comportamiento del sist
 ```mermaid
 stateDiagram-v2
     [*] --> DISPONIBLE
-    DISPONIBLE --> RESERVADO: Orden creada
-    RESERVADO --> ACTIVO: Pago aprobado
-    RESERVADO --> DISPONIBLE: Orden cancelada
+    DISPONIBLE --> ACTIVO: Asignacion confirmada
     ACTIVO --> VENCIDO: Fin de vigencia
     VENCIDO --> ACTIVO: Renovación
     ACTIVO --> BLOQUEADO: Manual / Incidencia
     BLOQUEADO --> DISPONIBLE: Liberación
 ```
+
+> [!NOTE]
+> `RESERVED` existe como estado técnico, pero el checkout vigente no bloquea perfiles específicos. EPIC-06 activa perfiles al confirmar asignación; EPIC-07 debe liberar perfiles al vencer o revocar suscripciones.
 
 ---
 
@@ -95,9 +98,12 @@ stateDiagram-v2
 Una orden debe transitar por los estados de forma secuencial sin saltos:
 ```mermaid
 graph LR
-    P[PENDIENTE_PAGO] --> CE[COMPROBANTE_ENVIADO]
-    CE --> A[APROBADO]
-    A --> C[COMPLETADA]
+    R[RESERVACION_PENDING] --> U[RESERVACION_UPLOADED]
+    U --> V[RESERVACION_VALIDATED]
+    U --> RJ[RESERVACION_REJECTED]
+    V --> O[ORDER_VALIDATED]
+    O --> C[ORDER_COMPLETED]
+    O --> X[ORDER_CANCELLED]
     
     style C fill:#d4edda,stroke:#28a745
 ```
@@ -145,8 +151,8 @@ Esta regla define el cálculo de la nueva fecha de vencimiento:
 ### BR-15 — Asignación semiautomática
 - **El vendedor debe confirmar la sugerencia** antes de entregar los accesos al cliente.
 
-**Algoritmo de sugerencia para perfil individual (`sale_mode = 'divided'`):**
-1. Filtrar cuentas del servicio solicitado con `sale_mode = 'divided'` y al menos un perfil en estado `available`.
+**Algoritmo de sugerencia para perfil individual (`sale_mode = 'by_profile'`):**
+1. Filtrar cuentas del servicio solicitado con `sale_mode = 'by_profile'` y al menos un perfil en estado `available`.
 2. Ordenar cuentas por `renewal_date` descendente (más tiempo de vigencia restante primero).
 3. Dentro de la cuenta seleccionada, tomar el primer perfil en estado `available`.
 

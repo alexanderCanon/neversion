@@ -54,8 +54,8 @@ Esta épica define la experiencia de autoservicio para el cliente final, permiti
 
 #### ✅ Criterios de Aceptación
 - [ ] El sistema muestra el estado actual de la reservación vinculada a la orden en curso.
-- [ ] Los estados visibles son: `pending`, `uploaded`, `validated`, `cancelled`.
-- [ ] En caso de que el comprobante sea rechazado (`cancelled`), se muestran las observaciones o motivos ingresados por el vendedor.
+- [ ] Los estados visibles son: `pending`, `uploaded`, `validated`, `rejected`, `expired`, `cancelled`.
+- [ ] En caso de que el comprobante sea rechazado (`rejected`), se muestran las observaciones o motivos ingresados por el vendedor.
 
 ---
 

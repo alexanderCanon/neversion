@@ -5,6 +5,9 @@ Este documento detalla las historias de usuario que componen el backlog del proy
 ## 🔑 EPIC-03 — Gestión de Cuentas y Perfiles
 Esta épica se enfoca en la administración técnica y operativa de las cuentas maestras de servicios y los perfiles individuales que se derivan de ellas.
 
+> [!IMPORTANT]
+> Decisión vigente tras EPIC-06: una cuenta con modalidad `FULL_ACCOUNT` también tiene un perfil dueño (`is_owner = true`). Ese perfil actúa como ancla técnica para `subscriptions.profile_id`; la venta completa no usa una columna `account_id` en `subscriptions`.
+
 ### 📋 Resumen de Historias
 | ID | Título | Prioridad |
 | :--- | :--- | :--- |
@@ -26,6 +29,7 @@ Esta épica se enfoca en la administración técnica y operativa de las cuentas 
 - [ ] Validación de campos requeridos: `servicio`, `email`, `contraseña`, `modalidad_venta`, `fecha_renovación`, `costo_adquisición`.
 - [ ] Soporte para campos opcionales: `plan`, `fuente`, `fecha_compra`, `notas`.
 - [ ] La cuenta inicia automáticamente en estado `available`.
+- [ ] Si la modalidad es `FULL_ACCOUNT`, el sistema crea o exige un perfil dueño (`is_owner = true`) para anclar futuras suscripciones.
 - [ ] Si faltan campos requeridos, el sistema retorna un error `400 Bad Request` con el detalle correspondiente.
 
 ---
@@ -58,6 +62,7 @@ Esta épica se enfoca en la administración técnica y operativa de las cuentas 
 - [ ] El sistema valida que la cantidad de perfiles generados no supere el `max_profiles` definido en la configuración del servicio.
 - [ ] Cada perfil nuevo inicia automáticamente en estado `available`.
 - [ ] Soporte para campos opcionales por perfil: `nombre`, `PIN`, `is_owner`.
+- [ ] Para cuentas `FULL_ACCOUNT`, debe existir exactamente un perfil dueño operativo como ancla de suscripción.
 - [ ] Retorna un error `400 Bad Request` si se intenta superar el límite de perfiles permitidos.
 
 ---
