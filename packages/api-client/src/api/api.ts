@@ -1,5 +1,7 @@
 export * from './accounts.service';
 import { AccountsApiService } from './accounts.service';
+export * from './assignments.service';
+import { AssignmentsApiService } from './assignments.service';
 export * from './auth.service';
 import { AuthApiService } from './auth.service';
 export * from './clients.service';
@@ -18,4 +20,4 @@ export * from './subscriptions.service';
 import { SubscriptionsApiService } from './subscriptions.service';
 export * from './vendorsPublic.service';
 import { VendorsPublicApiService } from './vendorsPublic.service';
-export const APIS = [AccountsApiService, AuthApiService, ClientsApiService, DashboardApiService, OrdersApiService, ProfilesApiService, ReservationsApiService, ServicesApiService, SubscriptionsApiService, VendorsPublicApiService];
+export const APIS = [AccountsApiService, AssignmentsApiService, AuthApiService, ClientsApiService, DashboardApiService, OrdersApiService, ProfilesApiService, ReservationsApiService, ServicesApiService, SubscriptionsApiService, VendorsPublicApiService];

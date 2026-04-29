@@ -4,6 +4,7 @@ api.base.service.ts
 api.module.ts
 api/accounts.service.ts
 api/api.ts
+api/assignments.service.ts
 api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
@@ -28,7 +29,11 @@ model/client.ts
 model/clientDetail.ts
 model/clientRequest.ts
 model/clientResponse.ts
+model/confirmAssignmentRequest.ts
+model/confirmAssignmentResponse.ts
 model/createSubscriptionRequest.ts
+model/manualAssignmentRequest.ts
+model/manualAssignmentResponse.ts
 model/models.ts
 model/orderDetailResponse.ts
 model/orderResponse.ts
@@ -52,6 +57,7 @@ model/serviceRequest.ts
 model/serviceResponse.ts
 model/statusChangeResponse.ts
 model/subscriptionResponse.ts
+model/suggestAssignmentResponse.ts
 model/updateClientRequest.ts
 model/uploadReceiptRequest.ts
 model/validateReservationRequest.ts

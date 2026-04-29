@@ -16,6 +16,7 @@ export interface SubscriptionResponse {
     accountId?: string;
     status?: SubscriptionResponse.StatusEnum;
     startDate?: string;
+    endDate?: string;
     paymentDueDate?: string;
     monthsPaid?: number;
     notes?: string;
