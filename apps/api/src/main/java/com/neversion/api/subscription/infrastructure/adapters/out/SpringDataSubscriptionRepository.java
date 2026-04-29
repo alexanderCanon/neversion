@@ -15,6 +15,8 @@ public interface SpringDataSubscriptionRepository extends JpaRepository<Subscrip
 
     Optional<SubscriptionEntity> findByUuid(UUID uuid);
 
+    Optional<SubscriptionEntity> findByOrderId(Long orderId);
+
     List<SubscriptionEntity> findByClientId(Long clientId);
 
     List<SubscriptionEntity> findByProfileId(Long profileId);

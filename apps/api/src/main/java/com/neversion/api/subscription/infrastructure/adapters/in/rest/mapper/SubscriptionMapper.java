@@ -32,6 +32,7 @@ public class SubscriptionMapper {
                 .accountId(subscription.getAccountUuid())
                 .status(subscription.getStatus())
                 .startDate(subscription.getStartDate())
+                .endDate(subscription.getEndDate())
                 .paymentDueDate(subscription.getPaymentDueDate())
                 .monthsPaid(subscription.getMonthsPaid())
                 .notes(subscription.getNotes())

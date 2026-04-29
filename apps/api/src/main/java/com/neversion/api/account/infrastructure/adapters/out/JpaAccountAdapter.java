@@ -48,6 +48,13 @@ public class JpaAccountAdapter implements AccountRepositoryPort {
     }
 
     @Override
+    public List<Account> findByServiceIdAndVendorId(Long serviceId, Long vendorId) {
+        return accountRepo.findByServiceIdAndVendorId(serviceId, vendorId).stream()
+                .map(accountMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<Account> findByVendorId(Long vendorId) {
         return accountRepo.findByVendorId(vendorId).stream()
                 .map(accountMapper::toDomain)

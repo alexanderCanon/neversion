@@ -41,6 +41,11 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
+    public Optional<Subscription> findByOrderId(Long orderId) {
+        return subscriptionRepo.findByOrderId(orderId).map(subscriptionMapper::toDomain);
+    }
+
+    @Override
     public List<Subscription> findByClientId(Long clientId) {
         return subscriptionRepo.findByClientId(clientId).stream()
                 .map(subscriptionMapper::toDomain)

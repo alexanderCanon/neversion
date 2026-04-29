@@ -18,6 +18,7 @@ import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
  * vendorId is resolved from the JWT caller — not accepted from the request body (ADR-09).
  *
  * Auto-generates N profiles if saleMode = BY_PROFILE (BR-01, US-025).
+ * FULL_ACCOUNT accounts get one owner profile used as the subscription anchor.
  */
 @Service
 public class CreateAccountService implements CreateAccountUseCase {
@@ -80,7 +81,7 @@ public class CreateAccountService implements CreateAccountUseCase {
                     int count = service.getMaxProfiles() != null ? service.getMaxProfiles() : 1;
                     profileUseCase.generateProfilesForAccount(saved.getId(), count, vendorId);
                 }
-                case FULL_ACCOUNT -> { /* No granular profiles for full-account sales */ }
+                case FULL_ACCOUNT -> profileUseCase.generateProfilesForAccount(saved.getId(), 1, vendorId);
             }
         }
 

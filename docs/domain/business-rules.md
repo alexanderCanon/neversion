@@ -150,10 +150,10 @@ Esta regla define el cálculo de la nueva fecha de vencimiento:
 2. Ordenar cuentas por `renewal_date` descendente (más tiempo de vigencia restante primero).
 3. Dentro de la cuenta seleccionada, tomar el primer perfil en estado `available`.
 
-**Algoritmo de sugerencia para cuenta completa (`sale_mode = 'full'`):**
-1. Filtrar cuentas del servicio con `sale_mode = 'full'` y estado `available`.
+**Algoritmo de sugerencia para cuenta completa (`sale_mode = 'full_account'`):**
+1. Filtrar cuentas del servicio con `sale_mode = 'full_account'` y estado `available`.
 2. Ordenar por `renewal_date` descendente.
-3. Sugerir la primera cuenta disponible.
+3. Sugerir la primera cuenta disponible junto con su perfil dueño (`is_owner = true`), que actúa como ancla técnica de la suscripción.
 
 ### BR-18 — Operación manual
 - El vendedor tiene facultad de crear clientes, órdenes y suscripciones directamente desde su panel administrativo, omitiendo el flujo de la tienda pública si es necesario.
@@ -169,9 +169,10 @@ Esta regla define el cálculo de la nueva fecha de vencimiento:
 ---
 
 ### BR-21 — Venta de cuenta completa
-Cuando la modalidad de venta es `full` (cuenta completa):
-- **Todos los perfiles** de la cuenta se marcan como `active` y se vinculan a la misma suscripción.
-- La cuenta pasa a estado `sold`.
-- No se pueden crear suscripciones individuales por perfil en esa cuenta mientras exista una suscripción `full` activa.
-- Al vencer o revocar la suscripción completa, **todos los perfiles** regresan a estado `available` y la cuenta regresa a `available`.
-- El cliente recibe únicamente las **credenciales de la cuenta maestra** (email + contraseña), no las de cada perfil individual. El cliente decide cuántos perfiles utilizar.
+Cuando la modalidad de venta es `full_account` (cuenta completa):
+- La suscripción se vincula al perfil dueño de la cuenta (`is_owner = true`). Este perfil funciona como ancla técnica para mantener `subscriptions.profile_id` obligatorio y evitar un modelo paralelo de suscripciones por cuenta.
+- **Todos los perfiles** de la cuenta se marcan como `active` mientras la suscripción completa esté vigente.
+- La cuenta pasa a estado `full`.
+- No se pueden crear suscripciones individuales por perfil en esa cuenta mientras exista una suscripción `full_account` activa.
+- Al vencer o revocar la suscripción completa, **todos los perfiles** regresan a estado `available` y la cuenta regresa a `available`, permitiendo venderla nuevamente por perfiles o como cuenta completa.
+- El cliente recibe las **credenciales de la cuenta maestra** (email + contraseña) y el nombre/PIN del perfil dueño si aplica.

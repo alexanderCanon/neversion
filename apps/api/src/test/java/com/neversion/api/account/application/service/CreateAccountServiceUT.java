@@ -3,9 +3,6 @@ package com.neversion.api.account.application.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,8 +118,8 @@ class CreateAccountServiceUT {
         }
 
         @Test
-        @DisplayName("should save FULL_ACCOUNT without generating profiles")
-        void create_shouldSaveFullAccountWithoutProfiles() {
+        @DisplayName("should save FULL_ACCOUNT and generate one owner profile")
+        void create_shouldSaveFullAccountAndGenerateOwnerProfile() {
             // Given
             stubJwtChain();
             Account account = buildAccount(SaleMode.FULL_ACCOUNT);
@@ -140,7 +137,7 @@ class CreateAccountServiceUT {
 
             // Then
             assertThat(result).isNotNull();
-            verify(profileUseCase, never()).generateProfilesForAccount(anyLong(), anyInt(), anyLong());
+            verify(profileUseCase).generateProfilesForAccount(11L, 1, VENDOR_ID);
         }
 
         @Test

@@ -16,6 +16,7 @@ public record SubscriptionResponse(
         UUID accountId,
         SubStatus status,
         LocalDate startDate,
+        LocalDate endDate,
         LocalDate paymentDueDate,
         Long monthsPaid,
         String notes,

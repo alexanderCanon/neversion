@@ -17,6 +17,8 @@ public interface AccountRepositoryPort {
 
     List<Account> findByServiceId(Long serviceId);
 
+    List<Account> findByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
     /** US-024: All accounts for a vendor. */
     List<Account> findByVendorId(Long vendorId);
 

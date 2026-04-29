@@ -16,6 +16,8 @@ public interface SubscriptionRepositoryPort {
 
     Optional<Subscription> findByInternalId(Long id);
 
+    Optional<Subscription> findByOrderId(Long orderId);
+
     List<Subscription> findByClientId(Long clientId);
 
     List<Subscription> findByProfileId(Long profileId);

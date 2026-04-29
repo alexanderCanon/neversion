@@ -41,6 +41,9 @@ public class Subscription {
     /** FK to Profile (Long) — resolved from profileUuid in service layer. */
     private Long profileId;
 
+    /** FK to Order (Long) — null for manual assignments outside storefront flow. */
+    private Long orderId;
+
     // ── Transient UUID fields — sent by the REST layer, resolved in service ──
 
     /** Incoming UUID from the REST request for the target Profile. */
@@ -56,6 +59,9 @@ public class Subscription {
 
     /** Date the client's access lifecycle began. Defaults to today. */
     private LocalDate startDate;
+
+    /** Date when the assigned access expires. */
+    private LocalDate endDate;
 
     /**
      * The date by which the client must pay to retain access.
@@ -85,19 +91,21 @@ public class Subscription {
     public Subscription() {
     }
 
-    public Subscription(Long id, UUID uuid, Long clientId, Long profileId,
+    public Subscription(Long id, UUID uuid, Long clientId, Long profileId, Long orderId,
             UUID profileUuid, UUID clientUuid, UUID accountUuid,
-            LocalDate startDate, LocalDate paymentDueDate,
+            LocalDate startDate, LocalDate endDate, LocalDate paymentDueDate,
             Long monthsPaid, SubStatus status, String notes, Long vendorId,
             LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
         this.profileId = profileId;
+        this.orderId = orderId;
         this.profileUuid = profileUuid;
         this.clientUuid = clientUuid;
         this.accountUuid = accountUuid;
         this.startDate = startDate;
+        this.endDate = endDate;
         this.paymentDueDate = paymentDueDate;
         this.monthsPaid = monthsPaid;
         this.status = status;

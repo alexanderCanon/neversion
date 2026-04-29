@@ -84,7 +84,7 @@ AssignmentResult assign(UUID clientUuid, UUID serviceUuid, UUID profileUuid,
 record AssignmentSuggestion(
     boolean hasSuggestion,
     SaleMode saleMode,
-    UUID suggestedProfileUuid,   // null si FULL_ACCOUNT
+    UUID suggestedProfileUuid,   // perfil disponible; en FULL_ACCOUNT es el perfil dueño
     UUID suggestedAccountUuid,
     String serviceName,
     String accountEmail,
@@ -123,7 +123,7 @@ record AssignmentResult(
 - Carga accounts para `serviceId + vendorId` via nuevo `findByServiceIdAndVendorId`
 - Branch por `saleMode`:
   - `BY_PROFILE`: busca primer perfil `AVAILABLE` entre los accounts del servicio
-  - `FULL_ACCOUNT`: busca primer account con status `AVAILABLE`
+  - `FULL_ACCOUNT`: busca primer account con status `AVAILABLE` y devuelve su perfil dueño (`isOwner=true`) como `suggestedProfileUuid`
 - Si no hay inventario: registra `notification_log` con type `NO_INVENTORY_ALERT` y payload `{"vendorId":"...","orderId":"...","serviceId":"..."}` (sin email — agente externo resuelve)
 - Retorna `AssignmentSuggestion(hasSuggestion=false/true)`
 
@@ -133,7 +133,9 @@ record AssignmentResult(
 - Guard idempotencia: `subscriptionRepo.findByOrderId(order.id)` → 409 si ya existe
 - Validación: `service.durationDays != null` (→ 400 "Service has no duration configured")
 - Cálculo: `startDate = order.approvedAt → LocalDate (UTC)`, `endDate = startDate.plusDays(service.durationDays)`
-- Transacción: profile → `ACTIVE`, crear `Subscription` (con `orderId`, `endDate`, `paymentDueDate = endDate`), orden → `COMPLETED` + entrada en `order_status_history`
+- Transacción:
+  - `BY_PROFILE`: profile → `ACTIVE`, crear `Subscription` (con `orderId`, `endDate`, `paymentDueDate = endDate`), orden → `COMPLETED` + entrada en `order_status_history`
+  - `FULL_ACCOUNT`: el perfil dueño (`isOwner=true`) ancla `subscriptions.profile_id`; todos los perfiles de la cuenta → `ACTIVE`; account → `FULL`
 - Post-commit (failure-safe):
   ```java
   try { deliverAccessUseCase.deliver(savedSubscription); }

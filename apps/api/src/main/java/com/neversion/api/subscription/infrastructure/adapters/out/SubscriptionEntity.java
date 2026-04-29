@@ -57,9 +57,17 @@ public class SubscriptionEntity {
     @Column(name = "profile_id", nullable = false)
     private Long profileId;
 
+    /** FK to orders.id — null for manual assignments. */
+    @Column(name = "order_id")
+    private Long orderId;
+
     /** Date the client's access lifecycle began. */
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
+
+    /** Date when the assigned access expires. */
+    @Column(name = "end_date")
+    private LocalDate endDate;
 
     /**
      * The date by which the client must pay to keep access.

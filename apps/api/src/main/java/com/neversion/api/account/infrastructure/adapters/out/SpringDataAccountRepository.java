@@ -16,6 +16,8 @@ public interface SpringDataAccountRepository extends JpaRepository<AccountEntity
 
     List<AccountEntity> findByServiceId(Long serviceId);
 
+    List<AccountEntity> findByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
     /** US-024: All accounts for a vendor. */
     List<AccountEntity> findByVendorId(Long vendorId);
 

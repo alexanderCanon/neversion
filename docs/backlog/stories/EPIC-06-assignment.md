@@ -20,7 +20,7 @@ Esta épica cubre el flujo operativo donde el vendedor asigna los perfiles o cue
 
 #### ✅ Criterios de Aceptación
 - [ ] El sistema identifica y sugiere un perfil en estado `available` del servicio correspondiente.
-- [ ] Si la modalidad de compra es `cuenta completa`, se sugiere una cuenta maestra completa en estado `available`.
+- [ ] Si la modalidad de compra es `cuenta completa`, se sugiere una cuenta maestra completa en estado `available` junto con su perfil dueño (`isOwner=true`) como ancla técnica de la suscripción.
 - [ ] Si no hay disponibilidad inmediata en el inventario, el sistema notifica al vendedor sin bloquear el flujo de la orden.
 - [ ] La sugerencia es solo informativa; el vendedor debe validarla antes de que se realice cualquier cambio real.
 
@@ -32,6 +32,7 @@ Esta épica cubre el flujo operativo donde el vendedor asigna los perfiles o cue
 #### ✅ Criterios de Aceptación
 - [ ] El vendedor puede aceptar la sugerencia automática o elegir manualmente otro recurso disponible del inventario.
 - [ ] Al confirmar la asignación, el perfil transita automáticamente al estado `active`.
+- [ ] Para venta de cuenta completa, el perfil dueño se usa como `profile_id` de la suscripción y todos los perfiles de la cuenta pasan a estado `active`.
 - [ ] Se crea un registro en la tabla `subscriptions` vinculando cliente, perfil, servicio y la orden de origen.
 - [ ] La **fecha de inicio** de la suscripción se establece como la fecha de aprobación del pago.
 - [ ] La **fecha de vencimiento** se calcula automáticamente basándose en la duración configurada para el servicio.

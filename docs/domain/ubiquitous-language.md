@@ -5,8 +5,8 @@
 | :--- | :--- |
 | **Servicio** | Producto digital ofrecido en la tienda (ej. Netflix, Disney+). Define precio, duración y cantidad máxima de perfiles por cuenta. |
 | **Cuenta** | Credencial base de un servicio (email + contraseña). Es la unidad operativa que el vendedor adquiere y administra. |
-| **Perfil** | Unidad vendible dentro de una cuenta. Puede tener PIN. Es el acceso real que se entrega al cliente. |
-| **Suscripción** | Relación activa entre un cliente y un perfil o cuenta completa. Tiene vigencia, estado y precio pactado. |
+| **Perfil** | Unidad vendible dentro de una cuenta. Puede tener PIN. Es el acceso real que se entrega al cliente. En ventas de cuenta completa, el perfil dueño (`isOwner=true`) funciona como ancla técnica de la suscripción. |
+| **Suscripción** | Relación activa entre un cliente y un perfil o cuenta completa. Tiene vigencia, estado y precio pactado. Técnicamente siempre referencia un `profile_id`; para cuenta completa referencia el perfil dueño. |
 
 ## Actores
 | Término | Definición |
