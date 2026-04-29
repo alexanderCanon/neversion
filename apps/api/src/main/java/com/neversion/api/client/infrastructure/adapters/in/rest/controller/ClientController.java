@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.client.application.port.in.ClientUseCase;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.UpdateClientRequest;
@@ -93,6 +95,21 @@ public class ClientController {
             @PathVariable UUID id,
             JwtAuthenticationToken token) {
         return ResponseEntity.ok(clientUseCase.getDetail(id, extractExternalId(token)));
+    }
+
+    @GetMapping("/me/accesses")
+    @Operation(summary = "Get my access credentials (US-041)",
+            description = "Returns full access credentials (active subscriptions) for the authenticated client. "
+                    + "The client is resolved automatically from the JWT.")
+    @ApiResponse(responseCode = "200", description = "Access credentials list")
+    @ApiResponse(responseCode = "404", description = "Client record not found for the user")
+    public ResponseEntity<List<ClientAccessResponse>> getMyAccesses(
+            JwtAuthenticationToken token) {
+        List<ClientAccessDetail> details = clientUseCase.getMyAccesses(extractExternalId(token));
+        List<ClientAccessResponse> response = details.stream()
+                .map(clientMapper::toAccessResponse)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 
     // ── US-031 — Crear cliente manual ──────────────────────────────────────

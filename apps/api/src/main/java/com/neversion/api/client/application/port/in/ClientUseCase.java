@@ -52,6 +52,12 @@ public interface ClientUseCase {
     Client update(UUID clientUuid, String name, String phone, String notes,
             String callerExternalId);
 
+    /**
+     * US-041: Returns full access credentials (active subscriptions) for the authenticated client.
+     * The client is resolved from the caller's JWT.
+     */
+    List<ClientAccessDetail> getMyAccesses(String callerExternalId);
+
     // ── Generic getters (legacy) ───────────────────────────────────────
     Client getById(UUID uuid);
     List<Client> getByName(String name);
@@ -76,4 +82,14 @@ public interface ClientUseCase {
             UUID id,
             String status,
             java.time.Instant createdAt) {}
+
+    record ClientAccessDetail(
+            UUID subscriptionId,
+            String serviceName,
+            String accountEmail,
+            String accountPassword,
+            String profileName,
+            String profilePin,
+            java.time.LocalDate paymentDueDate,
+            String status) {}
 }

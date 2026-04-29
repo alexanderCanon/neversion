@@ -26,6 +26,7 @@ model/accountSummaryResponse.ts
 model/activeSubscriptionSummary.ts
 model/changeProfileStatusRequest.ts
 model/client.ts
+model/clientAccessResponse.ts
 model/clientDetail.ts
 model/clientRequest.ts
 model/clientResponse.ts

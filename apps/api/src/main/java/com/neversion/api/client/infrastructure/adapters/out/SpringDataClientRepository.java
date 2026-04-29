@@ -14,6 +14,8 @@ public interface SpringDataClientRepository extends JpaRepository<ClientEntity, 
 
     Optional<ClientEntity> findByEmail(String email);
 
+    Optional<ClientEntity> findByUserId(Long userId);
+
     List<ClientEntity> findByName(String name);
 
     List<ClientEntity> findByPhone(String phone);

@@ -3,6 +3,8 @@ package com.neversion.api.client.infrastructure.adapters.in.rest.mapper;
 import org.springframework.stereotype.Component;
 
 import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientResponse;
 
@@ -43,5 +45,20 @@ public class ClientMapper {
      */
     public ClientResponse toResponse(Client client) {
         return toResponse(client, 0L);
+    }
+
+    /** Maps domain access details to REST ClientAccessResponse (US-041). */
+    public ClientAccessResponse toAccessResponse(ClientAccessDetail detail) {
+        if (detail == null) return null;
+        return ClientAccessResponse.builder()
+                .subscriptionId(detail.subscriptionId())
+                .serviceName(detail.serviceName())
+                .accountEmail(detail.accountEmail())
+                .accountPassword(detail.accountPassword())
+                .profileName(detail.profileName())
+                .profilePin(detail.profilePin())
+                .paymentDueDate(detail.paymentDueDate())
+                .status(detail.status())
+                .build();
     }
 }

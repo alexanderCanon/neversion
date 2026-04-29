@@ -6,6 +6,7 @@ export * from './accountSummaryResponse';
 export * from './activeSubscriptionSummary';
 export * from './changeProfileStatusRequest';
 export * from './client';
+export * from './clientAccessResponse';
 export * from './clientDetail';
 export * from './clientRequest';
 export * from './clientResponse';

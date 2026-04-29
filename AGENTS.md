@@ -97,7 +97,7 @@ After every completed module, append an entry to the relevant progress log:
 | Panel UI | `docs/implementation/panel-construction.md` |
 | Store UI | `docs/implementation/store-construction.md` |
 
-The bitácoras are the single source of truth for project state across sessions. If it is not logged, it did not happen.
+The bitácoras are the single source of truth for project state across sessions. If it is not logged, it did not happen. After every completed EPIC/US, agents must also create or update Mermaid diagrams in `/docs/diagrams/` to maintain visual control.
 
 ---
 

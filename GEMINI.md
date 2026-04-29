@@ -46,6 +46,7 @@ Before performing any task, you **MUST** read the relevant protocol in `docs/age
 - **Isolation:** Work only in your assigned app directory. Do not modify other apps.
 - **API-First:** Frontend agents must consume the API and never access the database.
 - **Logging:** Every change must be recorded in the implementation logs (bitácoras) in `docs/implementation/`.
+- **Diagrams:** At the end of an EPIC/US, create or update Mermaid diagrams in `docs/diagrams/` for visual tracking.
 - **Language:** Code and comments in **English**; UI labels and user messages in **Spanish**.
 - **Zero Guesswork:** If a requirement is unclear, stop and report a **BLOCKER** as defined in `AGENTS.md`.
 

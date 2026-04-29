@@ -24,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
+import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.client.application.port.in.ClientUseCase.ActiveSubscriptionSummary;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
@@ -32,6 +34,10 @@ import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.model.enums.OrderStatus;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
+import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.service.domain.model.Service;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
@@ -56,6 +62,9 @@ class ClientServiceUT {
     @Mock private SubscriptionRepositoryPort subscriptionRepositoryPort;
     @Mock private OrderRepositoryPort orderRepositoryPort;
     @Mock private NotificationLogPort notificationLogPort;
+    @Mock private ProfileRepositoryPort profileRepositoryPort;
+    @Mock private AccountRepositoryPort accountRepositoryPort;
+    @Mock private ServiceRepositoryPort serviceRepositoryPort;
 
     private ClientService clientService;
 
@@ -69,7 +78,8 @@ class ClientServiceUT {
     void setUp() {
         clientService = new ClientService(
                 clientRepositoryPort, userRepositoryPort, vendorRepositoryPort,
-                subscriptionRepositoryPort, orderRepositoryPort, notificationLogPort);
+                subscriptionRepositoryPort, orderRepositoryPort, notificationLogPort,
+                profileRepositoryPort, accountRepositoryPort, serviceRepositoryPort);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -176,10 +186,20 @@ class ClientServiceUT {
 
             Subscription activeSub = Subscription.builder()
                     .id(1L).uuid(UUID.randomUUID()).clientId(CLIENT_INTERNAL_ID)
+                    .profileId(200L)
                     .status(SubStatus.ACTIVE).paymentDueDate(LocalDate.now().plusDays(10))
                     .build();
             when(subscriptionRepositoryPort.findByClientId(CLIENT_INTERNAL_ID))
                     .thenReturn(List.of(activeSub));
+
+            Profile profile = Profile.builder().id(200L).accountId(300L).name("Profile 1").build();
+            when(profileRepositoryPort.findByInternalId(200L)).thenReturn(Optional.of(profile));
+
+            Account account = Account.builder().id(300L).serviceId(400L).build();
+            when(accountRepositoryPort.findByInternalId(300L)).thenReturn(Optional.of(account));
+
+            Service service = Service.builder().id(400L).name("Netflix").build();
+            when(serviceRepositoryPort.findByInternalId(400L)).thenReturn(Optional.of(service));
 
             Order order = Order.builder()
                     .id(1L).uuid(UUID.randomUUID()).status(OrderStatus.COMPLETED).build();
@@ -194,6 +214,41 @@ class ClientServiceUT {
             assertThat(detail.activeSubscriptions()).hasSize(1);
             assertThat(detail.activeSubscriptions().get(0).status()).isEqualTo("ACTIVE");
             assertThat(detail.orderHistory()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("getMyAccesses (US-041) - should return full credentials for authenticated client")
+        void getMyAccesses_authenticatedClient_shouldReturnCredentials() {
+            // Given
+            User user = buildUser();
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(buildClient()));
+
+            Subscription activeSub = Subscription.builder()
+                    .id(1L).uuid(UUID.randomUUID()).clientId(CLIENT_INTERNAL_ID)
+                    .profileId(200L)
+                    .status(SubStatus.ACTIVE).paymentDueDate(LocalDate.now().plusDays(10))
+                    .build();
+            when(subscriptionRepositoryPort.findByClientId(CLIENT_INTERNAL_ID))
+                    .thenReturn(List.of(activeSub));
+
+            Profile profile = Profile.builder().id(200L).accountId(300L).name("Profile 1").pin("1234").build();
+            when(profileRepositoryPort.findByInternalId(200L)).thenReturn(Optional.of(profile));
+
+            Account account = Account.builder().id(300L).serviceId(400L).email("acc@test.com").password("pass123").build();
+            when(accountRepositoryPort.findByInternalId(300L)).thenReturn(Optional.of(account));
+
+            Service service = Service.builder().id(400L).name("Netflix").build();
+            when(serviceRepositoryPort.findByInternalId(400L)).thenReturn(Optional.of(service));
+
+            // When
+            var accesses = clientService.getMyAccesses(EXTERNAL_ID);
+
+            // Then
+            assertThat(accesses).hasSize(1);
+            assertThat(accesses.get(0).serviceName()).isEqualTo("Netflix");
+            assertThat(accesses.get(0).accountEmail()).isEqualTo("acc@test.com");
+            assertThat(accesses.get(0).accountPassword()).isEqualTo("pass123");
         }
 
         @Test

@@ -20,6 +20,9 @@ public interface ClientRepositoryPort {
     /** US-031 — Validación de unicidad de email antes de persistir. */
     Optional<Client> findByEmail(String email);
 
+    /** US-041 — Resolv client from authenticated user ID. */
+    Optional<Client> findByUserId(Long userId);
+
     List<Client> findByName(String name);
 
     List<Client> findByPhone(String phone);

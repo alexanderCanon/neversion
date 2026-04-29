@@ -54,6 +54,11 @@ public class JpaClientAdapter implements ClientRepositoryPort {
     }
 
     @Override
+    public Optional<Client> findByUserId(Long userId) {
+        return clientRepo.findByUserId(userId).map(clientMapper::toDomain);
+    }
+
+    @Override
     public List<Client> findByName(String name) {
         return clientRepo.findByName(name).stream()
                 .map(clientMapper::toDomain)

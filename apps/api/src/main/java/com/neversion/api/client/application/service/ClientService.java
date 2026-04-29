@@ -7,12 +7,17 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.client.application.port.in.ClientUseCase;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
+import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
@@ -39,6 +44,9 @@ public class ClientService implements ClientUseCase {
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
     private final OrderRepositoryPort orderRepositoryPort;
     private final NotificationLogPort notificationLogPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
+    private final AccountRepositoryPort accountRepositoryPort;
+    private final ServiceRepositoryPort serviceRepositoryPort;
 
     public ClientService(
             ClientRepositoryPort clientRepositoryPort,
@@ -46,13 +54,19 @@ public class ClientService implements ClientUseCase {
             VendorRepositoryPort vendorRepositoryPort,
             SubscriptionRepositoryPort subscriptionRepositoryPort,
             OrderRepositoryPort orderRepositoryPort,
-            NotificationLogPort notificationLogPort) {
+            NotificationLogPort notificationLogPort,
+            ProfileRepositoryPort profileRepositoryPort,
+            AccountRepositoryPort accountRepositoryPort,
+            ServiceRepositoryPort serviceRepositoryPort) {
         this.clientRepositoryPort = clientRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.orderRepositoryPort = orderRepositoryPort;
         this.notificationLogPort = notificationLogPort;
+        this.profileRepositoryPort = profileRepositoryPort;
+        this.accountRepositoryPort = accountRepositoryPort;
+        this.serviceRepositoryPort = serviceRepositoryPort;
     }
 
     // ── Legacy create (auth flow, no JWT context) ──────────────────────────
@@ -106,12 +120,18 @@ public class ClientService implements ClientUseCase {
         List<Subscription> subs = subscriptionRepositoryPort.findByClientId(client.getId());
         List<ActiveSubscriptionSummary> activeSubs = subs.stream()
                 .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
-                .map(s -> new ActiveSubscriptionSummary(
-                        s.getUuid(),
-                        null,            // serviceName: resolved in EPIC-06/07 (profile→account→service)
-                        null,            // profileName: idem
-                        s.getPaymentDueDate(),
-                        s.getStatus() != null ? s.getStatus().name() : null))
+                .map(s -> {
+                    Profile p = profileRepositoryPort.findByInternalId(s.getProfileId()).orElse(null);
+                    Account a = p != null ? accountRepositoryPort.findByInternalId(p.getAccountId()).orElse(null) : null;
+                    com.neversion.api.service.domain.model.Service svc = a != null ? serviceRepositoryPort.findByInternalId(a.getServiceId()).orElse(null) : null;
+
+                    return new ActiveSubscriptionSummary(
+                            s.getUuid(),
+                            svc != null ? svc.getName() : "Unknown Service",
+                            p != null ? p.getName() : "Unknown Profile",
+                            s.getPaymentDueDate(),
+                            s.getStatus() != null ? s.getStatus().name() : null);
+                })
                 .toList();
 
         // Order history — BR-US030-01
@@ -193,6 +213,36 @@ public class ClientService implements ClientUseCase {
         return clientRepositoryPort.save(existing);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientAccessDetail> getMyAccesses(String callerExternalId) {
+        // Strict ownership: resolve the client ID directly from the authenticated user
+        Long clientId = resolveClientId(callerExternalId);
+
+        List<Subscription> subs = subscriptionRepositoryPort.findByClientId(clientId);
+        return subs.stream()
+                .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                .map(s -> {
+                    Profile p = profileRepositoryPort.findByInternalId(s.getProfileId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Profile not found for sub: " + s.getUuid()));
+                    Account a = accountRepositoryPort.findByInternalId(p.getAccountId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Account not found for profile: " + p.getUuid()));
+                    com.neversion.api.service.domain.model.Service svc = serviceRepositoryPort.findByInternalId(a.getServiceId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Service not found for account: " + a.getUuid()));
+
+                    return new ClientAccessDetail(
+                            s.getUuid(),
+                            svc.getName(),
+                            a.getEmail(),
+                            a.getPassword(),
+                            p.getName(),
+                            p.getPin(),
+                            s.getPaymentDueDate(),
+                            s.getStatus().name());
+                })
+                .toList();
+    }
+
     // ── Generic getters (legacy, kept for backward compat) ────────────────
 
     @Override
@@ -225,6 +275,19 @@ public class ClientService implements ClientUseCase {
     }
 
     // ── Helper — ownership resolution ─────────────────────────────────────
+
+    /**
+     * Resolves the internal clientId from the caller's Supabase externalId.
+     */
+    private Long resolveClientId(String callerExternalId) {
+        var user = userRepositoryPort.findByExternalId(callerExternalId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found for externalId: " + callerExternalId));
+        return clientRepositoryPort.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Client record not found for userId: " + user.getId()))
+                .getId();
+    }
 
     /**
      * Resolves the internal vendorId from the caller's Supabase externalId (ADR-09).

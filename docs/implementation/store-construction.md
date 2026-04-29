@@ -19,3 +19,4 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-28 | EPIC-05 / US-034 | Implementación de `PaymentPageComponent` y subida de comprobante. | Flujo de subida de archivos (simulado) con integración a `uploadReceipt`. |
 
 | 2026-04-29 | EPIC-06 / US-041 | Client Accesses View. | Added `app-customer-accesses` inside `CustomerPanelComponent` to list active subscriptions. |
+| 2026-04-29 | EPIC-06 / US-041 | **Full Credentials View**: Refactored `AccessesComponent` to use `clientsApi.getMyAccesses()`. HTML template updated to display Service Name, Account Email, Password, and Profile PIN. Removed temporary security warning as credentials are now explicitly delivered. | Replaces generic list (IDs only) with full credential DTO. Uses JWT-based resolution for security. |

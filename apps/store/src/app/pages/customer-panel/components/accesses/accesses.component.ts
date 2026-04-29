@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SubscriptionsApiService, SubscriptionResponse } from '@neversion/api-client';
+import { ClientsApiService, ClientAccessResponse } from '@neversion/api-client';
 import { AuthService } from '../../../../services/auth.service';
 
 @Component({
@@ -8,19 +8,19 @@ import { AuthService } from '../../../../services/auth.service';
   styleUrls: []
 })
 export class AccessesComponent implements OnInit {
-  subscriptions: SubscriptionResponse[] = [];
+  subscriptions: ClientAccessResponse[] = [];
   isLoading = true;
   error: string | null = null;
 
   constructor(
-    private subscriptionsApi: SubscriptionsApiService,
+    private clientsApi: ClientsApiService,
     private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.authService.currentUser$.subscribe(user => {
       if (user && user.id) {
-        this.loadAccesses(user.id);
+        this.loadAccesses();
       } else {
         this.isLoading = false;
         this.error = 'Usuario no autenticado.';
@@ -28,16 +28,13 @@ export class AccessesComponent implements OnInit {
     });
   }
 
-  loadAccesses(clientId: string): void {
+  loadAccesses(): void {
     this.isLoading = true;
     this.error = null;
 
-    // Call the API with status ACTIVE and the specific clientId
-    // Note: If the backend supports fetching "my subscriptions" via a different endpoint, it would be preferred,
-    // but the API client only has `list` which accepts clientId.
-    this.subscriptionsApi.list('ACTIVE', clientId).subscribe({
-      next: (subs) => {
-        this.subscriptions = subs;
+    this.clientsApi.getMyAccesses().subscribe({
+      next: (accesses) => {
+        this.subscriptions = accesses;
         this.isLoading = false;
       },
       error: (err) => {

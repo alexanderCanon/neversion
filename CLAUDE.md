@@ -137,7 +137,7 @@ Before working on any feature, read these files:
 | `docs/domain/ubiquitous-language.md` | Canonical Spanish/English business terminology |
 | `docs/architecture/decisions.md` | ADRs 1–10 |
 
-**The bitácoras are cross-session memory.** Update them after every completed module.
+**The bitácoras are cross-session memory.** Update them after every completed module. At the end of an EPIC/US, also create or update Mermaid diagrams in `/docs/diagrams/` for visual tracking.
 
 ## EPIC Status
 
