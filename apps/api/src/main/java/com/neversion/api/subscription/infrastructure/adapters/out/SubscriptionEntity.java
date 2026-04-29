@@ -1,12 +1,16 @@
 package com.neversion.api.subscription.infrastructure.adapters.out;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.SaleMode;
+import com.neversion.api.account.infrastructure.adapters.out.converter.SaleModeConverter;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -61,6 +65,10 @@ public class SubscriptionEntity {
     @Column(name = "order_id")
     private Long orderId;
 
+    /** FK to services.id — financial snapshot for detail/reporting. */
+    @Column(name = "service_id")
+    private Long serviceId;
+
     /** Date the client's access lifecycle began. */
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -79,6 +87,19 @@ public class SubscriptionEntity {
     /** Number of months the client has paid so far. */
     @Column(name = "months_paid", nullable = false)
     private Long monthsPaid;
+
+    /** Commercial price agreed for this subscription. */
+    @Column(name = "price_sold", precision = 10, scale = 2)
+    private BigDecimal priceSold;
+
+    /** Discount applied to this subscription. */
+    @Column(name = "discount_applied", precision = 10, scale = 2)
+    private BigDecimal discountApplied;
+
+    /** Sale mode snapshot when the subscription was created. */
+    @Convert(converter = SaleModeConverter.class)
+    @Column(name = "sale_mode", length = 20)
+    private SaleMode saleMode;
 
     /**
      * Current access status.

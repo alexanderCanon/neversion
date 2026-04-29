@@ -112,10 +112,12 @@ public class ManualAssignmentService implements ManualAssignmentUseCase {
                 .profileUuid(profile.getUuid())
                 .accountUuid(account.getUuid())
                 .orderId(null)
+                .serviceId(service.getId())
                 .startDate(startDate)
                 .endDate(endDate)
                 .paymentDueDate(endDate)
                 .monthsPaid(1L)
+                .saleMode(account.getSaleMode())
                 .status(SubStatus.ACTIVE)
                 .vendorId(vendor.getId())
                 .build());

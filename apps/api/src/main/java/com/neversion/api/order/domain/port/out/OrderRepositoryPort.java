@@ -16,6 +16,9 @@ public interface OrderRepositoryPort {
 
     Optional<Order> findByUuid(UUID uuid);
 
+    /** Internal lookup for cross-module details. Never expose the Long id through REST. */
+    Optional<Order> findByInternalId(Long id);
+
     Optional<Order> findByReservationId(Long reservationId);
 
     /** US-030 — Historial de órdenes del cliente, ordenado por fecha desc. */

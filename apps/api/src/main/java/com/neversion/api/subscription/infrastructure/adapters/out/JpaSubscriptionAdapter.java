@@ -67,6 +67,14 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
+    public List<Subscription> findByVendorIdFiltered(Long vendorId, Long serviceId, SubStatus status) {
+        String statusValue = status != null ? status.name().toLowerCase() : null;
+        return subscriptionRepo.findByVendorIdFiltered(vendorId, serviceId, statusValue).stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<Subscription> findAll() {
         return subscriptionRepo.findAll().stream()
                 .map(subscriptionMapper::toDomain)
@@ -80,7 +88,7 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
 
     @Override
     public List<Subscription> findOverdue(LocalDate asOf) {
-        return subscriptionRepo.findOverdue(asOf).stream()
+        return subscriptionRepo.findOverdue(asOf, SubStatus.ACTIVE).stream()
                 .map(subscriptionMapper::toDomain)
                 .toList();
     }

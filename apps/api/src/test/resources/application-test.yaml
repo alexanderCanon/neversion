@@ -13,3 +13,10 @@ spring:
 supabase:
   jwt:
     secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
+
+neversion:
+  renewal:
+    grace-period-days: 2
+  cron:
+    subscription-expiry:
+      enabled: false

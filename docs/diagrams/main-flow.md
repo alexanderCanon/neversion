@@ -36,6 +36,28 @@ sequenceDiagram
     Note over C, B: US-041: Consulta de Credenciales
     C->>B: Ver mis accesos (GET /clients/me/accesses)
     B-->>C: DTO: Email, Password, PIN, ServiceName
+
+    Note over V, B: EPIC-07: Gestión de Suscripciones
+    V->>B: Listar suscripciones (GET /subscriptions/vendor/{vendorUuid})
+    B->>B: Validar ownership del Vendor
+    B->>B: Filtrar por servicio/estado y ordenar por vencimiento
+    B-->>V: DTO: Cliente, Servicio, Perfil, Vencimiento, Estado
+    V->>B: Ver detalle (GET /subscriptions/{id})
+    B-->>V: DTO: Origen comercial, snapshots, cliente, perfil, cuenta
+    V->>B: Renovar suscripción (PUT /subscriptions/{id}/renew)
+    B->>B: Aplicar BR-07 y restaurar perfiles/cuenta
+    B-->>N: Evento: SUBSCRIPTION_RENEWED
+    V->>B: Revocar acceso (PUT /subscriptions/{id}/cancel)
+    B->>B: Cancelar suscripción y liberar inventario
+    B-->>N: Evento: ACCESS_REVOKED
+    B->>B: Scheduler diario 02:00 detecta vencidas
+    B->>B: Suspender suscripciones y expirar inventario
+    B-->>N: Evento: SUBSCRIPTIONS_EXPIRED_DAILY por vendedor
+    V->>B: Crear suscripción manual (POST /subscriptions)
+    B->>B: Validar ownership, disponibilidad y modalidad
+    opt sendNotification=true
+        B-->>N: Evento: ACCESS_DELIVERED
+    end
 ```
 
 ## Estados de la Orden

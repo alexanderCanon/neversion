@@ -24,6 +24,12 @@ public interface SubscriptionRepositoryPort {
 
     List<Subscription> findByStatus(SubStatus status);
 
+    /**
+     * US-043: Returns subscriptions scoped to a vendor, optionally filtered by
+     * service and subscription status. Results are ordered by payment due date ASC.
+     */
+    List<Subscription> findByVendorIdFiltered(Long vendorId, Long serviceId, SubStatus status);
+
     List<Subscription> findAll();
 
     /**
