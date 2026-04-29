@@ -29,3 +29,6 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 | 2026-04-28 | EPIC-05 / US-035 | Validación de Reservas y Creación de Órdenes. | Implementado flujo de aprobación/rechazo en `ReservationDetailComponent`. |
 | 2026-04-28 | EPIC-05 / US-037 | Listado de Órdenes del Vendedor. | Integrado `getOrdersByVendor` con filtrado por estado y búsqueda. |
 | 2026-04-28 | EPIC-05 / US-038 | Detalle de Orden con Historial. | Implementado `OrderDetailComponent` incluyendo `statusHistory` y visualización de comprobante. |
+
+| 2026-04-29 | EPIC-06 / US-039 & US-040 | Suggest and Confirm Assignment in OrderDetail. | Calls API to suggest and confirm. Implemented dropdown to override. |
+| 2026-04-29 | EPIC-06 / US-042 | Manual Assignment Modal in Subscriptions. | Opens a modal to select Client, Service, Account and Profile directly. |

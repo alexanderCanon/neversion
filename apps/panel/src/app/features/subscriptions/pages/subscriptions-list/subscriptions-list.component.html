@@ -3,9 +3,14 @@
     <h2 class="mb-0 fw-bold">
       <i class="bi bi-credit-card me-2"></i>Suscripciones
     </h2>
-    <button class="btn btn-primary" (click)="subscriptionForm.openModal()">
-      <i class="bi bi-plus-lg me-1"></i>Nueva suscripción
-    </button>
+    <div>
+      <button class="btn btn-outline-primary me-2" (click)="manualModal.openModal()">
+        <i class="bi bi-person-lines-fill me-1"></i>Asignación Manual
+      </button>
+      <button class="btn btn-primary" (click)="subscriptionForm.openModal()">
+        <i class="bi bi-plus-lg me-1"></i>Nueva suscripción
+      </button>
+    </div>
   </div>
 
   <div class="card shadow-sm">
@@ -128,3 +133,4 @@
 </div>
 
 <app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>
+<app-manual-assignment-modal #manualModal (assignmentCreated)="onManualAssignmentCreated()"></app-manual-assignment-modal>

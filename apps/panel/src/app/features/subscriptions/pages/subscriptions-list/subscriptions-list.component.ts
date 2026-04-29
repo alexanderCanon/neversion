@@ -6,17 +6,19 @@ import { SubscriptionsService } from '../../services/subscriptions.service';
 import { SubscriptionResponse } from '@neversion/api-client';
 import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
+import { ManualAssignmentModalComponent } from '../../../assignments/components/manual-assignment-modal/manual-assignment-modal.component';
 import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-subscriptions-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, SubscriptionFormComponent],
+  imports: [CommonModule, FormsModule, SubscriptionFormComponent, ManualAssignmentModalComponent],
   templateUrl: './subscriptions-list.component.html',
   styleUrls: [],
 })
 export class SubscriptionsListComponent implements OnInit {
   @ViewChild('subscriptionForm') subscriptionForm!: SubscriptionFormComponent;
+  @ViewChild('manualModal') manualModal!: ManualAssignmentModalComponent;
 
   private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly toastService = inject(ToastService);
@@ -80,6 +82,10 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   onSubscriptionCreated(): void {
+    this.loadSubscriptions();
+  }
+
+  onManualAssignmentCreated(): void {
     this.loadSubscriptions();
   }
 

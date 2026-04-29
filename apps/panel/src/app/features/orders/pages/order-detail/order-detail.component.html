@@ -24,6 +24,59 @@
         <div class="row g-4">
             <!-- Left Column: Details -->
             <div class="col-lg-8">
+                <!-- Assignment Section (Only if VALIDATED) -->
+                @if (order()?.status === 'VALIDATED') {
+                    <div class="card shadow-sm mb-4 border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="card-title mb-0">Asignación de Accesos</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (isLoadingSuggestion()) {
+                                <div class="text-center py-3">
+                                    <div class="spinner-border text-info" role="status"></div>
+                                </div>
+                            } @else if (suggestion()) {
+                                @if (suggestion()!.hasSuggestion) {
+                                    <div class="alert alert-success">
+                                        <h6 class="alert-heading fw-bold mb-2">Sugerencia del Sistema</h6>
+                                        <p class="mb-1"><strong>Servicio:</strong> {{ suggestion()!.serviceName }}</p>
+                                        <p class="mb-0"><strong>Cuenta:</strong> {{ suggestion()!.accountEmail }}</p>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="profileSelect" class="form-label">Perfil a Asignar</label>
+                                        <select id="profileSelect" class="form-select" [(ngModel)]="selectedProfileId">
+                                            <option value="" disabled>Seleccione un perfil...</option>
+                                            @for (profile of availableProfiles(); track profile.id) {
+                                                <option [value]="profile.id">
+                                                    {{ profile.name }}
+                                                    @if (profile.id === suggestion()!.suggestedProfileId) { (Sugerido) }
+                                                </option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <button class="btn btn-primary"
+                                            [disabled]="!selectedProfileId() || isConfirming()"
+                                            (click)="confirmAssignment()">
+                                        @if (isConfirming()) {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            Confirmando...
+                                        } @else {
+                                            Confirmar Asignación
+                                        }
+                                    </button>
+                                } @else {
+                                    <div class="alert alert-warning mb-0">
+                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                        <strong>Atención:</strong> {{ suggestion()!.noInventoryReason || 'No hay inventario disponible para este servicio.' }}
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-white">
                         <h5 class="card-title mb-0">Servicios Contratados</h5>

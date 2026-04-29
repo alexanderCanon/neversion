@@ -1,0 +1,60 @@
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+    <h3 class="mb-0 fw-bold">Mis Accesos</h3>
+    <p class="text-muted mb-0">Credenciales de tus suscripciones activas</p>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2 text-muted">Obteniendo tus accesos...</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!isLoading && !error && subscriptions.length === 0" class="text-center py-5">
+      <i class="bi bi-shield-lock text-muted" style="font-size: 3rem;"></i>
+      <h5 class="mt-3">No tienes accesos activos</h5>
+      <p class="text-muted">Aún no tienes suscripciones activas con nosotros.</p>
+    </div>
+
+    <div *ngIf="!isLoading && !error && subscriptions.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      <div class="col" *ngFor="let sub of subscriptions">
+        <div class="card h-100 border-primary shadow-sm">
+          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <strong>Suscripción #{{ sub.id | slice:0:8 }}</strong>
+            <span class="badge bg-light text-primary">Activo</span>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bi bi-controller me-2"></i> Detalles del Acceso
+            </h5>
+
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                <span class="text-muted"><i class="bi bi-calendar-event me-2"></i>Vence:</span>
+                <strong>{{ sub.paymentDueDate | date:'shortDate' }}</strong>
+              </li>
+              <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                <span class="text-muted"><i class="bi bi-person-badge me-2"></i>Perfil ID:</span>
+                <strong>{{ sub.profileId | slice:0:8 }}...</strong>
+              </li>
+              <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                <span class="text-muted"><i class="bi bi-key me-2"></i>Notas/PIN:</span>
+                <span class="font-monospace text-success fw-bold">{{ sub.notes || 'N/A' }}</span>
+              </li>
+            </ul>
+
+            <div class="alert alert-warning mb-0 p-2" style="font-size: 0.85rem;">
+              <i class="bi bi-info-circle-fill me-1"></i> Por razones de seguridad, las contraseñas de las cuentas se envían por correo.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
