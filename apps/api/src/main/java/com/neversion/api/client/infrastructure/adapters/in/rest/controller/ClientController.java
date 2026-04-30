@@ -20,11 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.neversion.api.client.application.port.in.ClientUseCase;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderHistoryResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientReservationStatusResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.UpdateClientRequest;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.UpdateClientProfileRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.mapper.ClientMapper;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
@@ -110,6 +115,71 @@ public class ClientController {
                 .map(clientMapper::toAccessResponse)
                 .toList();
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/orders")
+    @Operation(summary = "Get my order history (US-059)",
+            description = "Returns order history for the authenticated client. "
+                    + "The client is resolved from the JWT and no client ID is accepted in the request.")
+    @ApiResponse(responseCode = "200", description = "Client order history")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "403", description = "Only clients can access this endpoint")
+    @ApiResponse(responseCode = "404", description = "Client record not found for the user")
+    public ResponseEntity<List<ClientOrderHistoryResponse>> getMyOrders(
+            JwtAuthenticationToken token) {
+        List<ClientOrderHistoryDetail> details = clientUseCase.getMyOrders(extractExternalId(token));
+        List<ClientOrderHistoryResponse> response = details.stream()
+                .map(clientMapper::toOrderHistoryResponse)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/reservations")
+    @Operation(summary = "Get my reservation and receipt statuses (US-060)",
+            description = "Returns reservation statuses for the authenticated client, including rejection notes. "
+                    + "The client is resolved from the JWT and no client ID is accepted in the request.")
+    @ApiResponse(responseCode = "200", description = "Client reservation status history")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "403", description = "Only clients can access this endpoint")
+    @ApiResponse(responseCode = "404", description = "Client record not found for the user")
+    public ResponseEntity<List<ClientReservationStatusResponse>> getMyReservations(
+            JwtAuthenticationToken token) {
+        List<ClientReservationStatusDetail> details =
+                clientUseCase.getMyReservations(extractExternalId(token));
+        List<ClientReservationStatusResponse> response = details.stream()
+                .map(clientMapper::toReservationStatusResponse)
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    @Operation(summary = "Get my client profile (US-062)",
+            description = "Returns the authenticated client's basic profile. "
+                    + "Email is returned for display but remains immutable.")
+    @ApiResponse(responseCode = "200", description = "Client profile")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "403", description = "Only clients can access this endpoint")
+    @ApiResponse(responseCode = "404", description = "Client record not found for the user")
+    public ResponseEntity<ClientResponse> getMyProfile(JwtAuthenticationToken token) {
+        Client client = clientUseCase.getMyProfile(extractExternalId(token));
+        return ResponseEntity.ok(clientMapper.toResponse(client));
+    }
+
+    @PutMapping("/me")
+    @Operation(summary = "Update my client profile (US-062)",
+            description = "Updates only name and phone for the authenticated client. "
+                    + "Email is not accepted in the request and remains immutable.")
+    @ApiResponse(responseCode = "200", description = "Client profile updated")
+    @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "403", description = "Only clients can access this endpoint")
+    @ApiResponse(responseCode = "404", description = "Client record not found for the user")
+    public ResponseEntity<ClientResponse> updateMyProfile(
+            @Valid @RequestBody UpdateClientProfileRequest request,
+            JwtAuthenticationToken token) {
+        Client updated = clientUseCase.updateMyProfile(
+                request.name(), request.phone(), extractExternalId(token));
+        return ResponseEntity.ok(clientMapper.toResponse(updated));
     }
 
     // ── US-031 — Crear cliente manual ──────────────────────────────────────

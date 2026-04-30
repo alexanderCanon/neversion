@@ -1,0 +1,63 @@
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+    <h3 class="mb-0 fw-bold">Historial de Órdenes</h3>
+    <p class="text-muted mb-0">Compras y renovaciones registradas en tu cuenta</p>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2 text-muted">Obteniendo tus órdenes...</p>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!isLoading && !error && orders.length === 0" class="text-center py-5">
+      <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+      <h5 class="mt-3">No tienes órdenes registradas</h5>
+      <p class="text-muted">Tus compras aparecerán aquí cuando el vendedor apruebe tus comprobantes.</p>
+    </div>
+
+    <div *ngIf="!isLoading && !error && orders.length > 0" class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Servicios</th>
+            <th>Método</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Comprobante</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ getServicesLabel(order) }}</td>
+            <td>{{ order.paymentMethod || 'No indicado' }}</td>
+            <td>Q{{ order.total || 0 | number:'1.2-2' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(order.status)">
+                {{ getStatusLabel(order.status) }}
+              </span>
+            </td>
+            <td>
+              <a *ngIf="order.receiptUrl"
+                 [href]="order.receiptUrl"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="btn btn-sm btn-outline-secondary">
+                Ver
+              </a>
+              <span *ngIf="!order.receiptUrl" class="text-muted small">Sin comprobante</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

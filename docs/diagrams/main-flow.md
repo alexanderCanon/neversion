@@ -69,6 +69,17 @@ sequenceDiagram
     B->>B: Marcar Orden COMPLETED
     B->>B: record(SUBSCRIPTION_RENEWED)
 
+    Note over C, B: EPIC-09 US-059/060/062: Panel del Cliente
+    C->>B: Ver historial de órdenes (GET /clients/me/orders)
+    B->>B: Resolver cliente desde JWT
+    B-->>C: DTO: órdenes propias + servicios + comprobante
+    C->>B: Ver estados de comprobantes (GET /clients/me/reservations)
+    B->>B: Resolver cliente desde JWT
+    B-->>C: DTO: reservaciones propias + estado + motivo de rechazo
+    C->>B: Ver/editar perfil (GET/PUT /clients/me)
+    B->>B: Actualizar solo nombre y teléfono
+    B-->>C: DTO: perfil con email solo lectura
+
     Note over W, R: EPIC-08: Entrega de Correos
     loop Cada 30 segundos
         W->>B: Fetch PENDING notifications (batch 50)

@@ -1,5 +1,7 @@
 package com.neversion.api.client.application.port.in;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,6 +60,28 @@ public interface ClientUseCase {
      */
     List<ClientAccessDetail> getMyAccesses(String callerExternalId);
 
+    /**
+     * EPIC-09 / US-059: Returns the authenticated client's own order history.
+     * The client is resolved from the caller's JWT to avoid IDOR exposure.
+     */
+    List<ClientOrderHistoryDetail> getMyOrders(String callerExternalId);
+
+    /**
+     * EPIC-09 / US-060: Returns the authenticated client's own reservation/receipt statuses.
+     */
+    List<ClientReservationStatusDetail> getMyReservations(String callerExternalId);
+
+    /**
+     * EPIC-09 / US-062: Returns the authenticated client's own profile.
+     */
+    Client getMyProfile(String callerExternalId);
+
+    /**
+     * EPIC-09 / US-062: Updates the authenticated client's editable profile fields only.
+     * Email remains immutable and is never accepted from the request.
+     */
+    Client updateMyProfile(String name, String phone, String callerExternalId);
+
     // ── Generic getters (legacy) ───────────────────────────────────────
     Client getById(UUID uuid);
     List<Client> getByName(String name);
@@ -92,4 +116,34 @@ public interface ClientUseCase {
             String profilePin,
             java.time.LocalDate paymentDueDate,
             String status) {}
+
+    record ClientOrderHistoryDetail(
+            UUID id,
+            UUID reservationId,
+            String status,
+            String paymentMethod,
+            BigDecimal total,
+            BigDecimal discount,
+            String receiptUrl,
+            Instant approvedAt,
+            Instant createdAt,
+            List<ClientOrderServiceDetail> services) {}
+
+    record ClientOrderServiceDetail(
+            UUID serviceId,
+            String serviceName,
+            Integer quantity) {}
+
+    record ClientReservationStatusDetail(
+            UUID id,
+            String status,
+            BigDecimal total,
+            BigDecimal discount,
+            String receiptUrl,
+            String paymentMethod,
+            Instant expirationDate,
+            Instant createdAt,
+            String notes,
+            UUID renewalSubscriptionId,
+            List<ClientOrderServiceDetail> services) {}
 }

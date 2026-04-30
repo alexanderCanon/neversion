@@ -17,6 +17,8 @@ import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.reservation.domain.model.Reservation;
+import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
@@ -47,6 +49,7 @@ public class ClientService implements ClientUseCase {
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
     private final ServiceRepositoryPort serviceRepositoryPort;
+    private final ReservationRepositoryPort reservationRepositoryPort;
 
     public ClientService(
             ClientRepositoryPort clientRepositoryPort,
@@ -57,7 +60,8 @@ public class ClientService implements ClientUseCase {
             NotificationLogPort notificationLogPort,
             ProfileRepositoryPort profileRepositoryPort,
             AccountRepositoryPort accountRepositoryPort,
-            ServiceRepositoryPort serviceRepositoryPort) {
+            ServiceRepositoryPort serviceRepositoryPort,
+            ReservationRepositoryPort reservationRepositoryPort) {
         this.clientRepositoryPort = clientRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
@@ -67,6 +71,7 @@ public class ClientService implements ClientUseCase {
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
         this.serviceRepositoryPort = serviceRepositoryPort;
+        this.reservationRepositoryPort = reservationRepositoryPort;
     }
 
     // ── Legacy create (auth flow, no JWT context) ──────────────────────────
@@ -245,6 +250,62 @@ public class ClientService implements ClientUseCase {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientOrderHistoryDetail> getMyOrders(String callerExternalId) {
+        Long clientId = resolveClientId(callerExternalId);
+
+        return orderRepositoryPort.findByClientId(clientId).stream()
+                .map(order -> new ClientOrderHistoryDetail(
+                        order.getUuid(),
+                        order.getReservationUuid(),
+                        order.getStatus() != null ? order.getStatus().name() : null,
+                        order.getPaymentMethod(),
+                        order.getTotal(),
+                        order.getDiscount(),
+                        order.getReceiptUrl(),
+                        order.getApprovedAt(),
+                        order.getCreatedAt(),
+                        resolveOrderServices(order)))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ClientReservationStatusDetail> getMyReservations(String callerExternalId) {
+        Long clientId = resolveClientId(callerExternalId);
+
+        return reservationRepositoryPort.findByClientId(clientId).stream()
+                .map(reservation -> new ClientReservationStatusDetail(
+                        reservation.getUuid(),
+                        reservation.getStatus() != null ? reservation.getStatus().name() : null,
+                        reservation.getTotal(),
+                        reservation.getDiscount(),
+                        reservation.getReceiptUrl(),
+                        reservation.getPaymentMethod(),
+                        reservation.getExpirationDate(),
+                        reservation.getCreatedAt(),
+                        reservation.getNotes(),
+                        reservation.getRenewalSubscriptionUuid(),
+                        resolveReservationServices(reservation)))
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Client getMyProfile(String callerExternalId) {
+        return resolveClient(callerExternalId);
+    }
+
+    @Override
+    @Transactional
+    public Client updateMyProfile(String name, String phone, String callerExternalId) {
+        Client client = resolveClient(callerExternalId);
+        client.setName(name);
+        client.setPhone(phone);
+        return clientRepositoryPort.save(client);
+    }
+
     // ── Generic getters (legacy, kept for backward compat) ────────────────
 
     @Override
@@ -282,13 +343,19 @@ public class ClientService implements ClientUseCase {
      * Resolves the internal clientId from the caller's Supabase externalId.
      */
     private Long resolveClientId(String callerExternalId) {
+        return resolveClient(callerExternalId).getId();
+    }
+
+    /**
+     * Resolves the client aggregate from the caller's Supabase externalId.
+     */
+    private Client resolveClient(String callerExternalId) {
         var user = userRepositoryPort.findByExternalId(callerExternalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found for externalId: " + callerExternalId));
         return clientRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Client record not found for userId: " + user.getId()))
-                .getId();
+                        "Client record not found for userId: " + user.getId()));
     }
 
     /**
@@ -302,5 +369,34 @@ public class ClientService implements ClientUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Vendor not found for userId: " + user.getId()))
                 .getId();
+    }
+
+    private List<ClientOrderServiceDetail> resolveOrderServices(Order order) {
+        if (order.getReservationId() == null) {
+            return List.of();
+        }
+
+        Reservation reservation = reservationRepositoryPort.findById(order.getReservationId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Reservation not found for order: " + order.getUuid()));
+
+        return resolveReservationServices(reservation);
+    }
+
+    private List<ClientOrderServiceDetail> resolveReservationServices(Reservation reservation) {
+        if (reservation.getDetails() == null) {
+            return List.of();
+        }
+
+        return reservation.getDetails().stream()
+                .map(detail -> {
+                    com.neversion.api.service.domain.model.Service service =
+                            serviceRepositoryPort.findByInternalId(detail.serviceId()).orElse(null);
+                    return new ClientOrderServiceDetail(
+                            service != null ? service.getUuid() : null,
+                            service != null ? service.getName() : "Unknown Service",
+                            detail.qty());
+                })
+                .toList();
     }
 }

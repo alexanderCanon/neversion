@@ -4,7 +4,13 @@ import org.springframework.stereotype.Component;
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderServiceDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderHistoryResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderServiceResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientReservationStatusResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientResponse;
 
@@ -60,5 +66,53 @@ public class ClientMapper {
                 .paymentDueDate(detail.paymentDueDate())
                 .status(detail.status())
                 .build();
+    }
+
+    /** Maps client-owned order history details to REST responses (EPIC-09 / US-059). */
+    public ClientOrderHistoryResponse toOrderHistoryResponse(ClientOrderHistoryDetail detail) {
+        if (detail == null) return null;
+        return new ClientOrderHistoryResponse(
+                detail.id(),
+                detail.reservationId(),
+                detail.status(),
+                detail.paymentMethod(),
+                detail.total(),
+                detail.discount(),
+                detail.receiptUrl(),
+                detail.approvedAt(),
+                detail.createdAt(),
+                detail.services() == null
+                        ? java.util.List.of()
+                        : detail.services().stream()
+                                .map(this::toOrderServiceResponse)
+                                .toList());
+    }
+
+    /** Maps reservation/receipt statuses for the client panel (EPIC-09 / US-060). */
+    public ClientReservationStatusResponse toReservationStatusResponse(ClientReservationStatusDetail detail) {
+        if (detail == null) return null;
+        return new ClientReservationStatusResponse(
+                detail.id(),
+                detail.status(),
+                detail.total(),
+                detail.discount(),
+                detail.receiptUrl(),
+                detail.paymentMethod(),
+                detail.expirationDate(),
+                detail.createdAt(),
+                detail.notes(),
+                detail.renewalSubscriptionId(),
+                detail.services() == null
+                        ? java.util.List.of()
+                        : detail.services().stream()
+                                .map(this::toOrderServiceResponse)
+                                .toList());
+    }
+
+    private ClientOrderServiceResponse toOrderServiceResponse(ClientOrderServiceDetail detail) {
+        return new ClientOrderServiceResponse(
+                detail.serviceId(),
+                detail.serviceName(),
+                detail.quantity());
     }
 }

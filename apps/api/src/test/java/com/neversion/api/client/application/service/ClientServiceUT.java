@@ -36,6 +36,10 @@ import com.neversion.api.order.domain.model.enums.OrderStatus;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.reservation.domain.model.Reservation;
+import com.neversion.api.reservation.domain.model.ReservationDetail;
+import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
+import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
@@ -65,6 +69,7 @@ class ClientServiceUT {
     @Mock private ProfileRepositoryPort profileRepositoryPort;
     @Mock private AccountRepositoryPort accountRepositoryPort;
     @Mock private ServiceRepositoryPort serviceRepositoryPort;
+    @Mock private ReservationRepositoryPort reservationRepositoryPort;
 
     private ClientService clientService;
 
@@ -79,7 +84,8 @@ class ClientServiceUT {
         clientService = new ClientService(
                 clientRepositoryPort, userRepositoryPort, vendorRepositoryPort,
                 subscriptionRepositoryPort, orderRepositoryPort, notificationLogPort,
-                profileRepositoryPort, accountRepositoryPort, serviceRepositoryPort);
+                profileRepositoryPort, accountRepositoryPort, serviceRepositoryPort,
+                reservationRepositoryPort);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -285,6 +291,145 @@ class ClientServiceUT {
             assertThat(accesses.get(0).accountEmail()).isNull();
             assertThat(accesses.get(0).accountPassword()).isNull();
             assertThat(accesses.get(0).profilePin()).isNull();
+        }
+
+        @Test
+        @DisplayName("getMyOrders (US-059) - should return authenticated client order history with services")
+        void getMyOrders_authenticatedClient_shouldReturnOwnOrderHistory() {
+            // Given
+            User user = buildUser();
+            UUID orderUuid = UUID.randomUUID();
+            UUID reservationUuid = UUID.randomUUID();
+            UUID serviceUuid = UUID.randomUUID();
+
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(buildClient()));
+
+            Order order = Order.builder()
+                    .id(10L)
+                    .uuid(orderUuid)
+                    .reservationId(50L)
+                    .reservationUuid(reservationUuid)
+                    .status(OrderStatus.COMPLETED)
+                    .paymentMethod("TRANSFERENCIA")
+                    .total(java.math.BigDecimal.valueOf(100))
+                    .discount(java.math.BigDecimal.ZERO)
+                    .receiptUrl("https://receipt.test/file.png")
+                    .build();
+            when(orderRepositoryPort.findByClientId(CLIENT_INTERNAL_ID)).thenReturn(List.of(order));
+
+            Reservation reservation = Reservation.builder()
+                    .id(50L)
+                    .uuid(reservationUuid)
+                    .details(List.of(new ReservationDetail(
+                            1L,
+                            UUID.randomUUID(),
+                            50L,
+                            400L,
+                            2,
+                            java.math.BigDecimal.valueOf(50),
+                            java.math.BigDecimal.valueOf(100))))
+                    .build();
+            when(reservationRepositoryPort.findById(50L)).thenReturn(Optional.of(reservation));
+
+            Service service = Service.builder().id(400L).uuid(serviceUuid).name("Netflix").build();
+            when(serviceRepositoryPort.findByInternalId(400L)).thenReturn(Optional.of(service));
+
+            // When
+            var orders = clientService.getMyOrders(EXTERNAL_ID);
+
+            // Then
+            assertThat(orders).hasSize(1);
+            assertThat(orders.get(0).id()).isEqualTo(orderUuid);
+            assertThat(orders.get(0).status()).isEqualTo("COMPLETED");
+            assertThat(orders.get(0).services()).hasSize(1);
+            assertThat(orders.get(0).services().get(0).serviceId()).isEqualTo(serviceUuid);
+            assertThat(orders.get(0).services().get(0).serviceName()).isEqualTo("Netflix");
+            assertThat(orders.get(0).services().get(0).quantity()).isEqualTo(2);
+        }
+
+        @Test
+        @DisplayName("getMyReservations (US-060) - should return authenticated client receipt statuses with rejection notes")
+        void getMyReservations_authenticatedClient_shouldReturnReceiptStatuses() {
+            // Given
+            User user = buildUser();
+            UUID reservationUuid = UUID.randomUUID();
+            UUID serviceUuid = UUID.randomUUID();
+
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(buildClient()));
+
+            Reservation reservation = Reservation.builder()
+                    .id(50L)
+                    .uuid(reservationUuid)
+                    .status(ReservationStatus.REJECTED)
+                    .total(java.math.BigDecimal.valueOf(100))
+                    .discount(java.math.BigDecimal.ZERO)
+                    .receiptUrl("https://receipt.test/file.png")
+                    .paymentMethod("TRANSFERENCIA")
+                    .notes("Comprobante ilegible")
+                    .details(List.of(new ReservationDetail(
+                            1L,
+                            UUID.randomUUID(),
+                            50L,
+                            400L,
+                            1,
+                            java.math.BigDecimal.valueOf(100),
+                            java.math.BigDecimal.valueOf(100))))
+                    .build();
+            when(reservationRepositoryPort.findByClientId(CLIENT_INTERNAL_ID))
+                    .thenReturn(List.of(reservation));
+
+            Service service = Service.builder().id(400L).uuid(serviceUuid).name("Netflix").build();
+            when(serviceRepositoryPort.findByInternalId(400L)).thenReturn(Optional.of(service));
+
+            // When
+            var reservations = clientService.getMyReservations(EXTERNAL_ID);
+
+            // Then
+            assertThat(reservations).hasSize(1);
+            assertThat(reservations.get(0).id()).isEqualTo(reservationUuid);
+            assertThat(reservations.get(0).status()).isEqualTo("REJECTED");
+            assertThat(reservations.get(0).notes()).isEqualTo("Comprobante ilegible");
+            assertThat(reservations.get(0).services()).hasSize(1);
+            assertThat(reservations.get(0).services().get(0).serviceName()).isEqualTo("Netflix");
+        }
+
+        @Test
+        @DisplayName("getMyProfile (US-062) - should return authenticated client profile")
+        void getMyProfile_authenticatedClient_shouldReturnProfile() {
+            // Given
+            User user = buildUser();
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(buildClient()));
+
+            // When
+            Client profile = clientService.getMyProfile(EXTERNAL_ID);
+
+            // Then
+            assertThat(profile.getUuid()).isEqualTo(CLIENT_UUID);
+            assertThat(profile.getEmail()).isEqualTo("juan@gmail.com");
+        }
+
+        @Test
+        @DisplayName("updateMyProfile (US-062) - should update name and phone without changing email or notes")
+        void updateMyProfile_authenticatedClient_shouldUpdateNameAndPhoneOnly() {
+            // Given
+            User user = buildUser();
+            Client existing = buildClient();
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(existing));
+            when(clientRepositoryPort.save(existing)).thenReturn(existing);
+
+            // When
+            Client updated = clientService.updateMyProfile("Juan Nuevo", "99998888", EXTERNAL_ID);
+
+            // Then
+            assertThat(updated.getName()).isEqualTo("Juan Nuevo");
+            assertThat(updated.getPhone()).isEqualTo("99998888");
+            assertThat(updated.getEmail()).isEqualTo("juan@gmail.com");
+            assertThat(updated.getNotes()).isEqualTo("Regular customer");
+            verify(clientRepositoryPort).save(existing);
         }
 
         @Test

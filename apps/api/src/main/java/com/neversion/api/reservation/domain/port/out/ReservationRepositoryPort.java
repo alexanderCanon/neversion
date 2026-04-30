@@ -27,6 +27,8 @@ public interface ReservationRepositoryPort {
 
     List<Reservation> findAll();
 
+    List<Reservation> findByClientId(Long clientId);
+
     List<Reservation> findByStatus(ReservationStatus status);
 
     int expirePendingReservations();

@@ -88,6 +88,17 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     }
 
     @Override
+    public List<Reservation> findByClientId(Long clientId) {
+        return reservationRepository.findByClientIdOrderByCreatedAtDesc(clientId).stream()
+                .map(entity -> {
+                    Reservation reservation = mapper.toDomain(entity);
+                    reservation.setDetails(findDetailsByReservationId(entity.getId()));
+                    return reservation;
+                })
+                .toList();
+    }
+
+    @Override
     public List<Reservation> findByStatus(ReservationStatus status) {
         return reservationRepository.findByStatus(status).stream()
                 .map(mapper::toDomain)

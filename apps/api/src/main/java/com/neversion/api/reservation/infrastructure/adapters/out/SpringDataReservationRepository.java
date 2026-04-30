@@ -20,6 +20,8 @@ interface SpringDataReservationRepository extends JpaRepository<ReservationEntit
 
   Optional<ReservationEntity> findByUuid(UUID uuid);
 
+  List<ReservationEntity> findByClientIdOrderByCreatedAtDesc(Long clientId);
+
   List<ReservationEntity> findByStatus(ReservationStatus status);
 
   @Query(value = """

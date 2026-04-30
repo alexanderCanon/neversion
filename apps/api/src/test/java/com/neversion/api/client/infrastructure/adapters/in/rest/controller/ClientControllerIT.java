@@ -38,6 +38,9 @@ import com.neversion.api.BaseIntegrationTest;
 import com.neversion.api.client.application.port.in.ClientUseCase;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderServiceDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 
@@ -229,6 +232,211 @@ class ClientControllerIT extends BaseIntegrationTest {
             mockMvc.perform(get("/api/v1/clients/me/accesses")
                             .header("Authorization", "Bearer " + buildJwt("vendor")))
                     .andExpect(status().isForbidden());
+        }
+    }
+
+    // ── EPIC-09 / US-059: GET /clients/me/orders ────────────────────────
+
+    @Nested
+    @DisplayName("EPIC-09 / US-059 — GET /api/v1/clients/me/orders")
+    class GetMyOrders {
+
+        @Test
+        @DisplayName("should return 401 when no JWT provided")
+        void getMyOrders_noToken_shouldReturn401() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/orders"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("should return 200 when CLIENT role")
+        void getMyOrders_clientRole_shouldReturn200() throws Exception {
+            UUID orderId = UUID.randomUUID();
+            UUID serviceId = UUID.randomUUID();
+            when(clientUseCase.getMyOrders(anyString()))
+                    .thenReturn(List.of(new ClientOrderHistoryDetail(
+                            orderId,
+                            UUID.randomUUID(),
+                            "COMPLETED",
+                            "TRANSFERENCIA",
+                            java.math.BigDecimal.valueOf(100),
+                            java.math.BigDecimal.ZERO,
+                            "https://receipt.test/file.png",
+                            java.time.Instant.parse("2026-04-30T10:00:00Z"),
+                            java.time.Instant.parse("2026-04-30T09:00:00Z"),
+                            List.of(new ClientOrderServiceDetail(serviceId, "Netflix", 1)))));
+
+            mockMvc.perform(get("/api/v1/clients/me/orders")
+                            .header("Authorization", "Bearer " + buildJwt("client")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].id").value(orderId.toString()))
+                    .andExpect(jsonPath("$[0].status").value("COMPLETED"))
+                    .andExpect(jsonPath("$[0].total").value(100))
+                    .andExpect(jsonPath("$[0].services[0].serviceId").value(serviceId.toString()))
+                    .andExpect(jsonPath("$[0].services[0].serviceName").value("Netflix"));
+        }
+
+        @Test
+        @DisplayName("should return 403 when VENDOR role")
+        void getMyOrders_vendorRole_shouldReturn403() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/orders")
+                            .header("Authorization", "Bearer " + buildJwt("vendor")))
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    // ── EPIC-09 / US-060: GET /clients/me/reservations ───────────────────
+
+    @Nested
+    @DisplayName("EPIC-09 / US-060 — GET /api/v1/clients/me/reservations")
+    class GetMyReservations {
+
+        @Test
+        @DisplayName("should return 401 when no JWT provided")
+        void getMyReservations_noToken_shouldReturn401() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/reservations"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("should return 200 when CLIENT role")
+        void getMyReservations_clientRole_shouldReturn200() throws Exception {
+            UUID reservationId = UUID.randomUUID();
+            UUID serviceId = UUID.randomUUID();
+            when(clientUseCase.getMyReservations(anyString()))
+                    .thenReturn(List.of(new ClientReservationStatusDetail(
+                            reservationId,
+                            "REJECTED",
+                            java.math.BigDecimal.valueOf(100),
+                            java.math.BigDecimal.ZERO,
+                            "https://receipt.test/file.png",
+                            "TRANSFERENCIA",
+                            java.time.Instant.parse("2026-04-30T10:00:00Z"),
+                            java.time.Instant.parse("2026-04-30T09:00:00Z"),
+                            "Comprobante ilegible",
+                            null,
+                            List.of(new ClientOrderServiceDetail(serviceId, "Netflix", 1)))));
+
+            mockMvc.perform(get("/api/v1/clients/me/reservations")
+                            .header("Authorization", "Bearer " + buildJwt("client")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].id").value(reservationId.toString()))
+                    .andExpect(jsonPath("$[0].status").value("REJECTED"))
+                    .andExpect(jsonPath("$[0].notes").value("Comprobante ilegible"))
+                    .andExpect(jsonPath("$[0].services[0].serviceName").value("Netflix"));
+        }
+
+        @Test
+        @DisplayName("should return 403 when VENDOR role")
+        void getMyReservations_vendorRole_shouldReturn403() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/reservations")
+                            .header("Authorization", "Bearer " + buildJwt("vendor")))
+                    .andExpect(status().isForbidden());
+        }
+    }
+
+    // ── EPIC-09 / US-062: GET/PUT /clients/me ────────────────────────────
+
+    @Nested
+    @DisplayName("EPIC-09 / US-062 — GET/PUT /api/v1/clients/me")
+    class MyProfile {
+
+        @Test
+        @DisplayName("GET should return 401 when no JWT provided")
+        void getMyProfile_noToken_shouldReturn401() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("GET should return 200 when CLIENT role")
+        void getMyProfile_clientRole_shouldReturn200() throws Exception {
+            when(clientUseCase.getMyProfile(anyString())).thenReturn(buildClient());
+
+            mockMvc.perform(get("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("client")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(CLIENT_UUID.toString()))
+                    .andExpect(jsonPath("$.name").value("Juan Pérez"))
+                    .andExpect(jsonPath("$.email").value("juan@test.com"));
+        }
+
+        @Test
+        @DisplayName("GET should return 403 when VENDOR role")
+        void getMyProfile_vendorRole_shouldReturn403() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("vendor")))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("PUT should return 401 when no JWT provided")
+        void updateMyProfile_noToken_shouldReturn401() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Juan Actualizado",
+                    "phone", "99998888"
+            ));
+
+            mockMvc.perform(put("/api/v1/clients/me")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("PUT should return 403 when VENDOR role")
+        void updateMyProfile_vendorRole_shouldReturn403() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Juan Actualizado",
+                    "phone", "99998888"
+            ));
+
+            mockMvc.perform(put("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("vendor"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("PUT should return 400 when name is missing")
+        void updateMyProfile_missingName_shouldReturn400() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of("phone", "99998888"));
+
+            mockMvc.perform(put("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("client"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("PUT should update name and phone when CLIENT role")
+        void updateMyProfile_clientRole_shouldReturn200() throws Exception {
+            Client updated = Client.builder()
+                    .id(1L).uuid(CLIENT_UUID).vendorId(10L)
+                    .name("Juan Actualizado")
+                    .email("juan@test.com")
+                    .phone("99998888")
+                    .notes("Test")
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            when(clientUseCase.updateMyProfile(eq("Juan Actualizado"), eq("99998888"), anyString()))
+                    .thenReturn(updated);
+
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Juan Actualizado",
+                    "phone", "99998888"
+            ));
+
+            mockMvc.perform(put("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("client"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Juan Actualizado"))
+                    .andExpect(jsonPath("$.phone").value("99998888"))
+                    .andExpect(jsonPath("$.email").value("juan@test.com"));
         }
     }
 

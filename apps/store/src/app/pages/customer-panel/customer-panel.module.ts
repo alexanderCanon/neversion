@@ -1,8 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { CustomerPanelComponent } from './customer-panel.component';
 import { AccessesComponent } from './components/accesses/accesses.component';
+import { OrdersComponent } from './components/orders/orders.component';
+import { ReceiptsComponent } from './components/receipts/receipts.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
   { path: '', component: CustomerPanelComponent }
@@ -11,10 +15,14 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     CustomerPanelComponent,
-    AccessesComponent
+    AccessesComponent,
+    OrdersComponent,
+    ReceiptsComponent,
+    ProfileComponent
   ],
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     RouterModule.forChild(routes)
   ]
 })

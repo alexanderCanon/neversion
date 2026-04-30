@@ -183,7 +183,7 @@ export class ReservationsApiService extends BaseService {
      * Create a renewal reservation
      * EPIC-09 / US-061: Authenticated clients request a renewal for one of their own subscriptions. The subscription is renewed only after vendor approval of the receipt.
      * @endpoint post /api/v1/reservations/renew
-     * @param createRenewalReservationRequest
+     * @param createRenewalReservationRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
