@@ -1,9 +1,12 @@
 package com.neversion.api.dashboard.application.port.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
+import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
 
@@ -29,4 +32,17 @@ public interface DashboardQueryPort {
      * Endpoint 3: profiles for an account with subscription and customer data.
      */
     List<ProfileResult> findProfilesByAccountId(UUID accountId);
+
+    /**
+     * US-063: Vendor-scoped subscriptions due in the requested date window.
+     */
+    List<ExpiringSubscriptionResult> findExpiringSubscriptions(
+            Long vendorId,
+            LocalDate from,
+            LocalDate to);
+
+    /**
+     * US-064: Vendor-scoped inventory availability grouped by service.
+     */
+    List<InventoryAvailabilityResult> findInventoryAvailability(Long vendorId);
 }

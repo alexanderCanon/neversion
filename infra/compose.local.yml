@@ -19,7 +19,7 @@
 services:
   # ── Base de datos local (solo para API) ─────────────────────────
   db:
-    image: postgres:16-alpine
+    image: postgres:17
     container_name: neversion-db
     restart: unless-stopped
     environment:
