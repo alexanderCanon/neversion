@@ -99,7 +99,8 @@ public class RejectReservationService implements RejectReservationUseCase {
                             "{\"reservationId\":\"%s\",\"clientName\":\"%s\",\"reason\":\"%s\"}",
                             reservation.getUuid(), client.getName(), reason);
                     
-                    notificationLogPort.record("RECEIPT_REJECTED", client.getEmail(), payload);
+                    notificationLogPort.record("RECEIPT_REJECTED", client.getEmail(), payload,
+                            "order", reservation.getId(), "rejected");
                 });
     }
 }

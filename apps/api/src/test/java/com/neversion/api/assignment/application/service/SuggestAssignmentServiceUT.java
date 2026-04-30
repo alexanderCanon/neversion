@@ -111,7 +111,8 @@ class SuggestAssignmentServiceUT {
 
         assertThat(result.hasSuggestion()).isFalse();
         assertThat(result.noInventoryReason()).isEqualTo("NO_AVAILABLE_PROFILE");
-        verify(notificationLogPort).record(eq("NO_INVENTORY_ALERT"), eq("vendor:7"), org.mockito.ArgumentMatchers.contains("\"vendorId\":7"));
+        verify(notificationLogPort).record(eq("NO_INVENTORY_ALERT"), eq("vendor:7"), org.mockito.ArgumentMatchers.contains("\"vendorId\":7"),
+                eq("vendor"), eq(7L), eq("no_inventory"));
     }
 
     @Test

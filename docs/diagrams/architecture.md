@@ -16,13 +16,15 @@ graph TD
     subgraph Backend_Layer [Capa de Aplicación]
         API[Spring Boot API]
         Client_Lib[API Client - Generated TS]
+        Worker[Notification Worker]
     end
 
     subgraph Persistence_Layer [Capa de Datos]
         DB[(PostgreSQL)]
     end
 
-    subgraph Automation [Automatización]
+    subgraph Notifications [Notificaciones]
+        Resend[Resend - Email API]
         n8n[n8n / WhatsApp]
     end
 
@@ -31,10 +33,12 @@ graph TD
     Client_Lib -->|REST / JWT| API
     
     API -->|JPA / Flyway| DB
+    Worker -->|Procesa pending| DB
     
     Store -.->|Auth| Supabase
     Panel -.->|Auth| Supabase
     
+    Worker -.->|Send| Resend
     API -.->|Events| n8n
     n8n -.->|WhatsApp| Store
 ```
@@ -44,5 +48,8 @@ graph TD
 2.  **Panel App:** Interfaz administrativa para Vendedores (Inventario, Órdenes, Clientes).
 3.  **Supabase Auth:** Gestiona la autenticación externa y provee el `externalId` (UUID).
 4.  **Spring Boot API:** Núcleo del sistema (Reglas de negocio, Hexagonal Architecture).
-5.  **API Client:** Paquete compartido que garantiza contratos tipados entre el backend y los frontends.
-6.  **n8n:** Orquestador de notificaciones externas (WhatsApp/Email).
+5.  **Notification Worker:** Proceso interno que consume `notification_log` (PENDING) y envía correos vía Resend (EPIC-08).
+6.  **Resend:** Servicio externo de envío de correos transaccionales.
+7.  **API Client:** Paquete compartido que garantiza contratos tipados entre el backend y los frontends.
+8.  **n8n:** Orquestador de notificaciones externas (WhatsApp).
+

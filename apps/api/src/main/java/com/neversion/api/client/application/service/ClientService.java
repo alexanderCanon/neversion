@@ -179,7 +179,8 @@ public class ClientService implements ClientUseCase {
         // Notification log — EPIC-08 will send the actual email
         String payload = String.format("{\"clientId\":\"%s\",\"name\":\"%s\",\"email\":\"%s\"}",
                 saved.getUuid(), saved.getName(), saved.getEmail());
-        notificationLogPort.record("CLIENT_WELCOME", saved.getEmail(), payload);
+        notificationLogPort.record("CLIENT_WELCOME", saved.getEmail(), payload,
+                "client", saved.getId(), "welcome");
 
         return saved;
     }

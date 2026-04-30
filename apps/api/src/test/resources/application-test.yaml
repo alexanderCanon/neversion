@@ -20,3 +20,11 @@ neversion:
   cron:
     subscription-expiry:
       enabled: false
+    notification-worker:
+      enabled: false
+    renewal-reminders:
+      enabled: false
+  email:
+    resend:
+      api-key: re_test_placeholder
+    from: "Test <test@neversion.com>"

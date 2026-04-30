@@ -114,7 +114,8 @@ class UploadReceiptServiceUT {
         verify(notificationLogPort, times(1)).record(
                 eq("RECEIPT_UPLOADED"), 
                 eq("notify-vendor@neversion.local"), 
-                any(String.class));
+                any(String.class),
+                eq("order"), any(), eq("receipt_uploaded"));
     }
 
     @Test

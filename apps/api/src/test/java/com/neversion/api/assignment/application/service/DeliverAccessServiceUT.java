@@ -1,6 +1,7 @@
 package com.neversion.api.assignment.application.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,7 +75,8 @@ class DeliverAccessServiceUT {
                 .build());
 
         ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
-        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("ana@example.com"), payloadCaptor.capture());
+        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("ana@example.com"), payloadCaptor.capture(),
+                eq("subscription"), any(), eq("access_delivered"));
         assertThat(payloadCaptor.getValue()).contains(
                 "\"subscriptionId\":\"" + subscriptionUuid + "\"",
                 "\"serviceName\":\"Netflix\"",
@@ -120,7 +122,8 @@ class DeliverAccessServiceUT {
                 .build());
 
         ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
-        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("ana@example.com"), payloadCaptor.capture());
+        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("ana@example.com"), payloadCaptor.capture(),
+                eq("subscription"), any(), eq("access_delivered"));
         assertThat(payloadCaptor.getValue()).doesNotContain("\"pin\"");
     }
 

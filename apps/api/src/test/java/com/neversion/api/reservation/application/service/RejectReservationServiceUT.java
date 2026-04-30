@@ -112,7 +112,8 @@ class RejectReservationServiceUT {
         verify(notificationLogPort, times(1)).record(
                 eq("RECEIPT_REJECTED"), 
                 eq("client@test.com"), 
-                any(String.class));
+                any(String.class),
+                eq("order"), any(), eq("rejected"));
     }
 
     @Test

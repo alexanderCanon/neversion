@@ -75,7 +75,8 @@ public class RegisterClientService implements RegisterClientUseCase {
         String payload = String.format(
                 "{\"email\":\"%s\",\"name\":\"%s\",\"externalId\":\"%s\"}",
                 command.email(), command.name(), command.externalId());
-        notificationLogPort.record("CLIENT_REGISTRATION", command.email(), payload);
+        notificationLogPort.record("CLIENT_REGISTRATION", command.email(), payload,
+                "client", client.getId(), "welcome");
 
         return new RegisterClientResult(
                 user.getUuid(),

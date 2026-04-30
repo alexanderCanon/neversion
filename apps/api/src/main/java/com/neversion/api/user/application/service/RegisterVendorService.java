@@ -63,7 +63,8 @@ public class RegisterVendorService implements RegisterVendorUseCase {
         String payload = String.format(
                 "{\"email\":\"%s\",\"storeName\":\"%s\",\"externalId\":\"%s\"}",
                 command.email(), command.storeName(), command.externalId());
-        notificationLogPort.record("VENDOR_WELCOME", command.email(), payload);
+        notificationLogPort.record("VENDOR_WELCOME", command.email(), payload,
+                "vendor", vendor.getId(), "welcome");
 
         return new RegisterVendorResult(
                 user.getUuid(),

@@ -76,7 +76,8 @@ class RegisterVendorServiceUT {
 
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
-        doNothing().when(notificationLogPort).record(anyString(), anyString(), anyString());
+        doNothing().when(notificationLogPort).record(anyString(), anyString(), anyString(),
+                anyString(), any(), anyString());
 
         // Act
         RegisterVendorResult result = sut.register(command);
@@ -91,7 +92,8 @@ class RegisterVendorServiceUT {
         verify(userRepositoryPort, times(1)).save(any(User.class));
         verify(vendorRepositoryPort, times(1)).save(any(Vendor.class));
         verify(notificationLogPort, times(1))
-                .record(eq("VENDOR_WELCOME"), eq("vendor@test.com"), anyString());
+                .record(eq("VENDOR_WELCOME"), eq("vendor@test.com"), anyString(),
+                        eq("vendor"), eq(1L), eq("welcome"));
     }
 
     @Test
@@ -161,7 +163,8 @@ class RegisterVendorServiceUT {
         sut.register(buildCommand());
 
         // Assert
-        verify(notificationLogPort).record(anyString(), anyString(), payloadCaptor.capture());
+        verify(notificationLogPort).record(anyString(), anyString(), payloadCaptor.capture(),
+                anyString(), any(), anyString());
         String payload = payloadCaptor.getValue();
         assertThat(payload).contains("vendor@test.com");
         assertThat(payload).contains("Mi Tienda");

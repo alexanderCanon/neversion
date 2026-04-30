@@ -295,7 +295,8 @@ class ClientServiceUT {
             // Then
             assertThat(result.getVendorId()).isEqualTo(VENDOR_INTERNAL_ID);
             assertThat(result.getEmail()).isEqualTo("ana@test.com");
-            verify(notificationLogPort).record(eq("CLIENT_WELCOME"), eq("ana@test.com"), anyString());
+            verify(notificationLogPort).record(eq("CLIENT_WELCOME"), eq("ana@test.com"), anyString(),
+                    eq("client"), any(), eq("welcome"));
         }
 
         @Test

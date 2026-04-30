@@ -151,7 +151,8 @@ class RenewSubscriptionServiceUT {
             assertThat(result.getMonthsPaid()).isEqualTo(2L);
             assertThat(profile.getStatus()).isEqualTo(ProfileStatus.ACTIVE);
             verify(profileRepositoryPort).save(profile);
-            verify(notificationLogPort).record(eq("SUBSCRIPTION_RENEWED"), eq("client@test.com"), contains(SUBSCRIPTION_UUID.toString()));
+            verify(notificationLogPort).record(eq("SUBSCRIPTION_RENEWED"), eq("client@test.com"), contains(SUBSCRIPTION_UUID.toString()),
+                    eq("subscription"), eq(1L), eq("renewed"));
         }
 
         @Test

@@ -110,7 +110,8 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
         String payload = String.format(
                 "{\"subscriptionId\":\"%s\",\"clientId\":\"%s\"}",
                 subscription.getUuid(), client.getUuid());
-        notificationLogPort.record("ACCESS_REVOKED", client.getEmail(), payload);
+        notificationLogPort.record("ACCESS_REVOKED", client.getEmail(), payload,
+                "subscription", subscription.getId(), "revoked");
     }
 
     private Long resolveVendorId(String callerExternalId) {

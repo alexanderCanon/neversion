@@ -27,6 +27,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
@@ -43,6 +45,7 @@ class DetectExpiredSubscriptionsServiceUT {
     @Mock private SubscriptionRepositoryPort subscriptionRepositoryPort;
     @Mock private ProfileRepositoryPort profileRepositoryPort;
     @Mock private AccountRepositoryPort accountRepositoryPort;
+    @Mock private ClientRepositoryPort clientRepositoryPort;
     @Mock private NotificationLogPort notificationLogPort;
 
     private DetectExpiredSubscriptionsService detectExpiredSubscriptionsService;
@@ -59,6 +62,7 @@ class DetectExpiredSubscriptionsServiceUT {
                 subscriptionRepositoryPort,
                 profileRepositoryPort,
                 accountRepositoryPort,
+                clientRepositoryPort,
                 notificationLogPort,
                 FIXED_CLOCK);
     }
@@ -147,6 +151,7 @@ class DetectExpiredSubscriptionsServiceUT {
 
             assertThat(result).isZero();
             verify(notificationLogPort, never()).record(any(), any(), any());
+            verify(notificationLogPort, never()).record(any(), any(), any(), any(), any(), any());
         }
 
         @Test
@@ -176,7 +181,8 @@ class DetectExpiredSubscriptionsServiceUT {
             verify(notificationLogPort).record(
                     eq("SUBSCRIPTIONS_EXPIRED_DAILY"),
                     eq("vendor:" + VENDOR_ID),
-                    contains("\"expiredCount\":2"));
+                    contains("\"expiredCount\":2"),
+                    eq("vendor"), eq(VENDOR_ID), eq("expired_daily"));
         }
     }
 }

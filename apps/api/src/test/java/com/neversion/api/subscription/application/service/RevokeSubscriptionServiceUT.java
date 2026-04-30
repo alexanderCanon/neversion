@@ -139,7 +139,8 @@ class RevokeSubscriptionServiceUT {
             assertThat(result.getStatus()).isEqualTo(SubStatus.CANCELLED);
             assertThat(profile.getStatus()).isEqualTo(ProfileStatus.AVAILABLE);
             verify(profileRepositoryPort).save(profile);
-            verify(notificationLogPort).record(eq("ACCESS_REVOKED"), eq("client@test.com"), contains(SUBSCRIPTION_UUID.toString()));
+            verify(notificationLogPort).record(eq("ACCESS_REVOKED"), eq("client@test.com"), contains(SUBSCRIPTION_UUID.toString()),
+                    eq("subscription"), eq(1L), eq("revoked"));
         }
 
         @Test
@@ -215,7 +216,8 @@ class RevokeSubscriptionServiceUT {
             verify(notificationLogPort).record(
                     eq("ACCESS_REVOKED"),
                     eq("client@test.com"),
-                    contains(SUBSCRIPTION_UUID.toString()));
+                    contains(SUBSCRIPTION_UUID.toString()),
+                    eq("subscription"), eq(1L), eq("revoked"));
         }
     }
 }

@@ -113,7 +113,8 @@ public class ValidateReservationService implements ValidateReservationUseCase {
                             "{\"reservationId\":\"%s\",\"clientName\":\"%s\",\"storeName\":\"%s\",\"total\":\"%s\"}",
                             reservation.getUuid(), client.getName(), vendor.getStoreName(), reservation.getTotal());
 
-                    notificationLogPort.record("PAYMENT_APPROVED", client.getEmail(), payload);
+                    notificationLogPort.record("PAYMENT_APPROVED", client.getEmail(), payload,
+                            "order", reservation.getId(), "approved");
                 });
     }
 }

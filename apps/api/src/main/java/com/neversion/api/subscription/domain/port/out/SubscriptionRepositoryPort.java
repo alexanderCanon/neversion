@@ -44,5 +44,11 @@ public interface SubscriptionRepositoryPort {
      */
     List<Subscription> findOverdue(LocalDate asOf);
 
+    /**
+     * US-054: Finds active subscriptions due on a specific date.
+     * Used by renewal reminder cron to detect 7d/3d/1d upcoming renewals.
+     */
+    List<Subscription> findActiveByPaymentDueDate(LocalDate dueDate);
+
     void deleteById(UUID uuid);
 }

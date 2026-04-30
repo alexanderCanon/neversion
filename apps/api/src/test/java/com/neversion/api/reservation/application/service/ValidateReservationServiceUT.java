@@ -117,7 +117,8 @@ class ValidateReservationServiceUT {
                 eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes));
 
         // Verify PAYMENT_APPROVED notification (US-035 CA4)
-        verify(notificationLogPort).record(eq("PAYMENT_APPROVED"), eq("juan@test.com"), any(String.class));
+        verify(notificationLogPort).record(eq("PAYMENT_APPROVED"), eq("juan@test.com"), any(String.class),
+                eq("order"), any(), eq("approved"));
     }
 
     @Test

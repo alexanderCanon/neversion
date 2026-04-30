@@ -136,7 +136,8 @@ public class SuggestAssignmentService implements SuggestAssignmentUseCase {
                     "vendorId", vendorId,
                     "orderId", orderUuid,
                     "serviceId", serviceId));
-            notificationLogPort.record("NO_INVENTORY_ALERT", "vendor:" + vendorId, payload);
+            notificationLogPort.record("NO_INVENTORY_ALERT", "vendor:" + vendorId, payload,
+                    "vendor", vendorId, "no_inventory");
         } catch (RuntimeException ex) {
             log.warn("Unable to record no-inventory alert for order {}.", orderUuid, ex);
         }

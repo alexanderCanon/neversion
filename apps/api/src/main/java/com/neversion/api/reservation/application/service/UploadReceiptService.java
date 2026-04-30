@@ -96,6 +96,7 @@ public class UploadReceiptService implements UploadReceiptUseCase {
                 reservation.getUuid(), vendor.getUuid(), user.getExternalId(),
                 vendor.getStoreName(), reservation.getTotal());
 
-        notificationLogPort.record("RECEIPT_UPLOADED", "notify-vendor@neversion.local", payload);
+        notificationLogPort.record("RECEIPT_UPLOADED", "notify-vendor@neversion.local", payload,
+                "order", reservation.getId(), "receipt_uploaded");
     }
 }

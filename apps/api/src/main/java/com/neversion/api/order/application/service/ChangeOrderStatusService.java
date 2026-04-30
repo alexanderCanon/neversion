@@ -111,7 +111,11 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                             "{\"orderId\":\"%s\",\"clientName\":\"%s\",\"status\":\"%s\"}",
                             order.getUuid(), client.getName(), order.getStatus());
                     
-                    notificationLogPort.record(eventType, client.getEmail(), payload);
+                    String stage = order.getStatus() == OrderStatus.COMPLETED 
+                            ? "completed" : "cancelled";
+                    
+                    notificationLogPort.record(eventType, client.getEmail(), payload,
+                            "order", order.getId(), stage);
                 });
     }
 }

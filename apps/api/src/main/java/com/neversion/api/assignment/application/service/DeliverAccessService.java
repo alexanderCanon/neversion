@@ -68,6 +68,7 @@ public class DeliverAccessService implements DeliverAccessUseCase {
         payload.put("endDate", subscription.getEndDate() != null ? subscription.getEndDate().toString() : null);
         payload.put("clientName", client.getName());
 
-        notificationLogPort.record("ACCESS_DELIVERED", client.getEmail(), payloadWriter.write(payload));
+        notificationLogPort.record("ACCESS_DELIVERED", client.getEmail(), payloadWriter.write(payload),
+                "subscription", subscription.getId(), "access_delivered");
     }
 }

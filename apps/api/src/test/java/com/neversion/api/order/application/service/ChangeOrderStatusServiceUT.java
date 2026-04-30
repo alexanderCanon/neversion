@@ -103,7 +103,8 @@ class ChangeOrderStatusServiceUT {
         assertThat(result.getStatus()).isEqualTo(OrderStatus.COMPLETED);
         assertThat(result.getNotes()).isEqualTo("Done");
         verify(orderStatusHistoryPort).record(any(OrderStatusChange.class));
-        verify(notificationLogPort).record(eq("ORDER_COMPLETED"), eq("client@test.com"), any(String.class));
+        verify(notificationLogPort).record(eq("ORDER_COMPLETED"), eq("client@test.com"), any(String.class),
+                eq("order"), any(), eq("completed"));
     }
 
     @Test
@@ -123,7 +124,8 @@ class ChangeOrderStatusServiceUT {
         // Then
         assertThat(result.getStatus()).isEqualTo(OrderStatus.CANCELLED);
         verify(orderStatusHistoryPort).record(any(OrderStatusChange.class));
-        verify(notificationLogPort).record(eq("ORDER_CANCELLED"), eq("client@test.com"), any(String.class));
+        verify(notificationLogPort).record(eq("ORDER_CANCELLED"), eq("client@test.com"), any(String.class),
+                eq("order"), any(), eq("cancelled"));
     }
 
     @Test

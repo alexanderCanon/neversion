@@ -87,7 +87,8 @@ class RegisterClientServiceUT {
         verify(userRepositoryPort, times(1)).save(any(User.class));
         verify(clientRepositoryPort, times(1)).save(any(Client.class));
         verify(notificationLogPort, times(1))
-                .record(eq("CLIENT_REGISTRATION"), eq("cliente@correo.com"), anyString());
+                .record(eq("CLIENT_REGISTRATION"), eq("cliente@correo.com"), anyString(),
+                        eq("client"), eq(1L), eq("welcome"));
     }
 
     @Test
@@ -127,7 +128,8 @@ class RegisterClientServiceUT {
 
         sut.register(buildCommand());
 
-        verify(notificationLogPort).record(anyString(), anyString(), payloadCaptor.capture());
+        verify(notificationLogPort).record(anyString(), anyString(), payloadCaptor.capture(),
+                anyString(), any(), anyString());
         String payload = payloadCaptor.getValue();
         assertThat(payload).contains("cliente@correo.com");
         assertThat(payload).contains("Juan Pérez");

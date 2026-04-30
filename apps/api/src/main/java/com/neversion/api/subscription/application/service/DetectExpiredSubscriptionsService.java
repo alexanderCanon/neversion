@@ -7,12 +7,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
@@ -30,9 +33,12 @@ import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort
 @Service
 public class DetectExpiredSubscriptionsService implements DetectExpiredSubscriptionsUseCase {
 
+    private static final Logger log = LoggerFactory.getLogger(DetectExpiredSubscriptionsService.class);
+
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
+    private final ClientRepositoryPort clientRepositoryPort;
     private final NotificationLogPort notificationLogPort;
     private final Clock clock;
 
@@ -40,11 +46,13 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
             SubscriptionRepositoryPort subscriptionRepositoryPort,
             ProfileRepositoryPort profileRepositoryPort,
             AccountRepositoryPort accountRepositoryPort,
+            ClientRepositoryPort clientRepositoryPort,
             NotificationLogPort notificationLogPort,
             Clock clock) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
+        this.clientRepositoryPort = clientRepositoryPort;
         this.notificationLogPort = notificationLogPort;
         this.clock = clock;
     }
@@ -67,6 +75,9 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
             expireInventory(account, profile);
             Subscription saved = subscriptionRepositoryPort.save(subscription);
 
+            // US-055: Notify the client that their subscription has expired
+            notifyClientExpired(saved);
+
             suspendedByVendor.computeIfAbsent(saved.getVendorId(), ignored -> new ArrayList<>()).add(saved);
         }
 
@@ -88,6 +99,26 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
         profileRepositoryPort.save(selectedProfile);
     }
 
+    /**
+     * US-055: Sends SUBSCRIPTION_EXPIRED notification to the client.
+     * Errors are logged but do not block the main flow.
+     */
+    private void notifyClientExpired(Subscription subscription) {
+        try {
+            clientRepositoryPort.findByInternalId(subscription.getClientId())
+                    .ifPresent(client -> {
+                        String payload = String.format(
+                                "{\"subscriptionId\":\"%s\",\"clientName\":\"%s\"}",
+                                subscription.getUuid(), client.getName());
+                        notificationLogPort.record("SUBSCRIPTION_EXPIRED", client.getEmail(), payload,
+                                "subscription", subscription.getId(), "due");
+                    });
+        } catch (Exception e) {
+            log.warn("Failed to record client expiry notification for subscription {}: {}",
+                    subscription.getUuid(), e.getMessage());
+        }
+    }
+
     private void recordVendorSummary(Long vendorId, List<Subscription> subscriptions) {
         String subscriptionIds = subscriptions.stream()
                 .map(subscription -> "\"" + subscription.getUuid() + "\"")
@@ -96,6 +127,7 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
         String payload = String.format(
                 "{\"vendorId\":%d,\"expiredCount\":%d,\"subscriptionIds\":[%s]}",
                 vendorId, subscriptions.size(), subscriptionIds);
-        notificationLogPort.record("SUBSCRIPTIONS_EXPIRED_DAILY", "vendor:" + vendorId, payload);
+        notificationLogPort.record("SUBSCRIPTIONS_EXPIRED_DAILY", "vendor:" + vendorId, payload,
+                "vendor", vendorId, "expired_daily");
     }
 }

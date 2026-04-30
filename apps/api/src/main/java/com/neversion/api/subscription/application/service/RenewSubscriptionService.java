@@ -132,7 +132,8 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
         String payload = String.format(
                 "{\"subscriptionId\":\"%s\",\"clientId\":\"%s\",\"paymentDueDate\":\"%s\"}",
                 subscription.getUuid(), client.getUuid(), subscription.getPaymentDueDate());
-        notificationLogPort.record("SUBSCRIPTION_RENEWED", client.getEmail(), payload);
+        notificationLogPort.record("SUBSCRIPTION_RENEWED", client.getEmail(), payload,
+                "subscription", subscription.getId(), "renewed");
     }
 
     private Long resolveVendorId(String callerExternalId) {

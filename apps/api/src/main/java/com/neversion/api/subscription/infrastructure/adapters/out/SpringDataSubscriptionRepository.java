@@ -51,4 +51,7 @@ public interface SpringDataSubscriptionRepository extends JpaRepository<Subscrip
      */
     @Query("SELECT s FROM SubscriptionEntity s WHERE s.paymentDueDate <= :asOf AND s.status = :status")
     List<SubscriptionEntity> findOverdue(@Param("asOf") LocalDate asOf, @Param("status") SubStatus status);
+
+    /** US-054: Finds active subscriptions due on a specific date for renewal reminders. */
+    List<SubscriptionEntity> findByPaymentDueDateAndStatus(LocalDate paymentDueDate, SubStatus status);
 }

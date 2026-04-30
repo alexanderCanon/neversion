@@ -94,6 +94,13 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     }
 
     @Override
+    public List<Subscription> findActiveByPaymentDueDate(LocalDate dueDate) {
+        return subscriptionRepo.findByPaymentDueDateAndStatus(dueDate, SubStatus.ACTIVE).stream()
+                .map(subscriptionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void deleteById(UUID uuid) {
         subscriptionRepo.findByUuid(uuid).ifPresent(e -> subscriptionRepo.deleteById(e.getId()));
     }
