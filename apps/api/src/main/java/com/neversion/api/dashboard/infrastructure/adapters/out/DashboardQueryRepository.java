@@ -1,6 +1,8 @@
 package com.neversion.api.dashboard.infrastructure.adapters.out;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,5 +226,68 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                 rs.getLong("occupied_profiles"),
                 rs.getLong("available_full_accounts"),
                 rs.getLong("occupied_full_accounts")), vendorId);
+    }
+
+    @Override
+    public long countActiveClients(Long vendorId) {
+        String sql = """
+                SELECT COUNT(DISTINCT s.client_id)
+                FROM subscriptions s
+                WHERE s.vendor_id = ?
+                  AND s.status = 'ACTIVE'
+                """;
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, vendorId);
+        return result != null ? result : 0L;
+    }
+
+    @Override
+    public long countSuccessfulRenewals(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart) {
+        String sql = """
+                SELECT COUNT(*)
+                FROM orders o
+                JOIN reservations r ON r.id = o.reservation_id
+                WHERE o.vendor_id = ?
+                  AND o.status IN ('COMPLETED', 'completed')
+                  AND r.renewal_subscription_id IS NOT NULL
+                  AND o.approved_at >= ?
+                  AND o.approved_at < ?
+                """;
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, vendorId, periodStart, nextPeriodStart);
+        return result != null ? result : 0L;
+    }
+
+    @Override
+    public BigDecimal calculateGrossProfit(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart) {
+        String sql = """
+                SELECT COALESCE(SUM(profit_amount), 0)
+                FROM (
+                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    FROM subscriptions s
+                    WHERE s.vendor_id = ?
+                      AND s.created_at >= ?
+                      AND s.created_at < ?
+
+                    UNION ALL
+
+                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    FROM orders o
+                    JOIN reservations r ON r.id = o.reservation_id
+                    JOIN subscriptions s ON s.id = r.renewal_subscription_id
+                    WHERE o.vendor_id = ?
+                      AND o.status IN ('COMPLETED', 'completed')
+                      AND o.approved_at >= ?
+                      AND o.approved_at < ?
+                ) profit_events
+                """;
+        BigDecimal result = jdbcTemplate.queryForObject(
+                sql,
+                BigDecimal.class,
+                vendorId,
+                periodStart,
+                nextPeriodStart,
+                vendorId,
+                periodStart,
+                nextPeriodStart);
+        return result != null ? result : BigDecimal.ZERO;
     }
 }

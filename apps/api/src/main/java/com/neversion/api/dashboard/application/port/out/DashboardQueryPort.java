@@ -1,6 +1,8 @@
 package com.neversion.api.dashboard.application.port.out;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -45,4 +47,19 @@ public interface DashboardQueryPort {
      * US-064: Vendor-scoped inventory availability grouped by service.
      */
     List<InventoryAvailabilityResult> findInventoryAvailability(Long vendorId);
+
+    /**
+     * US-065: Vendor-scoped unique clients with at least one active subscription.
+     */
+    long countActiveClients(Long vendorId);
+
+    /**
+     * US-066: Vendor-scoped successful renewal orders in the requested period.
+     */
+    long countSuccessfulRenewals(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart);
+
+    /**
+     * US-067: Vendor-scoped gross profit from created subscriptions and successful renewals.
+     */
+    BigDecimal calculateGrossProfit(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart);
 }

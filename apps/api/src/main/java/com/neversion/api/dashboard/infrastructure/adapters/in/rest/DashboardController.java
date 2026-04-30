@@ -11,16 +11,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.dashboard.application.port.in.GetActiveClientsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetAccountsByProductUseCase;
 import com.neversion.api.dashboard.application.port.in.GetExpiringSubscriptionsKpiUseCase;
+import com.neversion.api.dashboard.application.port.in.GetGrossProfitKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetInventoryAvailabilityKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetProductsSummaryUseCase;
 import com.neversion.api.dashboard.application.port.in.GetProfilesByAccountUseCase;
+import com.neversion.api.dashboard.application.port.in.GetSuccessfulRenewalsKpiUseCase;
+import com.neversion.api.dashboard.application.result.ActiveClientsKpiResult;
 import com.neversion.api.dashboard.application.result.AccountGroupResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionsKpiResult;
+import com.neversion.api.dashboard.application.result.GrossProfitKpiResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
+import com.neversion.api.dashboard.application.result.SuccessfulRenewalsKpiResult;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,17 +44,26 @@ public class DashboardController {
     private final GetProfilesByAccountUseCase getProfilesByAccountUseCase;
     private final GetExpiringSubscriptionsKpiUseCase getExpiringSubscriptionsKpiUseCase;
     private final GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase;
+    private final GetActiveClientsKpiUseCase getActiveClientsKpiUseCase;
+    private final GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase;
+    private final GetGrossProfitKpiUseCase getGrossProfitKpiUseCase;
 
     public DashboardController(GetProductsSummaryUseCase getProductsSummaryUseCase,
             GetAccountsByProductUseCase getAccountsByProductUseCase,
             GetProfilesByAccountUseCase getProfilesByAccountUseCase,
             GetExpiringSubscriptionsKpiUseCase getExpiringSubscriptionsKpiUseCase,
-            GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase) {
+            GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase,
+            GetActiveClientsKpiUseCase getActiveClientsKpiUseCase,
+            GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase,
+            GetGrossProfitKpiUseCase getGrossProfitKpiUseCase) {
         this.getProductsSummaryUseCase = getProductsSummaryUseCase;
         this.getAccountsByProductUseCase = getAccountsByProductUseCase;
         this.getProfilesByAccountUseCase = getProfilesByAccountUseCase;
         this.getExpiringSubscriptionsKpiUseCase = getExpiringSubscriptionsKpiUseCase;
         this.getInventoryAvailabilityKpiUseCase = getInventoryAvailabilityKpiUseCase;
+        this.getActiveClientsKpiUseCase = getActiveClientsKpiUseCase;
+        this.getSuccessfulRenewalsKpiUseCase = getSuccessfulRenewalsKpiUseCase;
+        this.getGrossProfitKpiUseCase = getGrossProfitKpiUseCase;
     }
 
     @GetMapping("/kpis/expiring-subscriptions")
@@ -71,6 +86,36 @@ public class DashboardController {
     public ResponseEntity<List<InventoryAvailabilityResult>> getInventoryAvailability(
             JwtAuthenticationToken token) {
         return ResponseEntity.ok(getInventoryAvailabilityKpiUseCase
+                .getForAuthenticatedVendor(extractExternalId(token)));
+    }
+
+    @GetMapping("/kpis/active-clients")
+    @Operation(summary = "Get active clients KPI (US-065)",
+            description = "Returns the authenticated vendor's unique clients with at least one active subscription.")
+    @ApiResponse(responseCode = "200", description = "Active clients KPI retrieved")
+    @ApiResponse(responseCode = "403", description = "Only vendors can access this KPI")
+    public ResponseEntity<ActiveClientsKpiResult> getActiveClients(JwtAuthenticationToken token) {
+        return ResponseEntity.ok(getActiveClientsKpiUseCase
+                .getForAuthenticatedVendor(extractExternalId(token)));
+    }
+
+    @GetMapping("/kpis/successful-renewals")
+    @Operation(summary = "Get successful renewals KPI (US-066)",
+            description = "Returns the authenticated vendor's successful renewal count for the current month.")
+    @ApiResponse(responseCode = "200", description = "Successful renewals KPI retrieved")
+    @ApiResponse(responseCode = "403", description = "Only vendors can access this KPI")
+    public ResponseEntity<SuccessfulRenewalsKpiResult> getSuccessfulRenewals(JwtAuthenticationToken token) {
+        return ResponseEntity.ok(getSuccessfulRenewalsKpiUseCase
+                .getForAuthenticatedVendor(extractExternalId(token)));
+    }
+
+    @GetMapping("/kpis/gross-profit")
+    @Operation(summary = "Get gross profit KPI (US-067)",
+            description = "Returns the authenticated vendor's gross profit for the current calendar month in GTQ.")
+    @ApiResponse(responseCode = "200", description = "Gross profit KPI retrieved")
+    @ApiResponse(responseCode = "403", description = "Only vendors can access this KPI")
+    public ResponseEntity<GrossProfitKpiResult> getGrossProfit(JwtAuthenticationToken token) {
+        return ResponseEntity.ok(getGrossProfitKpiUseCase
                 .getForAuthenticatedVendor(extractExternalId(token)));
     }
 
