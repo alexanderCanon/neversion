@@ -15,6 +15,7 @@ export * from './clientSummary';
 export * from './confirmAssignmentRequest';
 export * from './confirmAssignmentResponse';
 export * from './createManualSubscriptionRequest';
+export * from './createRenewalReservationRequest';
 export * from './detectExpiredSubscriptionsResponse';
 export * from './financialSnapshot';
 export * from './manualAssignmentRequest';

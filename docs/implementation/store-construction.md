@@ -20,3 +20,4 @@ Este documento es el registro oficial de cambios y decisiones técnicas tomadas 
 
 | 2026-04-29 | EPIC-06 / US-041 | Client Accesses View. | Added `app-customer-accesses` inside `CustomerPanelComponent` to list active subscriptions. |
 | 2026-04-29 | EPIC-06 / US-041 | **Full Credentials View**: Refactored `AccessesComponent` to use `clientsApi.getMyAccesses()`. HTML template updated to display Service Name, Account Email, Password, and Profile PIN. Removed temporary security warning as credentials are now explicitly delivered. | Replaces generic list (IDs only) with full credential DTO. Uses JWT-based resolution for security. |
+| 2026-04-30 | EPIC-09 / US-061 | Client renewal request UI. | Added renewal CTA for ACTIVE/SUSPENDED subscriptions in `CustomerPanel`; calls `createRenewalReservation`, navigates to receipt upload with `flow=renewal`, and hides credentials for suspended subscriptions. Build passed with existing initial bundle budget warning. |

@@ -18,6 +18,7 @@ public class ReservationSecurityConfig implements HttpSecurityCustomizer {
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 // Public (store checkout flow)
+                .requestMatchers(HttpMethod.POST, "/api/v1/reservations/renew").hasRole("CLIENT")
                 .requestMatchers(HttpMethod.POST, "/api/v1/reservations").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/reservations/{id}").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/reservations/*/receipt").permitAll()

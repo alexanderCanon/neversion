@@ -22,5 +22,6 @@ public record ReservationResponse(
         String paymentMethod,
         Instant expirationDate,
         Instant createdAt,
+        UUID renewalSubscriptionId,
         List<ReservationDetailResponse> details) {
 }

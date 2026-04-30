@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 
@@ -20,6 +21,16 @@ interface SpringDataReservationRepository extends JpaRepository<ReservationEntit
   Optional<ReservationEntity> findByUuid(UUID uuid);
 
   List<ReservationEntity> findByStatus(ReservationStatus status);
+
+  @Query(value = """
+      SELECT EXISTS (
+        SELECT 1
+        FROM reservations
+        WHERE renewal_subscription_id = :subscriptionId
+          AND status IN ('pending', 'uploaded')
+      )
+      """, nativeQuery = true)
+  boolean existsActiveRenewalBySubscriptionId(@Param("subscriptionId") Long subscriptionId);
 
   @Modifying
   @Query(value = """

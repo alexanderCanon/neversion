@@ -58,6 +58,17 @@ sequenceDiagram
         B->>B: record(ACCESS_DELIVERED)
     end
 
+    Note over C, B: EPIC-09 US-061: Renovación solicitada por cliente
+    C->>B: Solicitar renovación (POST /reservations/renew)
+    B->>B: Validar ownership del cliente + suscripción ACTIVE/SUSPENDED
+    B-->>C: 201 Created (Reservación de Renovación)
+    C->>B: Subir Comprobante (PUT /reservations/{id}/receipt)
+    V->>B: Aprobar Comprobante (PUT /reservations/{id}/validate)
+    B->>B: Crear Orden VALIDATED
+    B->>B: Renovar Suscripción existente
+    B->>B: Marcar Orden COMPLETED
+    B->>B: record(SUBSCRIPTION_RENEWED)
+
     Note over W, R: EPIC-08: Entrega de Correos
     loop Cada 30 segundos
         W->>B: Fetch PENDING notifications (batch 50)
@@ -79,4 +90,3 @@ sequenceDiagram
 *   **VALIDATED:** Pago aprobado, lista para asignar perfiles.
 *   **COMPLETED:** Perfiles asignados y credenciales entregadas.
 *   **REJECTED / CANCELLED:** Flujos de excepción por pago inválido o expiración.
-

@@ -15,6 +15,8 @@ public interface ReservationRepositoryPort {
 
     boolean existsByReceiptUrl(String receiptUrl);
 
+    boolean existsActiveRenewalBySubscriptionId(Long subscriptionId);
+
     Reservation save(Reservation reservation);
 
     Reservation update(Reservation reservation);

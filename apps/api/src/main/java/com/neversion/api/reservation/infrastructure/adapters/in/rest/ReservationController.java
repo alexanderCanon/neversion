@@ -19,6 +19,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.reservation.application.port.in.CreateRenewalReservationUseCase;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.application.port.in.RejectReservationUseCase;
@@ -27,6 +28,7 @@ import com.neversion.api.reservation.application.port.in.ValidateReservationUseC
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
+import com.neversion.api.reservation.infrastructure.adapters.in.rest.dto.CreateRenewalReservationRequest;
 import com.neversion.api.reservation.infrastructure.adapters.in.rest.dto.ReservationRequest;
 import com.neversion.api.reservation.infrastructure.adapters.in.rest.dto.ReservationResponse;
 import com.neversion.api.reservation.infrastructure.adapters.in.rest.dto.UploadReceiptRequest;
@@ -45,6 +47,7 @@ import jakarta.validation.Valid;
 public class ReservationController {
 
     private final CreateReservationUseCase createReservationUseCase;
+    private final CreateRenewalReservationUseCase createRenewalReservationUseCase;
     private final UploadReceiptUseCase uploadReceiptUseCase;
     private final ValidateReservationUseCase validateReservationUseCase;
     private final RejectReservationUseCase rejectReservationUseCase;
@@ -54,6 +57,7 @@ public class ReservationController {
 
     public ReservationController(
             CreateReservationUseCase createReservationUseCase,
+            CreateRenewalReservationUseCase createRenewalReservationUseCase,
             UploadReceiptUseCase uploadReceiptUseCase,
             ValidateReservationUseCase validateReservationUseCase,
             RejectReservationUseCase rejectReservationUseCase,
@@ -61,6 +65,7 @@ public class ReservationController {
             ClientRepositoryPort clientRepositoryPort,
             ReservationRestMapper reservationRestMapper) {
         this.createReservationUseCase = createReservationUseCase;
+        this.createRenewalReservationUseCase = createRenewalReservationUseCase;
         this.uploadReceiptUseCase = uploadReceiptUseCase;
         this.validateReservationUseCase = validateReservationUseCase;
         this.rejectReservationUseCase = rejectReservationUseCase;
@@ -84,6 +89,27 @@ public class ReservationController {
         ReservationResponse response = reservationRestMapper.toResponse(reservation);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/renew")
+    @Operation(summary = "Create a renewal reservation",
+            description = "EPIC-09 / US-061: Authenticated clients request a renewal for one of their own subscriptions. "
+                    + "The subscription is renewed only after vendor approval of the receipt.")
+    @ApiResponse(responseCode = "201", description = "Renewal reservation created successfully")
+    @ApiResponse(responseCode = "400", description = "Subscription cannot be renewed or already has an active renewal reservation")
+    @ApiResponse(responseCode = "403", description = "Subscription does not belong to the authenticated client")
+    @ApiResponse(responseCode = "404", description = "Subscription or client not found")
+    public ResponseEntity<ReservationResponse> createRenewalReservation(
+            @Valid @RequestBody CreateRenewalReservationRequest request,
+            JwtAuthenticationToken token) {
+
+        Reservation reservation = createRenewalReservationUseCase.create(
+                request.subscriptionId(),
+                request.paymentMethod(),
+                extractExternalId(token));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(reservationRestMapper.toResponse(reservation));
     }
 
     // ── GET: List all reservations (Admin) ──────────────────────────────

@@ -36,6 +36,7 @@ model/clientSummary.ts
 model/confirmAssignmentRequest.ts
 model/confirmAssignmentResponse.ts
 model/createManualSubscriptionRequest.ts
+model/createRenewalReservationRequest.ts
 model/detectExpiredSubscriptionsResponse.ts
 model/financialSnapshot.ts
 model/manualAssignmentRequest.ts

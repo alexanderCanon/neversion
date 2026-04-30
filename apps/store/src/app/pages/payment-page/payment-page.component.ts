@@ -13,11 +13,15 @@ export class PaymentPageComponent implements OnInit {
   private readonly reservationsApi = inject(ReservationsApiService);
 
   reservationId: string | null = null;
+  flow: 'purchase' | 'renewal' = 'purchase';
   selectedFile: File | null = null;
   isUploading = false;
 
   ngOnInit(): void {
     this.reservationId = this.route.snapshot.queryParamMap.get('reservationId');
+    this.flow = this.route.snapshot.queryParamMap.get('flow') === 'renewal'
+      ? 'renewal'
+      : 'purchase';
     if (!this.reservationId) {
       this.router.navigate(['/platforms']);
     }
@@ -47,7 +51,7 @@ export class PaymentPageComponent implements OnInit {
     this.reservationsApi.uploadReceipt(this.reservationId, request).subscribe({
       next: () => {
         alert('Comprobante subido exitosamente. Tu orden está siendo procesada.');
-        this.router.navigate(['/platforms']); // Redirecting to platforms for now as customer panel is empty
+        this.router.navigate([this.flow === 'renewal' ? '/customer-panel' : '/platforms']);
       },
       error: (err) => {
         console.error('Error uploading receipt:', err);

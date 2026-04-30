@@ -73,6 +73,9 @@ public class ReservationEntity {
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "renewal_subscription_id")
+    private Long renewalSubscriptionId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 

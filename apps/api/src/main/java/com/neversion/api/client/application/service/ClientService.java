@@ -222,7 +222,8 @@ public class ClientService implements ClientUseCase {
 
         List<Subscription> subs = subscriptionRepositoryPort.findByClientId(clientId);
         return subs.stream()
-                .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                .filter(s -> SubStatus.ACTIVE.equals(s.getStatus())
+                        || SubStatus.SUSPENDED.equals(s.getStatus()))
                 .map(s -> {
                     Profile p = profileRepositoryPort.findByInternalId(s.getProfileId())
                             .orElseThrow(() -> new ResourceNotFoundException("Profile not found for sub: " + s.getUuid()));
@@ -234,10 +235,10 @@ public class ClientService implements ClientUseCase {
                     return new ClientAccessDetail(
                             s.getUuid(),
                             svc.getName(),
-                            a.getEmail(),
-                            a.getPassword(),
+                            SubStatus.ACTIVE.equals(s.getStatus()) ? a.getEmail() : null,
+                            SubStatus.ACTIVE.equals(s.getStatus()) ? a.getPassword() : null,
                             p.getName(),
-                            p.getPin(),
+                            SubStatus.ACTIVE.equals(s.getStatus()) ? p.getPin() : null,
                             s.getPaymentDueDate(),
                             s.getStatus().name());
                 })

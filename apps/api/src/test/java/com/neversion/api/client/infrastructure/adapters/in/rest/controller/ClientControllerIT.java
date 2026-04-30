@@ -36,6 +36,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.neversion.api.BaseIntegrationTest;
 import com.neversion.api.client.application.port.in.ClientUseCase;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
@@ -187,7 +188,52 @@ class ClientControllerIT extends BaseIntegrationTest {
         }
     }
 
+    // ── EPIC-09 / US-061: GET /clients/me/accesses ───────────────────────
+
+    @Nested
+    @DisplayName("EPIC-09 / US-061 — GET /api/v1/clients/me/accesses")
+    class GetMyAccesses {
+
+        @Test
+        @DisplayName("should return 401 when no JWT provided")
+        void getMyAccesses_noToken_shouldReturn401() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/accesses"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("should return 200 when CLIENT role")
+        void getMyAccesses_clientRole_shouldReturn200() throws Exception {
+            UUID subscriptionId = UUID.randomUUID();
+            when(clientUseCase.getMyAccesses(anyString()))
+                    .thenReturn(List.of(new ClientAccessDetail(
+                            subscriptionId,
+                            "Netflix",
+                            "account@test.com",
+                            "secret",
+                            "Perfil 1",
+                            "1234",
+                            java.time.LocalDate.now().plusDays(30),
+                            "ACTIVE")));
+
+            mockMvc.perform(get("/api/v1/clients/me/accesses")
+                            .header("Authorization", "Bearer " + buildJwt("client")))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].subscriptionId").value(subscriptionId.toString()))
+                    .andExpect(jsonPath("$[0].serviceName").value("Netflix"));
+        }
+
+        @Test
+        @DisplayName("should return 403 when VENDOR role")
+        void getMyAccesses_vendorRole_shouldReturn403() throws Exception {
+            mockMvc.perform(get("/api/v1/clients/me/accesses")
+                            .header("Authorization", "Bearer " + buildJwt("vendor")))
+                    .andExpect(status().isForbidden());
+        }
+    }
+
     // ── US-031: POST /clients ─────────────────────────────────────────────
+
 
     @Nested
     @DisplayName("US-031 — POST /api/v1/clients")

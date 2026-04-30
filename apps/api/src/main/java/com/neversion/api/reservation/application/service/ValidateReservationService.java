@@ -10,11 +10,19 @@ import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.order.application.port.in.CreateOrderUseCase;
+import com.neversion.api.order.domain.model.Order;
+import com.neversion.api.order.domain.model.OrderStatusChange;
+import com.neversion.api.order.domain.model.enums.OrderStatus;
+import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
+import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.reservation.application.port.in.ValidateReservationUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
+import com.neversion.api.subscription.application.port.in.RenewSubscriptionUseCase;
+import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
@@ -33,6 +41,10 @@ public class ValidateReservationService implements ValidateReservationUseCase {
 
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final CreateOrderUseCase createOrderUseCase;
+    private final RenewSubscriptionUseCase renewSubscriptionUseCase;
+    private final SubscriptionRepositoryPort subscriptionRepositoryPort;
+    private final OrderRepositoryPort orderRepositoryPort;
+    private final OrderStatusHistoryPort orderStatusHistoryPort;
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
@@ -41,12 +53,20 @@ public class ValidateReservationService implements ValidateReservationUseCase {
     public ValidateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
             CreateOrderUseCase createOrderUseCase,
+            RenewSubscriptionUseCase renewSubscriptionUseCase,
+            SubscriptionRepositoryPort subscriptionRepositoryPort,
+            OrderRepositoryPort orderRepositoryPort,
+            OrderStatusHistoryPort orderStatusHistoryPort,
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             NotificationLogPort notificationLogPort) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.createOrderUseCase = createOrderUseCase;
+        this.renewSubscriptionUseCase = renewSubscriptionUseCase;
+        this.subscriptionRepositoryPort = subscriptionRepositoryPort;
+        this.orderRepositoryPort = orderRepositoryPort;
+        this.orderStatusHistoryPort = orderStatusHistoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
@@ -86,7 +106,7 @@ public class ValidateReservationService implements ValidateReservationUseCase {
         Reservation updated = reservationRepositoryPort.update(reservation);
 
         // 4. Create the associated Order (EPIC-05 logic)
-        createOrderUseCase.createFromReservation(
+        Order order = createOrderUseCase.createFromReservation(
                 updated.getId(),
                 updated.getUuid(),
                 updated.getClientId(),
@@ -98,10 +118,35 @@ public class ValidateReservationService implements ValidateReservationUseCase {
                 notes
         );
 
+        if (updated.getRenewalSubscriptionId() != null) {
+            completeRenewal(updated, order, callerExternalId);
+        }
+
         // 5. Notify client — PAYMENT_APPROVED (US-035 CA4)
         notifyClient(updated, vendor);
 
         return updated;
+    }
+
+    private void completeRenewal(Reservation reservation, Order order, String callerExternalId) {
+        Subscription subscription = subscriptionRepositoryPort.findByInternalId(reservation.getRenewalSubscriptionId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Subscription not found for renewal reservation: " + reservation.getUuid()));
+
+        renewSubscriptionUseCase.renew(subscription.getUuid(), callerExternalId);
+
+        OrderStatus oldStatus = order.getStatus();
+        order.setStatus(OrderStatus.COMPLETED);
+        Order completed = orderRepositoryPort.save(order);
+
+        orderStatusHistoryPort.record(OrderStatusChange.builder()
+                .orderId(completed.getId())
+                .oldStatus(oldStatus)
+                .newStatus(OrderStatus.COMPLETED)
+                .changedBy(callerExternalId)
+                .notes("Renewal payment approved")
+                .changedAt(java.time.Instant.now())
+                .build());
     }
 
     private void notifyClient(Reservation reservation, Vendor vendor) {

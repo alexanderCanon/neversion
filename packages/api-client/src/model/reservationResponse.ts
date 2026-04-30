@@ -20,6 +20,7 @@ export interface ReservationResponse {
     paymentMethod?: string;
     expirationDate?: string;
     createdAt?: string;
+    renewalSubscriptionId?: string;
     details?: Array<ReservationDetailResponse>;
 }
 export namespace ReservationResponse {

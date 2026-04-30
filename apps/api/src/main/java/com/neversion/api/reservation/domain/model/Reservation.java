@@ -46,6 +46,8 @@ public class Reservation {
     private Instant expirationDate;
     private Instant createdAt;
     private String notes;
+    private Long renewalSubscriptionId;
+    private UUID renewalSubscriptionUuid;
     private List<ReservationDetail> details;
 
     public Reservation() {
@@ -54,7 +56,8 @@ public class Reservation {
     public Reservation(Long id, UUID uuid, Long clientId, UUID clientUuid, Long vendorId,
             BigDecimal discount, BigDecimal total, String receiptUrl, String paymentMethod,
             ReservationStatus status, Instant expirationDate,
-            Instant createdAt, String notes, List<ReservationDetail> details) {
+            Instant createdAt, String notes, Long renewalSubscriptionId, UUID renewalSubscriptionUuid,
+            List<ReservationDetail> details) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
@@ -68,6 +71,8 @@ public class Reservation {
         this.expirationDate = expirationDate;
         this.createdAt = createdAt;
         this.notes = notes;
+        this.renewalSubscriptionId = renewalSubscriptionId;
+        this.renewalSubscriptionUuid = renewalSubscriptionUuid;
         this.details = details;
     }
 }

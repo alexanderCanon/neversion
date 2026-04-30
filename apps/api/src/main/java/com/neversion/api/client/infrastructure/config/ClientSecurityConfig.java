@@ -30,6 +30,9 @@ public class ClientSecurityConfig implements HttpSecurityCustomizer {
                 // US-030 — Client detail with subscriptions + orders
                 .requestMatchers(HttpMethod.GET, "/api/v1/clients/*/detail")
                         .hasAnyRole("VENDOR", "SUPER_ADMIN")
+                // EPIC-09 / US-061 — Client panel access list used to start renewals
+                .requestMatchers(HttpMethod.GET, "/api/v1/clients/me/accesses")
+                        .hasRole("CLIENT")
                 // Generic get by UUID
                 .requestMatchers(HttpMethod.GET, "/api/v1/clients/**")
                         .hasAnyRole("VENDOR", "SUPER_ADMIN")

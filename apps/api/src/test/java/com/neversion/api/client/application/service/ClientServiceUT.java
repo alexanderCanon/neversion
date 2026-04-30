@@ -252,6 +252,42 @@ class ClientServiceUT {
         }
 
         @Test
+        @DisplayName("getMyAccesses (US-061) - should include suspended subscriptions without credentials")
+        void getMyAccesses_suspendedSubscription_shouldHideCredentials() {
+            // Given
+            User user = buildUser();
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(buildClient()));
+
+            Subscription suspendedSub = Subscription.builder()
+                    .id(1L).uuid(UUID.randomUUID()).clientId(CLIENT_INTERNAL_ID)
+                    .profileId(200L)
+                    .status(SubStatus.SUSPENDED).paymentDueDate(LocalDate.now().minusDays(1))
+                    .build();
+            when(subscriptionRepositoryPort.findByClientId(CLIENT_INTERNAL_ID))
+                    .thenReturn(List.of(suspendedSub));
+
+            Profile profile = Profile.builder().id(200L).accountId(300L).name("Profile 1").pin("1234").build();
+            when(profileRepositoryPort.findByInternalId(200L)).thenReturn(Optional.of(profile));
+
+            Account account = Account.builder().id(300L).serviceId(400L).email("acc@test.com").password("pass123").build();
+            when(accountRepositoryPort.findByInternalId(300L)).thenReturn(Optional.of(account));
+
+            Service service = Service.builder().id(400L).name("Netflix").build();
+            when(serviceRepositoryPort.findByInternalId(400L)).thenReturn(Optional.of(service));
+
+            // When
+            var accesses = clientService.getMyAccesses(EXTERNAL_ID);
+
+            // Then
+            assertThat(accesses).hasSize(1);
+            assertThat(accesses.get(0).status()).isEqualTo("SUSPENDED");
+            assertThat(accesses.get(0).accountEmail()).isNull();
+            assertThat(accesses.get(0).accountPassword()).isNull();
+            assertThat(accesses.get(0).profilePin()).isNull();
+        }
+
+        @Test
         @DisplayName("should throw AccessDeniedException when client belongs to another vendor")
         void getDetail_notOwned_shouldThrow403() {
             // Given

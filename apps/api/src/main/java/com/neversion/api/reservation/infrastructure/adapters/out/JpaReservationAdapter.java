@@ -38,6 +38,11 @@ public class JpaReservationAdapter implements ReservationRepositoryPort {
     }
 
     @Override
+    public boolean existsActiveRenewalBySubscriptionId(Long subscriptionId) {
+        return reservationRepository.existsActiveRenewalBySubscriptionId(subscriptionId);
+    }
+
+    @Override
     public Reservation save(Reservation reservation) {
         ReservationEntity entity = mapper.toEntity(reservation);
         ReservationEntity saved = reservationRepository.saveAndFlush(entity);

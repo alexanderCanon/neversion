@@ -26,10 +26,18 @@ import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.order.application.port.in.CreateOrderUseCase;
+import com.neversion.api.order.domain.model.Order;
+import com.neversion.api.order.domain.model.OrderStatusChange;
+import com.neversion.api.order.domain.model.enums.OrderStatus;
+import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
+import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
+import com.neversion.api.subscription.application.port.in.RenewSubscriptionUseCase;
+import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
@@ -41,6 +49,10 @@ class ValidateReservationServiceUT {
 
     @Mock private ReservationRepositoryPort reservationRepositoryPort;
     @Mock private CreateOrderUseCase createOrderUseCase;
+    @Mock private RenewSubscriptionUseCase renewSubscriptionUseCase;
+    @Mock private SubscriptionRepositoryPort subscriptionRepositoryPort;
+    @Mock private OrderRepositoryPort orderRepositoryPort;
+    @Mock private OrderStatusHistoryPort orderStatusHistoryPort;
     @Mock private UserRepositoryPort userRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private ClientRepositoryPort clientRepositoryPort;
@@ -59,8 +71,9 @@ class ValidateReservationServiceUT {
     @BeforeEach
     void setUp() {
         validateReservationService = new ValidateReservationService(
-                reservationRepositoryPort, createOrderUseCase, userRepositoryPort,
-                vendorRepositoryPort, clientRepositoryPort, notificationLogPort);
+                reservationRepositoryPort, createOrderUseCase, renewSubscriptionUseCase,
+                subscriptionRepositoryPort, orderRepositoryPort, orderStatusHistoryPort,
+                userRepositoryPort, vendorRepositoryPort, clientRepositoryPort, notificationLogPort);
     }
 
     private Reservation buildReservation(ReservationStatus status, Long vendorId) {
@@ -119,6 +132,52 @@ class ValidateReservationServiceUT {
         // Verify PAYMENT_APPROVED notification (US-035 CA4)
         verify(notificationLogPort).record(eq("PAYMENT_APPROVED"), eq("juan@test.com"), any(String.class),
                 eq("order"), any(), eq("approved"));
+    }
+
+    @Test
+    @DisplayName("validate - should renew subscription and complete order for renewal reservation")
+    void validate_renewalReservation_shouldRenewSubscriptionAndCompleteOrder() {
+        // Given
+        mockCallerResolution();
+        UUID subscriptionUuid = UUID.randomUUID();
+        Long subscriptionId = 77L;
+        String notes = "Renewal payment verified";
+
+        Reservation reservation = buildReservation(ReservationStatus.UPLOADED, VENDOR_ID);
+        reservation.setRenewalSubscriptionId(subscriptionId);
+
+        Order createdOrder = Order.builder()
+                .id(11L)
+                .uuid(UUID.randomUUID())
+                .status(OrderStatus.VALIDATED)
+                .build();
+
+        Subscription subscription = Subscription.builder()
+                .id(subscriptionId)
+                .uuid(subscriptionUuid)
+                .vendorId(VENDOR_ID)
+                .build();
+
+        when(reservationRepositoryPort.findByUuid(RESERVATION_UUID)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.update(any(Reservation.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(createOrderUseCase.createFromReservation(
+                eq(1L), eq(RESERVATION_UUID), eq(CLIENT_ID), eq(VENDOR_ID), eq(PAYMENT_METHOD),
+                eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes)))
+                .thenReturn(createdOrder);
+        when(subscriptionRepositoryPort.findByInternalId(subscriptionId)).thenReturn(Optional.of(subscription));
+        when(orderRepositoryPort.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(clientRepositoryPort.findByInternalId(CLIENT_ID))
+                .thenReturn(Optional.of(Client.builder().id(CLIENT_ID).name("Juan").email("juan@test.com").build()));
+
+        // When
+        Reservation result = validateReservationService.validate(RESERVATION_UUID, notes, CALLER_EXTERNAL_ID);
+
+        // Then
+        assertThat(result.getStatus()).isEqualTo(ReservationStatus.VALIDATED);
+        verify(renewSubscriptionUseCase).renew(subscriptionUuid, CALLER_EXTERNAL_ID);
+        verify(orderRepositoryPort).save(any(Order.class));
+        verify(orderStatusHistoryPort).record(any(OrderStatusChange.class));
     }
 
     @Test
