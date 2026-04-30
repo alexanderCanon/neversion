@@ -8,6 +8,7 @@ api/assignments.service.ts
 api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
+api/notifications.service.ts
 api/orders.service.ts
 api/profiles.service.ts
 api/reservations.service.ts
