@@ -1,14 +1,19 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
-import { CreateSubscriptionRequest, SubscriptionResponse } from '@neversion/api-client';
+import { Observable, tap, finalize, of } from 'rxjs';
+import { 
+  SubscriptionsApiService, 
+  SubscriptionResponse, 
+  SubscriptionDetailResponse,
+  CreateManualSubscriptionRequest,
+  DetectExpiredSubscriptionsResponse
+} from '@neversion/api-client';
 import { SubscriptionsFilter } from '@neversion/models';
-import { environment } from '../../../../environments/environment';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly subscriptionsApi = inject(SubscriptionsApiService);
+  private readonly authService = inject(AuthService);
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
@@ -17,32 +22,44 @@ export class SubscriptionsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getSubscriptions(filter?: SubscriptionsFilter): Observable<SubscriptionResponse[]> {
-    let params = new HttpParams();
-    if (filter?.status) params = params.set('status', filter.status);
-    if (filter?.clientId) params = params.set('clientId', filter.clientId);
-    if (filter?.profileId) params = params.set('profileId', filter.profileId);
+    const user = this.authService.currentUser();
+    if (!user || !user.id) return of([]);
 
     this._isLoading.set(true);
-    return this.http.get<SubscriptionResponse[]>(`${this.baseUrl}/subscriptions`, { params }).pipe(
+    return this.subscriptionsApi.listByVendor(
+      user.id, 
+      filter?.serviceId, 
+      filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED'
+    ).pipe(
       tap((subscriptions) => this._subscriptions.set(subscriptions)),
       finalize(() => this._isLoading.set(false))
     );
   }
 
-  createSubscription(subscription: CreateSubscriptionRequest): Observable<SubscriptionResponse> {
-    return this.http.post<SubscriptionResponse>(`${this.baseUrl}/subscriptions`, subscription).pipe(
-      tap((newSub) => {
-        this._subscriptions.update((current) => [...current, newSub]);
-      })
+  getSubscriptionDetail(id: string): Observable<SubscriptionDetailResponse> {
+    return this.subscriptionsApi.getById4(id);
+  }
+
+  createManualSubscription(request: CreateManualSubscriptionRequest): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.assign(request).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
     );
   }
 
+  renewSubscription(id: string): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.renew(id);
+  }
+
   cancelSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/cancel`, {});
+    return this.subscriptionsApi.cancel(id);
   }
 
   suspendSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/suspend`, {});
+    return this.subscriptionsApi.suspend(id);
+  }
+
+  detectExpiredSubscriptions(): Observable<DetectExpiredSubscriptionsResponse> {
+    return this.subscriptionsApi.detectExpired();
   }
 
   refreshSubscriptions(): Observable<SubscriptionResponse[]> {

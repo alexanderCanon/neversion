@@ -24,13 +24,21 @@
 
     <div *ngIf="!isLoading && !error && subscriptions.length > 0" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       <div class="col" *ngFor="let sub of subscriptions">
-        <div class="card h-100 border-primary shadow-sm">
-          <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div class="card h-100 shadow-sm" [ngClass]="sub.status === 'ACTIVE' ? 'border-primary' : 'border-warning'">
+          <div class="card-header d-flex justify-content-between align-items-center" [ngClass]="sub.status === 'ACTIVE' ? 'bg-primary text-white' : 'bg-warning text-dark'">
             <strong>{{ sub.serviceName }}</strong>
-            <span class="badge bg-light text-primary">Activo</span>
+            <span class="badge" [ngClass]="sub.status === 'ACTIVE' ? 'bg-light text-primary' : 'bg-dark text-white'">
+                {{ sub.status === 'ACTIVE' ? 'Activo' : 'Suspendido' }}
+            </span>
           </div>
           <div class="card-body">
-            <h5 class="card-title mb-3 text-primary">
+            <!-- Alerta de Suspensión -->
+            <div *ngIf="sub.status === 'SUSPENDED'" class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.85rem;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> 
+                <strong>Acceso restringido:</strong> Tu suscripción ha vencido. Contacta a tu vendedor para renovar.
+            </div>
+
+            <h5 class="card-title mb-3" [class.text-primary]="sub.status === 'ACTIVE'">
               <i class="bi bi-shield-check me-2"></i> Credenciales de Acceso
             </h5>
 

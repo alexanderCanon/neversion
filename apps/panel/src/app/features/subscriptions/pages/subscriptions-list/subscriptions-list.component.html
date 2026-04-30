@@ -4,6 +4,9 @@
       <i class="bi bi-credit-card me-2"></i>Suscripciones
     </h2>
     <div>
+      <button class="btn btn-outline-warning me-2" (click)="detectExpired()">
+        <i class="bi bi-alarm me-1"></i>Detectar Vencidas
+      </button>
       <button class="btn btn-outline-primary me-2" (click)="manualModal.openModal()">
         <i class="bi bi-person-lines-fill me-1"></i>Asignación Manual
       </button>
@@ -15,12 +18,12 @@
 
   <div class="card shadow-sm">
     <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-4">
+      <div class="row mb-3 g-2">
+        <div class="col-md-3">
           <select
             class="form-select"
             [ngModel]="filterStatus()"
-            (ngModelChange)="onFilterChange($event)"
+            (ngModelChange)="onStatusFilterChange($event)"
           >
             <option value="">Todos los estados</option>
             @for (status of statusOptions; track status) {
@@ -29,11 +32,23 @@
           </select>
         </div>
         <div class="col-md-3">
+          <select
+            class="form-select"
+            [ngModel]="filterServiceId()"
+            (ngModelChange)="onServiceFilterChange($event)"
+          >
+            <option value="">Todos los servicios</option>
+            @for (service of services(); track service.id) {
+              <option [value]="service.id">{{ service.name }}</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-2">
           <button class="btn btn-outline-secondary w-100" (click)="loadSubscriptions()">
             <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
           </button>
         </div>
-        <div class="col-md-5 text-end">
+        <div class="col-md-4 text-end align-self-center">
           <span class="text-muted">
             Total: {{ filteredSubscriptions().length }} suscripciones
           </span>
@@ -57,50 +72,66 @@
         </div>
       } @else {
         <div class="table-responsive">
-          <table class="table table-hover">
-            <thead>
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
               <tr>
-                <th>ID</th>
-                <th>Perfil</th>
+                <th>Servicio</th>
                 <th>Cliente</th>
-                <th>Fecha compra</th>
-                <th>Vencimiento Pago</th>
+                <th>Perfil</th>
+                <th>Fecha Inicio</th>
+                <th>Próx. Vencimiento</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                <th class="text-end">Acciones</th>
               </tr>
             </thead>
             <tbody>
               @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
                 <tr>
-                  <td><code>{{ sub.id | slice:0:8 }}...</code></td>
-                  <td><code>{{ sub.profileId | slice:0:8 }}...</code></td>
-                  <td><code>{{ sub.clientId | slice:0:8 }}...</code></td>
-                  <td>{{ sub.startDate }}</td>
-                  <td>{{ sub.paymentDueDate }}</td>
+                  <td>
+                    <div class="fw-bold text-primary">{{ sub.serviceName }}</div>
+                    <small class="text-muted">ID: {{ sub.id | slice:0:8 }}</small>
+                  </td>
+                  <td>{{ sub.clientName }}</td>
+                  <td>{{ sub.profileName }}</td>
+                  <td>{{ sub.startDate | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="fw-bold" [class.text-danger]="sub.status === 'SUSPENDED'">
+                      {{ sub.paymentDueDate | date:'dd/MM/yyyy' }}
+                    </span>
+                  </td>
                   <td>
                     <span class="badge" [ngClass]="getStatusClass(sub.status!)">
                       {{ getStatusLabel(sub.status!) }}
                     </span>
                   </td>
-                  <td>
-                    @if (sub.status === 'ACTIVE') {
-                      <button
-                        class="btn btn-sm btn-outline-warning me-1"
-                        (click)="suspendSubscription(sub)"
-                        title="Suspender"
+                  <td class="text-end">
+                    <div class="btn-group">
+                      <a
+                        class="btn btn-sm btn-outline-primary"
+                        [routerLink]="['/subscriptions', sub.id]"
+                        title="Ver detalle"
                       >
-                        <i class="bi bi-pause-fill"></i>
-                      </button>
-                    }
-                    @if (sub.status !== 'CANCELLED') {
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="cancelSubscription(sub)"
-                        title="Cancelar"
-                      >
-                        <i class="bi bi-x-circle"></i>
-                      </button>
-                    }
+                        <i class="bi bi-eye-fill"></i>
+                      </a>
+                      @if (sub.status === 'ACTIVE') {
+                        <button
+                          class="btn btn-sm btn-outline-warning"
+                          (click)="suspendSubscription(sub)"
+                          title="Suspender"
+                        >
+                          <i class="bi bi-pause-fill"></i>
+                        </button>
+                      }
+                      @if (sub.status !== 'CANCELLED') {
+                        <button
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="cancelSubscription(sub)"
+                          title="Revocar Acceso"
+                        >
+                          <i class="bi bi-x-circle"></i>
+                        </button>
+                      }
+                    </div>
                   </td>
                 </tr>
               }

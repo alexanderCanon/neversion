@@ -1,0 +1,191 @@
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a routerLink="/subscriptions">Suscripciones</a></li>
+                    <li class="breadcrumb-item active">Detalle</li>
+                </ol>
+            </nav>
+            <h2 class="mb-0 fw-bold">
+                Detalle de Suscripción
+                @if (subscription()) {
+                    <span class="badge ms-2" [ngClass]="getStatusClass(subscription()!.status!)">
+                        {{ getStatusLabel(subscription()!.status!) }}
+                    </span>
+                }
+            </h2>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" (click)="loadSubscription(subscription()!.id!)" [disabled]="isLoading()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+            </button>
+            @if (subscription()?.status === 'ACTIVE' || subscription()?.status === 'SUSPENDED') {
+                <button class="btn btn-success" (click)="renew()">
+                    <i class="bi bi-arrow-repeat me-1"></i>Renovar
+                </button>
+            }
+            @if (subscription()?.status !== 'CANCELLED') {
+                <button class="btn btn-danger" (click)="revoke()">
+                    <i class="bi bi-x-circle me-1"></i>Revocar Acceso
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (isLoading()) {
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando información detallada...</p>
+        </div>
+    } @else if (error()) {
+        <div class="alert alert-danger" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ error() }}
+            <div class="mt-2">
+                <a routerLink="/subscriptions" class="btn btn-outline-danger btn-sm">Volver al listado</a>
+            </div>
+        </div>
+    } @else if (subscription()) {
+        <div class="row g-4">
+            <!-- Columna Izquierda: Info Maestra y Financiera -->
+            <div class="col-lg-8">
+                <!-- Info Maestra -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Información de la Suscripción</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">ID de Suscripción</label>
+                                <span class="font-monospace">{{ subscription()!.id }}</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Fecha de Inicio</label>
+                                <strong>{{ subscription()!.startDate | date:'fullDate' }}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Fecha de Vencimiento (Fin)</label>
+                                <strong class="text-danger">{{ subscription()!.endDate | date:'fullDate' }}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Próximo Vencimiento de Pago</label>
+                                <strong class="text-primary">{{ subscription()!.paymentDueDate | date:'fullDate' }}</strong>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Meses Pagados</label>
+                                <span class="badge bg-info text-dark fs-6">{{ subscription()!.monthsPaid }} meses</span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-muted small d-block">Creado el</label>
+                                <span>{{ subscription()!.createdAt | date:'short' }}</span>
+                            </div>
+                        </div>
+
+                        @if (subscription()!.notes) {
+                            <div class="mt-4 p-3 bg-light rounded">
+                                <label class="text-muted small d-block mb-1">Notas Administrativas</label>
+                                <p class="mb-0 italic">{{ subscription()!.notes }}</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Snapshot Financiero -->
+                @if (subscription()!.financialSnapshot) {
+                    <div class="card shadow-sm border-success">
+                        <div class="card-header bg-success text-white py-3">
+                            <h5 class="mb-0 fw-bold"><i class="bi bi-currency-dollar me-2"></i>Resumen Económico (Venta)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center g-3">
+                                <div class="col-md-4 border-end">
+                                    <label class="text-muted small d-block">Precio Pactado</label>
+                                    <h4 class="fw-bold mb-0 text-success">${{ subscription()!.financialSnapshot!.priceSold | number:'1.2-2' }}</h4>
+                                </div>
+                                <div class="col-md-4 border-end">
+                                    <label class="text-muted small d-block">Descuento Aplicado</label>
+                                    <h4 class="fw-bold mb-0 text-muted">${{ (subscription()!.financialSnapshot!.discountApplied || 0) | number:'1.2-2' }}</h4>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="text-muted small d-block">Modalidad de Venta</label>
+                                    <h4 class="fw-bold mb-0">{{ subscription()!.financialSnapshot!.saleMode === 'COMPLETE' ? 'Cuenta Completa' : 'Perfil Individual' }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Columna Derecha: Cliente y Perfil -->
+            <div class="col-lg-4">
+                <!-- Cliente -->
+                <div class="card shadow-sm mb-4 border-primary">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-person-fill me-2"></i>Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (subscription()!.client) {
+                            <h5 class="fw-bold mb-1">{{ subscription()!.client!.name }}</h5>
+                            <p class="text-muted mb-3"><i class="bi bi-envelope me-2"></i>{{ subscription()!.client!.email }}</p>
+                            <a [routerLink]="['/clients', subscription()!.client!.id, 'detail']" class="btn btn-sm btn-outline-primary w-100">
+                                Ver Perfil del Cliente
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Perfil Técnico -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-display me-2"></i>Asignación Técnica</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (subscription()!.profile) {
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Servicio</label>
+                                <strong class="fs-5 text-primary">{{ subscription()!.profile!.serviceName }}</strong>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Perfil Asignado</label>
+                                <strong>{{ subscription()!.profile!.name }}</strong>
+                                @if (subscription()!.profile!.pin) {
+                                    <span class="badge bg-success ms-2">PIN: {{ subscription()!.profile!.pin }}</span>
+                                }
+                            </div>
+                            <div class="mb-3 p-3 bg-light rounded">
+                                <label class="text-muted small d-block mb-1">Cuenta Maestra</label>
+                                <strong>{{ subscription()!.account?.email }}</strong>
+                                <div class="mt-1">
+                                    <span class="badge bg-secondary">Pass: **********</span>
+                                    <small class="text-muted d-block mt-1">Por seguridad, la clave solo es visible para el cliente o en el módulo de cuentas.</small>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Orden de Origen -->
+                @if (subscription()!.order) {
+                    <div class="card shadow-sm mt-4 border-info">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <label class="text-muted small d-block">Orden de Origen</label>
+                                    <strong>#{{ subscription()!.order!.id | slice:0:8 }}</strong>
+                                </div>
+                                <a [routerLink]="['/orders', subscription()!.order!.id]" class="btn btn-sm btn-info text-white">
+                                    Ver Orden
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

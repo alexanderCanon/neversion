@@ -231,10 +231,10 @@ export class ServicesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public list1(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ServiceResponse>>;
-    public list1(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ServiceResponse>>>;
-    public list1(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ServiceResponse>>>;
-    public list1(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public list(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ServiceResponse>>;
+    public list(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ServiceResponse>>>;
+    public list(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ServiceResponse>>>;
+    public list(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -350,12 +350,12 @@ export class ServicesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendor(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ServiceResponse>>;
-    public listByVendor(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ServiceResponse>>>;
-    public listByVendor(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ServiceResponse>>>;
-    public listByVendor(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendor1(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ServiceResponse>>;
+    public listByVendor1(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ServiceResponse>>>;
+    public listByVendor1(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ServiceResponse>>>;
+    public listByVendor1(vendorUuid: string, category?: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', isActive?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor1.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

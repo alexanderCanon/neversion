@@ -40,4 +40,5 @@ export interface SubscriptionsFilter {
   status?: SubscriptionStatus;
   clientId?: string;
   profileId?: string;
+  serviceId?: string;
 }

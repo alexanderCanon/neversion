@@ -17,7 +17,11 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { CreateSubscriptionRequest } from '../model/createSubscriptionRequest';
+import { CreateManualSubscriptionRequest } from '../model/createManualSubscriptionRequest';
+// @ts-ignore
+import { DetectExpiredSubscriptionsResponse } from '../model/detectExpiredSubscriptionsResponse';
+// @ts-ignore
+import { SubscriptionDetailResponse } from '../model/subscriptionDetailResponse';
 // @ts-ignore
 import { SubscriptionResponse } from '../model/subscriptionResponse';
 
@@ -38,20 +42,20 @@ export class SubscriptionsApiService extends BaseService {
     }
 
     /**
-     * Assign subscription (CU-A05)
-     * Admin assigns a Client to a Profile. Anti-overbooking guard (BR-04) applied.
+     * Create manual subscription (US-048)
+     * Creates a subscription without a previous order or reservation. Anti-overbooking guard (BR-04) applied.
      * @endpoint post /api/v1/subscriptions
-     * @param createSubscriptionRequest 
+     * @param createManualSubscriptionRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public assign(createSubscriptionRequest: CreateSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public assign(createSubscriptionRequest: CreateSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public assign(createSubscriptionRequest: CreateSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
-    public assign(createSubscriptionRequest: CreateSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (createSubscriptionRequest === null || createSubscriptionRequest === undefined) {
-            throw new Error('Required parameter createSubscriptionRequest was null or undefined when calling assign.');
+    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (createManualSubscriptionRequest === null || createManualSubscriptionRequest === undefined) {
+            throw new Error('Required parameter createManualSubscriptionRequest was null or undefined when calling assign.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -96,7 +100,7 @@ export class SubscriptionsApiService extends BaseService {
         return this.httpClient.request<SubscriptionResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: createSubscriptionRequest,
+                body: createManualSubscriptionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -108,7 +112,8 @@ export class SubscriptionsApiService extends BaseService {
     }
 
     /**
-     * Cancel subscription (CU-A06)
+     * Revoke subscription access (US-046)
+     * Cancels the subscription and releases the assigned profile/account.
      * @endpoint put /api/v1/subscriptions/{id}/cancel
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -167,16 +172,73 @@ export class SubscriptionsApiService extends BaseService {
     }
 
     /**
-     * Get subscription by UUID
+     * Detect expired subscriptions manually (US-047)
+     * SUPER_ADMIN manual trigger for the same process executed by the daily scheduler.
+     * @endpoint post /api/v1/subscriptions/detect-expired
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public detectExpired(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<DetectExpiredSubscriptionsResponse>;
+    public detectExpired(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DetectExpiredSubscriptionsResponse>>;
+    public detectExpired(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DetectExpiredSubscriptionsResponse>>;
+    public detectExpired(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/subscriptions/detect-expired`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<DetectExpiredSubscriptionsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Get subscription detail (US-044)
+     * Returns subscription master data, commercial origin, client, profile, account, and financial snapshots. 403 if caller does not own this subscription.
      * @endpoint get /api/v1/subscriptions/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getById4(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public getById4(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public getById4(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public getById4(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionDetailResponse>;
+    public getById4(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionDetailResponse>>;
+    public getById4(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionDetailResponse>>;
     public getById4(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling getById4.');
@@ -212,7 +274,7 @@ export class SubscriptionsApiService extends BaseService {
 
         let localVarPath = `/api/v1/subscriptions/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<SubscriptionResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SubscriptionDetailResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -226,45 +288,39 @@ export class SubscriptionsApiService extends BaseService {
     }
 
     /**
-     * List subscriptions (CU-A04)
-     * Filter by status, clientId (UUID), or profileId (UUID).
-     * @endpoint get /api/v1/subscriptions
+     * List vendor subscriptions (US-043)
+     * Returns subscriptions owned by the authenticated vendor. Optional filters: serviceId (UUID) and status. Default sort: paymentDueDate ascending.
+     * @endpoint get /api/v1/subscriptions/vendor/{vendorUuid}
+     * @param vendorUuid 
+     * @param serviceId 
      * @param status 
-     * @param clientId 
-     * @param profileId 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public list(status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', clientId?: string, profileId?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<SubscriptionResponse>>;
-    public list(status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', clientId?: string, profileId?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SubscriptionResponse>>>;
-    public list(status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', clientId?: string, profileId?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SubscriptionResponse>>>;
-    public list(status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', clientId?: string, profileId?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<SubscriptionResponse>>;
+    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SubscriptionResponse>>>;
+    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SubscriptionResponse>>>;
+    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (vendorUuid === null || vendorUuid === undefined) {
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor.');
+        }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
+            'serviceId',
+            <any>serviceId,
+            QueryParamStyle.Form,
+            true,
+        );
+
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
             'status',
             <any>status,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'clientId',
-            <any>clientId,
-            QueryParamStyle.Form,
-            true,
-        );
-
-
-        localVarQueryParameters = this.addToHttpParams(
-            localVarQueryParameters,
-            'profileId',
-            <any>profileId,
             QueryParamStyle.Form,
             true,
         );
@@ -298,12 +354,72 @@ export class SubscriptionsApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/subscriptions`;
+        let localVarPath = `/api/v1/subscriptions/vendor/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<Array<SubscriptionResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Renew subscription (US-045)
+     * Renews an ACTIVE or SUSPENDED subscription using BR-07.
+     * @endpoint put /api/v1/subscriptions/{id}/renew
+     * @param id 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public renew(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public renew(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public renew(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public renew(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling renew.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            '*/*'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/subscriptions/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/renew`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<SubscriptionResponse>('put', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

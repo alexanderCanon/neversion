@@ -8,4 +8,11 @@ export const subscriptionsRoutes: Routes = [
         (m) => m.SubscriptionsListComponent
       ),
   },
+  {
+    path: ':id',
+    loadComponent: () =>
+      import('./pages/subscription-detail/subscription-detail.component').then(
+        (m) => m.SubscriptionDetailComponent
+      ),
+  },
 ];

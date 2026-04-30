@@ -1,167 +1,141 @@
-<div class="modal fade" tabindex="-1" #subscriptionModal>
-  <div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal fade" id="subscriptionModal" #subscriptionModal tabindex="-1" aria-labelledby="subscriptionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-link-45deg me-2"></i>Nueva Suscripción
+        <h5 class="modal-title fw-bold" id="subscriptionModalLabel">
+          <i class="bi bi-credit-card-2-front me-2"></i>Nueva Suscripción Manual
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
       </div>
-
-      <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
-        <div class="modal-body">
-          @if (isLoadingData) {
-            <div class="text-center py-3">
-              <div class="spinner-border spinner-border-sm text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <span class="ms-2">Cargando datos...</span>
-            </div>
-          } @else {
-            <div class="row g-3">
-              
-              <div class="col-md-6 position-relative">
-                <label for="clientSearch" class="form-label">Cliente <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="clientSearch"
-                  formControlName="clientSearch"
-                  [class.is-invalid]="subscriptionForm.get('clientId')?.invalid && subscriptionForm.get('clientSearch')?.touched"
-                  placeholder="Buscar por nombre o teléfono..."
-                  autocomplete="off"
-                  (focus)="showClientDropdownList()"
-                  (blur)="hideClientDropdown()"
-                />
-                
-                @if (showClientDropdown) {
-                  <ul class="dropdown-menu show w-100 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1050; top: 100%;">
-                    @for (client of filteredClients; track client.id) {
-                      <li>
-                        <button type="button" class="dropdown-item" (click)="selectClient(client)">
-                          {{ client.name }} <small class="text-muted">({{ client.phone || client.email }})</small>
-                        </button>
-                      </li>
-                    }
-                    @if (filteredClients.length === 0) {
-                      <li><span class="dropdown-item text-muted">No se encontraron clientes</span></li>
-                    }
-                  </ul>
-                }
-
-                @if (subscriptionForm.get('clientId')?.errors?.['required'] && subscriptionForm.get('clientSearch')?.touched) {
-                  <div class="invalid-feedback d-block">Debes seleccionar un cliente válido del listado.</div>
-                }
-              </div>
-
-              <div class="col-md-6">
-                <label for="accountId" class="form-label">Cuenta <span class="text-danger">*</span></label>
-                <select
-                  class="form-select"
-                  id="accountId"
-                  formControlName="accountId"
-                  [class.is-invalid]="subscriptionForm.get('accountId')?.invalid && subscriptionForm.get('accountId')?.touched"
-                  (change)="onAccountChange($any($event.target).value)"
-                >
-                  <option value="">Seleccione una cuenta</option>
-                  @for (account of accounts; track account.id) {
-                    <option [value]="account.id">
-                      {{ account.email }} ({{ account.service?.name }})
-                    </option>
+      <div class="modal-body p-4">
+        <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
+          <!-- Cliente Selection -->
+          <div class="mb-4">
+            <label for="clientSearch" class="form-label fw-bold">Cliente</label>
+            <div class="position-relative">
+              <input 
+                id="clientSearch"
+                type="text" 
+                class="form-control" 
+                formControlName="clientSearch" 
+                placeholder="Buscar por nombre, correo o teléfono..."
+                (focus)="showClientDropdownList()"
+                (blur)="hideClientDropdown()"
+              >
+              @if (showClientDropdown && filteredClients.length > 0) {
+                <div class="list-group position-absolute w-100 shadow-lg z-3 mt-1" style="max-height: 200px; overflow-y: auto;">
+                  @for (client of filteredClients; track client.id) {
+                    <button 
+                      type="button" 
+                      class="list-group-item list-group-item-action py-2"
+                      (mousedown)="selectClient(client)"
+                    >
+                      <div class="d-flex justify-content-between">
+                        <strong>{{ client.name }}</strong>
+                        <small class="text-muted">{{ client.email || client.phone }}</small>
+                      </div>
+                    </button>
                   }
-                </select>
-                @if (subscriptionForm.get('accountId')?.errors?.['required'] && subscriptionForm.get('accountId')?.touched) {
-                  <div class="invalid-feedback d-block">La cuenta es requerida</div>
-                }
-              </div>
-
-              <div class="col-md-6">
-                <label for="profileId" class="form-label">Perfil <span class="text-danger">*</span></label>
-                <select 
-                  class="form-select" 
-                  id="profileId" 
-                  formControlName="profileId"
-                  [class.is-invalid]="subscriptionForm.get('profileId')?.invalid && subscriptionForm.get('profileId')?.touched"
-                >
-                  <option value="">Seleccione un perfil</option>
-                  @for (profile of profiles; track profile.id) {
-                    <option [value]="profile.id">
-                      {{ profile.name || 'Perfil Múltiple' }} 
-                      @if (profile.pin) { (PIN: {{profile.pin}}) }
-                    </option>
-                  }
-                </select>
-                @if (subscriptionForm.get('profileId')?.errors?.['required'] && subscriptionForm.get('profileId')?.touched) {
-                  <div class="invalid-feedback d-block">El perfil es requerido</div>
-                }
-              </div>
-
-              <div class="col-md-6">
-                <label for="purchaseDate" class="form-label">Fecha de Compra <span class="text-danger">*</span></label>
-                <input
-                  type="date"
-                  class="form-control"
-                  id="purchaseDate"
-                  formControlName="purchaseDate"
-                  [class.is-invalid]="subscriptionForm.get('purchaseDate')?.invalid && subscriptionForm.get('purchaseDate')?.touched"
-                />
-                @if (subscriptionForm.get('purchaseDate')?.errors?.['required'] && subscriptionForm.get('purchaseDate')?.touched) {
-                  <div class="invalid-feedback d-block">La fecha de compra es requerida</div>
-                }
-              </div>
-
-              <div class="col-md-6">
-                <label for="paymentDueDate" class="form-label">Fecha de Próximo Pago <span class="text-danger">*</span></label>
-                <input
-                  type="date"
-                  class="form-control"
-                  id="paymentDueDate"
-                  formControlName="paymentDueDate"
-                  [class.is-invalid]="subscriptionForm.get('paymentDueDate')?.invalid && subscriptionForm.get('paymentDueDate')?.touched"
-                />
-                @if (subscriptionForm.get('paymentDueDate')?.errors?.['required'] && subscriptionForm.get('paymentDueDate')?.touched) {
-                  <div class="invalid-feedback d-block">La fecha de pago es requerida</div>
-                }
-              </div>
-
-              <div class="col-12">
-                <label for="notes" class="form-label">Notas (Opcional)</label>
-                <textarea
-                  class="form-control"
-                  id="notes"
-                  formControlName="notes"
-                  rows="2"
-                ></textarea>
-              </div>
-
-              @if (selectedAccount) {
-                <div class="col-12">
-                  <div class="alert alert-info mb-0">
-                    <strong>Detalles de la Cuenta Matriz:</strong>
-                    <ul class="mb-0 mt-1">
-                      <li>Correo: <code>{{ selectedAccount.email }}</code></li>
-                      <li>Clave: <code>{{ selectedAccount.password }}</code></li>
-                      <li>Vencimiento Matriz: {{ selectedAccount.renewalDate }}</li>
-                    </ul>
-                  </div>
                 </div>
               }
             </div>
-          }
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeModal()">
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || isLoadingData">
-            @if (isSubmitting) {
-              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            @if (subscriptionForm.get('clientSearch')?.touched && subscriptionForm.get('clientId')?.errors?.['required']) {
+              <div class="text-danger small mt-1">
+                Debes seleccionar un cliente de la lista.
+              </div>
             }
-            Completar Suscripción
-          </button>
-        </div>
-      </form>
+          </div>
+
+          <div class="row g-3">
+            <!-- Servicio -->
+            <div class="col-md-6">
+              <label for="serviceId" class="form-label fw-bold">Servicio</label>
+              <select id="serviceId" class="form-select" formControlName="serviceId">
+                <option value="">Selecciona un servicio</option>
+                @for (service of services; track service.id) {
+                  <option [value]="service.id">
+                    {{ service.name }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Cuenta Maestra -->
+            <div class="col-md-6">
+              <label for="accountId" class="form-label fw-bold">Cuenta Maestra</label>
+              <select id="accountId" class="form-select" formControlName="accountId" (change)="onAccountChange(subscriptionForm.get('accountId')?.value)">
+                <option value="">Selecciona una cuenta</option>
+                @for (account of accounts; track account.id) {
+                  <option [value]="account.id">
+                    {{ account.email }} ({{ account.saleMode }})
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Perfil -->
+            <div class="col-md-6">
+              <label for="profileId" class="form-label fw-bold">Perfil</label>
+              <select id="profileId" class="form-select" formControlName="profileId">
+                <option value="">Selecciona un perfil</option>
+                @for (profile of profiles; track profile.id) {
+                  <option [value]="profile.id">
+                    {{ profile.name }} {{ profile.isOwner ? '(Dueño)' : '' }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- Próximo Vencimiento -->
+            <div class="col-md-6">
+              <label for="paymentDueDate" class="form-label fw-bold">Próximo Pago</label>
+              <input id="paymentDueDate" type="date" class="form-control" formControlName="paymentDueDate" [min]="minDate">
+            </div>
+
+            <!-- Finanzas -->
+            <div class="col-md-6">
+              <label for="priceSold" class="form-label fw-bold">Precio de Venta</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input id="priceSold" type="number" class="form-control" formControlName="priceSold" step="0.01">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="discountApplied" class="form-label fw-bold">Descuento Aplicado</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input id="discountApplied" type="number" class="form-control" formControlName="discountApplied" step="0.01">
+              </div>
+            </div>
+          </div>
+
+          <!-- Notificación -->
+          <div class="mt-4 p-3 bg-light rounded border">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" id="notifyClient" formControlName="sendNotification">
+              <label class="form-check-label fw-bold" for="notifyClient">
+                Notificar al cliente
+              </label>
+              <small class="text-muted d-block">Se enviará un correo electrónico con las credenciales de acceso de forma automática.</small>
+            </div>
+          </div>
+
+          <!-- Notas -->
+          <div class="mt-3">
+            <label class="form-label fw-bold">Notas Administrativas (opcional)</label>
+            <textarea class="form-control" formControlName="notes" rows="2" placeholder="Información adicional para control interno..."></textarea>
+          </div>
+
+          <div class="modal-footer px-0 pb-0 mt-4 border-top pt-3">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="subscriptionForm.invalid || isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+              Crear Suscripción
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 </div>

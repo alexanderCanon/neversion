@@ -28,9 +28,9 @@ export class ServicesDataService {
     if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.servicesApi.listByVendor(vendorUuid, filter?.category as any, filter?.isActive).pipe(
-      map(apiServices => apiServices.map(api => this.mapToModel(api))),
-      tap((services) => this._services.set(services)),
+    return this.servicesApi.listByVendor1(vendorUuid, filter?.category as 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', filter?.isActive).pipe(
+      map((apiServices: ApiServiceResponse[]) => apiServices.map(api => this.mapToModel(api))),
+      tap((services: ServiceResponse[]) => this._services.set(services)),
       finalize(() => this._isLoading.set(false))
     );
   }

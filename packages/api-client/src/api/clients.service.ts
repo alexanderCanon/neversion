@@ -358,12 +358,12 @@ export class ClientsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendor2(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientResponse>>;
-    public listByVendor2(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientResponse>>>;
-    public listByVendor2(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientResponse>>>;
-    public listByVendor2(vendorUuid: string, name?: string, phone?: string, email?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendor3(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<ClientResponse>>;
+    public listByVendor3(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ClientResponse>>>;
+    public listByVendor3(vendorUuid: string, name?: string, phone?: string, email?: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ClientResponse>>>;
+    public listByVendor3(vendorUuid: string, name?: string, phone?: string, email?: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor2.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor3.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

@@ -7,25 +7,29 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { AccountSummary } from './accountSummary';
+import { FinancialSnapshot } from './financialSnapshot';
+import { OrderSummary } from './orderSummary';
+import { ClientSummary } from './clientSummary';
+import { ProfileSummary } from './profileSummary';
 
 
-export interface SubscriptionResponse { 
+export interface SubscriptionDetailResponse { 
     id?: string;
-    profileId?: string;
-    clientId?: string;
-    accountId?: string;
-    serviceName?: string;
-    clientName?: string;
-    profileName?: string;
-    status?: SubscriptionResponse.StatusEnum;
+    status?: SubscriptionDetailResponse.StatusEnum;
     startDate?: string;
     endDate?: string;
     paymentDueDate?: string;
     monthsPaid?: number;
     notes?: string;
     createdAt?: string;
+    financialSnapshot?: FinancialSnapshot;
+    client?: ClientSummary;
+    profile?: ProfileSummary;
+    account?: AccountSummary;
+    order?: OrderSummary;
 }
-export namespace SubscriptionResponse {
+export namespace SubscriptionDetailResponse {
     export const StatusEnum = {
         Active: 'ACTIVE',
         Pending: 'PENDING',

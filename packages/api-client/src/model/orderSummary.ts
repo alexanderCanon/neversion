@@ -11,7 +11,24 @@
 
 export interface OrderSummary { 
     id?: string;
-    status?: string;
+    reservationId?: string;
+    status?: OrderSummary.StatusEnum;
+    paymentMethod?: string;
+    total?: number;
+    discount?: number;
+    receiptUrl?: string;
+    approvedAt?: string;
     createdAt?: string;
 }
+export namespace OrderSummary {
+    export const StatusEnum = {
+        Validated: 'VALIDATED',
+        Completed: 'COMPLETED',
+        Rejected: 'REJECTED',
+        Cancelled: 'CANCELLED',
+        Pending: 'PENDING'
+    } as const;
+    export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+}
+
 

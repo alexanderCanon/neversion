@@ -312,12 +312,12 @@ export class OrdersApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendor1(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<OrderResponse>>;
-    public listByVendor1(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<OrderResponse>>>;
-    public listByVendor1(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<OrderResponse>>>;
-    public listByVendor1(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendor2(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<Array<OrderResponse>>;
+    public listByVendor2(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<OrderResponse>>>;
+    public listByVendor2(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<OrderResponse>>>;
+    public listByVendor2(vendorUuid: string, clientUuid?: string, status?: 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: '*/*', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor1.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor2.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);

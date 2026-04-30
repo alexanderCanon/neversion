@@ -1,4 +1,3 @@
-export * from './models/account.model';
 export * from './services/accounts.service';
 export * from './accounts.routes';
 export * from './pages/accounts-list/accounts-list.component';

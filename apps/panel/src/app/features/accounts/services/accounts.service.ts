@@ -29,7 +29,7 @@ export class AccountsService {
 
     this._isLoading.set(true);
     // listByVendor3(vendorUuid, serviceUuid, status)
-    return this.accountsApi.listByVendor3(user.id, filter?.serviceId, filter?.status as any).pipe(
+    return this.accountsApi.listByVendor4(user.id, filter?.serviceId, filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED').pipe(
       map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
       tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
       finalize(() => this._isLoading.set(false))
