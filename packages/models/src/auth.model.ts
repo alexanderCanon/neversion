@@ -12,7 +12,7 @@ export interface User {
 
 export interface RegisterVendorRequest {
     email: string;
-    password?: string; // Optional if backend generates it
+    password: string;
     name: string;
     lastname: string;
     phone: string;

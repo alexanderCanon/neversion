@@ -87,7 +87,7 @@ class RegisterVendorIT extends BaseIntegrationTest {
     private String validBody() throws Exception {
         return objectMapper.writeValueAsString(Map.of(
                 "email", "newvendor@tienda.com",
-                "externalId", "supabase-uuid-vendor-it-001",
+                "password", "secret123!",
                 "storeName", "Mi Tienda Digital"
         ));
     }

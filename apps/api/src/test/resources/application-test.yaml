@@ -11,6 +11,8 @@ spring:
     locations: classpath:db/migration
 
 supabase:
+  url: http://localhost:8000
+  service-role-key: test-service-role-key-placeholder
   jwt:
     secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
 

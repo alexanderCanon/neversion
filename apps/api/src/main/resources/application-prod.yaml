@@ -44,6 +44,8 @@ logging:
 supabase:
   jwt:
     secret: ${SUPABASE_JWT_SECRET}
+  url: ${SUPABASE_URL}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS}

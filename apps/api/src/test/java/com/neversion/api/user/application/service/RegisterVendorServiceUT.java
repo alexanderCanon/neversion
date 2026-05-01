@@ -8,6 +8,7 @@ import com.neversion.api.user.domain.model.enums.UserRole;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
+import com.neversion.api.user.application.port.out.SupabaseAuthPort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,9 @@ class RegisterVendorServiceUT {
     @Mock
     private NotificationLogPort notificationLogPort;
 
+    @Mock
+    private SupabaseAuthPort supabaseAuthPort;
+
     private RegisterVendorService sut;
 
     private static final UUID USER_UUID   = UUID.randomUUID();
@@ -49,7 +53,7 @@ class RegisterVendorServiceUT {
 
     @BeforeEach
     void setUp() {
-        sut = new RegisterVendorService(userRepositoryPort, vendorRepositoryPort, notificationLogPort);
+        sut = new RegisterVendorService(userRepositoryPort, vendorRepositoryPort, notificationLogPort, supabaseAuthPort);
     }
 
     // ─── happy path ──────────────────────────────────────────────────────────
@@ -76,6 +80,8 @@ class RegisterVendorServiceUT {
 
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
+        when(supabaseAuthPort.createUser(anyString(), anyString(), any(UserRole.class)))
+                .thenReturn("supabase-uuid-abc123");
         doNothing().when(notificationLogPort).record(anyString(), anyString(), anyString(),
                 anyString(), any(), anyString());
 
@@ -89,6 +95,7 @@ class RegisterVendorServiceUT {
         assertThat(result.email()).isEqualTo("vendor@test.com");
 
         // Assert — interactions
+        verify(supabaseAuthPort, times(1)).createUser("vendor@test.com", "secret123", UserRole.VENDOR);
         verify(userRepositoryPort, times(1)).save(any(User.class));
         verify(vendorRepositoryPort, times(1)).save(any(Vendor.class));
         verify(notificationLogPort, times(1))
@@ -106,6 +113,7 @@ class RegisterVendorServiceUT {
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("x").build();
 
+        when(supabaseAuthPort.createUser(anyString(), anyString(), any())).thenReturn("supabase-uuid-vendor-001");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
 
@@ -130,6 +138,7 @@ class RegisterVendorServiceUT {
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("Mi Tienda").build();
 
+        when(supabaseAuthPort.createUser(anyString(), anyString(), any())).thenReturn("pending_x");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
 
@@ -154,6 +163,7 @@ class RegisterVendorServiceUT {
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("Mi Tienda").build();
 
+        when(supabaseAuthPort.createUser(anyString(), anyString(), any())).thenReturn("pending_x");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
 
@@ -181,6 +191,7 @@ class RegisterVendorServiceUT {
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("x").build();
 
+        when(supabaseAuthPort.createUser(anyString(), anyString(), any())).thenReturn("pending_x");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(vendorRepositoryPort.save(any(Vendor.class))).thenReturn(savedVendor);
 
@@ -189,8 +200,6 @@ class RegisterVendorServiceUT {
         RegisterVendorResult r2 = sut.register(buildCommand());
 
         // Assert
-        // Passwords are gone — the service no longer generates them.
-        // Verify instead that two registrations with different externalIds produce different user records.
         assertThat(r1.userUuid()).isNotNull();
         assertThat(r2.userUuid()).isNotNull();
         assertThat(r1.userUuid()).isEqualTo(r2.userUuid()); // same mock stub
@@ -201,7 +210,7 @@ class RegisterVendorServiceUT {
     private RegisterVendorCommand buildCommand() {
         return new RegisterVendorCommand(
                 "vendor@test.com",
-                "supabase-uuid-vendor-001",
+                "secret123",
                 "Mi Tienda",
                 "https://cdn.example.com/logo.png",
                 "{\"bank\":\"Banrural\"}",

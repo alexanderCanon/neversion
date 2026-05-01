@@ -37,6 +37,10 @@ import { RegisterVendorRequest } from '@neversion/models';
                 <label for="phone" class="form-label">Teléfono</label>
                 <input id="phone" type="text" class="form-control" formControlName="phone" placeholder="Ej: 123456789">
               </div>
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input id="password" type="password" class="form-control" formControlName="password" placeholder="Mínimo 6 caracteres">
+              </div>
 
               <!-- Tienda -->
               <div class="col-12 mb-4">
@@ -81,6 +85,7 @@ export class VendorRegistrationComponent {
     name: ['', [Validators.required]],
     lastname: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     phone: ['', [Validators.required]],
     storeName: ['', [Validators.required, Validators.minLength(3)]]
   });

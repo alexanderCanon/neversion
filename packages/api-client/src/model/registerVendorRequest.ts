@@ -15,9 +15,9 @@ export interface RegisterVendorRequest {
      */
     email?: string;
     /**
-     * Supabase Auth UUID assigned to this vendor after account creation
+     * Vendor's chosen password
      */
-    externalId?: string;
+    password?: string;
     /**
      * Display name for the vendor\'s storefront
      */

@@ -9,8 +9,7 @@ import jakarta.validation.constraints.Size;
  * Request body for vendor registration (US-012).
  * Only the Super Admin can call this endpoint.
  * <p>
- * The frontend must create the Supabase Auth account first (ADR-09 revised)
- * and provide the resulting Supabase UUID as {@code externalId}.
+ * The backend manages Supabase Auth account creation directly (Backend-Driven Auth).
  */
 public record RegisterVendorRequest(
 
@@ -19,10 +18,10 @@ public record RegisterVendorRequest(
         @Schema(description = "Vendor's email address", example = "tienda@ejemplo.com")
         String email,
 
-        @NotBlank(message = "Supabase external ID is required")
-        @Schema(description = "Supabase Auth UUID assigned to this vendor after account creation",
-                example = "b2f7c3a1-1234-4abc-8def-000000000001")
-        String externalId,
+        @NotBlank(message = "Password is required")
+        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Schema(description = "Vendor's chosen password", example = "Secret123!")
+        String password,
 
         @NotBlank(message = "Store name is required")
         @Size(max = 150, message = "Store name must not exceed 150 characters")

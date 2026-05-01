@@ -86,35 +86,23 @@ export class AuthService {
         this._isLoading.set(true);
         this._errorMessage.set(null);
 
-        const supaSignUpPromise = this.supabaseService.client.auth.signUp({
+        const apiRequest: ApiVendorRequest = {
             email: request.email,
-            password: request.password || 'TemporaryPassword123!',
-            options: {
-                data: {
-                    name: request.name,
-                    lastname: request.lastname,
-                    phone: request.phone,
-                    store_name: request.storeName,
-                    role: 'vendor' as UserRole
-                },
-            },
-        });
+            password: request.password,
+            storeName: request.storeName,
+            // name, lastname and phone are not supported in backend DTO yet, 
+            // but we can pass them if backend allows, but API currently only takes storeName, email, password.
+        };
 
-        return from(supaSignUpPromise).pipe(
-            switchMap((supaResponse: AuthResponse) => {
-                if (supaResponse.error) {
-                    throw new Error(supaResponse.error.message);
-                }
-
-                const apiRequest: ApiVendorRequest = {
-                    email: request.email,
-                    storeName: request.storeName,
-                    externalId: supaResponse.data.user?.id
+        return this.authApiService.registerVendor(apiRequest).pipe(
+            map((response) => {
+                // Backend successfully registered the vendor.
+                // It does not log them in. The vendor must sign in separately.
+                return {
+                    success: true,
+                    user: null, // No user session established yet
+                    error: null,
                 };
-
-                return this.authApiService.registerVendor(apiRequest).pipe(
-                    map(() => this.handleAuthResponse(supaResponse))
-                );
             }),
             catchError((err: unknown) => {
                 const message = err instanceof Error ? err.message : 'Error inesperado al registrar vendedor';

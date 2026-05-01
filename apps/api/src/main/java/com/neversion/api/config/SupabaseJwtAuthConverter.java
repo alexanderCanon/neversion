@@ -61,22 +61,11 @@ public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
         return authorities;
     }
 
-    /**
-     * Attempts to read the role from {@code raw_app_meta_data.role},
-     * then falls back to {@code user_metadata.role}.
-     */
-    // @SuppressWarnings("unchecked")
     private String extractRole(Jwt jwt) {
-        // Primary: raw_app_meta_data.role (Supabase stores custom roles here)
+        // Strict: raw_app_meta_data.role (Supabase Admin stores custom roles here)
         Map<String, Object> appMetadata = jwt.getClaim("app_metadata");
         if (appMetadata != null && appMetadata.containsKey("role")) {
             return String.valueOf(appMetadata.get("role"));
-        }
-
-        // Fallback: user_metadata.role
-        Map<String, Object> userMetadata = jwt.getClaim("user_metadata");
-        if (userMetadata != null && userMetadata.containsKey("role")) {
-            return String.valueOf(userMetadata.get("role"));
         }
 
         return null;

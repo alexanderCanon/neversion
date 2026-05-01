@@ -13,8 +13,7 @@ import java.util.UUID;
  * This endpoint is public — any visitor can register as a client
  * on a specific vendor's store.
  * <p>
- * The frontend must create the Supabase Auth account first (ADR-09 revised)
- * and provide the resulting Supabase UUID as {@code externalId}.
+ * The backend manages Supabase Auth account creation directly (Backend-Driven Auth).
  */
 public record RegisterClientRequest(
 
@@ -23,10 +22,10 @@ public record RegisterClientRequest(
         @Schema(description = "Client's email address", example = "cliente@correo.com")
         String email,
 
-        @NotBlank(message = "Supabase external ID is required")
-        @Schema(description = "Supabase Auth UUID assigned to this client after account creation",
-                example = "a1b2c3d4-5678-4abc-8def-000000000002")
-        String externalId,
+        @NotBlank(message = "Password is required")
+        @Size(min = 6, message = "Password must be at least 6 characters")
+        @Schema(description = "Client's chosen password", example = "Secret123!")
+        String password,
 
         @NotBlank(message = "Name is required")
         @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")

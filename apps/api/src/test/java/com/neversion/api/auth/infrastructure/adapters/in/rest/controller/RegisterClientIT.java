@@ -127,7 +127,7 @@ class RegisterClientIT extends BaseIntegrationTest {
             UUID vendorUuid = UUID.randomUUID();
             String body = objectMapper.writeValueAsString(Map.of(
                     "email", "cliente@correo.com",
-                    "externalId", "supabase-uuid-client-it-001",
+                    "password", "secret123!",
                     "name", "Juan Pérez",
                     "phone", "+502 5555-1234",
                     "vendorUuid", vendorUuid.toString()

@@ -39,6 +39,8 @@ logging:
 supabase:
   jwt:
     secret: ${SUPABASE_JWT_SECRET}
+  url: ${SUPABASE_URL:https://placeholder.supabase.co}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:placeholder}
 
 neversion:
   renewal:

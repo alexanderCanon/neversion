@@ -24,7 +24,7 @@ public final class RegisterVendorRequestMapper {
     public static RegisterVendorCommand toCommand(RegisterVendorRequest request) {
         return new RegisterVendorCommand(
                 request.email(),
-                request.externalId(),
+                request.password(),
                 request.storeName(),
                 request.logoUrl(),
                 request.bankDetails(),

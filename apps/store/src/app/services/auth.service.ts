@@ -46,38 +46,24 @@ export class AuthService {
 
   register(userData: any): Observable<AuthResult> {
     this.isLoadingSubject.next(true);
-    
-    const promise = this.supabaseService.client.auth.signUp({
+
+    const apiRequest: RegisterClientRequest = {
       email: userData.email,
       password: userData.password,
-      options: {
-        data: {
-          name: userData.name,
-          lastname: userData.lastname,
-          phone: userData.phone,
-          role: 'client' as UserRole
-        }
-      }
-    });
+      name: `${userData.name} ${userData.lastname}`,
+      phone: userData.phone,
+      vendorUuid: runtimeConfig.storeVendorUuid
+    };
 
-    return from(promise).pipe(
-      switchMap(response => {
-        const supaResponse = response as AuthResponse;
-        if (supaResponse.error) {
-          throw new Error(supaResponse.error.message);
-        }
-
-        const apiRequest: RegisterClientRequest = {
-          email: userData.email,
-          name: `${userData.name} ${userData.lastname}`,
-          phone: userData.phone,
-          vendorUuid: runtimeConfig.storeVendorUuid,
-          externalId: supaResponse.data.user?.id
+    return this.authApiService.registerClient(apiRequest).pipe(
+      map(() => {
+        // Backend successfully registered the client.
+        // It does not log them in. The client must sign in separately.
+        return {
+          success: true,
+          user: null, // No user session established yet
+          error: null,
         };
-
-        return this.authApiService.registerClient(apiRequest).pipe(
-          map(() => this.handleAuthResponse(supaResponse))
-        );
       }),
       catchError(err => this.handleError(err)),
       tap(() => this.isLoadingSubject.next(false))

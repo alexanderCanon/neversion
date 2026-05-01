@@ -21,7 +21,7 @@ public final class RegisterClientRequestMapper {
     public static RegisterClientCommand toCommand(RegisterClientRequest request) {
         return new RegisterClientCommand(
                 request.email(),
-                request.externalId(),
+                request.password(),
                 request.name(),
                 request.phone(),
                 request.vendorUuid());

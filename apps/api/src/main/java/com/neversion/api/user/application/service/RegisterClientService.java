@@ -4,6 +4,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.port.out.NotificationLogPort;
+import com.neversion.api.user.application.port.out.SupabaseAuthPort;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.domain.model.RegisterClientCommand;
 import com.neversion.api.user.domain.model.RegisterClientResult;
@@ -18,11 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Application service implementing US-013 — Client Self-Registration.
  * <p>
- * Flow (ADR-09 revised — frontend-managed auth):
+ * Flow (Backend-Driven Auth):
  * <ol>
  *   <li>Resolves the vendor by UUID (multi-tenancy: ADR-02).</li>
- *   <li>Frontend creates the Supabase Auth account and lets the user choose their password.</li>
- *   <li>Frontend sends the resulting Supabase UUID as {@code externalId} in the request.</li>
+ *   <li>Service creates the Supabase Auth account directly with the CLIENT role.</li>
+ *   <li>Receives the Supabase UUID as {@code externalId}.</li>
  *   <li>This service persists the internal User and Client records using that externalId.</li>
  *   <li>Records a CLIENT_REGISTRATION event in notification_log for Agent Notifications.</li>
  * </ol>
@@ -34,16 +35,19 @@ public class RegisterClientService implements RegisterClientUseCase {
     private final ClientRepositoryPort clientRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final NotificationLogPort notificationLogPort;
+    private final SupabaseAuthPort supabaseAuthPort;
 
     public RegisterClientService(
             UserRepositoryPort userRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            NotificationLogPort notificationLogPort) {
+            NotificationLogPort notificationLogPort,
+            SupabaseAuthPort supabaseAuthPort) {
         this.userRepositoryPort = userRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.notificationLogPort = notificationLogPort;
+        this.supabaseAuthPort = supabaseAuthPort;
     }
 
     @Override
@@ -54,10 +58,13 @@ public class RegisterClientService implements RegisterClientUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Vendor not found: " + command.vendorUuid()));
 
-        // Step 2 — Persist the internal platform user with the Supabase-provided externalId
+        // Step 2 — Create Supabase Auth user securely and get the externalId
+        String externalId = supabaseAuthPort.createUser(command.email(), command.password(), UserRole.CLIENT);
+
+        // Step 3 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(
                 User.builder()
-                        .externalId(command.externalId())
+                        .externalId(externalId)
                         .role(UserRole.CLIENT)
                         .build());
 
@@ -71,10 +78,10 @@ public class RegisterClientService implements RegisterClientUseCase {
                         .phone(command.phone())
                         .build());
 
-        // Step 4 — Record notification event for Agent Notifications (NFR-05)
+        // Step 5 — Record notification event for Agent Notifications (NFR-05)
         String payload = String.format(
                 "{\"email\":\"%s\",\"name\":\"%s\",\"externalId\":\"%s\"}",
-                command.email(), command.name(), command.externalId());
+                command.email(), command.name(), externalId);
         notificationLogPort.record("CLIENT_REGISTRATION", command.email(), payload,
                 "client", client.getId(), "welcome");
 
