@@ -63,11 +63,6 @@ export class CheckoutComponent implements OnInit {
       paymentMethod: this.selectedPaymentMethod
     };
 
-    // The backend uses VENDOR_UUID = '00000000-0000-0000-0000-000000000000' for the main store
-    // This might need adjustment if multi-vendor store is implemented, 
-    // but US-033 says it links to client_id and vendor_id.
-    // The ReservationRequest in model doesn't have vendorId, usually it's inferred from the services or a header.
-    
     this.reservationsApi.createReservation(reservationRequest).subscribe({
       next: (response) => {
         this.cartService.clearCart();

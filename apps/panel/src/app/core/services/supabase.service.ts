@@ -3,7 +3,7 @@ import {
   createClient,
   SupabaseClient,
 } from '@supabase/supabase-js';
-import { environment } from '../../../environments/environment';
+import { runtimeConfig } from '../config/runtime-config';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +14,8 @@ export class SupabaseService {
 
   constructor() {
     this.supabaseClient = createClient(
-      environment.supabaseUrl,
-      environment.supabaseKey
+      runtimeConfig.supabaseUrl,
+      runtimeConfig.supabaseKey
     );
   }
 

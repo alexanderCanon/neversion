@@ -23,6 +23,7 @@
 #        - Build type: Dockerfile
 #        - Dockerfile path: apps/panel/Dockerfile
 #        - Puerto: 80
+#        - Env vars: PANEL_API_URL, PANEL_SUPABASE_URL, PANEL_SUPABASE_KEY
 #
 #      Store (Angular SSR):
 #        - Source: GitHub → neversion (repo)
@@ -30,14 +31,15 @@
 #        - Build type: Dockerfile
 #        - Dockerfile path: apps/store/Dockerfile
 #        - Puerto: 4000
-#        - Env vars: NODE_ENV=production
+#        - Env vars: NODE_ENV=production, STORE_API_URL, STORE_SUPABASE_URL,
+#                    STORE_SUPABASE_KEY, STORE_VENDOR_UUID
 #
 #   3. Dokploy detecta automaticamente los merges a main y redespliega
 #      cada app de forma independiente.
 #
 # ──────────────────────────────────────────────────────────────────
 # PARA LEVANTAR TODO LOCALMENTE:
-#   docker compose -f compose.local.yml up --build
+#   docker compose --env-file infra/.env -f infra/compose.local.yml up --build
 # ══════════════════════════════════════════════════════════════════
 
 services:
@@ -45,7 +47,7 @@ services:
   # Env vars requeridas en Dokploy:
   api:
     build:
-      context: ./apps/api
+      context: ../apps/api
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: prod
@@ -57,6 +59,13 @@ services:
       SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
       # CORS — dominios permitidos separados por coma
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      NEVERSION_EMAIL_FROM: ${NEVERSION_EMAIL_FROM}
+      NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS}
+      NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED}
+      NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED}
+      NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS}
+      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED}
       SERVER_PORT: 8080
     deploy:
       resources:
@@ -68,17 +77,26 @@ services:
   # ── Panel — Angular 17 static (Nginx) ───────────────────────────
   panel:
     build:
-      context: ./apps/panel
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/panel/Dockerfile
+    environment:
+      PANEL_API_URL: ${PANEL_API_URL}
+      PANEL_SUPABASE_URL: ${PANEL_SUPABASE_URL}
+      PANEL_SUPABASE_KEY: ${PANEL_SUPABASE_KEY}
     ports:
       - "80:80"
 
   # ── Store — Angular 16 SSR (Node) ───────────────────────────────
   store:
     build:
-      context: ./apps/store
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: apps/store/Dockerfile
     environment:
       NODE_ENV: production
+      PORT: 4000
+      STORE_API_URL: ${STORE_API_URL}
+      STORE_SUPABASE_URL: ${STORE_SUPABASE_URL}
+      STORE_SUPABASE_KEY: ${STORE_SUPABASE_KEY}
+      STORE_VENDOR_UUID: ${STORE_VENDOR_UUID}
     ports:
       - "4000:4000"

@@ -3,12 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize, map } from 'rxjs';
 import { ClientRequest as ApiClientRequest, ClientResponse as ApiClientResponse } from '@neversion/api-client';
 import { ClientsFilter, ClientRequest, ClientResponse, ClientDetail } from '@neversion/models';
-import { environment } from '../../../../environments/environment';
+import { runtimeConfig } from '../../../core/config/runtime-config';
 
 @Injectable({ providedIn: 'root' })
 export class ClientsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl = runtimeConfig.apiUrl;
 
   private readonly _clients = signal<ClientResponse[]>([]);
   readonly clients = this._clients.asReadonly();

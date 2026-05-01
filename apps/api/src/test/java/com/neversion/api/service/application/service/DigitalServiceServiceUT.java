@@ -50,7 +50,6 @@ class DigitalServiceServiceUT {
     private static final Long VENDOR_ID = 20L;
     private static final UUID SERVICE_UUID = UUID.randomUUID();
     private static final UUID VENDOR_UUID = UUID.randomUUID();
-    private static final UUID OTHER_VENDOR_UUID = UUID.randomUUID();
     private static final Long OTHER_VENDOR_ID = 99L;
 
     @BeforeEach

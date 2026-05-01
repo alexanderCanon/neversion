@@ -5,6 +5,7 @@ import { SupabaseService } from './supabase.service';
 import { AuthResponse } from '@supabase/supabase-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
 import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
+import { runtimeConfig } from '../config/runtime-config';
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +16,6 @@ export class AuthService {
   
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.isLoadingSubject.asObservable();
-
-  // For EPIC-01, this UUID should come from environment or domain-based config
-  private readonly VENDOR_UUID = '00000000-0000-0000-0000-000000000000'; 
 
   constructor(
     private supabaseService: SupabaseService,
@@ -73,7 +71,7 @@ export class AuthService {
           email: userData.email,
           name: `${userData.name} ${userData.lastname}`,
           phone: userData.phone,
-          vendorUuid: this.VENDOR_UUID,
+          vendorUuid: runtimeConfig.storeVendorUuid,
           externalId: supaResponse.data.user?.id
         };
 

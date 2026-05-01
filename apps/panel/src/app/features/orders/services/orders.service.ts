@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { runtimeConfig } from '../../../core/config/runtime-config';
 import { OrderResponse as ApiOrderResponse, OrderDetailResponse as ApiOrderDetailResponse } from '@neversion/api-client';
 import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/orders`;
+  private readonly baseUrl = `${runtimeConfig.apiUrl}/orders`;
 
   getOrderById(id: string): Observable<ApiOrderDetailResponse> {
     return this.http.get<ApiOrderDetailResponse>(`${this.baseUrl}/${id}`);

@@ -1,9 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { runtimeConfig } from '../config/runtime-config';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // We only want to attach the token to our own API
-  if (!req.url.startsWith(environment.apiUrl)) {
+  if (!req.url.startsWith(runtimeConfig.apiUrl)) {
     return next(req);
   }
 

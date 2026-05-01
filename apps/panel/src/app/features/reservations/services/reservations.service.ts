@@ -1,19 +1,17 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize, map } from 'rxjs';
-import { environment } from '../../../../environments/environment';
+import { runtimeConfig } from '../../../core/config/runtime-config';
 import { 
-  ServicesApiService, 
   ReservationResponse as ApiReservationResponse, 
   ReservationRequest as CreateReservationRequest,
-  ReservationDetailResponse as ApiReservationDetailResponse
 } from '@neversion/api-client';
 import { ReservationsFilter, ReservationResponse, ReservationDetailResponse, ReservationStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/reservations`;
+  private readonly baseUrl = `${runtimeConfig.apiUrl}/reservations`;
 
   private readonly _reservations = signal<ReservationResponse[]>([]);
   readonly reservations = this._reservations.asReadonly();
