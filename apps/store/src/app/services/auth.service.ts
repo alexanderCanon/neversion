@@ -55,7 +55,7 @@ export class AuthService {
           name: userData.name,
           lastname: userData.lastname,
           phone: userData.phone,
-          role: 'cliente' as UserRole
+          role: 'client' as UserRole
         }
       }
     });
@@ -99,7 +99,7 @@ export class AuthService {
     const mappedUser: User = {
       id: data.user?.id || '',
       email: data.user?.email || '',
-      role: (data.user?.user_metadata?.['role'] as UserRole) || 'cliente',
+      role: (data.user?.user_metadata?.['role'] as UserRole) || 'client',
       name: data.user?.user_metadata?.['name'],
       lastname: data.user?.user_metadata?.['lastname'],
       phone: data.user?.user_metadata?.['phone']

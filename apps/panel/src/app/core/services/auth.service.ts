@@ -41,8 +41,8 @@ export class AuthService {
         const metaRole = user.user_metadata?.['role'] as UserRole;
         if (metaRole) return metaRole;
 
-        // Fallback Mock logic: admin emails are super_admin, others are vendedor
-        return user.email?.includes('admin') ? 'super_admin' : 'vendedor';
+        // Fallback Mock logic: admin emails are super_admin, others are vendor
+        return user.email?.includes('admin') ? 'super_admin' : 'vendor';
     });
 
     constructor() {
@@ -95,7 +95,7 @@ export class AuthService {
                     lastname: request.lastname,
                     phone: request.phone,
                     store_name: request.storeName,
-                    role: 'vendedor' as UserRole
+                    role: 'vendor' as UserRole
                 },
             },
         });
@@ -175,7 +175,7 @@ export class AuthService {
         const mappedUser: User = {
             id: data.user?.id || '',
             email: data.user?.email || '',
-            role: (data.user?.user_metadata?.['role'] as UserRole) || 'vendedor',
+            role: (data.user?.user_metadata?.['role'] as UserRole) || 'vendor',
             name: data.user?.user_metadata?.['name'],
             lastname: data.user?.user_metadata?.['lastname'],
             phone: data.user?.user_metadata?.['phone']

@@ -31,7 +31,7 @@ export class LoginComponent {
                 if (result.success && result.user) {
                     const role = result.user.role;
                     
-                    if (role === 'cliente') {
+                    if (role === 'client') {
                         // User story US-014: If a client tries to log in here, redirect to store or deny.
                         // For now, we sign out and show error.
                         this.authService.signOut().subscribe();
