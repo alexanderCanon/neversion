@@ -1,3 +1,96 @@
 :host {
   display: block;
 }
+
+.dashboard-section {
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1rem;
+  height: 100%;
+}
+
+.section-header {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  span {
+    font-size: 0.82rem;
+  }
+}
+
+.due-column {
+  border: 1px solid #edf0f2;
+  border-radius: 8px;
+  min-height: 12rem;
+  padding: 0.75rem;
+}
+
+.due-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.due-today {
+  border-top: 3px solid #dc3545;
+}
+
+.due-tomorrow {
+  border-top: 3px solid #fd7e14;
+}
+
+.due-week {
+  border-top: 3px solid #0d6efd;
+}
+
+.due-item {
+  border-bottom: 1px solid #edf0f2;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0;
+
+  strong {
+    font-size: 0.9rem;
+  }
+
+  span,
+  small {
+    color: #6c757d;
+    font-size: 0.78rem;
+  }
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.empty-state {
+  color: #6c757d;
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.inventory-table {
+  margin-bottom: 0;
+
+  th {
+    color: #6c757d;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  td {
+    font-size: 0.88rem;
+  }
+}

@@ -23,13 +23,13 @@ export const routes: Routes = [
             {
                 path: 'dashboard',
                 loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-                data: { allowedRoles: ['super_admin', 'vendedor'] },
+                data: { allowedRoles: ['vendedor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'dashboard/productos/:productId',
                 loadComponent: () => import('./features/dashboard/pages/product-accounts-page.component').then(m => m.ProductAccountsPageComponent),
-                data: { allowedRoles: ['super_admin', 'vendedor'] },
+                data: { allowedRoles: ['vendedor'] },
                 canActivate: [roleGuard]
             },
             {

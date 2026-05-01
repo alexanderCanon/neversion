@@ -4,7 +4,9 @@ Este diagrama resume los endpoints backend de KPIs del vendedor autenticado. Tod
 
 ```mermaid
 flowchart TD
-    V["Vendedor autenticado"] --> API["DashboardController /api/v1/dashboard/kpis"]
+    V["Vendedor autenticado"] --> UI["Panel /dashboard"]
+    UI --> CLIENT["DashboardApiService generado"]
+    CLIENT --> API["DashboardController /api/v1/dashboard/kpis"]
     API --> AUTH["Resolver vendor desde JWT"]
     AUTH --> E["US-063 GET /expiring-subscriptions"]
     AUTH --> I["US-064 GET /inventory-availability"]
@@ -23,6 +25,12 @@ flowchart TD
     CQ --> CR["DTO: activeClientsCount"]
     RQ --> RR["DTO: successfulRenewalsCount"]
     GQ --> GR["DTO: grossProfit, currency GTQ"]
+
+    ER --> VIEW["Vista KPI del vendedor"]
+    IR --> VIEW
+    CR --> VIEW
+    RR --> VIEW
+    GR --> VIEW
 ```
 
 ## Reglas
@@ -31,3 +39,4 @@ flowchart TD
 2. `SUPER_ADMIN` no accede a estos KPIs porque el alcance confirmado para EPIC-10 es vendedor autenticado.
 3. El período financiero predeterminado es el mes calendario actual calculado en backend.
 4. La ganancia bruta usa snapshots financieros de `subscriptions`: `price_sold - discount_applied`.
+5. El panel consume estos contratos mediante `DashboardApiService` generado por OpenAPI.

@@ -25,6 +25,7 @@ model/accountRequest.ts
 model/accountResponse.ts
 model/accountSummary.ts
 model/accountSummaryResponse.ts
+model/activeClientsKpiResult.ts
 model/activeSubscriptionSummary.ts
 model/changeProfileStatusRequest.ts
 model/client.ts
@@ -41,7 +42,11 @@ model/confirmAssignmentResponse.ts
 model/createManualSubscriptionRequest.ts
 model/createRenewalReservationRequest.ts
 model/detectExpiredSubscriptionsResponse.ts
+model/expiringSubscriptionResult.ts
+model/expiringSubscriptionsKpiResult.ts
 model/financialSnapshot.ts
+model/grossProfitKpiResult.ts
+model/inventoryAvailabilityResult.ts
 model/manualAssignmentRequest.ts
 model/manualAssignmentResponse.ts
 model/models.ts
@@ -69,6 +74,7 @@ model/serviceResponse.ts
 model/statusChangeResponse.ts
 model/subscriptionDetailResponse.ts
 model/subscriptionResponse.ts
+model/successfulRenewalsKpiResult.ts
 model/suggestAssignmentResponse.ts
 model/updateClientProfileRequest.ts
 model/updateClientRequest.ts

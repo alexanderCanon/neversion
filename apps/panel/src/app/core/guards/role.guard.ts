@@ -17,7 +17,12 @@ export const roleGuard: CanActivateFn = (route) => {
         return true;
     }
 
-    // If unauthorized, redirect to dashboard or login
-    const redirectPath = authService.isAuthenticated() ? '/dashboard' : '/login';
+    const redirectPath = authService.isAuthenticated()
+        ? getAuthenticatedFallback(userRole)
+        : '/login';
     return router.createUrlTree([redirectPath]);
 };
+
+function getAuthenticatedFallback(userRole: string | null): string {
+    return userRole === 'super_admin' ? '/vendors' : '/dashboard';
+}
