@@ -133,7 +133,7 @@ rename-module: ## Rename a module across the project. Usage: make rename-module 
 # ORCHESTRATION (delegates to subproject Makefiles)
 # =============================================================================
  
-.PHONY: build-all up-local down-local up-prod down-prod
+.PHONY: build-all up-local down-local down-local-volumes logs-local up-prod down-prod
  
 build-all: ## Build all subprojects (api, panel, front)
 	$(MAKE) -C $(API_DIR) build
@@ -141,16 +141,19 @@ build-all: ## Build all subprojects (api, panel, front)
 	$(MAKE) -C $(FRONT_DIR) build
  
 up-local: ## Start full stack locally with Docker
-	docker compose -f compose.local.yml up -d --build api db panel
+	docker compose --env-file infra/.env -f infra/compose.local.yml up -d --build
  
 down-local: ## Stop local full stack with Docker
-	docker compose -f compose.local.yml down
+	docker compose --env-file infra/.env -f infra/compose.local.yml down
 
-down-local-volumes: ## Stop local full stack with Docker and remove volumes
-	docker compose -f compose.local.yml down -v	
+down-local-volumes: ## Stop local stack and remove volumes (wipes database)
+	docker compose --env-file infra/.env -f infra/compose.local.yml down -v
+
+logs-local: ## Tail logs for local Docker stack
+	docker compose --env-file infra/.env -f infra/compose.local.yml logs -f
  
 up-prod: ## Start full stack in production with Docker
-	docker compose -f compose.prod.yml up -d
+	docker compose --env-file infra/.env.prod -f infra/compose.prod.yml up -d
  
 down-prod: ## Stop production full stack with Docker
-	docker compose -f compose.prod.yml down
+	docker compose --env-file infra/.env.prod -f infra/compose.prod.yml down

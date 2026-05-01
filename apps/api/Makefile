@@ -58,10 +58,13 @@ run: ## Run locally with Spring Boot dev tools (hot reload)
 # DOCKER — DEV
 # =============================================================================
 
-.PHONY: dev-up dev-down dev-logs
+.PHONY: dev-up dev-run dev-down dev-logs
 
 dev-up: ## Start dev stack — PostgreSQL + app (detached). Usage: make dev-up
 	docker compose -f compose.local.yml up -d --build
+
+dev-run:
+	docker compose -f compose.local.yml up -d
 
 dev-down: ## Stop dev stack
 	docker compose -f compose.local.yml down

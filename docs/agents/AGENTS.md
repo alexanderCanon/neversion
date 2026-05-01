@@ -63,6 +63,7 @@ To ensure API-first consistency, development follows a strictly sequential modul
 
 ### 1. Scope & Boundaries
 - **Strict Isolation**: Work exclusively within your assigned project directory.
+- **Env Files Forbidden**: Agents must NEVER read, access, or modify any `.env` file under any circumstances. If environmental variables are needed, instruct the user to configure them.
 - **Read-Only Docs**: The `/docs` folder is immutable for agents, **except for the implementation logs** in `/docs/implementation/`.
 - **Mandatory Logging**: Every change, decision, or progress made must be registered in the corresponding bitácora file within `/docs/implementation/`.
 - **No Cross-Talk**: Never modify files belonging to another agent's project scope.
