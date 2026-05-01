@@ -11,6 +11,7 @@ import { ServiceResponse } from '@neversion/models';
 })
 export class ServicesTableComponent {
   @Input() services: ServiceResponse[] = [];
+  @Input() isReadOnly = false;
   @Output() editService = new EventEmitter<ServiceResponse>();
   @Output() toggleStatus = new EventEmitter<string>();
 

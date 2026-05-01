@@ -7,7 +7,9 @@
         <th scope="col">Precio (Q)</th>
         <th scope="col">Capacidad</th>
         <th scope="col">Estado</th>
+        @if (!isReadOnly) {
         <th scope="col" class="text-end pe-4">Acciones</th>
+        }
       </tr>
     </thead>
     <tbody>
@@ -64,6 +66,7 @@
           </td>
 
           <!-- Actions -->
+          @if (!isReadOnly) {
           <td class="text-end pe-4">
             <div class="btn-group shadow-sm border rounded-2">
               <button class="btn btn-light btn-sm text-primary" (click)="editService.emit(service)" title="Editar servicio">
@@ -77,6 +80,7 @@
               </button>
             </div>
           </td>
+          }
         </tr>
       } @empty {
         <tr>

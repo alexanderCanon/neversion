@@ -5,6 +5,7 @@ import { ServicesDataService } from '../../services/services-data.service';
 import { ServiceResponse, ServiceRequest } from '@neversion/models';
 import { ServicesTableComponent } from '../../components/services-table/services-table.component';
 import { ServiceFormComponent } from '../../components/service-form/service-form.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-services-list',
@@ -17,6 +18,9 @@ export class ServicesListComponent implements OnInit {
   @ViewChild(ServiceFormComponent) serviceModal!: ServiceFormComponent;
 
   private readonly servicesDataService = inject(ServicesDataService);
+  private readonly authService = inject(AuthService);
+
+  isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
 
   services = this.servicesDataService.services;
   isLoading = this.servicesDataService.isLoading;

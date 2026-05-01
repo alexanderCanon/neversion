@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -15,6 +15,7 @@ export class MainLayoutComponent implements OnInit {
   private router = inject(Router);
 
   theme = signal<'light' | 'dark'>('light');
+  isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;

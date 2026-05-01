@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -42,7 +43,11 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
                 email,
                 password,
                 true, // email_confirm
-                Map.of("role", role.name().toLowerCase()) // app_metadata
+                Map.of(
+                        "provider", "email",
+                        "providers", List.of("email"),
+                        "role", role.name().toLowerCase()
+                ) // app_metadata
         );
 
         HttpEntity<SupabaseCreateUserRequest> request = new HttpEntity<>(requestBody, headers);

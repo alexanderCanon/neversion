@@ -37,7 +37,11 @@ export class AuthService {
         const user = this._currentUser();
         if (!user) return null;
         
-        // Priority to metadata if exists
+        // Priority to app_metadata (set securely by backend)
+        const appRole = user.app_metadata?.['role'] as UserRole;
+        if (appRole) return appRole;
+
+        // Fallback to user_metadata (if set manually from Supabase Dashboard)
         const metaRole = user.user_metadata?.['role'] as UserRole;
         if (metaRole) return metaRole;
 
