@@ -9,10 +9,15 @@ import {
 import { ServiceRequest, ServiceResponse, ServicesFilter } from '@neversion/models';
 import { AuthService } from '../../../core/services/auth.service';
 
+interface ApiServicesPageResponse {
+  content?: ApiServiceResponse[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ServicesDataService {
   private readonly servicesApi = inject(ServicesApiService);
   private readonly authService = inject(AuthService);
+  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _services = signal<ServiceResponse[]>([]);
   readonly services = this._services.asReadonly();
@@ -24,19 +29,26 @@ export class ServicesDataService {
    * List services for the current authenticated vendor (US-020)
    */
   getServices(filter?: ServicesFilter): Observable<ServiceResponse[]> {
-    const vendorUuid = this.getVendorUuid();
+    const vendorUuid = this.authService.currentVendorUuid();
     if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.servicesApi.listByVendor1(vendorUuid, filter?.category as 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE', filter?.isActive).pipe(
-      map((apiServices: ApiServiceResponse[]) => apiServices.map(api => this.mapToModel(api))),
+    return this.servicesApi.listByVendor1(
+      vendorUuid,
+      filter?.category as 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE',
+      filter?.isActive,
+      'body',
+      false,
+      this.jsonResponseOptions,
+    ).pipe(
+      map((apiServices) => this.normalizeServicesResponse(apiServices).map(api => this.mapToModel(api))),
       tap((services: ServiceResponse[]) => this._services.set(services)),
       finalize(() => this._isLoading.set(false))
     );
   }
 
   getServiceById(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.getById(id).pipe(
+    return this.servicesApi.getById(id, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -47,7 +59,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.create(apiRequest).pipe(
+    return this.servicesApi.create(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api)),
       tap((newService) => {
         this._services.update((current) => [...current, newService]);
@@ -61,7 +73,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.update(id, apiRequest).pipe(
+    return this.servicesApi.update(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 
@@ -75,7 +87,7 @@ export class ServicesDataService {
    * Toggles the active status of a service (US-019)
    */
   toggleServiceStatus(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.toggleStatus(id).pipe(
+    return this.servicesApi.toggleStatus(id, 'body', false, this.jsonResponseOptions).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 
@@ -97,9 +109,12 @@ export class ServicesDataService {
     return this.getServices();
   }
 
-  private getVendorUuid(): string | null {
-    const user = this.authService.currentUser();
-    return user ? user.id : null;
+  private normalizeServicesResponse(response: ApiServiceResponse[] | ApiServicesPageResponse): ApiServiceResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    return response.content ?? [];
   }
 
   private mapToModel(api: ApiServiceResponse): ServiceResponse {

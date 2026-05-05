@@ -1,4 +1,5 @@
-import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
 export interface LogEntry {
   timestamp: string;
@@ -10,6 +11,7 @@ export interface LogEntry {
 
 @Injectable({ providedIn: 'root' })
 export class ErrorLoggerService {
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly STORAGE_KEY = 'neversion_error_log';
   private readonly MAX_LOGGED_ERRORS = 10;
 
@@ -50,6 +52,10 @@ export class ErrorLoggerService {
   }
 
   private saveToStorage(entry: LogEntry): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     try {
       const existing = this.getLog();
       const updated = [entry, ...existing].slice(0, this.MAX_LOGGED_ERRORS);
@@ -60,6 +66,10 @@ export class ErrorLoggerService {
   }
 
   getLog(): LogEntry[] {
+    if (!isPlatformBrowser(this.platformId)) {
+      return [];
+    }
+
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
@@ -69,6 +79,10 @@ export class ErrorLoggerService {
   }
 
   clearLog(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     localStorage.removeItem(this.STORAGE_KEY);
   }
 }

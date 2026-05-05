@@ -22,13 +22,13 @@ export class SubscriptionsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getSubscriptions(filter?: SubscriptionsFilter): Observable<SubscriptionResponse[]> {
-    const user = this.authService.currentUser();
-    if (!user || !user.id) return of([]);
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
     return this.subscriptionsApi.listByVendor(
-      user.id, 
-      filter?.serviceId, 
+      vendorUuid,
+      filter?.serviceId,
       filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED'
     ).pipe(
       tap((subscriptions) => this._subscriptions.set(subscriptions)),

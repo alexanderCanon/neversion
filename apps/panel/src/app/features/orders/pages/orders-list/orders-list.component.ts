@@ -58,11 +58,11 @@ export class OrdersListComponent implements OnInit {
   }
 
   loadOrders(): void {
-    const user = this.authService.currentUser();
-    if (!user) return;
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return;
 
     this.isLoading.set(true);
-    this.ordersService.getOrdersByVendor(user.id).subscribe({
+    this.ordersService.getOrdersByVendor(vendorUuid).subscribe({
       next: (data) => {
         this._orders.set(data);
         this.isLoading.set(false);

@@ -8,7 +8,7 @@ import { OrderResponse, OrderStatus } from '@neversion/models';
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${runtimeConfig.apiUrl}/orders`;
+  private readonly baseUrl = `${runtimeConfig.apiUrl}/api/v1/orders`;
 
   getOrderById(id: string): Observable<ApiOrderDetailResponse> {
     return this.http.get<ApiOrderDetailResponse>(`${this.baseUrl}/${id}`);

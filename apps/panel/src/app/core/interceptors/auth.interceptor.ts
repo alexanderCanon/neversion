@@ -1,5 +1,8 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { runtimeConfig } from '../config/runtime-config';
+import { getSupabaseAccessToken } from '../utils/supabase-session-storage';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // We only want to attach the token to our own API
@@ -7,31 +10,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  // Retrieve token synchronously to avoid Supabase auth session locking issues on every HTTP request
-  let token = null;
+  const platformId = inject(PLATFORM_ID);
+  if (!isPlatformBrowser(platformId)) {
+    return next(req);
+  }
 
   try {
-      // Supabase stores the session under a key like 'sb-<project-id>-auth-token'
-      const authKey = Object.keys(localStorage).find(key => key.startsWith('sb-') && key.endsWith('-auth-token'));
-      if (authKey) {
-          const storedSession = localStorage.getItem(authKey);
-          if (storedSession) {
-              const sessionObj = JSON.parse(storedSession);
-              token = sessionObj.access_token;
-          }
-      }
+    const token = getSupabaseAccessToken(localStorage);
+    if (token) {
+      return next(req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+      }));
+    }
   } catch (error) {
-      console.warn('Could not parse Supabase session from localStorage:', error);
+    console.warn('Could not parse Supabase session from localStorage:', error);
   }
-  
-  if (token) {
-    const clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return next(clonedRequest);
-  }
-  
+
   return next(req);
 };

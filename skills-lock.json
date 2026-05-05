@@ -1,15 +1,20 @@
 {
   "version": 1,
   "skills": {
-    "angular-developer": {
-      "source": "angular/skills",
-      "sourceType": "github",
-      "computedHash": "b7764c591c965d85f95f1d4f6d3620b6ab92a1b1fedbcdead7d59e946fc3fd2e"
+    "angular": {
+      "source": ".agents/skills/angular",
+      "sourceType": "local",
+      "computedHash": "c9c28818641fbba4a4e83d34b3d0dadae2bdd121fd10766863886237b439fe27"
     },
-    "angular-new-app": {
-      "source": "angular/skills",
-      "sourceType": "github",
-      "computedHash": "49bd84ab08bd3498c52f476bed48fbb942dc6dbc0925607e84549adbed34bccf"
+    "spring-standards": {
+      "source": ".agents/skills/spring-standards",
+      "sourceType": "local",
+      "computedHash": "local"
+    },
+    "spring-monolith-testing-skill": {
+      "source": ".agents/skills/spring-monolith-testing-skill",
+      "sourceType": "local",
+      "computedHash": "local"
     }
   }
 }

@@ -24,12 +24,12 @@ export class AccountsService {
    * List accounts for the current authenticated vendor (US-024)
    */
   getAccounts(filter?: AccountsFilter): Observable<AccountResponse[]> {
-    const user = this.authService.currentUser();
-    if (!user) return of([]);
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
     // listByVendor3(vendorUuid, serviceUuid, status)
-    return this.accountsApi.listByVendor4(user.id, filter?.serviceId, filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED').pipe(
+    return this.accountsApi.listByVendor4(vendorUuid, filter?.serviceId, filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED').pipe(
       map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
       tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
       finalize(() => this._isLoading.set(false))
