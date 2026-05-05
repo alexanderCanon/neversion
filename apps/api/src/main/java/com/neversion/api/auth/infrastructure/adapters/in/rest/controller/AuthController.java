@@ -4,10 +4,14 @@ import com.neversion.api.auth.infrastructure.adapters.in.rest.dto.RegisterClient
 import com.neversion.api.auth.infrastructure.adapters.in.rest.dto.RegisterClientResponse;
 import com.neversion.api.auth.infrastructure.adapters.in.rest.dto.RegisterVendorRequest;
 import com.neversion.api.auth.infrastructure.adapters.in.rest.dto.RegisterVendorResponse;
+import com.neversion.api.auth.infrastructure.adapters.in.rest.dto.CurrentUserResponse;
+import com.neversion.api.auth.infrastructure.adapters.in.rest.mapper.CurrentUserResponseMapper;
 import com.neversion.api.auth.infrastructure.adapters.in.rest.mapper.RegisterClientRequestMapper;
 import com.neversion.api.auth.infrastructure.adapters.in.rest.mapper.RegisterVendorRequestMapper;
+import com.neversion.api.user.application.port.in.GetCurrentUserContextUseCase;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
+import com.neversion.api.user.domain.model.CurrentUserContextResult;
 import com.neversion.api.user.domain.model.RegisterClientResult;
 import com.neversion.api.user.domain.model.RegisterVendorResult;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +21,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +43,29 @@ public class AuthController {
 
     private final RegisterVendorUseCase registerVendorUseCase;
     private final RegisterClientUseCase registerClientUseCase;
+    private final GetCurrentUserContextUseCase getCurrentUserContextUseCase;
 
     public AuthController(
             RegisterVendorUseCase registerVendorUseCase,
-            RegisterClientUseCase registerClientUseCase) {
+            RegisterClientUseCase registerClientUseCase,
+            GetCurrentUserContextUseCase getCurrentUserContextUseCase) {
         this.registerVendorUseCase = registerVendorUseCase;
         this.registerClientUseCase = registerClientUseCase;
+        this.getCurrentUserContextUseCase = getCurrentUserContextUseCase;
+    }
+
+    @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Get authenticated platform context",
+            description = "Resolves the Supabase JWT subject to the internal platform user and vendor context."
+    )
+    @ApiResponse(responseCode = "200", description = "Authenticated context resolved")
+    @ApiResponse(responseCode = "401", description = "No valid JWT provided")
+    @ApiResponse(responseCode = "404", description = "Internal user or vendor context not found")
+    public ResponseEntity<CurrentUserResponse> me(@AuthenticationPrincipal Jwt jwt) {
+        CurrentUserContextResult result = getCurrentUserContextUseCase.get(jwt.getSubject());
+        return ResponseEntity.ok(CurrentUserResponseMapper.toResponse(result));
     }
 
     /**

@@ -108,8 +108,10 @@ public class AccountController {
     public ResponseEntity<List<AccountResponse>> listByVendor(
             @PathVariable UUID vendorUuid,
             @RequestParam(required = false) UUID serviceUuid,
-            @RequestParam(required = false) AccountStatus status) {
-        List<Account> accounts = listAccountsUseCase.listByVendor(vendorUuid, serviceUuid, status);
+            @RequestParam(required = false) AccountStatus status,
+            JwtAuthenticationToken token) {
+        List<Account> accounts = listAccountsUseCase.listByVendor(
+                vendorUuid, serviceUuid, status, extractExternalId(token));
         List<AccountResponse> response = accounts.stream()
                 .map(account -> accountMapper.toResponse(
                         account,

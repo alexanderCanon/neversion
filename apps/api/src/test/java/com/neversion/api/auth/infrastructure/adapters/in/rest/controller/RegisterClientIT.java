@@ -2,6 +2,7 @@ package com.neversion.api.auth.infrastructure.adapters.in.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.BaseIntegrationTest;
+import com.neversion.api.user.application.port.in.GetCurrentUserContextUseCase;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
 import com.neversion.api.user.domain.model.RegisterClientResult;
@@ -46,6 +47,9 @@ class RegisterClientIT extends BaseIntegrationTest {
 
     @MockitoBean
     private RegisterVendorUseCase registerVendorUseCase;
+
+    @MockitoBean
+    private GetCurrentUserContextUseCase getCurrentUserContextUseCase;
 
     // ─── 400: validation ─────────────────────────────────────────────────────
 

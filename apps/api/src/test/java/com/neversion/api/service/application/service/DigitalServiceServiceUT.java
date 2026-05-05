@@ -178,10 +178,11 @@ class DigitalServiceServiceUT {
         void listByVendor_shouldReturnAll_whenNoFilters() {
             Vendor vendor = buildVendor(VENDOR_UUID, VENDOR_ID);
             when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             when(serviceRepositoryPort.findAllByVendorId(VENDOR_ID))
                     .thenReturn(List.of(buildSavedService(VENDOR_ID), buildSavedService(VENDOR_ID)));
 
-            List<Service> result = sut.listByVendor(VENDOR_UUID, null, null);
+            List<Service> result = sut.listByVendor(VENDOR_UUID, null, null, EXTERNAL_ID);
 
             assertThat(result).hasSize(2);
             verify(serviceRepositoryPort).findAllByVendorId(VENDOR_ID);
@@ -193,13 +194,25 @@ class DigitalServiceServiceUT {
         void listByVendor_shouldUseFilters_whenProvided() {
             Vendor vendor = buildVendor(VENDOR_UUID, VENDOR_ID);
             when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             when(serviceRepositoryPort.findByVendorIdAndFilters(VENDOR_ID, CategoryType.STREAMING, true))
                     .thenReturn(List.of(buildSavedService(VENDOR_ID)));
 
-            List<Service> result = sut.listByVendor(VENDOR_UUID, CategoryType.STREAMING, true);
+            List<Service> result = sut.listByVendor(VENDOR_UUID, CategoryType.STREAMING, true, EXTERNAL_ID);
 
             assertThat(result).hasSize(1);
             verify(serviceRepositoryPort).findByVendorIdAndFilters(VENDOR_ID, CategoryType.STREAMING, true);
+        }
+
+        @Test
+        @DisplayName("should throw AccessDeniedException when caller does not own vendor")
+        void listByVendor_shouldThrow_whenCallerDoesNotOwnVendor() {
+            Vendor vendor = buildVendor(VENDOR_UUID, OTHER_VENDOR_ID);
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
+
+            assertThatThrownBy(() -> sut.listByVendor(VENDOR_UUID, null, null, EXTERNAL_ID))
+                    .isInstanceOf(AccessDeniedException.class);
         }
     }
 

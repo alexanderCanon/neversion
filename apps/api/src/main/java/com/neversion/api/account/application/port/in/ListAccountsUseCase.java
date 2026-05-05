@@ -13,5 +13,5 @@ public interface ListAccountsUseCase {
      * @param serviceUuid optional filter by service UUID
      * @param status      optional filter by account status
      */
-    List<Account> listByVendor(UUID vendorUuid, UUID serviceUuid, AccountStatus status);
+    List<Account> listByVendor(UUID vendorUuid, UUID serviceUuid, AccountStatus status, String callerExternalId);
 }

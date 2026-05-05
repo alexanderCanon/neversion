@@ -22,7 +22,7 @@ public interface ServiceUseCase {
     Service toggleStatus(UUID uuid, String callerExternalId);
 
     /** US-020: List all services for the vendor panel (active + inactive, with optional filters). */
-    List<Service> listByVendor(UUID vendorUuid, CategoryType category, Boolean isActive);
+    List<Service> listByVendor(UUID vendorUuid, CategoryType category, Boolean isActive, String callerExternalId);
 
     /** US-021: List only active services for a vendor's public store. */
     List<Service> listActive(UUID vendorUuid);

@@ -2,6 +2,7 @@ package com.neversion.api.auth.infrastructure.adapters.in.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.BaseIntegrationTest;
+import com.neversion.api.user.application.port.in.GetCurrentUserContextUseCase;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
 import com.neversion.api.user.domain.model.RegisterVendorResult;
@@ -57,6 +58,9 @@ class RegisterVendorIT extends BaseIntegrationTest {
     /** AuthController now depends on both use cases — mock to satisfy DI. */
     @MockitoBean
     private RegisterClientUseCase registerClientUseCase;
+
+    @MockitoBean
+    private GetCurrentUserContextUseCase getCurrentUserContextUseCase;
 
     // Must match application-test.yaml supabase.jwt.secret
     private static final String JWT_SECRET =

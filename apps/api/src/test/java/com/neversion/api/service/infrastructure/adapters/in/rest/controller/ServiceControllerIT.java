@@ -195,7 +195,7 @@ class ServiceControllerIT extends BaseIntegrationTest {
         @Test
         @DisplayName("should return 200 with all vendor services when authenticated as VENDOR")
         void list_shouldReturn200_whenVendor() throws Exception {
-            when(serviceUseCase.listByVendor(any(), any(), any()))
+            when(serviceUseCase.listByVendor(any(), any(), any(), anyString()))
                     .thenReturn(List.of(mockService(), mockService()));
 
             mockMvc.perform(get("/api/v1/services/vendor/{uuid}", VENDOR_UUID)
@@ -207,7 +207,7 @@ class ServiceControllerIT extends BaseIntegrationTest {
         @Test
         @DisplayName("should accept optional category and isActive filters")
         void list_shouldAcceptFilters() throws Exception {
-            when(serviceUseCase.listByVendor(any(), any(), any()))
+            when(serviceUseCase.listByVendor(any(), any(), any(), anyString()))
                     .thenReturn(List.of(mockService()));
 
             mockMvc.perform(get("/api/v1/services/vendor/{uuid}", VENDOR_UUID)

@@ -6,7 +6,9 @@ import com.neversion.api.service.application.port.in.ServiceUseCase;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,16 +119,19 @@ public class DigitalServiceService implements ServiceUseCase {
 
     @Override
     public List<com.neversion.api.service.domain.model.Service> listByVendor(
-            UUID vendorUuid, CategoryType category, Boolean isActive) {
+            UUID vendorUuid, CategoryType category, Boolean isActive, String callerExternalId) {
 
-        Long vendorId = vendorRepositoryPort.findByUuid(vendorUuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid))
-                .getId();
+        Vendor vendor = vendorRepositoryPort.findByUuid(vendorUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid));
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (!callerVendorId.equals(vendor.getId())) {
+            throw new AccessDeniedException("Access denied: you do not own vendor " + vendorUuid);
+        }
 
         if (category == null && isActive == null) {
-            return serviceRepositoryPort.findAllByVendorId(vendorId);
+            return serviceRepositoryPort.findAllByVendorId(vendor.getId());
         }
-        return serviceRepositoryPort.findByVendorIdAndFilters(vendorId, category, isActive);
+        return serviceRepositoryPort.findByVendorIdAndFilters(vendor.getId(), category, isActive);
     }
 
     // ─── US-021: Public store catalog (active only) ──────────────────────────
@@ -184,8 +189,7 @@ public class DigitalServiceService implements ServiceUseCase {
             String callerExternalId) {
         Long callerVendorId = resolveVendorId(callerExternalId);
         if (!callerVendorId.equals(service.getVendorId())) {
-            throw new org.springframework.security.access.AccessDeniedException(
-                    "Access denied: you do not own service " + service.getUuid());
+            throw new AccessDeniedException("Access denied: you do not own service " + service.getUuid());
         }
     }
 }

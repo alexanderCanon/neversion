@@ -112,9 +112,10 @@ public class ServiceController {
     public ResponseEntity<List<ServiceResponse>> listByVendor(
             @PathVariable UUID vendorUuid,
             @RequestParam(required = false) CategoryType category,
-            @RequestParam(required = false) Boolean isActive) {
+            @RequestParam(required = false) Boolean isActive,
+            @AuthenticationPrincipal Jwt jwt) {
 
-        var services = serviceUseCase.listByVendor(vendorUuid, category, isActive);
+        var services = serviceUseCase.listByVendor(vendorUuid, category, isActive, jwt.getSubject());
         return ResponseEntity.ok(services.stream().map(serviceMapper::toResponse).toList());
     }
 
