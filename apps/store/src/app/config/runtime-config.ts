@@ -26,7 +26,7 @@ const serverEnv = typeof process !== 'undefined'
 export const runtimeConfig = {
   apiUrl: browserConfig?.apiUrl
     ?? serverEnv?.['STORE_API_URL']
-    ?? 'http://localhost:8080/api/v1',
+    ?? 'http://localhost:8080',
   supabaseUrl: browserConfig?.supabaseUrl
     ?? serverEnv?.['STORE_SUPABASE_URL']
     ?? 'https://your-project.supabase.co',

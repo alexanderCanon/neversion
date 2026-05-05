@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of, switchMap } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
-import { AuthResponse } from '@supabase/supabase-js';
+import { AuthResponse } from '@supabase/auth-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
 import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
 import { runtimeConfig } from '../config/runtime-config';

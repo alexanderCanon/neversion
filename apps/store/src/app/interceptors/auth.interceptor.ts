@@ -12,7 +12,9 @@ import { runtimeConfig } from '../config/runtime-config';
 export class AuthInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    if (!req.url.startsWith(runtimeConfig.apiUrl)) {
+    const isPublicRoute = req.url.includes('/services/store/');
+
+    if (!req.url.startsWith(runtimeConfig.apiUrl) || isPublicRoute) {
       return next.handle(req);
     }
 

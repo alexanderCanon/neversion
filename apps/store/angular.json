@@ -16,6 +16,7 @@
             "outputPath": "dist/neversion-site/browser",
             "index": "src/index.html",
             "main": "src/main.ts",
+            "preserveSymlinks": true,
             "polyfills": [
               "zone.js"
             ],
