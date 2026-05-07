@@ -1,17 +1,15 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { AuthService } from '../services/auth.service';
 
 /**
  * GuestGuard prevents authenticated users from accessing guest-only routes like /login.
  */
-export const guestGuard: CanActivateFn = async () => {
+export const guestGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const supabaseService = inject(SupabaseService);
+  const authService = inject(AuthService);
 
-  const { data } = await supabaseService.client.auth.getSession();
-
-  if (!data.session) {
+  if (!authService.currentSession()) {
     return true;
   }
 

@@ -1,12 +1,13 @@
-import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountsService } from '../../services/accounts.service';
-import { AccountResponse, AccountStatus } from '@neversion/models';
+import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus } from '@neversion/models';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
+import { AuthService } from '../../../../core/services/auth.service';
 
 import { ActivatedRoute } from '@angular/router';
 
@@ -22,10 +23,15 @@ export class AccountsListComponent implements OnInit {
 
   private readonly accountsService = inject(AccountsService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
+  private lastLoadedVendorUuid: string | null = null;
 
   readonly accounts = this.accountsService.accounts;
   readonly isLoading = this.accountsService.isLoading;
+  readonly vendorUuid = computed(() => this.authService.currentVendorUuid());
+  readonly hasRequestedAccounts = signal(false);
+  readonly loadError = signal(false);
 
   searchTerm = signal('');
   filterType = signal<AccountStatus | 'ALL'>('ALL');
@@ -57,6 +63,17 @@ export class AccountsListComponent implements OnInit {
   currentPage = signal(1);
   pageSize = 5;
 
+  constructor() {
+    effect(() => {
+      const vendorUuid = this.vendorUuid();
+      if (!vendorUuid || this.lastLoadedVendorUuid === vendorUuid) {
+        return;
+      }
+      this.lastLoadedVendorUuid = vendorUuid;
+      this.loadAccounts();
+    }, { allowSignalWrites: true });
+  }
+
   readonly paginatedAccounts = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize;
     return this.filteredAccounts().slice(start, start + this.pageSize);
@@ -71,12 +88,23 @@ export class AccountsListComponent implements OnInit {
         if (params['filter']) {
             this.filterType.set(params['filter'] as AccountStatus);
         }
-        this.loadAccounts();
     });
   }
 
   loadAccounts(): void {
-    this.accountsService.getAccounts().subscribe();
+    const vendorUuid = this.vendorUuid();
+    if (!vendorUuid) {
+      return;
+    }
+
+    this.hasRequestedAccounts.set(true);
+    this.loadError.set(false);
+
+    this.accountsService.getAccounts().subscribe({
+      error: () => {
+        this.loadError.set(true);
+      },
+    });
   }
 
   toggleAccount(accountId: string): void {
@@ -110,9 +138,16 @@ export class AccountsListComponent implements OnInit {
   }
 
   onProfilesChanged(accountId: string): void {
-      delete this.detailedData()[accountId]; // Clear cache
+      this.detailedData.update((current) => {
+        const { [accountId]: _removed, ...remainingDetails } = current;
+        return remainingDetails;
+      });
       this.loadAccountDetail(accountId);
-      this.loadAccounts(); // Refresh summary list
+      this.loadAccounts();
+  }
+
+  retryLoadAccounts(): void {
+    this.loadAccounts();
   }
 
   deactivateAccount(account: AccountResponse): void {
@@ -135,9 +170,17 @@ export class AccountsListComponent implements OnInit {
     }
   }
 
-  getProfilesForAccount(id: string): any[] {
+  getProfilesForAccount(id: string): ProfileResponse[] {
       const detail = this.detailedData()[id];
-      return detail?.profiles || [];
+      return (detail?.profiles || []).map((profile: ProfileSummaryResponse) => ({
+        id: profile.id || '',
+        accountId: id,
+        name: profile.name || '',
+        pin: profile.pin,
+        isOwner: Boolean(profile.isOwner),
+        status: (profile.status as unknown as ProfileStatus) || ProfileStatus.AVAILABLE,
+        createdAt: '',
+      }));
   }
 
   onSearchChange(term: string): void {

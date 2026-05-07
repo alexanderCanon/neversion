@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,6 +113,36 @@ class ClientRepositoryIT extends BaseIntegrationTest {
         assertThat(found).isPresent();
         assertThat(found.get().getUserId()).isEqualTo(clientUser.getId());
         assertThat(found.get().getVendorId()).isEqualTo(parentVendor.getId());
+    }
+
+    // ─── findByVendorId with optional filters ────────────────────────────
+
+    @Test
+    @DisplayName("findByVendorId - should return vendor clients when optional filters are null")
+    void findByVendorId_nullFilters_shouldReturnVendorClients() {
+        Client first = clientRepositoryPort.save(buildClient("Ana Gómez"));
+        Client second = clientRepositoryPort.save(buildClient("Carlos Ruiz"));
+
+        List<Client> result = clientRepositoryPort.findByVendorId(
+                parentVendor.getId(), null, null, null);
+
+        assertThat(result)
+                .extracting(Client::getUuid)
+                .contains(first.getUuid(), second.getUuid());
+    }
+
+    @Test
+    @DisplayName("findByVendorId - should apply text filters only when provided")
+    void findByVendorId_textFilters_shouldApplyProvidedFilters() {
+        Client expected = clientRepositoryPort.save(buildClient("Maria Lopez"));
+        clientRepositoryPort.save(buildClient("Carlos Ruiz"));
+
+        List<Client> result = clientRepositoryPort.findByVendorId(
+                parentVendor.getId(), "maria", "5555", "MARIALOPEZ");
+
+        assertThat(result)
+                .extracting(Client::getUuid)
+                .containsExactly(expected.getUuid());
     }
 
     // ─── deleteById ──────────────────────────────────────────────────────

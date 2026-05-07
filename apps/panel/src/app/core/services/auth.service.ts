@@ -33,6 +33,7 @@ export class AuthService {
     private readonly _currentContext = signal<AuthContextResponse | null>(null);
     private readonly _isLoading = signal<boolean>(false);
     private readonly _errorMessage = signal<string | null>(null);
+    private readonly _contextLoadFailed = signal<boolean>(false);
 
     // ── Public Read-only Signals ──────────────────────────────────
     readonly currentUser = this._currentUser.asReadonly();
@@ -40,6 +41,7 @@ export class AuthService {
     readonly currentContext = this._currentContext.asReadonly();
     readonly isLoading = this._isLoading.asReadonly();
     readonly errorMessage = this._errorMessage.asReadonly();
+    readonly contextLoadFailed = this._contextLoadFailed.asReadonly();
     readonly isAuthenticated = computed(() => this._currentUser() !== null);
     readonly currentVendorUuid = computed(() => this._currentContext()?.vendorUuid ?? null);
     
@@ -94,6 +96,7 @@ export class AuthService {
                     return of(result);
                 }
 
+                this._contextLoadFailed.set(false);
                 return from(this.loadCurrentContext()).pipe(
                     map(() => ({
                         success: true,
@@ -104,6 +107,7 @@ export class AuthService {
                         const message = err instanceof Error
                             ? err.message
                             : 'No se pudo resolver el contexto del usuario autenticado';
+                        this._contextLoadFailed.set(true);
                         this._errorMessage.set(message);
                         return of<AuthResult>({
                             success: false,
@@ -174,6 +178,7 @@ export class AuthService {
                 this._currentUser.set(null);
                 this._currentSession.set(null);
                 this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
                 return { success: true, error: null };
             }),
             catchError((err: unknown) => {
@@ -223,6 +228,7 @@ export class AuthService {
                 this._currentSession.set(session);
             } else {
                 this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
             }
         } catch (err) {
             console.error('Unexpected error restoring session:', err);
@@ -236,6 +242,7 @@ export class AuthService {
 
             if (event === 'SIGNED_OUT') {
                 this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
                 this.router.navigate(['/login'], { replaceUrl: true });
             }
         });
@@ -244,10 +251,26 @@ export class AuthService {
     private async loadCurrentContextIfAuthenticated(): Promise<void> {
         if (!this._currentSession()) {
             this._currentContext.set(null);
+            this._contextLoadFailed.set(false);
             return;
         }
 
-        await this.loadCurrentContext();
+        try {
+            this._contextLoadFailed.set(false);
+            await this.loadCurrentContext();
+        } catch (err) {
+            const message = err instanceof Error
+                ? err.message
+                : 'No se pudo conectar con el servidor';
+            this._currentContext.set(null);
+            this._contextLoadFailed.set(true);
+            this._errorMessage.set(message);
+            console.error('Error loading authenticated context:', err);
+        }
+    }
+
+    async retryCurrentContext(): Promise<void> {
+        await this.loadCurrentContextIfAuthenticated();
     }
 
     private async loadCurrentContext(): Promise<void> {
@@ -255,6 +278,7 @@ export class AuthService {
             this.http.get<AuthContextResponse>(`${runtimeConfig.apiUrl}/api/v1/auth/me`)
         );
         this._currentContext.set(context);
+        this._contextLoadFailed.set(false);
     }
 
     private buildAuthenticatedUser(): User | null {

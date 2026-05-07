@@ -1,14 +1,20 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize, map } from 'rxjs';
-import { ClientRequest as ApiClientRequest, ClientResponse as ApiClientResponse } from '@neversion/api-client';
+import { Observable, tap, finalize, map, of } from 'rxjs';
+import {
+  ClientsApiService,
+  ClientDetail as ApiClientDetail,
+  ClientRequest as ApiClientRequest,
+  ClientResponse as ApiClientResponse,
+  UpdateClientRequest as ApiUpdateClientRequest
+} from '@neversion/api-client';
 import { ClientsFilter, ClientRequest, ClientResponse, ClientDetail } from '@neversion/models';
-import { runtimeConfig } from '../../../core/config/runtime-config';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ClientsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = runtimeConfig.apiUrl;
+  private readonly clientsApi = inject(ClientsApiService);
+  private readonly authService = inject(AuthService);
+  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _clients = signal<ClientResponse[]>([]);
   readonly clients = this._clients.asReadonly();
@@ -17,12 +23,19 @@ export class ClientsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getClients(filter?: ClientsFilter): Observable<ClientResponse[]> {
-    let params = new HttpParams();
-    if (filter?.name) params = params.set('name', filter.name);
-    if (filter?.phone) params = params.set('phone', filter.phone);
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.http.get<ApiClientResponse[]>(`${this.baseUrl}/clients`, { params }).pipe(
+    return this.clientsApi.listByVendor3(
+      vendorUuid,
+      filter?.name,
+      filter?.phone,
+      filter?.email,
+      'body',
+      false,
+      this.jsonResponseOptions,
+    ).pipe(
       map(apiClients => apiClients.map(api => this.mapToModel(api))),
       tap((clients) => this._clients.set(clients)),
       finalize(() => this._isLoading.set(false))
@@ -30,31 +43,14 @@ export class ClientsService {
   }
 
   getClientById(id: string): Observable<ClientResponse> {
-    return this.http.get<ApiClientResponse>(`${this.baseUrl}/clients/${id}`).pipe(
+    return this.clientsApi.getById2(id, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api))
     );
   }
 
   getClientDetail(id: string): Observable<ClientDetail> {
-    return this.http.get<unknown>(`${this.baseUrl}/clients/${id}/detail`).pipe(
-      map(apiUnknown => {
-        const api = apiUnknown as Record<string, unknown>;
-        return {
-          client: api['client'] ? this.mapToModel(api['client'] as unknown as ApiClientResponse) : {} as ClientResponse,
-          activeSubscriptions: ((api['activeSubscriptions'] || []) as Record<string, string>[]).map(s => ({
-            id: s['id'] || '',
-            serviceName: s['serviceName'] || '',
-            profileName: s['profileName'] || '',
-            paymentDueDate: s['paymentDueDate'] || '',
-            status: s['status'] || ''
-          })),
-          orderHistory: ((api['orderHistory'] || []) as Record<string, string>[]).map(o => ({
-            id: o['id'] || '',
-            status: o['status'] || '',
-            createdAt: o['createdAt'] || ''
-          }))
-        };
-      })
+    return this.clientsApi.getDetail(id, 'body', false, this.jsonResponseOptions).pipe(
+      map(api => this.mapDetailToModel(api))
     );
   }
 
@@ -66,7 +62,7 @@ export class ClientsService {
       notes: client.notes
     };
 
-    return this.http.post<ApiClientResponse>(`${this.baseUrl}/clients`, apiRequest).pipe(
+    return this.clientsApi.create2(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api)),
       tap((newClient) => {
         this._clients.update((current) => [...current, newClient]);
@@ -75,14 +71,13 @@ export class ClientsService {
   }
 
   updateClient(id: string, client: ClientRequest): Observable<ClientResponse> {
-    const apiRequest: ApiClientRequest = {
+    const apiRequest: ApiUpdateClientRequest = {
       name: client.name,
-      email: client.email,
       phone: client.phone,
       notes: client.notes
     };
 
-    return this.http.put<ApiClientResponse>(`${this.baseUrl}/clients/${id}`, apiRequest).pipe(
+    return this.clientsApi.update2(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedClient) => {
             this._clients.update(current => 
@@ -93,7 +88,7 @@ export class ClientsService {
   }
 
   deleteClient(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/clients/${id}`).pipe(
+    return this.clientsApi.delete2(id).pipe(
       tap(() => {
         this._clients.update((current) => current.filter((c) => c.id !== id));
       })
@@ -113,6 +108,24 @@ export class ClientsService {
       notes: api.notes || '',
       activeSubscriptionCount: api.activeSubscriptionCount || 0,
       createdAt: api.createdAt || ''
+    };
+  }
+
+  private mapDetailToModel(api: ApiClientDetail): ClientDetail {
+    return {
+      client: api.client ? this.mapToModel(api.client as unknown as ApiClientResponse) : {} as ClientResponse,
+      activeSubscriptions: (api.activeSubscriptions ?? []).map(s => ({
+        id: s.id || '',
+        serviceName: s.serviceName || '',
+        profileName: s.profileName || '',
+        paymentDueDate: s.paymentDueDate || '',
+        status: s.status || ''
+      })),
+      orderHistory: (api.orderHistory ?? []).map(o => ({
+        id: o.id || '',
+        status: o.status || '',
+        createdAt: o.createdAt || ''
+      }))
     };
   }
 }

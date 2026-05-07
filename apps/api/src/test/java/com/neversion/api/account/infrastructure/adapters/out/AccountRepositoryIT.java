@@ -20,6 +20,12 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
+import com.neversion.api.shared.domain.model.enums.AccountStatus;
+import com.neversion.api.user.domain.model.User;
+import com.neversion.api.user.domain.model.enums.UserRole;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.domain.model.Vendor;
+import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 @SpringBootTest
 @Transactional
@@ -32,13 +38,33 @@ class AccountRepositoryIT extends BaseIntegrationTest {
     @Autowired
     private ServiceRepositoryPort serviceRepositoryPort;
 
+    @Autowired
+    private UserRepositoryPort userRepositoryPort;
+
+    @Autowired
+    private VendorRepositoryPort vendorRepositoryPort;
+
+    private Vendor parentVendor;
     private Service parentService;
 
     @BeforeEach
     void setUp() {
+        User vendorUser = userRepositoryPort.save(
+                User.builder()
+                        .externalId("auth|account-vendor-" + System.nanoTime())
+                        .role(UserRole.VENDOR)
+                        .build());
+
+        parentVendor = vendorRepositoryPort.save(
+                Vendor.builder()
+                        .userId(vendorUser.getId())
+                        .storeName("Account Vendor " + System.nanoTime())
+                        .build());
+
         parentService = serviceRepositoryPort.save(
                 Service.builder()
                         .name("Netflix-" + System.nanoTime())
+                        .vendorId(parentVendor.getId())
                         .maxProfiles(5)
                         .details(null)
                         .category(CategoryType.STREAMING)
@@ -48,6 +74,7 @@ class AccountRepositoryIT extends BaseIntegrationTest {
     private Account buildAccount(String email) {
         return Account.builder()
                 .serviceId(parentService.getId())
+                .vendorId(parentVendor.getId())
                 .email(email)
                 .password("secret123")
                 .renewalDate(LocalDate.now().plusDays(30))
@@ -105,6 +132,32 @@ class AccountRepositoryIT extends BaseIntegrationTest {
         assertThat(accounts).hasSize(2);
         assertThat(accounts).extracting(Account::getEmail)
                 .containsExactlyInAnyOrder("a1@netflix.com", "a2@netflix.com");
+    }
+
+    @Test
+    @DisplayName("findByVendorIdFiltered - should filter by service when status is null")
+    void findByVendorIdFiltered_serviceFilter_shouldReturnMatchingAccounts() {
+        Account saved = accountRepositoryPort.save(buildAccount("service-filter@netflix.com"));
+
+        List<Account> accounts = accountRepositoryPort.findByVendorIdFiltered(
+                parentVendor.getId(), parentService.getId(), null);
+
+        assertThat(accounts)
+                .extracting(Account::getUuid)
+                .contains(saved.getUuid());
+    }
+
+    @Test
+    @DisplayName("findByVendorIdFiltered - should filter by status when provided")
+    void findByVendorIdFiltered_statusFilter_shouldReturnMatchingAccounts() {
+        Account saved = accountRepositoryPort.save(buildAccount("status-filter@netflix.com"));
+
+        List<Account> accounts = accountRepositoryPort.findByVendorIdFiltered(
+                parentVendor.getId(), null, AccountStatus.AVAILABLE);
+
+        assertThat(accounts)
+                .extracting(Account::getUuid)
+                .contains(saved.getUuid());
     }
 
     @Test

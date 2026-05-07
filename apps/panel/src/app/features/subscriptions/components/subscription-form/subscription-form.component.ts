@@ -148,21 +148,36 @@ export class SubscriptionFormComponent implements OnInit {
   }
 
   private loadAccountsForService(serviceId: string): void {
-    this.accountsService.getAccounts().subscribe({
+    this.accounts = [];
+    this.profiles = [];
+    this.subscriptionForm.patchValue({ accountId: '', profileId: '' });
+
+    this.accountsService.getAccounts({ serviceId }).subscribe({
       next: (accounts) => {
-        this.accounts = accounts.filter(a => a.service?.id === serviceId && a.status !== 'EXPIRED');
+        this.accounts = accounts.filter(a => a.status !== 'EXPIRED');
       }
     });
   }
 
   onAccountChange(accountId: string): void {
     if (accountId) {
-      const selectedAccount = this.accounts.find(a => a.id === accountId);
-      if (selectedAccount && selectedAccount.profiles) {
-        this.profiles = selectedAccount.profiles.filter(p => p.status === 'AVAILABLE');
-      } else {
-        this.profiles = [];
-      }
+      this.accountsService.getAccountDetail(accountId).subscribe({
+        next: (detail) => {
+          this.profiles = (detail.profiles ?? []).map(profile => ({
+            id: profile.id || '',
+            accountId,
+            name: profile.name || '',
+            pin: profile.pin,
+            isOwner: profile.isOwner ?? false,
+            status: profile.status as ProfileResponse['status'],
+            createdAt: '',
+          })).filter(profile => profile.status === 'AVAILABLE');
+        },
+        error: () => {
+          this.profiles = [];
+          this.toastService.error('No se pudieron cargar los perfiles de la cuenta.');
+        },
+      });
       this.subscriptionForm.patchValue({ profileId: '' });
     } else {
       this.profiles = [];

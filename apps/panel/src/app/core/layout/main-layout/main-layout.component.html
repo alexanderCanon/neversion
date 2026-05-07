@@ -110,7 +110,36 @@
 
         <!-- Nested router views injected here -->
         <div class="flex-grow-1 overflow-auto">
+            @if (contextLoadFailed()) {
+            <section class="h-100 d-flex align-items-center justify-content-center p-4">
+                <div class="bg-body border rounded-3 shadow-sm p-4 text-center" style="max-width: 520px;">
+                    <div class="mb-3">
+                        <i class="bi bi-cloud-slash fs-1 text-danger"></i>
+                    </div>
+                    <h2 class="h5 fw-bold mb-2">No se pudo conectar con el servidor</h2>
+                    <p class="text-muted mb-4">
+                        El panel necesita conexión con la API para cargar tu contexto de vendedor.
+                    </p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            [disabled]="isRecoveringContext()"
+                            (click)="retryContext()">
+                            @if (isRecoveringContext()) {
+                                <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            }
+                            Reintentar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" (click)="logout()">
+                            Salir
+                        </button>
+                    </div>
+                </div>
+            </section>
+            } @else {
             <router-outlet></router-outlet>
+            }
         </div>
     </main>
 </div>

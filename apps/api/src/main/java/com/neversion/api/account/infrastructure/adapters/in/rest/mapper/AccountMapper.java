@@ -53,7 +53,7 @@ public class AccountMapper {
         return AccountResponse.builder()
                 .id(account.getUuid())
                 .email(account.getEmail())
-                // password intentionally omitted from response (security)
+                .password(account.getPassword())
                 .serviceId(account.getServiceId())
                 .saleMode(account.getSaleMode())
                 .status(account.getStatus())

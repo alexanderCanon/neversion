@@ -1,15 +1,24 @@
 package com.neversion.api.subscription.infrastructure.adapters.out;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import com.neversion.api.account.infrastructure.adapters.out.AccountEntity;
+import com.neversion.api.profile.infrastructure.adapters.out.ProfileEntity;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 
 @Repository
 public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
@@ -68,10 +77,39 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
 
     @Override
     public List<Subscription> findByVendorIdFiltered(Long vendorId, Long serviceId, SubStatus status) {
-        String statusValue = status != null ? status.name().toLowerCase() : null;
-        return subscriptionRepo.findByVendorIdFiltered(vendorId, serviceId, statusValue).stream()
+        return subscriptionRepo.findAll(
+                        subscriptionFilter(vendorId, serviceId, status),
+                        Sort.by(Sort.Direction.ASC, "paymentDueDate"))
+                .stream()
                 .map(subscriptionMapper::toDomain)
                 .toList();
+    }
+
+    private Specification<SubscriptionEntity> subscriptionFilter(
+            Long vendorId, Long serviceId, SubStatus status) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("vendorId"), vendorId));
+
+            if (serviceId != null) {
+                Subquery<Long> profileIds = query.subquery(Long.class);
+                Root<ProfileEntity> profile = profileIds.from(ProfileEntity.class);
+                Root<AccountEntity> account = profileIds.from(AccountEntity.class);
+
+                profileIds.select(profile.get("id"))
+                        .where(
+                                criteriaBuilder.equal(profile.get("accountId"), account.get("id")),
+                                criteriaBuilder.equal(account.get("serviceId"), serviceId));
+
+                predicates.add(root.get("profileId").in(profileIds));
+            }
+
+            if (status != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), status));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
     }
 
     @Override

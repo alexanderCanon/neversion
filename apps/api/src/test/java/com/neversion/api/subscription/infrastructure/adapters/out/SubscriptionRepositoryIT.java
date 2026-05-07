@@ -26,6 +26,11 @@ import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.user.domain.model.User;
+import com.neversion.api.user.domain.model.enums.UserRole;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.domain.model.Vendor;
+import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 @SpringBootTest
 @Transactional
@@ -47,14 +52,35 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
     @Autowired
     private ClientRepositoryPort clientRepositoryPort;
 
+    @Autowired
+    private UserRepositoryPort userRepositoryPort;
+
+    @Autowired
+    private VendorRepositoryPort vendorRepositoryPort;
+
+    private Vendor parentVendor;
+    private Service parentService;
     private Client parentClient;
     private Profile parentProfile;
 
     @BeforeEach
     void setUp() {
-        Service service = serviceRepositoryPort.save(
+        User vendorUser = userRepositoryPort.save(
+                User.builder()
+                        .externalId("auth|subscription-vendor-" + System.nanoTime())
+                        .role(UserRole.VENDOR)
+                        .build());
+
+        parentVendor = vendorRepositoryPort.save(
+                Vendor.builder()
+                        .userId(vendorUser.getId())
+                        .storeName("Subscription Vendor " + System.nanoTime())
+                        .build());
+
+        parentService = serviceRepositoryPort.save(
                 Service.builder()
                         .name("Netflix-" + System.nanoTime())
+                        .vendorId(parentVendor.getId())
                         .maxProfiles(5)
                         .details(null)
                         .category(CategoryType.STREAMING)
@@ -62,7 +88,8 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
 
         Account account = accountRepositoryPort.save(
                 Account.builder()
-                        .serviceId(service.getId())
+                        .serviceId(parentService.getId())
+                        .vendorId(parentVendor.getId())
                         .email("sub-test-" + System.nanoTime() + "@netflix.com")
                         .password("secret123")
                         .renewalDate(LocalDate.now().plusDays(30))
@@ -73,6 +100,7 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
         parentProfile = profileRepositoryPort.save(
                 Profile.builder()
                         .accountId(account.getId())
+                        .vendorId(parentVendor.getId())
                         .name("Profile 1")
                         .pin("1234")
                         .isOwner(false)
@@ -80,6 +108,7 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
 
         parentClient = clientRepositoryPort.save(
                 Client.builder()
+                        .vendorId(parentVendor.getId())
                         .name("Test Client")
                         .phone("55512345678")
                         .email("client-" + System.nanoTime() + "@test.com")
@@ -90,11 +119,13 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
         return Subscription.builder()
                 .clientId(parentClient.getId())
                 .profileId(parentProfile.getId())
+                .serviceId(parentService.getId())
                 .startDate(LocalDate.now())
                 .paymentDueDate(paymentDueDate)
                 .monthsPaid(1L)
                 .status(status)
                 .notes("Test subscription")
+                .vendorId(parentVendor.getId())
                 .build();
     }
 
@@ -155,6 +186,51 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
         // Then
         assertThat(activeList).allMatch(s -> s.getStatus() == SubStatus.ACTIVE);
         assertThat(suspendedList).allMatch(s -> s.getStatus() == SubStatus.SUSPENDED);
+    }
+
+    @Test
+    @DisplayName("findByVendorIdFiltered - should return vendor subscriptions when optional filters are null")
+    void findByVendorIdFiltered_nullFilters_shouldReturnVendorSubscriptions() {
+        Subscription saved = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+
+        List<Subscription> result = subscriptionRepositoryPort.findByVendorIdFiltered(
+                parentVendor.getId(), null, null);
+
+        assertThat(result)
+                .extracting(Subscription::getUuid)
+                .contains(saved.getUuid());
+    }
+
+    @Test
+    @DisplayName("findByVendorIdFiltered - should filter by status when provided")
+    void findByVendorIdFiltered_statusFilter_shouldReturnMatchingSubscriptions() {
+        Subscription active = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+        subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10)));
+
+        List<Subscription> result = subscriptionRepositoryPort.findByVendorIdFiltered(
+                parentVendor.getId(), null, SubStatus.ACTIVE);
+
+        assertThat(result)
+                .extracting(Subscription::getUuid)
+                .contains(active.getUuid());
+        assertThat(result).allMatch(subscription -> subscription.getStatus() == SubStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("findByVendorIdFiltered - should filter by service when provided")
+    void findByVendorIdFiltered_serviceFilter_shouldReturnMatchingSubscriptions() {
+        Subscription saved = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+
+        List<Subscription> result = subscriptionRepositoryPort.findByVendorIdFiltered(
+                parentVendor.getId(), parentService.getId(), null);
+
+        assertThat(result)
+                .extracting(Subscription::getUuid)
+                .contains(saved.getUuid());
     }
 
     @Test

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of } from 'rxjs';
+import { Observable, tap, finalize, map, of, shareReplay } from 'rxjs';
 import { 
     AccountsApiService, 
     AccountRequest as ApiAccountRequest, 
@@ -9,10 +9,21 @@ import {
 import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
 import { AuthService } from '../../../core/services/auth.service';
 
+interface ApiAccountsPageResponse {
+  content?: ApiAccountResponse[];
+}
+
+type AccountCredentialResponse = ApiAccountResponse & {
+  password?: string;
+  pass?: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
   private readonly accountsApi = inject(AccountsApiService);
   private readonly authService = inject(AuthService);
+  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
+  private readonly inFlightRequests = new Map<string, Observable<AccountResponse[]>>();
 
   private readonly _accounts = signal<AccountResponse[]>([]);
   readonly accounts = this._accounts.asReadonly();
@@ -27,17 +38,37 @@ export class AccountsService {
     const vendorUuid = this.authService.currentVendorUuid();
     if (!vendorUuid) return of([]);
 
+    const requestKey = `${vendorUuid}:${filter?.serviceId ?? ''}:${filter?.status ?? ''}`;
+    const cachedRequest = this.inFlightRequests.get(requestKey);
+    if (cachedRequest) {
+      return cachedRequest;
+    }
+
     this._isLoading.set(true);
     // listByVendor3(vendorUuid, serviceUuid, status)
-    return this.accountsApi.listByVendor4(vendorUuid, filter?.serviceId, filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED').pipe(
-      map((apiAccounts: ApiAccountResponse[]) => apiAccounts.map(api => this.mapToModel(api))),
+    const request$ = this.accountsApi.listByVendor4(
+      vendorUuid,
+      filter?.serviceId,
+      filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED',
+      'body',
+      false,
+      this.jsonResponseOptions,
+    ).pipe(
+      map((apiAccounts) => this.normalizeAccountsResponse(apiAccounts).map(api => this.mapToModel(api))),
       tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
-      finalize(() => this._isLoading.set(false))
+      finalize(() => {
+        this._isLoading.set(false);
+        this.inFlightRequests.delete(requestKey);
+      }),
+      shareReplay(1)
     );
+
+    this.inFlightRequests.set(requestKey, request$);
+    return request$;
   }
 
   getAccountById(id: string): Observable<AccountResponse> {
-    return this.accountsApi.getById3(id).pipe(
+    return this.accountsApi.getById3(id, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -46,7 +77,12 @@ export class AccountsService {
    * Detailed view with profiles (US-028)
    */
   getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
-      return this.accountsApi.getDetail1(id);
+      return this.accountsApi.getDetail1(id, 'body', false, this.jsonResponseOptions).pipe(
+        map((detail) => ({
+          ...detail,
+          profiles: detail.profiles ?? [],
+        }))
+      );
   }
 
   createAccount(account: AccountRequest): Observable<AccountResponse> {
@@ -56,7 +92,7 @@ export class AccountsService {
       saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.create3(apiRequest).pipe(
+    return this.accountsApi.create3(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api)),
       tap((newAccount) => {
         this._accounts.update((current) => [...current, newAccount]);
@@ -71,7 +107,7 @@ export class AccountsService {
         saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.update3(id, apiRequest).pipe(
+    return this.accountsApi.update3(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
       map(api => this.mapToModel(api)),
       tap((updatedAccount) => {
         this._accounts.update((current) => 
@@ -93,12 +129,21 @@ export class AccountsService {
     return this.getAccounts();
   }
 
+  private normalizeAccountsResponse(response: ApiAccountResponse[] | ApiAccountsPageResponse): ApiAccountResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    return response.content ?? [];
+  }
+
   private mapToModel(api: ApiAccountResponse): AccountResponse {
+    const credentials = api as AccountCredentialResponse;
+
     return {
       id: api.id || '',
       email: api.email || '',
-      // Password is intentionally omitted if not present in the response
-      password: (api as any).pass || undefined, 
+      password: credentials.password ?? credentials.pass,
       serviceId: String(api.serviceId || ''),
       saleMode: api.saleMode as unknown as SaleMode,
       status: api.status as unknown as AccountStatus,

@@ -63,7 +63,7 @@ export class AccountFormComponent implements OnInit {
       next: (services) => {
         const options: ServiceOption[] = services.map(s => ({
           id: s.id,
-          displayName: `${s.name} (${s.maxProfiles} perfiles)`
+          displayName: s.name
         }));
         this.serviceOptions.set(options);
       },

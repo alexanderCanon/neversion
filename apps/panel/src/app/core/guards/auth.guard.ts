@@ -1,18 +1,16 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { AuthService } from '../services/auth.service';
 
 /**
  * Auth Guard protects private routes. If no session exists, the user is
  * redirected to the login page, preserving the requested URL.
  */
-export const authGuard: CanActivateFn = async (_route, state) => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const router = inject(Router);
-  const supabaseService = inject(SupabaseService);
+  const authService = inject(AuthService);
 
-  const { data } = await supabaseService.client.auth.getSession();
-
-  if (data.session) {
+  if (authService.currentSession()) {
     return true;
   }
 

@@ -3,6 +3,7 @@ package com.neversion.api.service.infrastructure.adapters.out;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +17,11 @@ import com.neversion.api.BaseIntegrationTest;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
+import com.neversion.api.user.domain.model.User;
+import com.neversion.api.user.domain.model.enums.UserRole;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
+import com.neversion.api.vendor.domain.model.Vendor;
+import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 @SpringBootTest
 @Transactional
@@ -25,12 +31,40 @@ class ServiceRepositoryIT extends BaseIntegrationTest {
     @Autowired
     private ServiceRepositoryPort serviceRepositoryPort;
 
+    @Autowired
+    private UserRepositoryPort userRepositoryPort;
+
+    @Autowired
+    private VendorRepositoryPort vendorRepositoryPort;
+
+    private Long createVendorId() {
+        User vendorUser = userRepositoryPort.save(
+                User.builder()
+                        .externalId("auth|service-vendor-" + System.nanoTime())
+                        .role(UserRole.VENDOR)
+                        .build());
+
+        Vendor vendor = vendorRepositoryPort.save(
+                Vendor.builder()
+                        .userId(vendorUser.getId())
+                        .storeName("Service Vendor " + System.nanoTime())
+                        .build());
+
+        return vendor.getId();
+    }
+
     private Service buildService(String name) {
+        return buildService(name, null, CategoryType.STREAMING, true);
+    }
+
+    private Service buildService(String name, Long vendorId, CategoryType category, Boolean isActive) {
         return Service.builder()
                 .name(name)
+                .vendorId(vendorId)
                 .maxProfiles(5)
                 .details(null)
-                .category(CategoryType.STREAMING)
+                .category(category)
+                .isActive(isActive)
                 .build();
     }
 
@@ -99,6 +133,38 @@ class ServiceRepositoryIT extends BaseIntegrationTest {
 
         // Then
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    @DisplayName("findByVendorIdAndFilters - should filter by active status when category is null")
+    void findByVendorIdAndFilters_nullCategory_shouldFilterByActiveStatus() {
+        Long vendorId = createVendorId();
+        Service active = serviceRepositoryPort.save(
+                buildService("Active Service " + vendorId, vendorId, CategoryType.STREAMING, true));
+        serviceRepositoryPort.save(
+                buildService("Inactive Service " + vendorId, vendorId, CategoryType.SOFTWARE, false));
+
+        List<Service> result = serviceRepositoryPort.findByVendorIdAndFilters(vendorId, null, true);
+
+        assertThat(result)
+                .extracting(Service::getUuid)
+                .containsExactly(active.getUuid());
+    }
+
+    @Test
+    @DisplayName("findByVendorIdAndFilters - should return vendor services when optional filters are null")
+    void findByVendorIdAndFilters_nullFilters_shouldReturnVendorServices() {
+        Long vendorId = createVendorId();
+        Service first = serviceRepositoryPort.save(
+                buildService("Vendor Service A " + vendorId, vendorId, CategoryType.STREAMING, true));
+        Service second = serviceRepositoryPort.save(
+                buildService("Vendor Service B " + vendorId, vendorId, CategoryType.SOFTWARE, false));
+
+        List<Service> result = serviceRepositoryPort.findByVendorIdAndFilters(vendorId, null, null);
+
+        assertThat(result)
+                .extracting(Service::getUuid)
+                .contains(first.getUuid(), second.getUuid());
     }
 
     @Test

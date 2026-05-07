@@ -43,10 +43,24 @@
         </div>
       </div>
 
-      @if (isLoading()) {
+      @if (!vendorUuid() || isLoading() || !hasRequestedAccounts()) {
         <div class="text-center py-5">
           <div class="spinner-border text-primary" role="status"></div>
-          <p class="mt-2 text-muted">Cargando catálogo de cuentas...</p>
+          <p class="mt-2 text-muted">
+            @if (!vendorUuid()) {
+              Preparando catálogo de cuentas...
+            } @else {
+              Cargando catálogo de cuentas...
+            }
+          </p>
+        </div>
+      } @else if (loadError()) {
+        <div class="text-center py-5">
+          <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+          <p class="mt-2 text-muted">No se pudieron cargar las cuentas. Intenta nuevamente.</p>
+          <button class="btn btn-outline-primary btn-sm" (click)="retryLoadAccounts()">
+            Reintentar
+          </button>
         </div>
       } @else if (filteredAccounts().length === 0) {
         <div class="text-center py-5">
@@ -84,7 +98,7 @@
                     <div class="text-end d-none d-md-block">
                       <div class="small text-muted mb-1">
                         <i class="bi bi-calendar-event me-1"></i>
-                        Vence: <span class="text-dark fw-semibold">{{ account.renewalDate | date:'mediumDate' }}</span>
+                        Vence: <span class="text-dark fw-semibold">{{ account.renewalDate | date:'dd-MM-yyyy' }}</span>
                       </div>
                       <div class="small fw-bold text-uppercase text-primary" style="font-size: 0.65rem; letter-spacing: 0.5px;">
                         {{ account.saleMode === 'FULL_ACCOUNT' ? 'CUENTA COMPLETA' : 'POR PERFILES' }}
@@ -131,7 +145,7 @@
                             </li>
                             <li class="mb-3 d-flex justify-content-between">
                               <span class="text-muted">Comprada el:</span>
-                              <span>{{ account.purchasedAt | date }}</span>
+                              <span>{{ account.purchasedAt | date:'dd-MM-yyyy' }}</span>
                             </li>
                             <li class="border-top pt-3">
                               <label class="text-muted extra-small text-uppercase fw-bold mb-1 d-block">Notas</label>

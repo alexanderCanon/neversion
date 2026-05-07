@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, of } from 'rxjs';
+import { Observable, tap, finalize, of, map, catchError } from 'rxjs';
 import { 
   SubscriptionsApiService, 
   SubscriptionResponse, 
@@ -14,6 +14,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class SubscriptionsService {
   private readonly subscriptionsApi = inject(SubscriptionsApiService);
   private readonly authService = inject(AuthService);
+  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
@@ -29,9 +30,17 @@ export class SubscriptionsService {
     return this.subscriptionsApi.listByVendor(
       vendorUuid,
       filter?.serviceId,
-      filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED'
+      filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED',
+      'body',
+      false,
+      this.jsonResponseOptions,
     ).pipe(
+      map((response) => this.normalizeSubscriptionsResponse(response)),
       tap((subscriptions) => this._subscriptions.set(subscriptions)),
+      catchError((error) => {
+        this._subscriptions.set([]);
+        throw error;
+      }),
       finalize(() => this._isLoading.set(false))
     );
   }
@@ -64,5 +73,17 @@ export class SubscriptionsService {
 
   refreshSubscriptions(): Observable<SubscriptionResponse[]> {
     return this.getSubscriptions();
+  }
+
+  private normalizeSubscriptionsResponse(response: unknown): SubscriptionResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (response && typeof response === 'object' && Array.isArray((response as { content?: unknown }).content)) {
+      return (response as { content: SubscriptionResponse[] }).content;
+    }
+
+    return [];
   }
 }

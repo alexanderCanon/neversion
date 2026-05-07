@@ -4,8 +4,11 @@ import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.service.infrastructure.adapters.out.mapper.ServicePersistenceMapper;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -53,9 +56,27 @@ public class JpaServiceAdapter implements ServiceRepositoryPort {
 
     @Override
     public List<Service> findByVendorIdAndFilters(Long vendorId, CategoryType category, Boolean isActive) {
-        return serviceRepo.findByVendorIdAndFilters(vendorId, category, isActive).stream()
+        return serviceRepo.findAll(serviceFilter(vendorId, category, isActive)).stream()
                 .map(serviceMapper::toDomain)
                 .toList();
+    }
+
+    private Specification<ServiceEntity> serviceFilter(
+            Long vendorId, CategoryType category, Boolean isActive) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("vendorId"), vendorId));
+
+            if (category != null) {
+                predicates.add(criteriaBuilder.equal(root.get("category"), category));
+            }
+
+            if (isActive != null) {
+                predicates.add(criteriaBuilder.equal(root.get("isActive"), isActive));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
     }
 
     @Override

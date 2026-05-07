@@ -15,7 +15,9 @@ export class MainLayoutComponent implements OnInit {
   private router = inject(Router);
 
   theme = signal<'light' | 'dark'>('light');
+  isRecoveringContext = signal(false);
   isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
+  contextLoadFailed = this.authService.contextLoadFailed;
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -33,6 +35,12 @@ export class MainLayoutComponent implements OnInit {
 
   private applyTheme(theme: 'light' | 'dark'): void {
     document.documentElement.setAttribute('data-bs-theme', theme);
+  }
+
+  retryContext(): void {
+    this.isRecoveringContext.set(true);
+    this.authService.retryCurrentContext()
+      .finally(() => this.isRecoveringContext.set(false));
   }
 
   logout(): void {

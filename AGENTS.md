@@ -71,6 +71,12 @@ docs/
 - After completing a module, **stop** and ask Alex to run the relevant tests.
 - Do not proceed to the next module until Alex confirms tests are green.
 - Never treat `./mvnw compile` as a test pass — it only compiles `src/main`, not `src/test`.
+- Backend tests that use Mockito inline or Testcontainers must run **outside the sandbox**.
+  The local sandbox blocks or restricts Java agent attachment and Docker socket access,
+  causing false failures unrelated to application code.
+- If a backend test command fails with Mockito `MockMaker`, Byte Buddy agent attachment,
+  Docker, or Testcontainers errors, immediately rerun the same command with escalated
+  permissions instead of treating the test failure as a code failure.
 
 ### Scope Isolation
 - Work exclusively within your assigned directory.

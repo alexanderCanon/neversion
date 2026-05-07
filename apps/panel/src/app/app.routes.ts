@@ -41,7 +41,7 @@ export const routes: Routes = [
             {
                 path: 'accounts',
                 loadComponent: () => import('./features/accounts/pages/accounts-list/accounts-list.component').then(m => m.AccountsListComponent),
-                data: { allowedRoles: ['super_admin'] },
+                data: { allowedRoles: ['super_admin', 'vendor'] },
                 canActivate: [roleGuard]
             },
             {

@@ -19,6 +19,7 @@ import lombok.Builder;
 public record AccountResponse(
         UUID id,
         String email,
+        String password,
         Long serviceId,
         SaleMode saleMode,
         AccountStatus status,
@@ -36,4 +37,3 @@ public record AccountResponse(
         int occupiedProfiles,
         int blockedProfiles) {
 }
-
