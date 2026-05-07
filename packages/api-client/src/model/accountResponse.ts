@@ -12,6 +12,7 @@
 export interface AccountResponse { 
     id?: string;
     email?: string;
+    password?: string;
     serviceId?: number;
     saleMode?: AccountResponse.SaleModeEnum;
     status?: AccountResponse.StatusEnum;

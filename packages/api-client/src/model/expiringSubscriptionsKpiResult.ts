@@ -10,8 +10,9 @@
 import { ExpiringSubscriptionResult } from './expiringSubscriptionResult';
 
 
-export interface ExpiringSubscriptionsKpiResult {
+export interface ExpiringSubscriptionsKpiResult { 
     today?: Array<ExpiringSubscriptionResult>;
     tomorrow?: Array<ExpiringSubscriptionResult>;
     thisWeek?: Array<ExpiringSubscriptionResult>;
 }
+

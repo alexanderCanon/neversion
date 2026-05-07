@@ -1,17 +1,20 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap, finalize, map } from 'rxjs';
-import { runtimeConfig } from '../../../core/config/runtime-config';
-import { 
+import {
+  ReservationsApiService,
   ReservationResponse as ApiReservationResponse, 
-  ReservationRequest as CreateReservationRequest,
+  ReservationRequest as ApiReservationRequest,
 } from '@neversion/api-client';
-import { ReservationsFilter, ReservationResponse, ReservationDetailResponse, ReservationStatus } from '@neversion/models';
+import {
+  CreateReservationRequest,
+  ReservationsFilter,
+  ReservationResponse,
+  ReservationStatus
+} from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class ReservationsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${runtimeConfig.apiUrl}/reservations`;
+  private readonly reservationsApi = inject(ReservationsApiService);
 
   private readonly _reservations = signal<ReservationResponse[]>([]);
   readonly reservations = this._reservations.asReadonly();
@@ -20,13 +23,12 @@ export class ReservationsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getReservations(filter?: ReservationsFilter): Observable<ReservationResponse[]> {
-    let params = new HttpParams();
-    if (filter?.status) {
-      params = params.set('status', filter.status);
-    }
-
     this._isLoading.set(true);
-    return this.http.get<ApiReservationResponse[]>(this.baseUrl, { params }).pipe(
+    return this.reservationsApi.listReservations(
+      filter?.status as 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED' | undefined,
+      'body',
+      false,
+    ).pipe(
       map(apiRes => apiRes.map(api => this.mapToModel(api))),
       tap((data) => this._reservations.set(data)),
       finalize(() => this._isLoading.set(false))
@@ -34,13 +36,21 @@ export class ReservationsService {
   }
 
   getReservationById(id: string): Observable<ReservationResponse> {
-    return this.http.get<ApiReservationResponse>(`${this.baseUrl}/${id}`).pipe(
+    return this.reservationsApi.getReservation(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
 
   createReservation(request: CreateReservationRequest): Observable<ReservationResponse> {
-    return this.http.post<ApiReservationResponse>(this.baseUrl, request).pipe(
+    const apiRequest: ApiReservationRequest = {
+      clientId: request.clientId ?? '',
+      items: request.items.map((item) => ({
+        serviceUuid: String(item.inventoryId),
+        qty: item.qty,
+      })),
+    };
+
+    return this.reservationsApi.createReservation(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newReserv) => {
         this._reservations.update((current) => [newReserv, ...current]);
@@ -49,20 +59,38 @@ export class ReservationsService {
   }
 
   uploadReceipt(id: string, receiptUrl: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}/receipt`, { receiptUrl });
+    return this.reservationsApi.uploadReceipt(
+      id,
+      { receiptUrl },
+      'body',
+      false,
+    ).pipe(map(() => undefined));
   }
 
   validateReservation(id: string, notes: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}/validate`, { notes });
+    return this.reservationsApi.validateReservation(
+      id,
+      { notes },
+      'body',
+      false,
+    ).pipe(map(() => undefined));
   }
 
   cancelReservation(id: string): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/${id}/cancel`, {});
+    return this.reservationsApi.cancelReservation(
+      id,
+      'body',
+      false,
+    ).pipe(map(() => undefined));
   }
 
   attachClient(id: string, clientId: string): Observable<void> {
-    const params = new HttpParams().set('clientId', clientId);
-    return this.http.put<void>(`${this.baseUrl}/${id}/client`, {}, { params });
+    return this.reservationsApi.attachClient(
+      id,
+      clientId,
+      'body',
+      false,
+    ).pipe(map(() => undefined));
   }
 
   refreshReservations(): void {

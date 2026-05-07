@@ -6,6 +6,7 @@ import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.VendorPublic
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +22,7 @@ import java.util.UUID;
  * the vendor UUID and basic branding (name, logo) from a known identifier.
  */
 @RestController
-@RequestMapping("/api/v1/vendors/public")
+@RequestMapping(value = "/api/v1/vendors/public", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Vendors — Public", description = "Public vendor lookup for storefront multi-tenancy")
 public class VendorPublicController {
 

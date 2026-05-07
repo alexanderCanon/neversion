@@ -8,6 +8,8 @@ Este documento concentra hallazgos detectados durante revisión manual de tablas
 
 **Módulo:** API + Panel
 
+**Estado 2026-05-07:** Corregido.
+
 **Hallazgo:** Una cuenta creada con `sale_mode = FULL_ACCOUNT` debería tener exactamente un perfil dueño (`is_owner = true`) como ancla técnica de la suscripción. En DB se observó una cuenta `FULL_ACCOUNT` con dos perfiles: uno dueño y otro no dueño, ambos disponibles.
 
 **Causa probable:** El backend crea correctamente un perfil dueño al registrar la cuenta, pero el endpoint de generación manual de perfiles permite generar perfiles para cualquier cuenta mientras no se exceda `service.maxProfiles`.
@@ -19,9 +21,13 @@ Este documento concentra hallazgos detectados durante revisión manual de tablas
 - Ocultar o deshabilitar la sección “Generación de Perfiles” en el panel para cuentas `FULL_ACCOUNT`.
 - Agregar prueba backend para validar que `FULL_ACCOUNT` rechaza generación manual.
 
+**Resultado:** `ProfileService.generate(...)` ahora lanza `BusinessRuleException` para cuentas `FULL_ACCOUNT` antes de consultar límites del servicio o guardar perfiles. El panel pasa `canGenerateProfiles` según `account.saleMode` y oculta la generación manual para cuenta completa.
+
 ### 2. `saleMode` de cuenta es mutable
 
 **Módulo:** API
+
+**Estado 2026-05-07:** Corregido.
 
 **Hallazgo:** `UpdateAccountService` permite cambiar `saleMode` mediante `PUT /accounts/{id}`.
 
@@ -32,9 +38,13 @@ Este documento concentra hallazgos detectados durante revisión manual de tablas
 - Si `updates.saleMode != existing.saleMode`, devolver `BusinessRuleException`.
 - Revisar si `serviceId` también debería ser inmutable cuando ya existen perfiles o suscripciones.
 
+**Resultado:** `UpdateAccountService` rechaza cambios de `saleMode` con `BusinessRuleException` y deja de mutar ese campo durante edición. Queda pendiente discutir si `serviceId` también debe bloquearse cuando ya existen perfiles o suscripciones.
+
 ### 3. Dashboard del vendedor no carga
 
 **Módulo:** API + Panel
+
+**Estado 2026-05-07:** Corregido y validado.
 
 **Síntoma:** El panel muestra: “No se pudo cargar el dashboard del vendedor. Intente nuevamente”.
 
@@ -50,9 +60,13 @@ Este documento concentra hallazgos detectados durante revisión manual de tablas
 - Forzar `Accept: application/json` en llamadas que devuelvan JSON.
 - Corregir queries backend que usen `:param IS NULL` con parámetros opcionales.
 
+**Resultado:** Los endpoints KPI respondían 200 con `content-type: application/json`, pero el cliente generado enviaba `Accept: */*` y Angular interpretaba la respuesta como `Blob`. Se declaró `produces = application/json` en `DashboardController` para corregir el contrato OpenAPI en el siguiente `api:sync`, y `MasterDashboardService` fuerza JSON con el cliente generado vigente.
+
 ### 4. Reservas y Órdenes devuelven 500 al entrar
 
 **Módulo:** API + Panel
+
+**Estado 2026-05-07:** Reservas y Órdenes corregidos y validados.
 
 **Síntoma:** Al entrar a Reservas y Órdenes se reciben errores 500.
 
@@ -64,11 +78,17 @@ Este documento concentra hallazgos detectados durante revisión manual de tablas
 - Revisar servicios Angular para base URL, vendor UUID, normalización de arrays y `Accept`.
 - Ajustar manejo de errores para que validaciones o ownership no terminen como 500.
 
+**Resultado parcial:** Reservas fallaba porque el panel llamaba `GET /reservations` sin prefijo `/api/v1` usando `HttpClient` manual. Se migró `ReservationsService` a `ReservationsApiService` generado, se fuerza `Accept: application/json` y `ReservationController` declara `produces = application/json`.
+
+**Resultado final:** Órdenes fallaba en backend por JPQL con filtros opcionales nulos en `SpringDataOrderRepository.findByVendorIdFiltered(...)`. Se reemplazó por `JpaSpecificationExecutor` con predicados dinámicos en `JpaOrderAdapter`, se declaró `produces = application/json` en controllers de órdenes y se migró `OrdersService` a `OrdersApiService` generado con `Accept: application/json`.
+
 ## Prioridad Media
 
 ### 5. Contrato de acceso en detalle de suscripción
 
 **Módulo:** API + Panel + Store
+
+**Estado 2026-05-07:** Corregido para API + Panel vendedor. Pendiente revisar Store.
 
 **Hallazgo:** La relación interna existe:
 
@@ -108,9 +128,13 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 
 **Nota:** Preferir un bloque explícito `access` en vez de ensuciar `AccountSummary`. El dominio define que la cuenta es email + contraseña y el cliente debe poder consultar sus accesos permanentemente.
 
+**Resultado:** `SubscriptionDetailResponse` ahora incluye `access.accountEmail`, `access.accountPassword`, `access.profileName`, `access.profilePin` y `access.saleMode`. El panel vendedor renderiza ese bloque en el detalle de suscripción y fuerza `Accept: application/json` al consultar el detalle.
+
 ### 6. Revisar `GET /clients/me/accesses` en frontend cliente
 
 **Módulo:** Store / API Client
+
+**Estado 2026-05-07:** Corregido.
 
 **Hallazgo:** El cliente OpenAPI generado para `getMyAccesses()` usa `Accept: */*` por defecto.
 
@@ -121,9 +145,13 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 - Normalizar respuesta a array antes de renderizar.
 - Validar estados: `ACTIVE` devuelve credenciales; `SUSPENDED` devuelve credenciales `null`.
 
+**Resultado:** Primero se mitigó forzando `Accept: application/json`; después de corregir contratos backend y ejecutar `pnpm api:sync`, el cliente generado ya usa `application/json` para `getMyAccesses()`. Se retiró el override defensivo y se conservó la normalización a arreglo como protección ante cambios de forma de respuesta.
+
 ### 7. Campo `services.details` JSON/JSONB
 
 **Módulo:** API + DB + Docs
+
+**Estado 2026-05-07:** Investigado. No requiere cambio inmediato.
 
 **Hallazgo:** La tabla `services` tiene un campo `details` de tipo JSON/JSONB. Falta confirmar por qué se definió y si se usa actualmente.
 
@@ -132,9 +160,15 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 - Verificar si `details` está expuesto en OpenAPI.
 - Decidir si se conserva como metadata flexible o si debe eliminarse/documentarse.
 
+**Resultado:** `details` nació en `V1__init_unified_schema.sql` para metadata flexible del catálogo. En `V11__normalize_services_pricing.sql` se normalizaron `price_profile`, `price_full`, `duration_days`, `description`, `image_url` e `is_active`, y se dejó explícitamente `details` solo para metadata no estructurada. El campo sigue vivo en `ServiceEntity`, dominio, persistence mapper, `ServiceRequest`, `ServiceResponse` y `ServiceMapper`, pero el formulario del panel no lo expone ni las reglas actuales lo consumen.
+
+**Decisión técnica recomendada:** Conservarlo como campo técnico opcional para metadata futura, pero no usarlo para pricing, duración, disponibilidad, imágenes ni reglas de inventario. Si se expone en UI más adelante, debe ser un editor avanzado de JSON y no un campo operativo normal.
+
 ### 8. Imagen de servicio como upload real
 
 **Módulo:** Panel + Supabase Storage + API
+
+**Estado 2026-05-07:** Investigado. Pendiente decisión de Storage antes de implementar.
 
 **Hallazgo:** Al crear servicio se pide la imagen como URL manual.
 
@@ -151,6 +185,16 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 **Decisión pendiente:**
 - Bucket público si son imágenes de catálogo.
 - Bucket privado con signed URLs si se decide proteger assets.
+
+**Resultado de investigación:** El panel ya tiene `SupabaseService` con cliente Supabase disponible, pero no existe wrapper de Storage ni bucket/política documentada. El formulario de servicios solo maneja `imageUrl` manual y el backend ya persiste ese campo; por tanto, el backend no necesita cambio si la subida ocurre en el panel y se guarda la URL resultante.
+
+**Diseño recomendado:** Crear un `ServiceImageUploadService` en el panel que valide archivo (`image/png`, `image/jpeg`, `image/webp`), tamaño máximo y nombre estable por vendor/servicio, suba a Supabase Storage y devuelva una URL. Luego `ServiceFormComponent` reemplaza el input manual por selector de archivo con preview y sigue enviando `imageUrl` al backend.
+
+**BLOCKER:** falta definir bucket y política:
+- Opción recomendada para logos de catálogo: bucket público `service-images`, porque las imágenes ya se muestran públicamente en Store.
+- Alternativa: bucket privado con signed URLs, pero requiere expiración/refresh y complica el catálogo público.
+
+No se debe implementar hasta confirmar bucket, política y límite de tamaño.
 
 ### 9. Semántica de `accounts.source`
 
@@ -184,6 +228,8 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 
 **Módulo:** Panel + Store + API Client
 
+**Estado 2026-05-07:** Corregido tras `pnpm api:sync`.
+
 **Hallazgo:** El cliente Angular generado por OpenAPI selecciona `responseType` según el header `Accept`. Cuando el contrato generado solo declara `*/*`, Angular puede tratar respuestas JSON como `Blob`.
 
 **Riesgo:** Listados vacíos, objetos no iterables o respuestas `{}` aunque el backend responda 200 con JSON válido.
@@ -193,12 +239,14 @@ Este endpoint retorna `accountEmail`, `accountPassword`, `profileName`, `profile
 - Normalizar arrays cuando el backend pueda devolver lista directa o página `{ content: [] }`.
 - Revisar si la causa raíz está en la configuración OpenAPI del backend: produces/content type debe declarar `application/json`.
 
+**Criterio final deseado:** Los overrides `jsonResponseOptions` son deuda temporal, no la solución definitiva. La corrección raíz debe ser declarar `produces = application/json` en los endpoints JSON del backend, reconstruir el backend, ejecutar `pnpm api:sync` y verificar que el cliente generado acepte `application/json` sin castear a `'*/*'`. Después de eso se deben retirar los overrides defensivos donde ya no sean necesarios.
+
+**Resultado:** Se declaró `produces = application/json` en los controllers JSON restantes: Auth, Accounts, Services, Profiles, Clients, Subscriptions, Assignments, Notifications y VendorPublic. Ya estaban corregidos Dashboard, Reservas y Órdenes. Después de reconstruir backend y ejecutar `pnpm api:sync`, `packages/api-client` ya genera `httpHeaderAccept?: 'application/json'` y no quedan firmas `httpHeaderAccept?: '*/*'`. Se retiraron los overrides defensivos `jsonResponseOptions` de Panel y Store.
+
 ## Orden sugerido para mañana
 
 1. Dashboard: capturar logs y corregir causa raíz.
 2. Reservas y Órdenes: confirmar si repiten patrón de queries opcionales nulas.
-3. Reglas de cuentas/perfiles: bloquear perfiles extra en `FULL_ACCOUNT` y hacer `saleMode` inmutable.
-4. Contrato de detalle de suscripción: decidir bloque `access` para vendedor.
-5. Revisar `GET /clients/me/accesses` en Store con `Accept: application/json`.
-6. Investigar `services.details`.
-7. Diseñar upload de imágenes a Supabase Storage.
+3. Investigar `services.details`.
+4. Diseñar upload de imágenes a Supabase Storage.
+5. Revisar manejo de excepciones/códigos HTTP para evitar 500 en errores esperados.

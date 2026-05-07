@@ -44,7 +44,7 @@ export class AccessesComponent implements OnInit {
 
     this.clientsApi.getMyAccesses().subscribe({
       next: (accesses) => {
-        this.subscriptions = [...accesses].sort((left, right) =>
+        this.subscriptions = this.normalizeAccessesResponse(accesses).sort((left, right) =>
           this.toTimestamp(left.paymentDueDate) - this.toTimestamp(right.paymentDueDate)
         );
         this.isLoading = false;
@@ -59,6 +59,18 @@ export class AccessesComponent implements OnInit {
 
   private toTimestamp(value?: string): number {
     return value ? new Date(value).getTime() : Number.MAX_SAFE_INTEGER;
+  }
+
+  private normalizeAccessesResponse(response: unknown): ClientAccessResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (response && typeof response === 'object' && Array.isArray((response as { content?: unknown }).content)) {
+      return (response as { content: ClientAccessResponse[] }).content;
+    }
+
+    return [];
   }
 
   canRenew(subscription: ClientAccessResponse): boolean {

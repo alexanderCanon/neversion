@@ -9,6 +9,7 @@
  */
 
 
-export interface SuccessfulRenewalsKpiResult {
+export interface SuccessfulRenewalsKpiResult { 
     successfulRenewalsCount?: number;
 }
+

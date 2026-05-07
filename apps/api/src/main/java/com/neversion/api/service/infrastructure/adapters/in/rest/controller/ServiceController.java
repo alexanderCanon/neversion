@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -35,7 +36,7 @@ import java.util.UUID;
  * </ul>
  */
 @RestController
-@RequestMapping("/api/v1/services")
+@RequestMapping(value = "/api/v1/services", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Services", description = "Digital service catalog management (Netflix, Spotify, etc.)")
 public class ServiceController {
 

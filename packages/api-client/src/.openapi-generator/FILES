@@ -19,6 +19,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/accessSummary.ts
 model/accountDetailResponse.ts
 model/accountGroupResult.ts
 model/accountRequest.ts
@@ -41,6 +42,7 @@ model/confirmAssignmentRequest.ts
 model/confirmAssignmentResponse.ts
 model/createManualSubscriptionRequest.ts
 model/createRenewalReservationRequest.ts
+model/currentUserResponse.ts
 model/detectExpiredSubscriptionsResponse.ts
 model/expiringSubscriptionResult.ts
 model/expiringSubscriptionsKpiResult.ts

@@ -9,7 +9,8 @@
  */
 
 
-export interface GrossProfitKpiResult {
+export interface GrossProfitKpiResult { 
     grossProfit?: number;
     currency?: string;
 }
+

@@ -40,7 +40,11 @@ export class MasterDashboardService {
   private readonly dashboardApi = inject(DashboardApiService);
 
   getProductsSummary(category = 'STREAMING'): Observable<ProductSummary[]> {
-    return this.dashboardApi.getProductsSummary(category as 'STREAMING').pipe(
+    return this.dashboardApi.getProductsSummary(
+      category as 'STREAMING',
+      'body',
+      false,
+    ).pipe(
       map((products) => products.map((product) => ({
         productId: product.productId ?? '',
         productName: product.productName ?? '',
@@ -51,7 +55,11 @@ export class MasterDashboardService {
   }
 
   getAccountsByProduct(productId: string): Observable<AccountGroup[]> {
-    return this.dashboardApi.getAccountsByProduct(productId).pipe(
+    return this.dashboardApi.getAccountsByProduct(
+      productId,
+      'body',
+      false,
+    ).pipe(
       map((accounts) => accounts.map((account) => ({
         accountId: account.accountId ?? '',
         email: account.email ?? '',
@@ -68,7 +76,11 @@ export class MasterDashboardService {
   }
 
   getProfilesByAccount(accountId: string): Observable<ProfileItem[]> {
-    return this.dashboardApi.getProfilesByAccount(accountId).pipe(
+    return this.dashboardApi.getProfilesByAccount(
+      accountId,
+      'body',
+      false,
+    ).pipe(
       map((profiles) => profiles.map((profile) => ({
         profileId: profile.profileId ?? '',
         profileName: profile.profileName ?? null,

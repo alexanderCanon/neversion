@@ -29,6 +29,7 @@ declare const bootstrap: Bootstrap;
 export class ProfileListComponent {
   @Input() accountId!: string;
   @Input() profiles: ProfileResponse[] = [];
+  @Input() canGenerateProfiles = true;
   @Output() profilesChanged = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
@@ -71,6 +72,7 @@ export class ProfileListComponent {
   }
 
   onGenerateProfiles(): void {
+      if (!this.canGenerateProfiles) return;
       if (this.generateCount < 1) return;
       this.isSubmitting = true;
       this.profileService.generateProfiles(this.accountId, this.generateCount).subscribe({

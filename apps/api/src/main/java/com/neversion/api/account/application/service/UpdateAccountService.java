@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.account.application.port.in.UpdateAccountUseCase;
 import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -49,6 +50,11 @@ public class UpdateAccountService implements UpdateAccountUseCase {
             throw new AccessDeniedException("Access denied: you do not own account " + uuid);
         }
 
+        if (updates.getSaleMode() != null && existing.getSaleMode() != null
+                && !updates.getSaleMode().equals(existing.getSaleMode())) {
+            throw new BusinessRuleException("Sale mode cannot be changed after account creation.");
+        }
+
         // Resolve service UUID → internal Long if provided
         Long resolvedServiceId = existing.getServiceId();
         if (updates.getServiceUuid() != null) {
@@ -61,7 +67,6 @@ public class UpdateAccountService implements UpdateAccountUseCase {
         existing.setEmail(updates.getEmail());
         existing.setPassword(updates.getPassword());
         existing.setServiceId(resolvedServiceId);
-        existing.setSaleMode(updates.getSaleMode());
         existing.setRenewalDate(updates.getRenewalDate());
         existing.setPlan(updates.getPlan());
         existing.setCost(updates.getCost());

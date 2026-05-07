@@ -127,6 +127,12 @@ public class SubscriptionMapper {
                         account.getPlan(),
                         account.getSaleMode(),
                         account.getStatus()))
+                .access(new SubscriptionDetailResponse.AccessSummary(
+                        account.getEmail(),
+                        account.getPassword(),
+                        profile.getName(),
+                        profile.getPin(),
+                        account.getSaleMode()))
                 .order(toOrderSummary(order))
                 .build();
     }

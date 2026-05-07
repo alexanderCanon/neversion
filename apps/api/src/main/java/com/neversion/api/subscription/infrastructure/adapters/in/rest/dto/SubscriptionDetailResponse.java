@@ -28,6 +28,7 @@ public record SubscriptionDetailResponse(
         ClientSummary client,
         ProfileSummary profile,
         AccountSummary account,
+        AccessSummary access,
         OrderSummary order) {
 
     public record FinancialSnapshot(
@@ -59,6 +60,14 @@ public record SubscriptionDetailResponse(
             String plan,
             SaleMode saleMode,
             AccountStatus status) {
+    }
+
+    public record AccessSummary(
+            String accountEmail,
+            String accountPassword,
+            String profileName,
+            String profilePin,
+            SaleMode saleMode) {
     }
 
     public record OrderSummary(

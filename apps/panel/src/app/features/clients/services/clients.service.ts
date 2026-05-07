@@ -14,7 +14,6 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ClientsService {
   private readonly clientsApi = inject(ClientsApiService);
   private readonly authService = inject(AuthService);
-  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _clients = signal<ClientResponse[]>([]);
   readonly clients = this._clients.asReadonly();
@@ -34,7 +33,6 @@ export class ClientsService {
       filter?.email,
       'body',
       false,
-      this.jsonResponseOptions,
     ).pipe(
       map(apiClients => apiClients.map(api => this.mapToModel(api))),
       tap((clients) => this._clients.set(clients)),
@@ -43,13 +41,13 @@ export class ClientsService {
   }
 
   getClientById(id: string): Observable<ClientResponse> {
-    return this.clientsApi.getById2(id, 'body', false, this.jsonResponseOptions).pipe(
+    return this.clientsApi.getById2(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
 
   getClientDetail(id: string): Observable<ClientDetail> {
-    return this.clientsApi.getDetail(id, 'body', false, this.jsonResponseOptions).pipe(
+    return this.clientsApi.getDetail(id).pipe(
       map(api => this.mapDetailToModel(api))
     );
   }
@@ -62,7 +60,7 @@ export class ClientsService {
       notes: client.notes
     };
 
-    return this.clientsApi.create2(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.clientsApi.create2(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newClient) => {
         this._clients.update((current) => [...current, newClient]);
@@ -77,7 +75,7 @@ export class ClientsService {
       notes: client.notes
     };
 
-    return this.clientsApi.update2(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.clientsApi.update2(id, apiRequest).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedClient) => {
             this._clients.update(current => 

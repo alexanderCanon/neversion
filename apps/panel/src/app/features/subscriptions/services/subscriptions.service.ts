@@ -14,7 +14,6 @@ import { AuthService } from '../../../core/services/auth.service';
 export class SubscriptionsService {
   private readonly subscriptionsApi = inject(SubscriptionsApiService);
   private readonly authService = inject(AuthService);
-  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
@@ -33,7 +32,6 @@ export class SubscriptionsService {
       filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED',
       'body',
       false,
-      this.jsonResponseOptions,
     ).pipe(
       map((response) => this.normalizeSubscriptionsResponse(response)),
       tap((subscriptions) => this._subscriptions.set(subscriptions)),

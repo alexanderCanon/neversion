@@ -113,7 +113,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label class="text-muted small d-block">Modalidad de Venta</label>
-                                    <h4 class="fw-bold mb-0">{{ subscription()!.financialSnapshot!.saleMode === 'COMPLETE' ? 'Cuenta Completa' : 'Perfil Individual' }}</h4>
+                                    <h4 class="fw-bold mb-0">{{ getSaleModeLabel(subscription()!.financialSnapshot!.saleMode) }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -139,30 +139,44 @@
                     </div>
                 </div>
 
-                <!-- Perfil Técnico -->
+                <!-- Acceso de la Suscripción -->
                 <div class="card shadow-sm">
                     <div class="card-header bg-dark text-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-display me-2"></i>Asignación Técnica</h5>
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-key-fill me-2"></i>Acceso de la Suscripción</h5>
                     </div>
                     <div class="card-body">
-                        @if (subscription()!.profile) {
+                        @if (subscription()!.access) {
                             <div class="mb-3">
                                 <label class="text-muted small d-block">Servicio</label>
-                                <strong class="fs-5 text-primary">{{ subscription()!.profile!.serviceName }}</strong>
+                                <strong class="fs-5 text-primary">{{ subscription()!.financialSnapshot?.serviceName || 'Servicio no especificado' }}</strong>
                             </div>
                             <div class="mb-3">
-                                <label class="text-muted small d-block">Perfil Asignado</label>
-                                <strong>{{ subscription()!.profile!.name }}</strong>
-                                @if (subscription()!.profile!.pin) {
-                                    <span class="badge bg-success ms-2">PIN: {{ subscription()!.profile!.pin }}</span>
-                                }
+                                <label class="text-muted small d-block">Modalidad</label>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                    {{ getSaleModeLabel(subscription()!.access!.saleMode) }}
+                                </span>
                             </div>
-                            <div class="mb-3 p-3 bg-light rounded">
-                                <label class="text-muted small d-block mb-1">Cuenta Maestra</label>
-                                <strong>{{ subscription()!.account?.email }}</strong>
-                                <div class="mt-1">
-                                    <span class="badge bg-secondary">Pass: **********</span>
-                                    <small class="text-muted d-block mt-1">Por seguridad, la clave solo es visible para el cliente o en el módulo de cuentas.</small>
+
+                            <div class="p-3 bg-light rounded">
+                                <div class="mb-3">
+                                    <label class="text-muted small d-block">Correo de la Cuenta</label>
+                                    <code class="text-primary">{{ subscription()!.access!.accountEmail || 'No disponible' }}</code>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted small d-block">Contraseña</label>
+                                    <code class="text-primary">{{ subscription()!.access!.accountPassword || 'No disponible' }}</code>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="text-muted small d-block">Perfil Asignado</label>
+                                    <strong>{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
+                                </div>
+                                <div>
+                                    <label class="text-muted small d-block">PIN</label>
+                                    @if (subscription()!.access!.profilePin) {
+                                        <code class="text-primary">{{ subscription()!.access!.profilePin }}</code>
+                                    } @else {
+                                        <span class="text-muted">Sin PIN</span>
+                                    }
                                 </div>
                             </div>
                         }

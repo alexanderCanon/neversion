@@ -22,7 +22,6 @@ type AccountCredentialResponse = ApiAccountResponse & {
 export class AccountsService {
   private readonly accountsApi = inject(AccountsApiService);
   private readonly authService = inject(AuthService);
-  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
   private readonly inFlightRequests = new Map<string, Observable<AccountResponse[]>>();
 
   private readonly _accounts = signal<AccountResponse[]>([]);
@@ -52,7 +51,6 @@ export class AccountsService {
       filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED',
       'body',
       false,
-      this.jsonResponseOptions,
     ).pipe(
       map((apiAccounts) => this.normalizeAccountsResponse(apiAccounts).map(api => this.mapToModel(api))),
       tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
@@ -68,7 +66,7 @@ export class AccountsService {
   }
 
   getAccountById(id: string): Observable<AccountResponse> {
-    return this.accountsApi.getById3(id, 'body', false, this.jsonResponseOptions).pipe(
+    return this.accountsApi.getById3(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -77,7 +75,7 @@ export class AccountsService {
    * Detailed view with profiles (US-028)
    */
   getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
-      return this.accountsApi.getDetail1(id, 'body', false, this.jsonResponseOptions).pipe(
+      return this.accountsApi.getDetail1(id).pipe(
         map((detail) => ({
           ...detail,
           profiles: detail.profiles ?? [],
@@ -92,7 +90,7 @@ export class AccountsService {
       saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.create3(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.accountsApi.create3(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newAccount) => {
         this._accounts.update((current) => [...current, newAccount]);
@@ -107,7 +105,7 @@ export class AccountsService {
         saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.update3(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.accountsApi.update3(id, apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((updatedAccount) => {
         this._accounts.update((current) => 

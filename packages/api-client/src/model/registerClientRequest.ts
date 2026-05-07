@@ -15,7 +15,7 @@ export interface RegisterClientRequest {
      */
     email?: string;
     /**
-     * Client's chosen password
+     * Client\'s chosen password
      */
     password?: string;
     /**

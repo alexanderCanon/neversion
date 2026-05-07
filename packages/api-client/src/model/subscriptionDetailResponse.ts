@@ -9,6 +9,7 @@
  */
 import { AccountSummary } from './accountSummary';
 import { FinancialSnapshot } from './financialSnapshot';
+import { AccessSummary } from './accessSummary';
 import { OrderSummary } from './orderSummary';
 import { ClientSummary } from './clientSummary';
 import { ProfileSummary } from './profileSummary';
@@ -27,6 +28,7 @@ export interface SubscriptionDetailResponse {
     client?: ClientSummary;
     profile?: ProfileSummary;
     account?: AccountSummary;
+    access?: AccessSummary;
     order?: OrderSummary;
 }
 export namespace SubscriptionDetailResponse {

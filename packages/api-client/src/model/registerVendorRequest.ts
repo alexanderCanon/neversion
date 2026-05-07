@@ -15,7 +15,7 @@ export interface RegisterVendorRequest {
      */
     email?: string;
     /**
-     * Vendor's chosen password
+     * Vendor\'s chosen password
      */
     password?: string;
     /**

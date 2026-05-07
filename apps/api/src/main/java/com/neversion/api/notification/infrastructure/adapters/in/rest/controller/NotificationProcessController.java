@@ -1,5 +1,6 @@
 package com.neversion.api.notification.infrastructure.adapters.in.rest.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ import java.util.Map;
  * POST /process: manual trigger for testing/n8n.
  */
 @RestController
-@RequestMapping("/api/v1/notifications")
+@RequestMapping(value = "/api/v1/notifications", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Notifications", description = "Notification processing and management (EPIC-08)")
 public class NotificationProcessController {
 

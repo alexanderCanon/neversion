@@ -1,5 +1,4 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize, map, of } from 'rxjs';
 import { 
     ServicesApiService, 
@@ -17,7 +16,6 @@ interface ApiServicesPageResponse {
 export class ServicesDataService {
   private readonly servicesApi = inject(ServicesApiService);
   private readonly authService = inject(AuthService);
-  private readonly jsonResponseOptions = { httpHeaderAccept: 'application/json' as '*/*' };
 
   private readonly _services = signal<ServiceResponse[]>([]);
   readonly services = this._services.asReadonly();
@@ -39,7 +37,6 @@ export class ServicesDataService {
       filter?.isActive,
       'body',
       false,
-      this.jsonResponseOptions,
     ).pipe(
       map((apiServices) => this.normalizeServicesResponse(apiServices).map(api => this.mapToModel(api))),
       tap((services: ServiceResponse[]) => this._services.set(services)),
@@ -48,7 +45,7 @@ export class ServicesDataService {
   }
 
   getServiceById(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.getById(id, 'body', false, this.jsonResponseOptions).pipe(
+    return this.servicesApi.getById(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -59,7 +56,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.create(apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.servicesApi.create(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newService) => {
         this._services.update((current) => [...current, newService]);
@@ -73,7 +70,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.update(id, apiRequest, 'body', false, this.jsonResponseOptions).pipe(
+    return this.servicesApi.update(id, apiRequest).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 
@@ -87,7 +84,7 @@ export class ServicesDataService {
    * Toggles the active status of a service (US-019)
    */
   toggleServiceStatus(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.toggleStatus(id, 'body', false, this.jsonResponseOptions).pipe(
+    return this.servicesApi.toggleStatus(id).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 

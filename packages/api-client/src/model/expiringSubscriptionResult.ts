@@ -9,7 +9,7 @@
  */
 
 
-export interface ExpiringSubscriptionResult {
+export interface ExpiringSubscriptionResult { 
     subscriptionId?: string;
     clientName?: string;
     serviceName?: string;
@@ -17,3 +17,4 @@ export interface ExpiringSubscriptionResult {
     paymentDueDate?: string;
     status?: string;
 }
+

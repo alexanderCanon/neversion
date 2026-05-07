@@ -111,4 +111,8 @@ export class SubscriptionDetailComponent implements OnInit {
     };
     return labels[status?.toUpperCase()] ?? status;
   }
+
+  getSaleModeLabel(saleMode?: string): string {
+    return saleMode === 'FULL_ACCOUNT' ? 'Cuenta Completa' : 'Perfil Individual';
+  }
 }

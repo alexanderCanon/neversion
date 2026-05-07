@@ -9,6 +9,7 @@
  */
 
 
-export interface ActiveClientsKpiResult {
+export interface ActiveClientsKpiResult { 
     activeClientsCount?: number;
 }
+

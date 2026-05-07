@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
@@ -117,6 +118,11 @@ public class ProfileService implements ProfileUseCase {
         if (!callerVendorId.equals(account.getVendorId())) {
             throw new org.springframework.security.access.AccessDeniedException(
                     "Access denied: you do not own account " + accountUuid);
+        }
+
+        if (SaleMode.FULL_ACCOUNT.equals(account.getSaleMode())) {
+            throw new BusinessRuleException(
+                    "Cannot generate profiles for a full-account sale mode account.");
         }
 
         // Validate maxProfiles (BR-US025-02)

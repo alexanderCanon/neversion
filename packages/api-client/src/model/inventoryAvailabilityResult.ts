@@ -9,7 +9,7 @@
  */
 
 
-export interface InventoryAvailabilityResult {
+export interface InventoryAvailabilityResult { 
     serviceId?: string;
     serviceName?: string;
     availableProfiles?: number;
@@ -17,3 +17,4 @@ export interface InventoryAvailabilityResult {
     availableFullAccounts?: number;
     occupiedFullAccounts?: number;
 }
+

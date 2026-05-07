@@ -1,30 +1,36 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { runtimeConfig } from '../../../core/config/runtime-config';
-import { OrderResponse as ApiOrderResponse, OrderDetailResponse as ApiOrderDetailResponse } from '@neversion/api-client';
+import {
+  OrdersApiService,
+  OrderResponse as ApiOrderResponse,
+  OrderDetailResponse as ApiOrderDetailResponse
+} from '@neversion/api-client';
 import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })
 export class OrdersService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${runtimeConfig.apiUrl}/api/v1/orders`;
+  private readonly ordersApi = inject(OrdersApiService);
 
   getOrderById(id: string): Observable<ApiOrderDetailResponse> {
-    return this.http.get<ApiOrderDetailResponse>(`${this.baseUrl}/${id}`);
+    return this.ordersApi.getById5(id);
   }
 
   getOrderByReservationId(reservationId: string): Observable<ApiOrderResponse> {
-    return this.http.get<ApiOrderResponse>(`${this.baseUrl}/by-reservation/${reservationId}`);
+    return this.ordersApi.getByReservationId(
+      Number(reservationId),
+      'body',
+      false,
+    );
   }
 
   getOrdersByVendor(vendorUuid: string, status?: string): Observable<OrderResponse[]> {
-    let params = new HttpParams();
-    if (status) {
-      params = params.set('status', status);
-    }
-
-    return this.http.get<ApiOrderResponse[]>(`${this.baseUrl}/vendor/${vendorUuid}`, { params }).pipe(
+    return this.ordersApi.listByVendor2(
+      vendorUuid,
+      undefined,
+      status as 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING' | undefined,
+      'body',
+      false,
+    ).pipe(
       map(apiRes => apiRes.map(api => this.mapToModel(api)))
     );
   }

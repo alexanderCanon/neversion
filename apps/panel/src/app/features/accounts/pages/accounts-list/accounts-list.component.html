@@ -121,6 +121,7 @@
                       <app-profile-list 
                         [accountId]="account.id" 
                         [profiles]="getProfilesForAccount(account.id)"
+                        [canGenerateProfiles]="account.saleMode === 'BY_PROFILE'"
                         (profilesChanged)="onProfilesChanged(account.id)">
                       </app-profile-list>
                     </div>

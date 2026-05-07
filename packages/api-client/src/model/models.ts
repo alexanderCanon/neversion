@@ -1,3 +1,4 @@
+export * from './accessSummary';
 export * from './accountDetailResponse';
 export * from './accountGroupResult';
 export * from './accountRequest';
@@ -20,6 +21,7 @@ export * from './confirmAssignmentRequest';
 export * from './confirmAssignmentResponse';
 export * from './createManualSubscriptionRequest';
 export * from './createRenewalReservationRequest';
+export * from './currentUserResponse';
 export * from './detectExpiredSubscriptionsResponse';
 export * from './expiringSubscriptionResult';
 export * from './expiringSubscriptionsKpiResult';
