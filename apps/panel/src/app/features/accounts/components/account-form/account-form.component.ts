@@ -1,15 +1,29 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AccountRequest, SaleMode } from '../../models/account.model';
+import { AccountRequest, SaleMode } from '@neversion/models';
 import { AccountsService } from '../../services/accounts.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 
 interface ServiceOption {
-  id: number;
+  id: string;
   displayName: string;
 }
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
+
+declare const bootstrap: Bootstrap;
 
 @Component({
   selector: 'app-account-form',
@@ -48,8 +62,8 @@ export class AccountFormComponent implements OnInit {
     this.servicesDataService.getServices().subscribe({
       next: (services) => {
         const options: ServiceOption[] = services.map(s => ({
-          id: Number(s.id),
-          displayName: `${s.name} (${s.maxProfiles} perfiles)`
+          id: s.id,
+          displayName: s.name
         }));
         this.serviceOptions.set(options);
       },
@@ -58,6 +72,7 @@ export class AccountFormComponent implements OnInit {
   }
 
   private initForm(): void {
+    const today = new Date().toISOString().split('T')[0];
     this.accountForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(1)]],
@@ -65,6 +80,9 @@ export class AccountFormComponent implements OnInit {
       plan: [''],
       saleMode: [SaleMode.BY_PROFILE, Validators.required],
       renewalDate: ['', [Validators.required]],
+      cost: [0, [Validators.required, Validators.min(0)]],
+      source: [''],
+      purchasedAt: [today],
       notes: ['']
     });
   }
@@ -73,8 +91,7 @@ export class AccountFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
-        if (bootstrap) {
+        if (typeof bootstrap !== 'undefined') {
           const modal = new bootstrap.Modal(modalEl);
           modal.show();
         } else {
@@ -93,8 +110,7 @@ export class AccountFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
-        if (bootstrap) {
+        if (typeof bootstrap !== 'undefined') {
           const modal = bootstrap.Modal.getInstance(modalEl);
           if (modal) modal.hide();
         } else {
@@ -117,16 +133,19 @@ export class AccountFormComponent implements OnInit {
       const accountRequest: AccountRequest = {
         email: formValue.email,
         password: formValue.password,
-        serviceId: Number(formValue.serviceId),
+        serviceId: formValue.serviceId,
         plan: formValue.plan || undefined,
         saleMode: formValue.saleMode as SaleMode,
         renewalDate: formValue.renewalDate,
+        cost: Number(formValue.cost),
+        source: formValue.source || undefined,
+        purchasedAt: formValue.purchasedAt || undefined,
         notes: formValue.notes || undefined
       };
 
       this.accountsService.createAccount(accountRequest).subscribe({
         next: () => {
-          this.toastService.success('Cuenta ingresada existosamente. Perfiles generados.');
+          this.toastService.success('Cuenta ingresada existosamente.');
           this.accountCreated.emit(accountRequest);
           this.closeModal();
         },
@@ -142,8 +161,11 @@ export class AccountFormComponent implements OnInit {
   }
 
   resetForm(): void {
+    const today = new Date().toISOString().split('T')[0];
     this.accountForm.reset({
       saleMode: SaleMode.BY_PROFILE,
+      cost: 0,
+      purchasedAt: today
     });
     this.isSubmitting = false;
   }

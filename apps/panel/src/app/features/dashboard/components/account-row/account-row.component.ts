@@ -1,13 +1,20 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AccountGroup } from '../../models/dashboard.model';
+import { AccountGroup } from '@neversion/models';
 
 @Component({
   selector: 'app-account-row',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="account-row-container py-2 px-3 cursor-pointer rounded-2 mb-1" (click)="toggle.emit(account.accountId)" [class.expanded]="expanded">
+    <div class="account-row-container py-2 px-3 cursor-pointer rounded-2 mb-1" 
+         (click)="accountToggle.emit(account.accountId)" 
+         (keydown.enter)="accountToggle.emit(account.accountId)"
+         (keydown.space)="accountToggle.emit(account.accountId); $event.preventDefault()"
+         [class.expanded]="expanded"
+         tabindex="0"
+         role="button"
+         [attr.aria-expanded]="expanded">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="d-flex align-items-center gap-2 text-truncate">
           <i class="bi text-muted" [class.bi-caret-down-fill]="expanded" [class.bi-caret-right-fill]="!expanded" style="font-size: 0.8rem;"></i>
@@ -27,7 +34,8 @@ import { AccountGroup } from '../../models/dashboard.model';
     </div>
   `,
   styles: [`
-    .cursor-pointer { cursor: pointer; transition: background-color 0.1s ease; }
+    .cursor-pointer { cursor: pointer; transition: background-color 0.1s ease; outline: none; }
+    .cursor-pointer:focus-visible { box-shadow: 0 0 0 2px var(--bs-primary); }
     .cursor-pointer:hover { background-color: rgba(0, 0, 0, 0.03); }
     .account-row-container { 
       border-left: 3px solid transparent; 
@@ -42,7 +50,7 @@ import { AccountGroup } from '../../models/dashboard.model';
 export class AccountRowComponent {
   @Input({ required: true }) account!: AccountGroup;
   @Input() expanded = false;
-  @Output() toggle = new EventEmitter<string>();
+  @Output() accountToggle = new EventEmitter<string>();
 
   get availabilityLabel(): string {
     switch (this.account.availability) {

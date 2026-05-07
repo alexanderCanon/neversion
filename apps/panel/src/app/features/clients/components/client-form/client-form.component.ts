@@ -1,9 +1,23 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ClientRequest } from '../../models/client.model';
+import { ClientRequest, ClientResponse } from '@neversion/models';
 import { ClientsService } from '../../services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
+
+declare const bootstrap: Bootstrap;
 
 @Component({
   selector: 'app-client-form',
@@ -33,12 +47,12 @@ export class ClientFormComponent implements OnInit {
   private initForm(): void {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      email: ['', [Validators.email, Validators.maxLength(255)]],
-      phone: ['', [Validators.required, Validators.maxLength(50)]], // Phone is required now
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+      phone: ['', [Validators.maxLength(50)]],
     });
   }
 
-  openModal(clientToEdit?: any): void {
+  openModal(clientToEdit?: ClientResponse): void {
     if (clientToEdit) {
       this.mode = 'EDIT';
       this.selectedClientId = clientToEdit.id;
@@ -55,8 +69,7 @@ export class ClientFormComponent implements OnInit {
 
     const modalEl = this.modalElement?.nativeElement;
     if (modalEl) {
-      const bootstrap = (window as any).bootstrap;
-      if (bootstrap) {
+      if (typeof bootstrap !== 'undefined') {
         const modal = new bootstrap.Modal(modalEl);
         modal.show();
       } else {
@@ -73,8 +86,7 @@ export class ClientFormComponent implements OnInit {
   closeModal(): void {
     const modalEl = this.modalElement?.nativeElement;
     if (modalEl) {
-      const bootstrap = (window as any).bootstrap;
-      if (bootstrap) {
+      if (typeof bootstrap !== 'undefined') {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
       } else {
@@ -95,7 +107,7 @@ export class ClientFormComponent implements OnInit {
 
       const clientRequest: ClientRequest = {
         name: formValue.name,
-        email: formValue.email || undefined,
+        email: formValue.email,
         phone: formValue.phone || undefined,
       };
 
@@ -132,4 +144,3 @@ export class ClientFormComponent implements OnInit {
     this.selectedClientId = null;
   }
 }
-

@@ -19,8 +19,7 @@ spring:
   flyway:
     enabled: true
     execute-in-transaction: false
-    baseline-on-migrate: true
-    baseline-version: 0
+    baseline-on-migrate: false
     validate-on-migrate: true
     locations: classpath:db/migration
 
@@ -36,6 +35,12 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+  forward-headers-strategy: native
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 logging:
   level:
@@ -44,9 +49,27 @@ logging:
 supabase:
   jwt:
     secret: ${SUPABASE_JWT_SECRET}
+  url: ${SUPABASE_URL}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY}
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+neversion:
+  renewal:
+    grace-period-days: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:2}
+  cron:
+    subscription-expiry:
+      enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
+    notification-worker:
+      enabled: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:true}
+      interval-ms: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:30000}
+    renewal-reminders:
+      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}
+  email:
+    resend:
+      api-key: ${RESEND_API_KEY}
+    from: ${NEVERSION_EMAIL_FROM:Neversion <noreply@neversion.com>}
 
 springdoc:
   api-docs:

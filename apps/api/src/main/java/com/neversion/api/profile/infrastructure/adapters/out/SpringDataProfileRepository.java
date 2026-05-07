@@ -28,4 +28,17 @@ public interface SpringDataProfileRepository extends JpaRepository<ProfileEntity
               )
             """)
     List<ProfileEntity> findAvailableByAccountId(@Param("accountId") Long accountId);
+
+    /**
+     * US-033: Count AVAILABLE profiles for a service across all vendor accounts.
+     * Uses native query to join profiles → accounts → filter by service_id + vendor_id.
+     */
+    @Query(value = "SELECT COUNT(*) FROM profiles p "
+            + "JOIN accounts a ON p.account_id = a.id "
+            + "WHERE a.service_id = :serviceId "
+            + "AND a.vendor_id = :vendorId "
+            + "AND p.status = 'available'",
+            nativeQuery = true)
+    long countAvailableByServiceIdAndVendorId(@Param("serviceId") Long serviceId,
+                                              @Param("vendorId") Long vendorId);
 }

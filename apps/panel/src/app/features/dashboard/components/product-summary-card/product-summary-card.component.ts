@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProductSummary } from '../../models/dashboard.model';
+import { ProductSummary } from '@neversion/models';
 
 @Component({
   selector: 'app-product-summary-card',

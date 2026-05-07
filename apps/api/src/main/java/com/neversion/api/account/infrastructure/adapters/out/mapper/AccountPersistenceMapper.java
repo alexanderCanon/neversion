@@ -20,6 +20,11 @@ public class AccountPersistenceMapper {
                 .plan(entity.getPlan())
                 .saleMode(entity.getSaleMode())
                 .notes(entity.getNotes())
+                .cost(entity.getCost())
+                .source(entity.getSource())
+                .purchasedAt(entity.getPurchasedAt())
+                .status(entity.getStatus())
+                .vendorId(entity.getVendorId())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -36,6 +41,11 @@ public class AccountPersistenceMapper {
                 .plan(domain.getPlan())
                 .saleMode(domain.getSaleMode())
                 .notes(domain.getNotes())
+                .cost(domain.getCost())
+                .source(domain.getSource())
+                .purchasedAt(domain.getPurchasedAt())
+                .status(domain.getStatus())
+                .vendorId(domain.getVendorId())
                 .createdAt(domain.getCreatedAt())
                 .build();
     }

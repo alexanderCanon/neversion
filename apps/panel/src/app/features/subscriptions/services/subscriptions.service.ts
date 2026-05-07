@@ -1,59 +1,87 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
-import { CreateSubscriptionRequest, SubscriptionResponse, SubscriptionDashboardDTO, SubscriptionsFilter, SubscriptionStatus } from '../models/subscription.model';
-import { environment } from '../../../../environments/environment';
+import { Observable, tap, finalize, of, map, catchError } from 'rxjs';
+import { 
+  SubscriptionsApiService, 
+  SubscriptionResponse, 
+  SubscriptionDetailResponse,
+  CreateManualSubscriptionRequest,
+  DetectExpiredSubscriptionsResponse
+} from '@neversion/api-client';
+import { SubscriptionsFilter } from '@neversion/models';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly subscriptionsApi = inject(SubscriptionsApiService);
+  private readonly authService = inject(AuthService);
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
-
-  private readonly _dashboardData = signal<SubscriptionDashboardDTO[]>([]);
-  readonly dashboardData = this._dashboardData.asReadonly();
 
   private readonly _isLoading = signal<boolean>(false);
   readonly isLoading = this._isLoading.asReadonly();
 
   getSubscriptions(filter?: SubscriptionsFilter): Observable<SubscriptionResponse[]> {
-    let params = new HttpParams();
-    if (filter?.status) params = params.set('status', filter.status);
-    if (filter?.clientId) params = params.set('clientId', filter.clientId);
-    if (filter?.profileId) params = params.set('profileId', filter.profileId);
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.http.get<SubscriptionResponse[]>(`${this.baseUrl}/subscriptions`, { params }).pipe(
+    return this.subscriptionsApi.listByVendor(
+      vendorUuid,
+      filter?.serviceId,
+      filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED',
+      'body',
+      false,
+    ).pipe(
+      map((response) => this.normalizeSubscriptionsResponse(response)),
       tap((subscriptions) => this._subscriptions.set(subscriptions)),
+      catchError((error) => {
+        this._subscriptions.set([]);
+        throw error;
+      }),
       finalize(() => this._isLoading.set(false))
     );
   }
 
-  getDashboard(): Observable<SubscriptionDashboardDTO[]> {
-    return this.http.get<SubscriptionDashboardDTO[]>(`${this.baseUrl}/subscriptions/dashboard`).pipe(
-      tap((data) => this._dashboardData.set(data))
+  getSubscriptionDetail(id: string): Observable<SubscriptionDetailResponse> {
+    return this.subscriptionsApi.getById4(id);
+  }
+
+  createManualSubscription(request: CreateManualSubscriptionRequest): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.assign(request).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
     );
   }
 
-  createSubscription(subscription: CreateSubscriptionRequest): Observable<SubscriptionResponse> {
-    return this.http.post<SubscriptionResponse>(`${this.baseUrl}/subscriptions`, subscription).pipe(
-      tap((newSub) => {
-        this._subscriptions.update((current) => [...current, newSub]);
-      })
-    );
+  renewSubscription(id: string): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.renew(id);
   }
 
-  terminateSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/terminate`, {});
+  cancelSubscription(id: string): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.cancel(id);
   }
 
   suspendSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.http.put<SubscriptionResponse>(`${this.baseUrl}/subscriptions/${id}/suspend`, {});
+    return this.subscriptionsApi.suspend(id);
+  }
+
+  detectExpiredSubscriptions(): Observable<DetectExpiredSubscriptionsResponse> {
+    return this.subscriptionsApi.detectExpired();
   }
 
   refreshSubscriptions(): Observable<SubscriptionResponse[]> {
     return this.getSubscriptions();
+  }
+
+  private normalizeSubscriptionsResponse(response: unknown): SubscriptionResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (response && typeof response === 'object' && Array.isArray((response as { content?: unknown }).content)) {
+      return (response as { content: SubscriptionResponse[] }).content;
+    }
+
+    return [];
   }
 }

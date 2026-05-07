@@ -1,29 +1,20 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
-import { User, Session, AuthError, AuthResponse } from '@supabase/supabase-js';
-import { Observable, from, of } from 'rxjs';
-import { map, tap, catchError, finalize } from 'rxjs/operators';
+import { User as SupaUser, Session, AuthResponse } from '@supabase/supabase-js';
+import { Observable, firstValueFrom, from, of } from 'rxjs';
+import { map, catchError, finalize, switchMap } from 'rxjs/operators';
+import { User, AuthResult, UserRole, RegisterVendorRequest } from '@neversion/models';
+import { AuthApiService, RegisterVendorRequest as ApiVendorRequest } from '@neversion/api-client';
+import { runtimeConfig } from '../config/runtime-config';
 
-export interface RegisterProfile {
-    email: string;
-    password: string;
-    // metadata in auth.users (raw_user_meta_data)
-    name: string;
-    lastname: string;
-    phone: string;
-}
-
-export interface LoginProfile {
-    email: string;
-    password: string;
-}
-
-export interface AuthResult {
-    success: boolean;
-    user: User | null;
-    session: Session | null;
-    error: string | null;
+interface AuthContextResponse {
+    userUuid: string;
+    externalId: string;
+    role: UserRole;
+    vendorUuid: string | null;
+    storeName: string | null;
 }
 
 @Injectable({
@@ -31,35 +22,61 @@ export interface AuthResult {
 })
 export class AuthService {
 
+    private readonly http = inject(HttpClient);
     private readonly supabaseService = inject(SupabaseService);
+    private readonly authApiService = inject(AuthApiService);
     private readonly router = inject(Router);
 
     // ── Reactive State (Signals) ──────────────────────────────────
-    private readonly _currentUser = signal<User | null>(null);
+    private readonly _currentUser = signal<SupaUser | null>(null);
     private readonly _currentSession = signal<Session | null>(null);
+    private readonly _currentContext = signal<AuthContextResponse | null>(null);
     private readonly _isLoading = signal<boolean>(false);
     private readonly _errorMessage = signal<string | null>(null);
+    private readonly _contextLoadFailed = signal<boolean>(false);
 
     // ── Public Read-only Signals ──────────────────────────────────
     readonly currentUser = this._currentUser.asReadonly();
     readonly currentSession = this._currentSession.asReadonly();
+    readonly currentContext = this._currentContext.asReadonly();
     readonly isLoading = this._isLoading.asReadonly();
     readonly errorMessage = this._errorMessage.asReadonly();
+    readonly contextLoadFailed = this._contextLoadFailed.asReadonly();
     readonly isAuthenticated = computed(() => this._currentUser() !== null);
+    readonly currentVendorUuid = computed(() => this._currentContext()?.vendorUuid ?? null);
+    
+    /**
+     * Role resolution. 
+     */
+    readonly userRole = computed<UserRole | null>(() => {
+        const contextRole = this._currentContext()?.role;
+        if (contextRole) return contextRole;
+
+        const user = this._currentUser();
+        if (!user) return null;
+        
+        const appRole = user.app_metadata?.['role'] as UserRole;
+        if (appRole) return appRole;
+
+        const metaRole = user.user_metadata?.['role'] as UserRole;
+        if (metaRole) return metaRole;
+
+        return null;
+    });
 
     constructor() {
-        this.listenToAuthChanges();
-        this.restoreSession();
+        // Constructor left empty to avoid illegal inject() calls or side effects during bootstrap
     }
 
     // ── Initialization ────────────────────────────────────────────
 
     /**
-     * Public method to block app initialization until the existing session (if any)
-     * is fully restored from Supabase. Used by APP_INITIALIZER.
+     * Called by APP_INITIALIZER in app.config.ts
      */
     async initialize(): Promise<void> {
+        this.listenToAuthChanges();
         await this.restoreSession();
+        await this.loadCurrentContextIfAuthenticated();
     }
 
     // ── Sign In ───────────────────────────────────────────────────
@@ -74,13 +91,38 @@ export class AuthService {
 
         return from(promise).pipe(
             map((response: AuthResponse) => this.handleAuthResponse(response)),
+            switchMap((result: AuthResult) => {
+                if (!result.success) {
+                    return of(result);
+                }
+
+                this._contextLoadFailed.set(false);
+                return from(this.loadCurrentContext()).pipe(
+                    map(() => ({
+                        success: true,
+                        user: this.buildAuthenticatedUser(),
+                        error: null,
+                    })),
+                    catchError((err: unknown) => {
+                        const message = err instanceof Error
+                            ? err.message
+                            : 'No se pudo resolver el contexto del usuario autenticado';
+                        this._contextLoadFailed.set(true);
+                        this._errorMessage.set(message);
+                        return of<AuthResult>({
+                            success: false,
+                            user: null,
+                            error: message,
+                        });
+                    }),
+                );
+            }),
             catchError((err: unknown) => {
                 const message = err instanceof Error ? err.message : 'Error inesperado al iniciar sesión';
                 this._errorMessage.set(message);
                 return of<AuthResult>({
                     success: false,
                     user: null,
-                    session: null,
                     error: message,
                 });
             }),
@@ -88,32 +130,31 @@ export class AuthService {
         );
     }
 
-    // ── Sign Up (stub for future use) ────────────────────────────
-    signUp(profile: RegisterProfile): Observable<AuthResult> {
+    // ── Sign Up (Vendor) ─────────────────────────────────────────
+    signUpVendor(request: RegisterVendorRequest): Observable<AuthResult> {
         this._isLoading.set(true);
         this._errorMessage.set(null);
 
-        const promise = this.supabaseService.client.auth.signUp({
-            email: profile.email,
-            password: profile.password,
-            options: {
-                data: {
-                    name: profile.name,
-                    lastname: profile.lastname,
-                    phone: profile.phone,
-                },
-            },
-        });
+        const apiRequest: ApiVendorRequest = {
+            email: request.email,
+            password: request.password,
+            storeName: request.storeName,
+        };
 
-        return from(promise).pipe(
-            map((response: AuthResponse) => this.handleAuthResponse(response)),
+        return this.authApiService.registerVendor(apiRequest).pipe(
+            map(() => {
+                return {
+                    success: true,
+                    user: null,
+                    error: null,
+                };
+            }),
             catchError((err: unknown) => {
-                const message = err instanceof Error ? err.message : 'Error inesperado al registrarse';
+                const message = err instanceof Error ? err.message : 'Error inesperado al registrar vendedor';
                 this._errorMessage.set(message);
                 return of<AuthResult>({
                     success: false,
                     user: null,
-                    session: null,
                     error: message,
                 });
             }),
@@ -136,6 +177,8 @@ export class AuthService {
                 }
                 this._currentUser.set(null);
                 this._currentSession.set(null);
+                this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
                 return { success: true, error: null };
             }),
             catchError((err: unknown) => {
@@ -147,50 +190,8 @@ export class AuthService {
         );
     }
 
-    // ── Get Current User ─────────────────────────────────────────
-    getCurrentUser(): Observable<User | null> {
-        return from(this.supabaseService.client.auth.getUser()).pipe(
-            map(({ data }) => data.user),
-            tap((user) => this._currentUser.set(user)),
-            catchError(() => of(null)),
-        );
-    }
-
-    // ── Reset Password ───────────────────────────────────────────
-    resetPassword(email: string): Observable<{ success: boolean; error: string | null }> {
-        this._isLoading.set(true);
-        this._errorMessage.set(null);
-
-        const promise = this.supabaseService.client.auth.resetPasswordForEmail(email);
-
-        return from(promise).pipe(
-            map(({ error }) => {
-                if (error) {
-                    this._errorMessage.set(error.message);
-                    return { success: false, error: error.message };
-                }
-                return { success: true, error: null };
-            }),
-            catchError((err: unknown) => {
-                const message = err instanceof Error ? err.message : 'Error inesperado al enviar el correo';
-                this._errorMessage.set(message);
-                return of({ success: false, error: message });
-            }),
-            finalize(() => this._isLoading.set(false)),
-        );
-    }
-
-    // ── Clear Error ───────────────────────────────────────────────
-    clearError(): void {
-        this._errorMessage.set(null);
-    }
-
     // ── Private Helpers ───────────────────────────────────────────
 
-    /**
-     * Processes the Supabase AuthResponse, updates local state,
-     * and returns a normalised AuthResult.
-     */
     private handleAuthResponse(response: AuthResponse): AuthResult {
         const { data, error } = response;
 
@@ -199,24 +200,20 @@ export class AuthService {
             return {
                 success: false,
                 user: null,
-                session: null,
                 error: error.message,
             };
         }
 
         this._currentUser.set(data.user);
         this._currentSession.set(data.session);
+
         return {
             success: true,
-            user: data.user,
-            session: data.session,
+            user: this.buildAuthenticatedUser(),
             error: null,
         };
     }
 
-    /**
-     * Restores the existing session (if any) when the service initialises.
-     */
     private async restoreSession(): Promise<void> {
         try {
             const { data: { session }, error } = await this.supabaseService.client.auth.getSession();
@@ -229,25 +226,76 @@ export class AuthService {
             if (session) {
                 this._currentUser.set(session.user);
                 this._currentSession.set(session);
+            } else {
+                this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
             }
         } catch (err) {
             console.error('Unexpected error restoring session:', err);
         }
     }
 
-    /**
-     * Subscribes to Supabase auth state changes (login, logout, token refresh)
-     * and keeps the local signals in sync.
-     */
     private listenToAuthChanges(): void {
         this.supabaseService.client.auth.onAuthStateChange((event, session) => {
             this._currentUser.set(session?.user ?? null);
             this._currentSession.set(session ?? null);
 
-            // If the user logs out from another tab, redirect this tab to login page
             if (event === 'SIGNED_OUT') {
+                this._currentContext.set(null);
+                this._contextLoadFailed.set(false);
                 this.router.navigate(['/login'], { replaceUrl: true });
             }
         });
+    }
+
+    private async loadCurrentContextIfAuthenticated(): Promise<void> {
+        if (!this._currentSession()) {
+            this._currentContext.set(null);
+            this._contextLoadFailed.set(false);
+            return;
+        }
+
+        try {
+            this._contextLoadFailed.set(false);
+            await this.loadCurrentContext();
+        } catch (err) {
+            const message = err instanceof Error
+                ? err.message
+                : 'No se pudo conectar con el servidor';
+            this._currentContext.set(null);
+            this._contextLoadFailed.set(true);
+            this._errorMessage.set(message);
+            console.error('Error loading authenticated context:', err);
+        }
+    }
+
+    async retryCurrentContext(): Promise<void> {
+        await this.loadCurrentContextIfAuthenticated();
+    }
+
+    private async loadCurrentContext(): Promise<void> {
+        const context = await firstValueFrom(
+            this.http.get<AuthContextResponse>(`${runtimeConfig.apiUrl}/api/v1/auth/me`)
+        );
+        this._currentContext.set(context);
+        this._contextLoadFailed.set(false);
+    }
+
+    private buildAuthenticatedUser(): User | null {
+        const user = this._currentUser();
+        const context = this._currentContext();
+
+        if (!user) {
+            return null;
+        }
+
+        return {
+            id: context?.userUuid ?? user.id,
+            email: user.email ?? '',
+            role: context?.role ?? this.userRole() ?? 'client',
+            name: user.user_metadata?.['name'],
+            lastname: user.user_metadata?.['lastname'],
+            phone: user.user_metadata?.['phone'],
+        };
     }
 }

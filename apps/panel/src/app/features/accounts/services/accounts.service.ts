@@ -1,13 +1,28 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
-import { AccountRequest, AccountResponse, AccountsFilter } from '../models/account.model';
-import { environment } from '../../../../environments/environment';
+import { Observable, tap, finalize, map, of, shareReplay } from 'rxjs';
+import { 
+    AccountsApiService, 
+    AccountRequest as ApiAccountRequest, 
+    AccountResponse as ApiAccountResponse,
+    AccountDetailResponse as ApiAccountDetailResponse
+} from '@neversion/api-client';
+import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
+import { AuthService } from '../../../core/services/auth.service';
+
+interface ApiAccountsPageResponse {
+  content?: ApiAccountResponse[];
+}
+
+type AccountCredentialResponse = ApiAccountResponse & {
+  password?: string;
+  pass?: string;
+};
 
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly accountsApi = inject(AccountsApiService);
+  private readonly authService = inject(AuthService);
+  private readonly inFlightRequests = new Map<string, Observable<AccountResponse[]>>();
 
   private readonly _accounts = signal<AccountResponse[]>([]);
   readonly accounts = this._accounts.asReadonly();
@@ -15,33 +30,93 @@ export class AccountsService {
   private readonly _isLoading = signal<boolean>(false);
   readonly isLoading = this._isLoading.asReadonly();
 
+  /**
+   * List accounts for the current authenticated vendor (US-024)
+   */
   getAccounts(filter?: AccountsFilter): Observable<AccountResponse[]> {
-    let params = new HttpParams();
-    if (filter?.serviceId) params = params.set('serviceId', filter.serviceId.toString());
-    if (filter?.saleMode) params = params.set('saleMode', filter.saleMode);
-    if (filter?.isActive !== undefined) params = params.set('isActive', String(filter.isActive));
+    const vendorUuid = this.authService.currentVendorUuid();
+    if (!vendorUuid) return of([]);
+
+    const requestKey = `${vendorUuid}:${filter?.serviceId ?? ''}:${filter?.status ?? ''}`;
+    const cachedRequest = this.inFlightRequests.get(requestKey);
+    if (cachedRequest) {
+      return cachedRequest;
+    }
 
     this._isLoading.set(true);
-    return this.http.get<AccountResponse[]>(`${this.baseUrl}/accounts`, { params }).pipe(
-      tap((accounts) => this._accounts.set(accounts)),
-      finalize(() => this._isLoading.set(false))
+    // listByVendor3(vendorUuid, serviceUuid, status)
+    const request$ = this.accountsApi.listByVendor4(
+      vendorUuid,
+      filter?.serviceId,
+      filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED',
+      'body',
+      false,
+    ).pipe(
+      map((apiAccounts) => this.normalizeAccountsResponse(apiAccounts).map(api => this.mapToModel(api))),
+      tap((accounts: AccountResponse[]) => this._accounts.set(accounts)),
+      finalize(() => {
+        this._isLoading.set(false);
+        this.inFlightRequests.delete(requestKey);
+      }),
+      shareReplay(1)
     );
+
+    this.inFlightRequests.set(requestKey, request$);
+    return request$;
   }
 
   getAccountById(id: string): Observable<AccountResponse> {
-    return this.http.get<AccountResponse>(`${this.baseUrl}/accounts/${id}`);
+    return this.accountsApi.getById3(id).pipe(
+      map(api => this.mapToModel(api))
+    );
+  }
+
+  /**
+   * Detailed view with profiles (US-028)
+   */
+  getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
+      return this.accountsApi.getDetail1(id).pipe(
+        map((detail) => ({
+          ...detail,
+          profiles: detail.profiles ?? [],
+        }))
+      );
   }
 
   createAccount(account: AccountRequest): Observable<AccountResponse> {
-    return this.http.post<AccountResponse>(`${this.baseUrl}/accounts`, account).pipe(
+    const apiRequest: ApiAccountRequest = {
+      ...account,
+      pass: account.password,
+      saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
+    };
+
+    return this.accountsApi.create3(apiRequest).pipe(
+      map(api => this.mapToModel(api)),
       tap((newAccount) => {
         this._accounts.update((current) => [...current, newAccount]);
       })
     );
   }
 
+  updateAccount(id: string, account: AccountRequest): Observable<AccountResponse> {
+    const apiRequest: ApiAccountRequest = {
+        ...account,
+        pass: account.password,
+        saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
+    };
+
+    return this.accountsApi.update3(id, apiRequest).pipe(
+      map(api => this.mapToModel(api)),
+      tap((updatedAccount) => {
+        this._accounts.update((current) => 
+            current.map(a => a.id === id ? updatedAccount : a)
+        );
+      })
+    );
+  }
+
   deactivateAccount(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/accounts/${id}`).pipe(
+    return this.accountsApi.delete3(id).pipe(
       tap(() => {
         this._accounts.update((current) => current.filter((a) => a.id !== id));
       })
@@ -50,5 +125,38 @@ export class AccountsService {
 
   refreshAccounts(): Observable<AccountResponse[]> {
     return this.getAccounts();
+  }
+
+  private normalizeAccountsResponse(response: ApiAccountResponse[] | ApiAccountsPageResponse): ApiAccountResponse[] {
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    return response.content ?? [];
+  }
+
+  private mapToModel(api: ApiAccountResponse): AccountResponse {
+    const credentials = api as AccountCredentialResponse;
+
+    return {
+      id: api.id || '',
+      email: api.email || '',
+      password: credentials.password ?? credentials.pass,
+      serviceId: String(api.serviceId || ''),
+      saleMode: api.saleMode as unknown as SaleMode,
+      status: api.status as unknown as AccountStatus,
+      renewalDate: api.renewalDate || '',
+      cost: api.cost || 0,
+      plan: api.plan || '',
+      source: api.source || '',
+      purchasedAt: api.purchasedAt || '',
+      notes: api.notes || '',
+      createdAt: api.createdAt || '',
+      totalProfiles: api.totalProfiles || 0,
+      availableProfiles: api.availableProfiles || 0,
+      occupiedProfiles: api.occupiedProfiles || 0,
+      blockedProfiles: api.blockedProfiles || 0,
+      profiles: []
+    };
   }
 }

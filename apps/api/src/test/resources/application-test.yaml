@@ -11,5 +11,22 @@ spring:
     locations: classpath:db/migration
 
 supabase:
+  url: http://localhost:8000
+  service-role-key: test-service-role-key-placeholder
   jwt:
     secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
+
+neversion:
+  renewal:
+    grace-period-days: 2
+  cron:
+    subscription-expiry:
+      enabled: false
+    notification-worker:
+      enabled: false
+    renewal-reminders:
+      enabled: false
+  email:
+    resend:
+      api-key: re_test_placeholder
+    from: "Test <test@neversion.com>"

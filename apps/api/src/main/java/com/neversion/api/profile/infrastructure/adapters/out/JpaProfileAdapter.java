@@ -53,6 +53,12 @@ public class JpaProfileAdapter implements ProfileRepositoryPort {
                 .toList();
     }
 
+    /** US-033: Profile availability check for reservation creation. */
+    @Override
+    public long countAvailableByServiceIdAndVendorId(Long serviceId, Long vendorId) {
+        return profileRepo.countAvailableByServiceIdAndVendorId(serviceId, vendorId);
+    }
+
     @Override
     public void saveAll(List<Profile> profiles) {
         List<ProfileEntity> entities = profiles.stream()

@@ -58,19 +58,22 @@ run: ## Run locally with Spring Boot dev tools (hot reload)
 # DOCKER — DEV
 # =============================================================================
 
-.PHONY: dev-up dev-down dev-logs
+.PHONY: dev-up dev-run dev-down dev-logs
 
 dev-up: ## Start dev stack — PostgreSQL + app (detached). Usage: make dev-up
-	docker compose -f compose.dev.yaml up -d --build
+	docker compose -f compose.local.yml up -d --build
+
+dev-run:
+	docker compose -f compose.local.yml up -d
 
 dev-down: ## Stop dev stack
-	docker compose -f compose.dev.yaml down
+	docker compose -f compose.local.yml down
 
 dev-logs: ## Follow dev container logs. Usage: make dev-logs | make dev-logs SERVICE=app
 	@if [ -z "$(SERVICE)" ]; then \
-		docker compose -f compose.dev.yaml logs -f; \
+		docker compose -f compose.local.yml logs -f; \
 	else \
-		docker compose -f compose.dev.yaml logs -f $(SERVICE); \
+		docker compose -f compose.local.yml logs -f $(SERVICE); \
 	fi
 
 # =============================================================================
@@ -80,20 +83,20 @@ dev-logs: ## Follow dev container logs. Usage: make dev-logs | make dev-logs SER
 .PHONY: up down logs build-image
 
 up: ## Start production stack (detached). Usage: make up
-	docker compose -f compose.prod.yaml up -d --build
+	docker compose -f compose.prod.yml up -d --build
 
 down: ## Stop and remove production containers
-	docker compose -f compose.prod.yaml down
+	docker compose -f compose.prod.yml down
 
 logs: ## Follow production logs. Usage: make logs | make logs SERVICE=app
 	@if [ -z "$(SERVICE)" ]; then \
-		docker compose -f compose.prod.yaml logs -f; \
+		docker compose -f compose.prod.yml logs -f; \
 	else \
-		docker compose -f compose.prod.yaml logs -f $(SERVICE); \
+		docker compose -f compose.prod.yml logs -f $(SERVICE); \
 	fi
 
 build-image: ## Build Docker image only (no compose)
-	docker compose -f compose.prod.yaml build
+	docker compose -f compose.prod.yml build
 
 # =============================================================================
 # GIT

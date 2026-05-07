@@ -1,64 +1,59 @@
 ---
 name: angular
-description: Expert in Angular TypeScript development with scalable, high-performance patterns
+description: Canonical Angular skill for Neversion. Use for Angular 16 (`apps/store`) and Angular 17 (`apps/panel`) development, refactors, testing, routing, forms, SSR, accessibility, and CLI workflows.
 ---
 
-# Angular
+# Angular for Neversion
 
-You are an Angular, SASS, and TypeScript expert creating scalable, high-performance web applications with strict type safety and Angular's official style guide adherence.
+Use this skill for all Angular work in this repo. It is the only Angular skill agents should load here.
 
-## Core Principles
+## Version scope
 
-- Provide concise, precise examples with clear explanations
-- Apply immutability and pure functions throughout services and state management
-- Favor component composition over inheritance for enhanced modularity
-- Use descriptive naming conventions (e.g., `isUserLoggedIn`, `fetchData()`)
-- Enforce kebab-case file naming with appropriate suffixes
+- `apps/store` uses Angular 16 with SSR.
+- `apps/panel` uses Angular 17 with standalone components and signals.
+- Always check the target app version before choosing patterns.
+- Do not assume Angular 17-only APIs exist in `apps/store`.
 
-## TypeScript Standards
+## Defaults
 
-- Define data models using interfaces; avoid `any` type entirely
-- Structure files with imports first, followed by class definition, properties, methods
-- Leverage optional chaining (`?.`) and nullish coalescing (`??`) operators
-- Use standalone components appropriately for code reusability
-- Utilize Angular's signals system for efficient reactive state management
-- Employ the `inject` function for direct service injection
+- Follow the existing style of the target app before introducing new patterns.
+- Use `inject()` when the codebase already follows it.
+- Use standalone components in `apps/panel`; match the current structure in `apps/store`.
+- Keep code and comments in English.
+- Keep UI labels and visible copy in Spanish.
+- Prefer interfaces and typed models over `any`.
+- Use signals only where they fit the app and current architecture.
+- Use reactive forms for complex forms; keep template-driven forms only where the existing code already uses them.
+- Avoid unrelated refactors or abstractions.
 
-## File Organization
+## Component and template rules
 
-- Components: `*.component.ts`
-- Services: `*.service.ts`
-- Directives: `*.directive.ts`
-- Pipes: `*.pipe.ts`
-- Tests: `*.spec.ts`
+- Use semantic HTML and ARIA where it matters.
+- Associate every `label` with `for` and `id`.
+- Add keyboard support for clickable non-button elements.
+- Use `async` pipe for observable consumption in templates.
+- Use `trackBy` or the Angular 17 `track` clause for repeated lists.
+- Prefer SSR-safe browser access when touching `window`, `document`, or third-party JS.
 
-## Code Standards
+## State and routing
 
-- Single quotes for string literals
-- 2-space indentation
-- Prefer `const` for immutable variables
-- Use template literals for interpolation
+- Use RxJS and services for server state.
+- Use signals for local UI state in Angular 17 when the app already follows that pattern.
+- Keep route state explicit and lazy-load feature routes where the app already does.
+- Use guards and interceptors consistent with the target app.
 
-## Angular-Specific Guidelines
+## Bootstrap and UI integration
 
-- Use `async` pipe for observable subscriptions in templates
-- Enable lazy loading for feature modules
-- Ensure accessibility with semantic HTML and ARIA attributes
-- Implement deferrable views for non-essential components
-- Use `NgOptimizedImage` for efficient image loading
-- Apply trackBy functions with `ngFor` for optimized rendering
+- Keep Bootstrap interactions SSR-safe.
+- Prefer typed wrappers over `any` when opening or closing modals.
+- Do not add visual patterns that fight the existing Bootstrap-based UI.
 
-## Performance Optimization
+## Testing and verification
 
-- Optimize list rendering with trackBy functions
-- Use pure pipes for computationally heavy operations
-- Avoid direct DOM manipulation; rely on Angular's templating engine
-- Leverage signals to reduce unnecessary re-renders
-- Focus on Web Vitals optimization (LCP, INP, CLS)
+- Add or update focused specs when behavior changes.
+- Verify changed Angular code with the repo's existing build or test command when validation is needed.
 
-## Error Handling & Security
+## Scaffolding
 
-- Implement robust error handling with custom error types
-- Use Angular's form validation system for input validation
-- Prevent XSS through Angular's sanitization; avoid `innerHTML`
-- Follow Arrange-Act-Assert pattern for unit tests
+- Do not use a separate Angular new-app skill in this repo.
+- Use the repo's own docs and existing app structure for Angular work.

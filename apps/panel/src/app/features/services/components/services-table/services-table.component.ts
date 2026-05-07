@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ServiceResponse } from '../../models/service.model';
+import { ServiceResponse } from '@neversion/models';
 
 @Component({
   selector: 'app-services-table',
@@ -11,8 +11,9 @@ import { ServiceResponse } from '../../models/service.model';
 })
 export class ServicesTableComponent {
   @Input() services: ServiceResponse[] = [];
+  @Input() isReadOnly = false;
   @Output() editService = new EventEmitter<ServiceResponse>();
-  @Output() deleteService = new EventEmitter<string>();
+  @Output() toggleStatus = new EventEmitter<string>();
 
   getCategoryBadgeClass(category: string | undefined): string {
     switch (category) {
@@ -31,7 +32,7 @@ export class ServicesTableComponent {
     }
   }
 
-  getCategoryBadgeStyle(category: string | undefined): any {
+  getCategoryBadgeStyle(category: string | undefined): Record<string, string> {
      if(category === 'STREAMING') return { 'background-color': '#4285f4', 'color': 'white' };
      if(category === 'DIGITAL_SERVICE') return { 'background-color': '#34a853', 'color': 'white' };
      if(category === 'SOFTWARE') return { 'background-color': '#a142f4', 'color': 'white' };

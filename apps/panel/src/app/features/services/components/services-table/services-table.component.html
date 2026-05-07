@@ -4,8 +4,12 @@
       <tr>
         <th scope="col" class="ps-4">Servicio</th>
         <th scope="col">Categoría</th>
-        <th scope="col">Perfiles Máx.</th>
+        <th scope="col">Precio (Q)</th>
+        <th scope="col">Capacidad</th>
+        <th scope="col">Estado</th>
+        @if (!isReadOnly) {
         <th scope="col" class="text-end pe-4">Acciones</th>
+        }
       </tr>
     </thead>
     <tbody>
@@ -15,8 +19,8 @@
           <td class="ps-4">
             <div class="d-flex align-items-center py-2">
               <div class="flex-shrink-0">
-                @if (service.details?.imageUrl) {
-                  <img [src]="service.details?.imageUrl" alt="{{service.name}}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
+                @if (service.imageUrl) {
+                  <img [src]="service.imageUrl" alt="{{service.name}}" class="rounded" style="width: 48px; height: 48px; object-fit: cover;">
                 } @else {
                   <div class="rounded bg-light d-flex align-items-center justify-content-center text-primary" style="width: 48px; height: 48px;">
                     <i class="bi bi-box-seam fs-4"></i>
@@ -25,7 +29,7 @@
               </div>
               <div class="ms-3">
                 <div class="fw-bold text-dark">{{ service.name }}</div>
-                <div class="text-muted small text-truncate" style="max-width: 200px;">{{ service.details?.description || 'Sin descripción' }}</div>
+                <div class="text-muted small text-truncate" style="max-width: 200px;">{{ service.description || 'Sin descripción' }}</div>
               </div>
             </div>
           </td>
@@ -33,29 +37,54 @@
           <!-- Category -->
           <td>
             <span class="badge rounded-pill px-3 py-2 fw-normal" 
-                  [ngClass]="getCategoryBadgeClass(service.details?.category)"
-                  [ngStyle]="getCategoryBadgeStyle(service.details?.category)">
-              {{ service.details?.category }}
+                  [ngClass]="getCategoryBadgeClass(service.category)">
+              {{ service.category }}
             </span>
           </td>
 
-          <!-- Max Profiles -->
+          <!-- Pricing -->
           <td>
-            <span class="text-dark">{{ service.maxProfiles }}</span>
+            <div class="small">
+              <span class="text-muted">Perfil:</span> <strong>Q{{ service.priceProfile }}</strong><br>
+              <span class="text-muted">Completa:</span> <strong>Q{{ service.priceComplete }}</strong>
+            </div>
+          </td>
+
+          <!-- Max Profiles / Duration -->
+          <td>
+            <div class="small">
+              <span class="text-muted">Máx:</span> {{ service.maxProfiles }} perfiles<br>
+              <span class="text-muted">Duración:</span> {{ service.durationDays }} días
+            </div>
+          </td>
+
+          <!-- Status -->
+          <td>
+            <span class="badge" [ngClass]="service.isActive ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary'">
+              {{ service.isActive ? 'Activo' : 'Inactivo' }}
+            </span>
           </td>
 
           <!-- Actions -->
+          @if (!isReadOnly) {
           <td class="text-end pe-4">
             <div class="btn-group shadow-sm border rounded-2">
-              <button class="btn btn-light btn-sm text-primary px-3" (click)="editService.emit(service)" title="Editar servicio">
+              <button class="btn btn-light btn-sm text-primary" (click)="editService.emit(service)" title="Editar servicio">
                 <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-light btn-sm" 
+                      [ngClass]="service.isActive ? 'text-warning' : 'text-success'"
+                      (click)="toggleStatus.emit(service.id)" 
+                      [title]="service.isActive ? 'Desactivar' : 'Activar'">
+                <i class="bi" [ngClass]="service.isActive ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
               </button>
             </div>
           </td>
+          }
         </tr>
       } @empty {
         <tr>
-          <td colspan="4" class="text-center py-4 text-muted">
+          <td colspan="6" class="text-center py-4 text-muted">
              <i class="bi bi-info-circle me-1"></i> No hay servicios que mostrar.
           </td>
         </tr>

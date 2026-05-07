@@ -1,1 +1,50 @@
-<p>payment-page works!</p>
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">Instrucciones de Pago</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info border-0 rounded-3 mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Tu {{ flow === 'renewal' ? 'renovación' : 'reservación' }} <strong>#{{ reservationId }}</strong> ha sido creada. Tienes 1 hora para subir tu comprobante antes de que expire.
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Datos de Transferencia:</h6>
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <p class="mb-1"><strong>Banco:</strong> Banco Industrial</p>
+                        <p class="mb-1"><strong>Cuenta:</strong> 123-456789-0 (Monetaria)</p>
+                        <p class="mb-0"><strong>Nombre:</strong> Neversion Digital</p>
+                    </div>
+
+                    <h6 class="fw-bold mb-3">Sube tu Comprobante:</h6>
+                    <div class="mb-4">
+                        <label for="receiptFile" class="form-label small text-muted">Imagen o captura de pantalla (JPG, PNG)</label>
+                        <input class="form-control" type="file" id="receiptFile" 
+                               (change)="onFileSelected($event)"
+                               accept="image/*">
+                    </div>
+
+                    <div *ngIf="selectedFile" class="mb-4 text-center">
+                        <div class="p-2 border rounded-3 bg-light d-inline-block">
+                            <i class="bi bi-file-earmark-image fs-4 text-primary"></i>
+                            <span class="ms-2 small">{{ selectedFile.name }}</span>
+                        </div>
+                    </div>
+
+                    <button (click)="uploadReceipt()" 
+                            [disabled]="!selectedFile || isUploading"
+                            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                        <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
+                        {{ isUploading ? 'Subiendo...' : 'Confirmar Pago' }}
+                    </button>
+
+                    <button [routerLink]="flow === 'renewal' ? '/customer-panel' : '/platforms'" class="btn btn-link w-100 mt-3 text-muted small">
+                        Pagar más tarde
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

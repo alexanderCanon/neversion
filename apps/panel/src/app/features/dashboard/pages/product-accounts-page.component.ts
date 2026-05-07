@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MasterDashboardService } from '../services/master-dashboard.service';
-import { AccountGroup, ProfileItem } from '../models/dashboard.model';
+import { AccountGroup, ProfileItem } from '@neversion/models';
 import { AccountRowComponent } from '../components/account-row/account-row.component';
 import { ProfileRowComponent } from '../components/profile-row/profile-row.component';
 
@@ -52,7 +52,7 @@ import { ProfileRowComponent } from '../components/profile-row/profile-row.compo
                 <app-account-row
                   [account]="account"
                   [expanded]="expandedAccounts().has(account.accountId)"
-                  (toggle)="toggleAccount($event)">
+                  (accountToggle)="toggleAccount($event)">
                 </app-account-row>
 
                 @if (expandedAccounts().has(account.accountId)) {
@@ -70,7 +70,7 @@ import { ProfileRowComponent } from '../components/profile-row/profile-row.compo
                               <th class="fw-semibold px-3 py-2"><i class="bi bi-person-fill me-1"></i> Cliente</th>
                               <th class="fw-semibold py-2"><i class="bi bi-telephone-fill me-1"></i> Teléfono</th>
                               <th class="fw-semibold py-2"><i class="bi bi-list-task me-1"></i> Perfil</th>
-                              <th class="fw-semibold py-2"><label class="me-1">#</label> PIN</th>
+                              <th class="fw-semibold py-2"><span class="me-1">#</span> PIN</th>
                               <th class="fw-semibold py-2">🗓️ Inicio</th>
                               <th class="fw-semibold py-2">🗓️ Vencimiento</th>
                               <th class="fw-semibold py-2">✅ Estado</th>
@@ -78,7 +78,7 @@ import { ProfileRowComponent } from '../components/profile-row/profile-row.compo
                           </thead>
                           <tbody>
                             @for (profile of accountProfiles()[account.accountId]; track profile.profileId) {
-                              <tr app-profile-row [profile]="profile" class="align-middle"></tr>
+                              <app-profile-row [profile]="profile" class="align-middle"></app-profile-row>
                             }
                           </tbody>
                         </table>

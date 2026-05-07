@@ -27,16 +27,16 @@ RUN ./mvnw package -DskipTests -B \
 
 # ══════════════════════════════════════════════════════════════════
 # Stage 2: RUN — Lightweight runtime image (JRE only, no compiler)
-# This dramatically reduces the final image size (~300MB vs ~600MB)
+# Using Alpine Linux reduces the image size significantly (~200MB)
 # ══════════════════════════════════════════════════════════════════
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jre-alpine
+
+# Install curl for health check using apk (Alpine package manager)
+RUN apk add --no-cache curl
 
 # ── Security: run as non-root user ──────────────────────────────
-# By default Docker runs as root, which is a security risk.
-# If the app is compromised, the attacker gets root inside the container.
-# We create a dedicated user 'appuser' with UID 1001 (no login shell).
-RUN groupadd --system appgroup && \
-    useradd --system --gid appgroup --uid 1001 --shell /usr/sbin/nologin appuser
+# We create a dedicated user 'appuser' with UID 1001.
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup -u 1001
 
 WORKDIR /app
 

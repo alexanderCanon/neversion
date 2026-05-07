@@ -1,48 +1,98 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileRequest, ProfileResponse } from '../../models/profile.model';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ProfileRequest, ProfileResponse, ProfileStatus } from '@neversion/models';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { ToastService } from '../../../../core/services/toast.service';
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
+
+declare const bootstrap: Bootstrap;
 
 @Component({
   selector: 'app-profile-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './profile-list.component.html',
   styleUrls: [],
 })
-export class ProfileListComponent implements OnChanges {
+export class ProfileListComponent {
   @Input() accountId!: string;
   @Input() profiles: ProfileResponse[] = [];
+  @Input() canGenerateProfiles = true;
+  @Output() profilesChanged = new EventEmitter<void>();
 
-  readonly profileForm: FormGroup;
+  private readonly fb = inject(FormBuilder);
+  private readonly profileService = inject(ProfileService);
+  private readonly toastService = inject(ToastService);
+
+  readonly profileForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(100)]],
+    pin: ['', [Validators.maxLength(10)]],
+    isOwner: [false]
+  });
+
   selectedProfileId: string | null = null;
   isSubmitting = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private profileService: ProfileService,
-    private toastService: ToastService
-  ) {
-    this.profileForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      pin: ['', [Validators.maxLength(10)]],
-      isOwner: [false]
-    });
-  }
-
   isLoading = false;
-
-  ngOnChanges(changes: SimpleChanges): void {
-  }
+  generateCount = 1;
 
   getStatusClass(profile: ProfileResponse): string {
-    return profile.isOwner ? 'bg-primary' : 'bg-warning text-dark';
+    switch (profile.status) {
+      case ProfileStatus.AVAILABLE: return 'bg-success-subtle text-success border border-success-subtle';
+      case ProfileStatus.ACTIVE:    return 'bg-primary-subtle text-primary border border-primary-subtle';
+      case ProfileStatus.RESERVED:  return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+      case ProfileStatus.BLOCKED:   return 'bg-danger-subtle text-danger border border-danger-subtle';
+      default: return 'bg-light text-secondary border';
+    }
   }
 
   getStatusLabel(profile: ProfileResponse): string {
-    return profile.isOwner ? 'Dueño' : 'Ocupado';
+    const labels: Record<string, string> = {
+      AVAILABLE: 'Disponible',
+      ACTIVE:    'Activo',
+      RESERVED:  'Reservado',
+      OCCUPIED:  'Ocupado',
+      BLOCKED:   'Bloqueado',
+      EXPIRED:   'Expirado'
+    };
+    let label = labels[profile.status] || profile.status;
+    if (profile.isOwner) label += ' (Dueño)';
+    return label;
+  }
+
+  onGenerateProfiles(): void {
+      if (!this.canGenerateProfiles) return;
+      if (this.generateCount < 1) return;
+      this.isSubmitting = true;
+      this.profileService.generateProfiles(this.accountId, this.generateCount).subscribe({
+          next: () => {
+              this.toastService.success(`Se han generado ${this.generateCount} perfiles.`);
+              this.profilesChanged.emit();
+              this.isSubmitting = false;
+          },
+          error: () => this.isSubmitting = false
+      });
+  }
+
+  toggleBlocked(profile: ProfileResponse): void {
+      const newStatus = profile.status === ProfileStatus.BLOCKED ? ProfileStatus.AVAILABLE : ProfileStatus.BLOCKED;
+      this.profileService.changeStatus(profile.id, { status: newStatus }).subscribe({
+          next: () => {
+              this.toastService.success('Estado del perfil actualizado.');
+              this.profilesChanged.emit();
+          }
+      });
   }
 
   openEditModal(profile: ProfileResponse): void {
@@ -55,8 +105,7 @@ export class ProfileListComponent implements OnChanges {
 
     const modalEl = document.getElementById('editProfileModal');
     if (modalEl) {
-      const bootstrap = (window as any).bootstrap;
-      if (bootstrap) {
+      if (typeof bootstrap !== 'undefined') {
         new bootstrap.Modal(modalEl).show();
       }
     }
@@ -65,8 +114,7 @@ export class ProfileListComponent implements OnChanges {
   closeEditModal(): void {
     const modalEl = document.getElementById('editProfileModal');
     if (modalEl) {
-      const bootstrap = (window as any).bootstrap;
-      if (bootstrap) {
+      if (typeof bootstrap !== 'undefined') {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
       }

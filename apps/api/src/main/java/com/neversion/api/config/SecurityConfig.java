@@ -64,10 +64,11 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable());
 
-        // -- Public docs & health --
+        // -- Public docs, health probe (load balancer), and protected actuator --
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                .requestMatchers("/actuator/**").permitAll());
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN"));
 
         // -- Delegate per-feature RBAC rules --
         for (HttpSecurityCustomizer customizer : securityCustomizers) {

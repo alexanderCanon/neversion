@@ -30,22 +30,26 @@
           </div>
 
           <div class="mb-3">
-            <label for="email" class="form-label">Correo electrónico</label>
+            <label for="email" class="form-label">Correo electrónico <span class="text-danger">*</span></label>
             <input
               type="email"
               class="form-control"
               id="email"
               formControlName="email"
+              [readonly]="mode === 'EDIT'"
               [class.is-invalid]="clientForm.get('email')?.invalid && clientForm.get('email')?.touched"
               placeholder="correo@ejemplo.com"
             />
+            @if (clientForm.get('email')?.errors?.['required'] && clientForm.get('email')?.touched) {
+              <div class="invalid-feedback d-block">El correo electrónico es requerido</div>
+            }
             @if (clientForm.get('email')?.errors?.['email'] && clientForm.get('email')?.touched) {
               <div class="invalid-feedback d-block">Formato de correo inválido</div>
             }
           </div>
 
           <div class="mb-3">
-            <label for="phone" class="form-label">Teléfono <span class="text-danger">*</span></label>
+            <label for="phone" class="form-label">Teléfono</label>
             <input
               type="tel"
               class="form-control"
@@ -54,9 +58,6 @@
               [class.is-invalid]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
               placeholder="44123456"
             />
-            @if (clientForm.get('phone')?.errors?.['required'] && clientForm.get('phone')?.touched) {
-              <div class="invalid-feedback d-block">El teléfono es requerido</div>
-            }
           </div>
         </div>
 

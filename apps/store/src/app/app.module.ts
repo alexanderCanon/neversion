@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { BASE_PATH } from '@neversion/api-client';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -20,6 +22,8 @@ import { PaymentPageComponent } from './pages/payment-page/payment-page.componen
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { LoginComponent } from './pages/login/login.component';
+import { runtimeConfig } from './config/runtime-config';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -45,10 +49,14 @@ import { LoginComponent } from './pages/login/login.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+    { provide: BASE_PATH, useValue: runtimeConfig.apiUrl },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

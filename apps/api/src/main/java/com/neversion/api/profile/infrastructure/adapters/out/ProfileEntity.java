@@ -4,16 +4,20 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 
 /**
  * JPA Entity for the 'profiles' table.
@@ -63,6 +67,25 @@ public class ProfileEntity {
     @Column(name = "is_owner", nullable = false)
     private Boolean isOwner;
 
+    /**
+     * Operational status of this profile (EPIC-03 / US-022).
+     * Persisted as lowercase string via ProfileStatusConverter (autoApply=true).
+     */
+    @Convert(converter = com.neversion.api.profile.infrastructure.adapters.out.converter.ProfileStatusConverter.class)
+    @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
+    private ProfileStatus status = ProfileStatus.AVAILABLE;
+
+    /** FK to vendors.id — multi-tenancy (ADR-02). DB FK by V16. */
+    @Column(name = "vendor_id")
+    private Long vendorId;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    void prePersist() {
+        if (uuid == null) uuid = UUID.randomUUID();
+        if (createdAt == null) createdAt = LocalDateTime.now();
+    }
 }

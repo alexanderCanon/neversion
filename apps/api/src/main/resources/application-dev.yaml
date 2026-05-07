@@ -39,3 +39,21 @@ logging:
 supabase:
   jwt:
     secret: ${SUPABASE_JWT_SECRET}
+  url: ${SUPABASE_URL:https://placeholder.supabase.co}
+  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:placeholder}
+
+neversion:
+  renewal:
+    grace-period-days: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:2}
+  cron:
+    subscription-expiry:
+      enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
+    notification-worker:
+      enabled: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:false}
+      interval-ms: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:30000}
+    renewal-reminders:
+      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:false}
+  email:
+    resend:
+      api-key: ${RESEND_API_KEY:re_placeholder}
+    from: ${NEVERSION_EMAIL_FROM:Neversion <noreply@neversion.com>}

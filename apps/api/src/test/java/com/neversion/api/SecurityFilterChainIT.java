@@ -19,9 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
  * Boots the full Spring context with a real PostgreSQL container and verifies
  * that the security rules are enforced at the HTTP layer:
  * <ul>
- *   <li>Public endpoints return 200 without any token</li>
- *   <li>Protected endpoints return 401 without a token</li>
- *   <li>Protected endpoints return 401 with an invalid/malformed JWT</li>
+ * <li>Public endpoints return 200 without any token</li>
+ * <li>Protected endpoints return 401 without a token</li>
+ * <li>Protected endpoints return 401 with an invalid/malformed JWT</li>
  * </ul>
  */
 @SpringBootTest
@@ -39,10 +39,10 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
     class PublicEndpoints {
 
         @Test
-        @DisplayName("GET /api/v1/services - should return 200 without token (public catalog)")
-        void services_shouldBePublic() throws Exception {
-            mockMvc.perform(get("/api/v1/services"))
-                    .andExpect(status().isOk());
+        @DisplayName("GET /api/v1/services/store/{uuid} - should not require auth (US-021, returns 404 for unknown vendor)")
+        void servicesStore_shouldBePublic() throws Exception {
+            mockMvc.perform(get("/api/v1/services/store/00000000-0000-0000-0000-000000000001"))
+                    .andExpect(status().isNotFound());
         }
 
         @Test
@@ -70,13 +70,13 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         @DisplayName("POST /api/v1/services - should return 401 without token")
         void createService_shouldReturn401_withoutToken() throws Exception {
             mockMvc.perform(post("/api/v1/services")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                        "name": "Netflix",
-                                        "maxProfiles": 5
-                                    }
-                                    """))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                                "name": "Netflix",
+                                "maxProfiles": 5
+                            }
+                            """))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -100,6 +100,13 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
             mockMvc.perform(get("/api/v1/dashboard/products"))
                     .andExpect(status().isUnauthorized());
         }
+
+        @Test
+        @DisplayName("GET /actuator/prometheus - should return 401 without token (SUPER_ADMIN only)")
+        void actuatorPrometheus_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(get("/actuator/prometheus"))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
     // ── Invalid JWT ────────────────────────────────────────────────────
@@ -112,18 +119,18 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         @DisplayName("POST /api/v1/accounts - should return 401 with malformed JWT")
         void createAccount_shouldReturn401_withMalformedJwt() throws Exception {
             mockMvc.perform(post("/api/v1/accounts")
-                            .header("Authorization", "Bearer this.is.not.a.valid.jwt")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                        "email": "test@example.com",
-                                        "password": "pass123",
-                                        "serviceId": "00000000-0000-0000-0000-000000000001",
-                                        "plan": "Premium",
-                                        "saleMode": "BY_PROFILE",
-                                        "renewalDate": "2026-04-30"
-                                    }
-                                    """))
+                    .header("Authorization", "Bearer this.is.not.a.valid.jwt")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                                "email": "test@example.com",
+                                "password": "pass123",
+                                "serviceId": "00000000-0000-0000-0000-000000000001",
+                                "plan": "Premium",
+                                "saleMode": "BY_PROFILE",
+                                "renewalDate": "2026-04-30"
+                            }
+                            """))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -136,18 +143,18 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
                     + ".SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
             mockMvc.perform(post("/api/v1/accounts")
-                            .header("Authorization", "Bearer " + invalidJwt)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("""
-                                    {
-                                        "email": "test@example.com",
-                                        "password": "pass123",
-                                        "serviceId": "00000000-0000-0000-0000-000000000001",
-                                        "plan": "Premium",
-                                        "saleMode": "BY_PROFILE",
-                                        "renewalDate": "2026-04-30"
-                                    }
-                                    """))
+                    .header("Authorization", "Bearer " + invalidJwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                                "email": "test@example.com",
+                                "password": "pass123",
+                                "serviceId": "00000000-0000-0000-0000-000000000001",
+                                "plan": "Premium",
+                                "saleMode": "BY_PROFILE",
+                                "renewalDate": "2026-04-30"
+                            }
+                            """))
                     .andExpect(status().isUnauthorized());
         }
     }

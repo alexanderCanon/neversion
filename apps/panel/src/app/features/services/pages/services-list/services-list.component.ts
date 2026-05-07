@@ -1,10 +1,11 @@
-import { Component, OnInit, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, signal, computed, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ServicesDataService } from '../../services/services-data.service';
-import { ServiceResponse } from '../../models/service.model';
+import { ServiceResponse, ServiceRequest } from '@neversion/models';
 import { ServicesTableComponent } from '../../components/services-table/services-table.component';
 import { ServiceFormComponent } from '../../components/service-form/service-form.component';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-services-list',
@@ -14,10 +15,15 @@ import { ServiceFormComponent } from '../../components/service-form/service-form
   styleUrls: ['./services-list.component.scss']
 })
 export class ServicesListComponent implements OnInit {
-  @ViewChild(ServiceFormComponent) newServiceModal!: ServiceFormComponent;
+  @ViewChild(ServiceFormComponent) serviceModal!: ServiceFormComponent;
 
-  services = signal<ServiceResponse[]>([]);
-  isLoading = signal(true);
+  private readonly servicesDataService = inject(ServicesDataService);
+  private readonly authService = inject(AuthService);
+
+  isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
+
+  services = this.servicesDataService.services;
+  isLoading = this.servicesDataService.isLoading;
 
   // Filters
   searchTerm = signal('');
@@ -29,55 +35,57 @@ export class ServicesListComponent implements OnInit {
     const category = this.selectedCategory();
     
     return this.services().filter(s => {
-      const matchName = s.name?.toLowerCase().includes(term) ?? false;
-      return matchName;
+      const matchName = term ? (s.name?.toLowerCase().includes(term) ?? false) : true;
+      const matchCategory = category ? (s.category === category) : true;
+      return matchName && matchCategory;
     });
   });
-
-  constructor(private servicesDataService: ServicesDataService) {}
 
   ngOnInit(): void {
     this.loadServices();
   }
 
   loadServices(): void {
-    this.isLoading.set(true);
-    this.servicesDataService.getServices().subscribe({
-      next: (data) => {
-        this.services.set(data);
-        this.isLoading.set(false);
-      },
-      error: (err: any) => {
-        console.error('Failed to fetch services', err);
-        this.isLoading.set(false);
-      }
-    });
+    this.servicesDataService.getServices().subscribe();
   }
 
   onSearchChange(term: string): void {
     this.searchTerm.set(term);
   }
 
-  onCategoryChange(event: any): void {
-    this.selectedCategory.set(event.target.value);
+  onCategoryChange(category: string): void {
+    this.selectedCategory.set(category);
   }
 
   openNewServiceModal(): void {
-    if (this.newServiceModal) {
-      this.newServiceModal.openModal();
+    if (this.serviceModal) {
+      this.serviceModal.openModal();
     }
   }
 
-  onSaveService(request: any): void {
-    this.servicesDataService.createService(request).subscribe({
-      next: () => {
-        this.loadServices();
-      },
-      error: (err: any) => {
-        console.error('Failed to create service', err);
-        alert('Error al crear el servicio. Verifique su conexión y vuelva a intentarlo.');
-        this.loadServices(); // reload in case it passed something
-      }
-    });
+  onEditService(service: ServiceResponse): void {
+    if (this.serviceModal) {
+      this.serviceModal.openModal(service);
+    }
+  }
+
+  onToggleStatus(id: string): void {
+    this.servicesDataService.toggleServiceStatus(id).subscribe();
+  }
+
+  onSaveService(request: ServiceRequest): void {
+    const editId = this.serviceModal.editingServiceId;
+
+    if (editId) {
+      this.servicesDataService.updateService(editId, request).subscribe({
+        next: () => this.loadServices(),
+        error: (err) => console.error('Failed to update service', err)
+      });
+    } else {
+      this.servicesDataService.createService(request).subscribe({
+        next: () => this.loadServices(),
+        error: (err) => console.error('Failed to create service', err)
+      });
+    }
   }
 }

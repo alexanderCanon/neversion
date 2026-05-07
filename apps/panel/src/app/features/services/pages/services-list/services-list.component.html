@@ -2,9 +2,11 @@
   <!-- Header Title and Actions -->
   <div class="d-flex justify-content-between align-items-center mb-4">
       <h3 class="mb-0 fw-bold text-dark text-uppercase">Administración de Servicios</h3>
+      @if (!isSuperAdmin()) {
       <button class="btn btn-primary d-flex align-items-center px-4 shadow-sm rounded-3" (click)="openNewServiceModal()">
           <i class="bi bi-plus fs-5 pe-1"></i> Nuevo Servicio
       </button>
+      }
   </div>
 
   <!-- Main Content Card -->
@@ -27,8 +29,8 @@
               </div>
               <div class="col-12 col-md-auto ms-auto">
                   <select class="form-select text-secondary border" 
-                          [value]="selectedCategory()" 
-                          (change)="onCategoryChange($event)">
+                          [ngModel]="selectedCategory()" 
+                          (ngModelChange)="onCategoryChange($event)">
                       <option value="">Todas las categorías</option>
                       <option value="STREAMING">Streaming</option>
                       <option value="SOFTWARE">Software</option>
@@ -53,7 +55,7 @@
                   <p class="mt-2 text-muted">No encontramos servicios.</p>
                   @if (searchTerm() || selectedCategory()) {
                       <button class="btn btn-outline-secondary mt-2" (click)="searchTerm.set(''); selectedCategory.set('')">Limpiar filtros</button>
-                  } @else {
+                  } @else if (!isSuperAdmin()) {
                       <button class="btn btn-primary mt-2" (click)="openNewServiceModal()">
                           Crear el primer servicio
                       </button>
@@ -61,7 +63,10 @@
               </div>
           } @else {
              <app-services-table 
-                [services]="filteredServices()">
+                [services]="filteredServices()"
+                [isReadOnly]="isSuperAdmin()"
+                (editService)="onEditService($event)"
+                (toggleStatus)="onToggleStatus($event)">
              </app-services-table>
           }
       </div>

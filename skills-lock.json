@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "angular": {
+      "source": ".agents/skills/angular",
+      "sourceType": "local",
+      "computedHash": "c9c28818641fbba4a4e83d34b3d0dadae2bdd121fd10766863886237b439fe27"
+    },
+    "spring-standards": {
+      "source": ".agents/skills/spring-standards",
+      "sourceType": "local",
+      "computedHash": "local"
+    },
+    "spring-monolith-testing-skill": {
+      "source": ".agents/skills/spring-monolith-testing-skill",
+      "sourceType": "local",
+      "computedHash": "local"
+    }
+  }
+}

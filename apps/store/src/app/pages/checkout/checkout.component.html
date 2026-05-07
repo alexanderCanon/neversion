@@ -1,1 +1,99 @@
-<p>checkout works!</p>
+<div class="container py-5 mt-5">
+    <h2 class="fw-bold mb-4">Finalizar Compra</h2>
+
+    <div class="row g-5" *ngIf="(cartItems$ | async)?.length; else emptyCart">
+        <!-- Cart Items List -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">Mi Carrito</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <div *ngFor="let item of cartItems$ | async" class="list-group-item py-3">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <img [src]="item.service.imageUrl || '/assets/placeholder-service.png'" 
+                                     class="rounded" style="width: 64px; height: 64px; object-fit: cover;">
+                            </div>
+                            <div class="col">
+                                <h6 class="mb-0 fw-bold">{{ item.service.name }}</h6>
+                                <p class="text-muted small mb-0">
+                                    {{ item.type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa' }}
+                                </p>
+                                <span class="text-primary fw-bold">
+                                    Q{{ item.type === 'PROFILE' ? item.service.priceProfile : item.service.priceComplete }}
+                                </span>
+                            </div>
+                            <div class="col-auto d-flex align-items-center">
+                                <div class="input-group input-group-sm me-3" style="width: 100px;">
+                                    <button (click)="updateQuantity(item, -1)" class="btn btn-outline-secondary" type="button">-</button>
+                                    <input type="text" class="form-control text-center" [value]="item.quantity" readonly>
+                                    <button (click)="updateQuantity(item, 1)" class="btn btn-outline-secondary" type="button">+</button>
+                                </div>
+                                <button (click)="removeItem(item)" class="btn btn-link text-danger p-0" title="Eliminar">
+                                    <i class="bi bi-trash fs-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary and Payment -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Resumen de Orden</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <span>Q{{ total$ | async }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold">Total</span>
+                        <span class="fw-bold text-primary fs-4">Q{{ total$ | async }}</span>
+                    </div>
+
+                    <hr>
+
+                    <h6 class="fw-bold mb-3">Método de Pago</h6>
+                    <div class="mb-4">
+                        <div *ngFor="let method of paymentMethods" class="form-check mb-2">
+                            <input class="form-check-input" type="radio" 
+                                   [id]="method.id" [value]="method.id" 
+                                   [(ngModel)]="selectedPaymentMethod">
+                            <label class="form-check-label" [for]="method.id">
+                                {{ method.label }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <button (click)="placeOrder()" 
+                            [disabled]="isSubmitting"
+                            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                        <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                        {{ isSubmitting ? 'Procesando...' : 'Realizar Pedido' }}
+                    </button>
+                    
+                    <p class="text-muted small text-center mt-3">
+                        <i class="bi bi-shield-check me-1"></i> Transacción segura y encriptada.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <ng-template #emptyCart>
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-cart-x fs-1 text-muted"></i>
+            </div>
+            <h4 class="fw-bold">Tu carrito está vacío</h4>
+            <p class="text-muted">Parece que aún no has seleccionado ningún servicio.</p>
+            <button routerLink="/platforms" class="btn btn-primary rounded-pill px-4 mt-3">
+                Ver Catálogo
+            </button>
+        </div>
+    </ng-template>
+</div>

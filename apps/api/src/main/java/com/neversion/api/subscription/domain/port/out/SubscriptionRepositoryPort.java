@@ -16,11 +16,19 @@ public interface SubscriptionRepositoryPort {
 
     Optional<Subscription> findByInternalId(Long id);
 
+    Optional<Subscription> findByOrderId(Long orderId);
+
     List<Subscription> findByClientId(Long clientId);
 
     List<Subscription> findByProfileId(Long profileId);
 
     List<Subscription> findByStatus(SubStatus status);
+
+    /**
+     * US-043: Returns subscriptions scoped to a vendor, optionally filtered by
+     * service and subscription status. Results are ordered by payment due date ASC.
+     */
+    List<Subscription> findByVendorIdFiltered(Long vendorId, Long serviceId, SubStatus status);
 
     List<Subscription> findAll();
 
@@ -35,6 +43,12 @@ public interface SubscriptionRepositoryPort {
      * Used by background automations to detect overdue payments (BR-10).
      */
     List<Subscription> findOverdue(LocalDate asOf);
+
+    /**
+     * US-054: Finds active subscriptions due on a specific date.
+     * Used by renewal reminder cron to detect 7d/3d/1d upcoming renewals.
+     */
+    List<Subscription> findActiveByPaymentDueDate(LocalDate dueDate);
 
     void deleteById(UUID uuid);
 }

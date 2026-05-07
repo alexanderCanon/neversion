@@ -1,14 +1,20 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
+import {
+  HttpInterceptorFn,
+  HttpErrorResponse
+} from '@angular/common/http';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { ErrorLoggerService } from '../services/error-logger.service';
 import { ToastService } from '../services/toast.service';
+import { clearSupabaseSession } from '../utils/supabase-session-storage';
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const errorLogger = inject(ErrorLoggerService);
   const toastService = inject(ToastService);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
   return next(req).pipe(
     catchError((error: unknown) => {
@@ -23,41 +29,41 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         switch (error.status) {
           case 400:
             toastService.warning(
-              backendMessage || 'Bad request. Please check your input.'
+              backendMessage || 'Solicitud inválida. Revisa los datos ingresados.'
             );
             break;
 
           case 401:
-            toastService.warning('Session expired. Please log in again.');
-            clearSupabaseSession();
+            toastService.warning('Tu sesión expiró. Inicia sesión nuevamente.');
+            clearBrowserSupabaseSession(platformId);
             router.navigate(['/login'], { replaceUrl: true });
             break;
 
           case 403:
-            toastService.error('Access Denied. Admin role required.');
+            toastService.error('Acceso denegado. No tienes permisos para esta acción.');
             break;
 
           case 404:
             toastService.warning(
-              backendMessage || 'Resource not found.'
+              backendMessage || 'Recurso no encontrado.'
             );
             break;
 
           case 409:
             toastService.warning(
-              backendMessage || 'Conflict: The operation could not be completed.'
+              backendMessage || 'Conflicto: no se pudo completar la operación.'
             );
             break;
 
           case 500:
             toastService.error(
-              'A critical server error occurred. Please try again later.'
+              'Ocurrió un error crítico en el servidor. Intenta de nuevo más tarde.'
             );
             break;
 
           case 0:
             toastService.error(
-              'Unable to connect to server. Please check your internet connection.'
+              'No se pudo conectar con el servidor. Revisa tu conexión a internet.'
             );
             break;
 
@@ -65,7 +71,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
           case 503:
           case 504:
             toastService.error(
-              'Server is temporarily unavailable. Please try again later.'
+              'El servidor no está disponible temporalmente. Intenta de nuevo más tarde.'
             );
             break;
 
@@ -75,9 +81,8 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
             );
         }
       } else {
-        // Non-HTTP errors (e.g., client-side or network)
         const message =
-          error instanceof Error ? error.message : 'An unexpected error occurred';
+          error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
         toastService.error(message);
         errorLogger.log(error, {
           url: req.url,
@@ -90,19 +95,14 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   );
 };
 
-/**
- * Clears the Supabase auth session from localStorage
- * so the auth guard redirects to login on the next navigation.
- */
-function clearSupabaseSession(): void {
+function clearBrowserSupabaseSession(platformId: object): void {
+  if (!isPlatformBrowser(platformId)) {
+    return;
+  }
+
   try {
-    const authKey = Object.keys(localStorage).find(
-      (key) => key.startsWith('sb-') && key.endsWith('-auth-token')
-    );
-    if (authKey) {
-      localStorage.removeItem(authKey);
-    }
+    clearSupabaseSession(localStorage);
   } catch {
-    // Silently ignore — guard will handle redirect anyway
+    // The guard will redirect on the next navigation if storage is unavailable.
   }
 }

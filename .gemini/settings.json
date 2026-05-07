@@ -1,0 +1,13 @@
+{
+    "general": {
+        "defaultApproveMode": "auto_edit"
+    },
+    "security": {
+        "enablePermanentToolApproval": true,
+        "autoAddToPolicyByDefault": true,
+        "folderTrust": {
+            "enabled": true,
+            "defaultTrustLevel": "full"
+        }
+    }
+}

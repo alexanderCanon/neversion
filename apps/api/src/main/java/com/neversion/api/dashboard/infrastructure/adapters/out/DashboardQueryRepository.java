@@ -1,7 +1,8 @@
 package com.neversion.api.dashboard.infrastructure.adapters.out;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.neversion.api.dashboard.application.port.out.DashboardQueryPort;
+import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
+import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
 import com.neversion.api.dashboard.application.result.ProfileCustomerResult;
@@ -32,17 +35,15 @@ public class DashboardQueryRepository implements DashboardQueryPort {
     @Override
     public List<ProductSummaryResult> findProductsByCategory(String category) {
         String sql = """
-                SELECT p.id         AS product_id,
-                       p.name       AS product_name,
-                       p.category::text AS category,
+                SELECT s.id         AS product_id,
+                       s.name       AS product_name,
+                       s.category   AS category,
                        COUNT(DISTINCT a.id) AS total_accounts
-                FROM products p
-                JOIN inventory i ON i.product_id = p.id AND i.is_active = true
-                JOIN accounts a  ON a.inventory_id = i.id AND a.is_active = true
-                WHERE p.category = ?::category_type
-                  AND p.is_active = true
-                GROUP BY p.id, p.name, p.category
-                ORDER BY p.name
+                FROM services s
+                LEFT JOIN accounts a ON a.service_id = s.id
+                WHERE s.category = ?
+                GROUP BY s.id, s.name, s.category
+                ORDER BY s.name
                 """;
         return jdbcTemplate.query(sql, (rs, rowNum) -> new ProductSummaryResult(
                 rs.getObject("product_id", UUID.class),
@@ -54,26 +55,25 @@ public class DashboardQueryRepository implements DashboardQueryPort {
     @Override
     public List<Map<String, Object>> findAccountsByProductId(UUID productId) {
         String sql = """
-                SELECT a.id                AS account_id,
+                SELECT a.uuid              AS account_id,
                        a.email             AS email,
-                       a.pass              AS password,
-                       a.expiration_date   AS cut_off_date,
-                       i.account_type::text AS account_type,
-                       a.status::text      AS account_status,
-                       COALESCE(i.max_profiles, 1) AS max_profiles,
-                       COUNT(s.id) FILTER (WHERE s.status::text IN ('active', 'expired')
-                           AND s.renewal_date >= CURRENT_DATE) AS occupied_profiles
+                       a.password          AS password,
+                       a.renewal_date      AS cut_off_date,
+                       CASE WHEN a.sale_mode = 'BY_PROFILE' THEN 'FAMILY' ELSE 'INDIVIDUAL' END
+                                           AS account_type,
+                       CASE WHEN a.renewal_date >= CURRENT_DATE THEN 'ACTIVE' ELSE 'EXPIRED' END
+                                           AS account_status,
+                       svc.max_profiles    AS max_profiles,
+                       COUNT(DISTINCT CASE WHEN s.status IN ('ACTIVE', 'SUSPENDED') THEN p.id END)
+                                           AS occupied_profiles
                 FROM accounts a
-                JOIN inventory i ON a.inventory_id = i.id
-                LEFT JOIN profiles sl ON sl.account_id = a.id
-                LEFT JOIN subscriptions s ON s.profile_id = sl.id
-                     AND s.status::text IN ('active')
-                WHERE i.product_id = ?
-                  AND a.is_active = true
-                  AND i.is_active = true
-                GROUP BY a.id, a.email, a.pass, a.expiration_date,
-                         i.account_type, a.status, i.max_profiles
-                ORDER BY a.expiration_date
+                JOIN services svc ON a.service_id = svc.id
+                LEFT JOIN profiles p ON p.account_id = a.id
+                LEFT JOIN subscriptions s ON s.profile_id = p.id
+                     AND s.status IN ('ACTIVE', 'SUSPENDED')
+                WHERE svc.uuid = ?
+                GROUP BY a.uuid, a.email, a.password, a.renewal_date, a.sale_mode, svc.max_profiles
+                ORDER BY a.renewal_date
                 """;
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Map<String, Object> row = new HashMap<>();
@@ -92,22 +92,26 @@ public class DashboardQueryRepository implements DashboardQueryPort {
     @Override
     public List<ProfileResult> findProfilesByAccountId(UUID accountId) {
         String sql = """
-                SELECT sl.id             AS profile_id,
-                       sl.profile_name   AS profile_name,
-                       sl.pin            AS pin,
-                       sl.status::text   AS profile_status,
-                       s.id              AS sub_id,
-                       s.purchase_date   AS start_date,
-                       s.renewal_date    AS end_date,
-                       s.status::text    AS sub_status,
-                       ug.id             AS customer_id,
-                       ug.name           AS customer_name,
-                       ug.phone          AS customer_phone
+                SELECT sl.uuid              AS profile_id,
+                       sl.name              AS profile_name,
+                       sl.pin               AS pin,
+                       CASE
+                           WHEN s.status = 'ACTIVE'    THEN 'OCCUPIED'
+                           WHEN s.status = 'SUSPENDED' THEN 'BLOCKED'
+                           ELSE 'AVAILABLE'
+                       END                  AS profile_status,
+                       s.uuid               AS sub_id,
+                       s.start_date         AS start_date,
+                       s.payment_due_date   AS end_date,
+                       s.status             AS sub_status,
+                       c.uuid               AS customer_id,
+                       c.name               AS customer_name,
+                       c.phone              AS customer_phone
                 FROM profiles sl
                 LEFT JOIN subscriptions s ON s.profile_id = sl.id
-                     AND s.status::text IN ('active', 'expired', 'cancelled', 'suspended')
-                LEFT JOIN users_guests ug ON s.user_guest_id = ug.id
-                WHERE sl.account_id = ?
+                     AND s.status IN ('ACTIVE', 'SUSPENDED')
+                LEFT JOIN clients c ON c.id = s.client_id
+                WHERE sl.account_id = (SELECT id FROM accounts WHERE uuid = ?)
                 ORDER BY sl.id
                 """;
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -133,7 +137,7 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                                 customerId,
                                 rs.getString("customer_name"),
                                 rs.getString("customer_phone"),
-                                "USER_GUEST")
+                                "CLIENT")
                         : null;
 
                 subscription = new ProfileSubscriptionResult(
@@ -148,8 +152,142 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                     rs.getObject("profile_id", UUID.class),
                     rs.getString("profile_name"),
                     rs.getString("pin"),
-                    rs.getString("profile_status").toUpperCase(),
-                    subscription);
+                    rs.getString("profile_status"),
+                subscription);
         }, accountId);
+    }
+
+    @Override
+    public List<ExpiringSubscriptionResult> findExpiringSubscriptions(
+            Long vendorId,
+            LocalDate from,
+            LocalDate to) {
+        String sql = """
+                SELECT s.uuid AS subscription_id,
+                       c.name AS client_name,
+                       COALESCE(snapshot_svc.name, account_svc.name) AS service_name,
+                       p.name AS profile_name,
+                       s.payment_due_date AS payment_due_date,
+                       s.status AS status
+                FROM subscriptions s
+                JOIN clients c ON c.id = s.client_id
+                JOIN profiles p ON p.id = s.profile_id
+                LEFT JOIN accounts a ON a.id = p.account_id
+                LEFT JOIN services account_svc ON account_svc.id = a.service_id
+                LEFT JOIN services snapshot_svc ON snapshot_svc.id = s.service_id
+                WHERE s.vendor_id = ?
+                  AND s.status IN ('ACTIVE', 'SUSPENDED')
+                  AND s.payment_due_date BETWEEN ? AND ?
+                ORDER BY s.payment_due_date ASC, c.name ASC, service_name ASC, p.name ASC
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new ExpiringSubscriptionResult(
+                rs.getObject("subscription_id", UUID.class),
+                rs.getString("client_name"),
+                rs.getString("service_name"),
+                rs.getString("profile_name"),
+                rs.getObject("payment_due_date", LocalDate.class),
+                rs.getString("status")), vendorId, from, to);
+    }
+
+    @Override
+    public List<InventoryAvailabilityResult> findInventoryAvailability(Long vendorId) {
+        String sql = """
+                SELECT s.uuid AS service_id,
+                       s.name AS service_name,
+                       COUNT(DISTINCT CASE
+                           WHEN a.sale_mode = 'by_profile'
+                            AND p.status = 'available'
+                           THEN p.id END) AS available_profiles,
+                       COUNT(DISTINCT CASE
+                           WHEN a.sale_mode = 'by_profile'
+                            AND p.status IN ('active', 'reserved', 'occupied')
+                           THEN p.id END) AS occupied_profiles,
+                       COUNT(DISTINCT CASE
+                           WHEN a.sale_mode = 'full_account'
+                            AND a.status = 'available'
+                           THEN a.id END) AS available_full_accounts,
+                       COUNT(DISTINCT CASE
+                           WHEN a.sale_mode = 'full_account'
+                            AND a.status = 'full'
+                           THEN a.id END) AS occupied_full_accounts
+                FROM services s
+                LEFT JOIN accounts a ON a.service_id = s.id
+                     AND a.vendor_id = s.vendor_id
+                LEFT JOIN profiles p ON p.account_id = a.id
+                     AND p.vendor_id = s.vendor_id
+                WHERE s.vendor_id = ?
+                GROUP BY s.uuid, s.name
+                ORDER BY s.name ASC
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new InventoryAvailabilityResult(
+                rs.getObject("service_id", UUID.class),
+                rs.getString("service_name"),
+                rs.getLong("available_profiles"),
+                rs.getLong("occupied_profiles"),
+                rs.getLong("available_full_accounts"),
+                rs.getLong("occupied_full_accounts")), vendorId);
+    }
+
+    @Override
+    public long countActiveClients(Long vendorId) {
+        String sql = """
+                SELECT COUNT(DISTINCT s.client_id)
+                FROM subscriptions s
+                WHERE s.vendor_id = ?
+                  AND s.status = 'ACTIVE'
+                """;
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, vendorId);
+        return result != null ? result : 0L;
+    }
+
+    @Override
+    public long countSuccessfulRenewals(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart) {
+        String sql = """
+                SELECT COUNT(*)
+                FROM orders o
+                JOIN reservations r ON r.id = o.reservation_id
+                WHERE o.vendor_id = ?
+                  AND o.status IN ('COMPLETED', 'completed')
+                  AND r.renewal_subscription_id IS NOT NULL
+                  AND o.approved_at >= ?
+                  AND o.approved_at < ?
+                """;
+        Long result = jdbcTemplate.queryForObject(sql, Long.class, vendorId, periodStart, nextPeriodStart);
+        return result != null ? result : 0L;
+    }
+
+    @Override
+    public BigDecimal calculateGrossProfit(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart) {
+        String sql = """
+                SELECT COALESCE(SUM(profit_amount), 0)
+                FROM (
+                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    FROM subscriptions s
+                    WHERE s.vendor_id = ?
+                      AND s.created_at >= ?
+                      AND s.created_at < ?
+
+                    UNION ALL
+
+                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    FROM orders o
+                    JOIN reservations r ON r.id = o.reservation_id
+                    JOIN subscriptions s ON s.id = r.renewal_subscription_id
+                    WHERE o.vendor_id = ?
+                      AND o.status IN ('COMPLETED', 'completed')
+                      AND o.approved_at >= ?
+                      AND o.approved_at < ?
+                ) profit_events
+                """;
+        BigDecimal result = jdbcTemplate.queryForObject(
+                sql,
+                BigDecimal.class,
+                vendorId,
+                periodStart,
+                nextPeriodStart,
+                vendorId,
+                periodStart,
+                nextPeriodStart);
+        return result != null ? result : BigDecimal.ZERO;
     }
 }

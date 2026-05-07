@@ -8,12 +8,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Domain model for an end consumer (client) of Neversion's services.
- * Formerly "UserGuest" — renamed to align with unified domain language.
+ * Domain model for an end consumer (client) of Neversion's services
  *
- * 'id' (Long)  – internal identifier, used only for DB relations. Never exposed externally.
- * 'uuid' (UUID) – external identifier exposed in all REST responses and frontend routes.
- * 'phone' is the primary contact channel used by n8n for WhatsApp payment reminders.
+ * 'id' (Long) – internal identifier, used only for DB relations. Never exposed
+ * externally.
+ * 'uuid' (UUID) – external identifier exposed in all REST responses and
+ * frontend routes.
+ * 'phone' is the primary contact channel used by n8n for WhatsApp payment
+ * reminders.
  */
 @Getter
 @Setter
@@ -26,6 +28,12 @@ public class Client {
     /** External identifier — exposed to the frontend instead of the numeric id. */
     private UUID uuid;
 
+    /** FK to users.id — the authenticated identity behind this client (US-003). */
+    private Long userId;
+
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02, US-003). */
+    private Long vendorId;
+
     private String name;
 
     /** Primary contact channel — used for WhatsApp automation reminders. */
@@ -33,7 +41,9 @@ public class Client {
 
     private String email;
 
-    /** Private admin notes about this client (e.g. payment history, preferences). */
+    /**
+     * Private admin notes about this client (e.g. payment history, preferences).
+     */
     private String notes;
 
     private LocalDateTime createdAt;
@@ -41,10 +51,12 @@ public class Client {
     public Client() {
     }
 
-    public Client(Long id, UUID uuid, String name, String phone, String email,
+    public Client(Long id, UUID uuid, Long userId, Long vendorId, String name, String phone, String email,
             String notes, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
+        this.userId = userId;
+        this.vendorId = vendorId;
         this.name = name;
         this.phone = phone;
         this.email = email;

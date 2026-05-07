@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -11,9 +11,13 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './main-layout.component.scss'
 })
 export class MainLayoutComponent implements OnInit {
-  theme = signal<'light' | 'dark'>('light');
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
+  theme = signal<'light' | 'dark'>('light');
+  isRecoveringContext = signal(false);
+  isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
+  contextLoadFailed = this.authService.contextLoadFailed;
 
   ngOnInit(): void {
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
@@ -31,6 +35,12 @@ export class MainLayoutComponent implements OnInit {
 
   private applyTheme(theme: 'light' | 'dark'): void {
     document.documentElement.setAttribute('data-bs-theme', theme);
+  }
+
+  retryContext(): void {
+    this.isRecoveringContext.set(true);
+    this.authService.retryCurrentContext()
+      .finally(() => this.isRecoveringContext.set(false));
   }
 
   logout(): void {

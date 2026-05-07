@@ -1,0 +1,176 @@
+{
+  "generatedAt": "2026-04-09",
+  "totalTestFiles": 9,
+  "totalTestCount": 40,
+  "testAssets": [
+    {
+      "className": "BaseIntegrationTest",
+      "filePath": "src/test/java/com/neversion/api/BaseIntegrationTest.java",
+      "type": "Base",
+      "layer": "cross-cutting",
+      "module": null,
+      "testCount": 0,
+      "scenarios": [
+        "Abstract base class for all integration tests",
+        "Provisions PostgreSQLContainer with postgres:16-alpine image",
+        "Uses @ServiceConnection for automatic datasource wiring",
+        "Activates 'test' profile via @ActiveProfiles"
+      ]
+    },
+    {
+      "className": "ApplicationSmokeIT",
+      "filePath": "src/test/java/com/neversion/api/ApplicationSmokeIT.java",
+      "type": "IT",
+      "layer": "cross-cutting",
+      "module": null,
+      "testCount": 1,
+      "scenarios": [
+        "contextLoads — verifies full Spring context boots without errors (bean graph, Flyway migration, scheduling)"
+      ]
+    },
+    {
+      "className": "SecurityFilterChainIT",
+      "filePath": "src/test/java/com/neversion/api/SecurityFilterChainIT.java",
+      "type": "IT",
+      "layer": "infrastructure",
+      "module": "security",
+      "testCount": 9,
+      "scenarios": [
+        "GET /api/v1/services returns 200 without token (public catalog)",
+        "GET /actuator/health returns 200 without token",
+        "GET /v3/api-docs returns 200 without token (OpenAPI)",
+        "POST /api/v1/services returns 401 without token",
+        "GET /api/v1/accounts returns 401 without token",
+        "GET /api/v1/subscriptions returns 401 without token",
+        "GET /api/v1/dashboard/products returns 401 without token",
+        "POST /api/v1/accounts returns 401 with malformed JWT",
+        "POST /api/v1/accounts returns 401 with invalid-signature JWT"
+      ]
+    },
+    {
+      "className": "CreateAccountServiceUT",
+      "filePath": "src/test/java/com/neversion/api/account/application/service/CreateAccountServiceUT.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "account",
+      "testCount": 5,
+      "scenarios": [
+        "create — saves BY_PROFILE account and generates profiles from service.maxProfiles (BR-01)",
+        "create — saves FULL_ACCOUNT without generating profiles",
+        "create — throws BusinessRuleException when renewal date is null",
+        "create — throws ResourceNotFoundException when service not found",
+        "create — defaults to 1 profile when service.maxProfiles is null (BR-01)"
+      ]
+    },
+    {
+      "className": "GetAccountServiceUT",
+      "filePath": "src/test/java/com/neversion/api/account/application/service/GetAccountServiceUT.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "account",
+      "testCount": 4,
+      "scenarios": [
+        "getById — returns account when found by UUID",
+        "getById — throws ResourceNotFoundException when not found",
+        "getByServiceId — delegates to repository",
+        "getAll — returns all accounts"
+      ]
+    },
+    {
+      "className": "ClientServiceUT",
+      "filePath": "src/test/java/com/neversion/api/client/application/service/ClientServiceUT.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "client",
+      "testCount": 12,
+      "scenarios": [
+        "create — delegates save to repository",
+        "getById — returns client when found",
+        "getById — throws ResourceNotFoundException when not found",
+        "getByName — delegates to repository",
+        "getByPhone — delegates to repository",
+        "getAll — returns all clients",
+        "update — updates existing client fields",
+        "update — throws ResourceNotFoundException when client not found",
+        "delete — deletes client when found",
+        "delete — throws ResourceNotFoundException when not found",
+        "getByName — returns matching clients",
+        "getByPhone — returns matching clients"
+      ]
+    },
+    {
+      "className": "SubscriptionServiceTest",
+      "filePath": "src/test/java/com/neversion/api/subscription/application/service/SubscriptionServiceTest.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "subscription",
+      "testCount": 4,
+      "scenarios": [
+        "assign — resolves UUIDs, sets ACTIVE status, and persists subscription",
+        "assign — throws AccountOverbookingException when profile already has active subscription (BR-04)",
+        "assign — throws ResourceNotFoundException when profile not found",
+        "assign — throws ResourceNotFoundException when client not found"
+      ],
+      "notes": "Naming convention violation: should be SubscriptionServiceUT.java. A correctly named copy (SubscriptionServiceUT.java) already exists in the same package. This file should be deleted."
+    },
+    {
+      "className": "SubscriptionServiceUT",
+      "filePath": "src/test/java/com/neversion/api/subscription/application/service/SubscriptionServiceUT.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "subscription",
+      "testCount": 4,
+      "scenarios": [
+        "assign — resolves UUIDs, sets ACTIVE status, and persists subscription",
+        "assign — throws AccountOverbookingException when profile already has active subscription (BR-04)",
+        "assign — throws ResourceNotFoundException when profile not found",
+        "assign — throws ResourceNotFoundException when client not found"
+      ],
+      "notes": "Correctly named replacement for SubscriptionServiceTest.java. Identical content."
+    },
+    {
+      "className": "UpdateSubscriptionServiceUT",
+      "filePath": "src/test/java/com/neversion/api/subscription/application/service/UpdateSubscriptionServiceUT.java",
+      "type": "UT",
+      "layer": "application",
+      "module": "subscription",
+      "testCount": 5,
+      "scenarios": [
+        "suspend — suspends an ACTIVE subscription (ACTIVE -> SUSPENDED)",
+        "suspend — throws BusinessRuleException when subscription is not ACTIVE",
+        "suspend — throws ResourceNotFoundException when subscription not found",
+        "terminate — terminates an ACTIVE subscription (ACTIVE -> CANCELLED)",
+        "terminate — throws BusinessRuleException when already cancelled"
+      ]
+    }
+  ],
+  "testConfiguration": {
+    "configFile": "src/test/resources/application-test.yaml",
+    "databaseStrategy": "Testcontainers PostgreSQL 16-alpine with @ServiceConnection",
+    "ddlValidation": "spring.jpa.hibernate.ddl-auto=validate",
+    "migrationTool": "Flyway (classpath:db/migration)",
+    "jwtTestSecret": "test-secret-key-for-testing-purposes-only-min-256-bits!!",
+    "surefirePatterns": ["**/*Test.java", "**/*Tests.java", "**/*UT.java", "**/*IT.java"]
+  },
+  "dependencies": {
+    "testFramework": "JUnit 5 (spring-boot-starter-test)",
+    "mocking": "Mockito (via spring-boot-starter-test)",
+    "assertions": "AssertJ (via spring-boot-starter-test)",
+    "containers": "Testcontainers PostgreSQL + JUnit Jupiter",
+    "springBootTestcontainers": "spring-boot-testcontainers (@ServiceConnection)",
+    "securityTest": "spring-security-test",
+    "webTest": "MockMvc (via @AutoConfigureMockMvc)"
+  },
+  "knownIssues": [
+    {
+      "issue": "SubscriptionServiceTest.java naming convention violation",
+      "severity": "low",
+      "resolution": "Delete file; SubscriptionServiceUT.java already exists as replacement"
+    },
+    {
+      "issue": "LOGS.md records compilation failure in CreateAccountServiceUT due to removed inventory module imports",
+      "severity": "medium",
+      "resolution": "The file on disk has been updated to use service module imports; the LOGS.md entry is historical"
+    }
+  ]
+}

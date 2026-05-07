@@ -5,6 +5,10 @@ import java.util.UUID;
 
 import lombok.Builder;
 
+/**
+ * Response payload for a client (end consumer).
+ * US-029: includes activeSubscriptionCount for the vendor's list view.
+ */
 @Builder
 public record ClientResponse(
         UUID id,
@@ -12,5 +16,6 @@ public record ClientResponse(
         String email,
         String phone,
         String notes,
+        long activeSubscriptionCount,
         LocalDateTime createdAt) {
 }

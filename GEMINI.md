@@ -1,102 +1,87 @@
-# GEMINI.md - Neversion System Context
+# GEMINI.md — Project Overview & Instructions
 
-This file serves as the primary instructional context for Gemini CLI when working on the Neversion project.
+Welcome to the **Neversion** repository. This file serves as the primary instructional context for Gemini CLI agents. It provides a high-level overview of the project, architecture, and development standards.
 
-## 🚀 Project Overview
-Neversion is a decoupled, API-driven system designed for managing accounts, subscriptions, and orders. It consists of a Java/Spring Boot backend and two Angular-based frontends.
+## Project Overview
+**Neversion** is a SaaS platform designed for the management and resale of digital services. It enables vendors to manage accounts, profiles (perfiles), and subscriptions, while providing clients with a seamless store interface for purchasing and managing their digital access.
 
-- **Backend (`api`):** Spring Boot 3 REST API (Java 17).
-- **Admin Panel (`panel`):** Angular 17 Administrative Dashboard.
-- **Storefront (`store`):** Angular 16 Customer-facing site.
-
----
-
-## 🏗️ Architecture & Tech Stack
-
-### System Architecture
-The system follows a decoupled architecture where frontends consume a secure RESTful API.
-- **Auth:** Supabase Auth (OAuth2 / JWT).
-- **Database:** PostgreSQL (Supabase) with Flyway migrations.
-- **Storage:** AWS S3 for receipt images.
-
-### Backend (`api`) - Hexagonal Architecture & DDD
-Strict adherence to **Hexagonal Architecture (Ports & Adapters)** and **Domain-Driven Design (DDD)**.
-- **Domain Layer:** Pure Java, no framework dependencies. Aggregates, Entities, Value Objects.
-- **Application Layer:** Orchestrates business logic via Use Case interfaces (Inbound Ports).
-- **Infrastructure Layer:** Framework-specific adapters (REST Controllers, JPA Repositories, S3).
-- **Style:** Constructor-only injection (no `@Autowired` on fields), Java Records for DTOs, Manual mappers (no MapStruct).
-
-### Frontend (`panel`) - Angular 17 Modern Paradigms
-- **Standalone Components:** No `NgModule`.
-- **Reactive State:** Angular Signals (signal, computed, effect) for state management.
-- **UI:** Bootstrap 5 (utility-first), SCSS (OKLCH variables).
-- **Patterns:** Feature-based architecture, Smart/Dumb components, Reactive Forms.
+### Core Technologies
+- **Monorepo Manager:** `pnpm` workspaces.
+- **Backend:** Java 17, Spring Boot, Maven, PostgreSQL.
+- **Frontend:** Angular 17 (Typescript, RxJS, Signals).
+- **Infrastructure:** Docker, Docker Compose.
+- **API Integration:** OpenAPI / Swagger with generated TypeScript clients.
 
 ---
 
-## 📁 Project Structure
-
-```
-neversion/
-├── api/                # Spring Boot 3 Backend
-│   ├── src/main/java/  # Java Source (Hexagonal Layers)
-│   └── src/test/       # JUnit 5 / Mockito / Testcontainers
-├── panel/              # Angular 17 Admin Panel (pnpm)
-├── store/              # Angular 16 Storefront (npm)
-├── docs/               # Source of Truth Documentation
-│   ├── api-contracts/  # OpenAPI and REST mappings
-│   ├── modules/        # Business rules and Use Cases
-│   └── system-architecture.md
-└── artifacts/          # Diagrams and design assets
+## Project Structure
+```text
+.
+├── apps/
+│   ├── api/          # Backend (Spring Boot)
+│   ├── panel/        # Admin & Vendor UI (Angular)
+│   └── store/        # Client Store UI (Angular)
+├── packages/
+│   ├── api-client/   # Generated API client (Angular services)
+│   ├── models/       # Shared TypeScript models
+│   └── utils/        # Shared utilities
+├── docs/             # Comprehensive documentation (Spanish)
+│   ├── agents/       # Agent-specific protocols (CRITICAL)
+│   ├── domain/       # Ubiquitous language and business rules
+│   └── implementation/# Progress logs (Bitácoras)
+├── infra/            # Docker and deployment configurations
+└── Makefile          # Root command hub
 ```
 
 ---
 
-## 🛠 Building and Running
+## Getting Started: Agent Protocols
+Before performing any task, you **MUST** read the relevant protocol in `docs/agents/`:
 
-### Backend (`api`)
-Requires Java 17.
-- **Run:** `./mvnw spring-boot:run`
-- **Build:** `./mvnw clean package`
-- **Test:** `./mvnw test` (Uses Testcontainers for Integration Tests)
+1.  **Global Entry Point:** `docs/agents/AGENTS.md` - Rules for all agents.
+2.  **Backend Tasks:** `docs/agents/CLAUDE.md` - Protocol for `/apps/api`.
+3.  **Frontend Tasks:** `docs/agents/GEMINI.md` - Protocol for `/apps/panel` and `/apps/store`.
 
-### Admin Panel (`panel`)
-Uses `pnpm`.
-- **Install:** `pnpm install`
-- **Run:** `pnpm start`
-- **Build:** `pnpm run build`
-- **Test:** `pnpm test`
-
-### Storefront (`store`)
-Uses `npm`.
-- **Install:** `npm install`
-- **Run:** `npm start`
-- **Build:** `npm run build`
+### Mandatory Rules for Agents
+- **Isolation:** Work only in your assigned app directory. Do not modify other apps.
+- **API-First:** Frontend agents must consume the API and never access the database.
+- **Logging:** Every change must be recorded in the implementation logs (bitácoras) in `docs/implementation/`.
+- **Diagrams:** At the end of an EPIC/US, create or update Mermaid diagrams in `docs/diagrams/` for visual tracking.
+- **Language:** Code and comments in **English**; UI labels and user messages in **Spanish**.
+- **Zero Guesswork:** If a requirement is unclear, stop and report a **BLOCKER** as defined in `AGENTS.md`.
 
 ---
 
-## 📜 Development Guidelines
+## Common Commands
 
-### Documentation Precedence
-The `docs/` directory is the **absolute source of truth**.
-- **Phase 1 (Analysis):** `docs/business-context.md`, `docs/modules/`
-- **Phase 2 (Architecture):** `docs/system-architecture.md`, `docs/schema/`
-- **Phase 3 (Engineering):** `docs/api-contracts/`, `docs/bugs/`
+### Root Level
+- `make help`: Show all available commands in the root Hub.
+- `pnpm install`: Install all dependencies for the monorepo.
+- `pnpm -r build`: Build all projects in the workspace.
+- `pnpm api:sync`: Regenerate the `api-client` package from the backend OpenAPI spec.
 
-### Backend Coding Style (`api/AGENTS.md`)
-- **Package Naming:** `com.neversion.api.<feature>.<layer>`
-- **Interfaces:** `<Name>Port`, `<Name>UseCase`.
-- **Mappers:** Separate `RequestMapper`, `ResponseMapper`, `EntityMapper`.
-- **Soft Delete:** Enabled via `@SQLDelete` and `@SQLRestriction`.
+### Docker Orchestration
+- `make up-local`: Start the full stack (API, DB, Panel) locally.
+- `make down-local`: Stop the local stack.
 
-### Frontend Coding Style (`panel/AGENTS.md`)
-- **Control Flow:** Use Angular 17 `@if`, `@for`, `@defer`.
-- **State:** Prefer Signals over RxJS for local component state.
-- **Styling:** Use Bootstrap utility classes first before writing custom SCSS.
+### Backend (`apps/api`)
+- `./mvnw clean install`: Build the backend.
+- `./mvnw test`: Run backend unit tests.
+- `./mvnw verify`: Run backend integration tests.
+
+### Frontend (`apps/panel` or `apps/store`)
+- `pnpm run build`: Build the specific frontend app.
+- `pnpm run test`: Run unit tests (Karma).
+- `pnpm run lint`: Run ESLint checks.
 
 ---
 
-## 🔐 Security
-- **Identity Provider:** Supabase Auth.
-- **Resource Server:** Spring Boot validates JWT signature via Supabase JWKS.
-- **Roles:** Permissions are managed via JWT claims (`app_metadata`).
+## Development Workflow
+1.  **Research:** Read the documentation in `docs/` (Domain, Epics, Stories).
+2.  **Plan:** Create a strategy and update the implementation bitácora.
+3.  **Implement:** Write surgical, idiomatic code.
+4.  **Validate:** Run tests and linting. A module is only done when tests are green.
+5.  **Sync:** If the API changed, run `pnpm api:sync` to update the frontend client.
+
+---
+*Last Updated: April 2026*

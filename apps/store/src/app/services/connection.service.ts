@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import { runtimeConfig } from '../config/runtime-config';
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +12,8 @@ export class ConnectionService {
   constructor() {
     if (!ConnectionService._supabaseClient) {
       ConnectionService._supabaseClient = createClient(
-        "https://ujadaoctohwplnhiwgrm.supabase.co",
-        "sb_publishable_L7CsO8W5dHpkmy0RzeEOyA_8LK4rZ2N",
+        runtimeConfig.supabaseUrl,
+        runtimeConfig.supabaseKey,
         { auth: { persistSession: false, autoRefreshToken: false } }
       );
     }

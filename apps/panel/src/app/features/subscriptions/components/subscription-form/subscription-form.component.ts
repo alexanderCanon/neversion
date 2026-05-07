@@ -1,14 +1,25 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CreateSubscriptionRequest } from '../../models/subscription.model';
+import { CreateManualSubscriptionRequest } from '@neversion/api-client';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
 import { ClientsService } from '../../../clients/services/clients.service';
+import { ServicesDataService } from '../../../services/services/services-data.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { AccountResponse } from '../../../accounts/models/account.model';
-import { ClientResponse } from '../../../clients/models/client.model';
-import { ProfileResponse } from '../../../accounts/models/profile.model';
+import { ProfileResponse, AccountResponse, ClientResponse, ServiceResponse } from '@neversion/models';
+
+interface BootstrapModal {
+  show(): void;
+  hide(): void;
+}
+
+interface Bootstrap {
+  Modal: {
+    new (el: HTMLElement): BootstrapModal;
+    getInstance(el: HTMLElement): BootstrapModal | null;
+  };
+}
 
 @Component({
   selector: 'app-subscription-form',
@@ -19,13 +30,14 @@ import { ProfileResponse } from '../../../accounts/models/profile.model';
 })
 export class SubscriptionFormComponent implements OnInit {
   @ViewChild('subscriptionModal') modalElement!: ElementRef;
-  @Output() subscriptionCreated = new EventEmitter<CreateSubscriptionRequest>();
+  @Output() subscriptionCreated = new EventEmitter<void>();
 
   subscriptionForm!: FormGroup;
   isSubmitting = false;
   isLoadingData = false;
   isBrowser: boolean;
 
+  services: ServiceResponse[] = [];
   accounts: AccountResponse[] = [];
   clients: ClientResponse[] = [];
   filteredClients: ClientResponse[] = [];
@@ -35,12 +47,14 @@ export class SubscriptionFormComponent implements OnInit {
 
   private readonly fb = inject(FormBuilder);
   private readonly subscriptionsService = inject(SubscriptionsService);
+  private readonly servicesService = inject(ServicesDataService);
   private readonly accountsService = inject(AccountsService);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
-    this.isBrowser = true;
+    this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit(): void {
@@ -48,21 +62,31 @@ export class SubscriptionFormComponent implements OnInit {
   }
 
   private initForm(): void {
-    const defaultDate = new Date().toISOString().split('T')[0];
     this.subscriptionForm = this.fb.group({
       clientId: ['', Validators.required],
       clientSearch: ['', Validators.required],
+      serviceId: ['', Validators.required],
       accountId: ['', Validators.required],
       profileId: ['', Validators.required],
-      purchaseDate: [defaultDate, Validators.required],
+      priceSold: [0, [Validators.required, Validators.min(0)]],
+      discountApplied: [0, [Validators.min(0)]],
       paymentDueDate: ['', Validators.required],
-      price: [0, [Validators.required, Validators.min(0.01)]],
+      sendNotification: [true],
       notes: ['']
     });
 
     this.subscriptionForm.get('clientSearch')?.valueChanges.subscribe(value => {
       if (typeof value === 'string') {
         this.filterClients(value);
+      }
+    });
+
+    this.subscriptionForm.get('serviceId')?.valueChanges.subscribe(serviceId => {
+      if (serviceId) {
+        this.loadAccountsForService(serviceId);
+      } else {
+        this.accounts = [];
+        this.subscriptionForm.patchValue({ accountId: '', profileId: '' });
       }
     });
   }
@@ -107,15 +131,12 @@ export class SubscriptionFormComponent implements OnInit {
   private loadDropdownData(): void {
     this.isLoadingData = true;
     
-    // We fetch all non-expired accounts to list them
-    this.accountsService.getAccounts().subscribe({
-      next: (accounts) => {
-        this.accounts = accounts.filter(a => a.status !== 'EXPIRED');
+    this.servicesService.getServices({ isActive: true }).subscribe({
+      next: (services) => {
+        this.services = services;
         this.isLoadingData = false;
       },
-      error: () => {
-        this.isLoadingData = false;
-      },
+      error: () => this.isLoadingData = false
     });
 
     this.clientsService.getClients().subscribe({
@@ -126,15 +147,37 @@ export class SubscriptionFormComponent implements OnInit {
     });
   }
 
+  private loadAccountsForService(serviceId: string): void {
+    this.accounts = [];
+    this.profiles = [];
+    this.subscriptionForm.patchValue({ accountId: '', profileId: '' });
+
+    this.accountsService.getAccounts({ serviceId }).subscribe({
+      next: (accounts) => {
+        this.accounts = accounts.filter(a => a.status !== 'EXPIRED');
+      }
+    });
+  }
+
   onAccountChange(accountId: string): void {
     if (accountId) {
-      const selectedAccount = this.accounts.find(a => a.id === accountId);
-      if (selectedAccount && selectedAccount.profiles) {
-        // Find available profiles or all profiles if we want to list them
-        this.profiles = selectedAccount.profiles;
-      } else {
-        this.profiles = [];
-      }
+      this.accountsService.getAccountDetail(accountId).subscribe({
+        next: (detail) => {
+          this.profiles = (detail.profiles ?? []).map(profile => ({
+            id: profile.id || '',
+            accountId,
+            name: profile.name || '',
+            pin: profile.pin,
+            isOwner: profile.isOwner ?? false,
+            status: profile.status as ProfileResponse['status'],
+            createdAt: '',
+          })).filter(profile => profile.status === 'AVAILABLE');
+        },
+        error: () => {
+          this.profiles = [];
+          this.toastService.error('No se pudieron cargar los perfiles de la cuenta.');
+        },
+      });
       this.subscriptionForm.patchValue({ profileId: '' });
     } else {
       this.profiles = [];
@@ -147,7 +190,7 @@ export class SubscriptionFormComponent implements OnInit {
       this.loadDropdownData();
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
+        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
         if (bootstrap) {
           const modal = new bootstrap.Modal(modalEl);
           modal.show();
@@ -167,7 +210,7 @@ export class SubscriptionFormComponent implements OnInit {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
-        const bootstrap = (window as any).bootstrap;
+        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
         if (bootstrap) {
           const modal = bootstrap.Modal.getInstance(modalEl);
           if (modal) modal.hide();
@@ -188,18 +231,21 @@ export class SubscriptionFormComponent implements OnInit {
       this.isSubmitting = true;
       const formValue = this.subscriptionForm.value;
 
-      const subscriptionRequest: CreateSubscriptionRequest = {
-        profileId: formValue.profileId,
+      const request: CreateManualSubscriptionRequest = {
         clientId: formValue.clientId,
+        profileId: formValue.profileId,
+        serviceId: formValue.serviceId,
+        priceSold: formValue.priceSold,
+        discountApplied: formValue.discountApplied || 0,
         paymentDueDate: formValue.paymentDueDate,
-        price: formValue.price,
+        sendNotification: formValue.sendNotification,
         notes: formValue.notes || undefined,
       };
 
-      this.subscriptionsService.createSubscription(subscriptionRequest).subscribe({
+      this.subscriptionsService.createManualSubscription(request).subscribe({
         next: () => {
           this.toastService.success('Suscripción creada exitosamente.');
-          this.subscriptionCreated.emit(subscriptionRequest);
+          this.subscriptionCreated.emit();
           this.closeModal();
         },
         error: () => {
@@ -215,15 +261,13 @@ export class SubscriptionFormComponent implements OnInit {
 
   resetForm(): void {
     this.subscriptionForm.reset({
-      purchaseDate: new Date().toISOString().split('T')[0]
+      sendNotification: true,
+      priceSold: 0,
+      discountApplied: 0
     });
     this.profiles = [];
+    this.accounts = [];
     this.isSubmitting = false;
-  }
-
-  get selectedAccount(): AccountResponse | undefined {
-    const id = this.subscriptionForm.get('accountId')?.value;
-    return this.accounts.find(a => a.id === id);
   }
 
   get minDate(): string {

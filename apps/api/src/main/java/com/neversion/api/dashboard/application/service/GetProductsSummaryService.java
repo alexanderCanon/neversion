@@ -20,6 +20,6 @@ public class GetProductsSummaryService implements GetProductsSummaryUseCase {
 
     @Override
     public List<ProductSummaryResult> getByCategory(CategoryType category) {
-        return dashboardQueryPort.findProductsByCategory(category.name().toLowerCase());
+        return dashboardQueryPort.findProductsByCategory(category.name());
     }
 }

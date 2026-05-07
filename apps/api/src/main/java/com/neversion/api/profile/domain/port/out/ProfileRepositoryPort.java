@@ -19,6 +19,13 @@ public interface ProfileRepositoryPort {
     /** Returns profiles not yet linked to any active subscription (BR-04). */
     List<Profile> findAvailableByAccountId(Long accountId);
 
+    /**
+     * US-033: Counts profiles with status AVAILABLE for a given service
+     * across all accounts of the specified vendor. Used to validate
+     * profile availability before creating a reservation.
+     */
+    long countAvailableByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
     void saveAll(List<Profile> profiles);
 
     void deleteById(UUID uuid);

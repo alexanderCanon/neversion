@@ -1,0 +1,160 @@
+<div class="modal fade" tabindex="-1" #manualModal>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-person-lines-fill me-2"></i>Asignación Manual (US-042)
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="assignmentForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+          @if (isLoadingData) {
+            <div class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <span class="ms-2">Cargando datos...</span>
+            </div>
+          } @else {
+            <div class="row g-3">
+
+              <div class="col-md-6 position-relative">
+                <label for="clientSearch" class="form-label">Cliente <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="clientSearch"
+                  formControlName="clientSearch"
+                  [class.is-invalid]="assignmentForm.get('clientId')?.invalid && assignmentForm.get('clientSearch')?.touched"
+                  placeholder="Buscar por nombre o teléfono..."
+                  autocomplete="off"
+                  (focus)="showClientDropdownList()"
+                  (blur)="hideClientDropdown()"
+                />
+
+                @if (showClientDropdown) {
+                  <ul class="dropdown-menu show w-100 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1050; top: 100%;">
+                    @for (client of filteredClients; track client.id) {
+                      <li>
+                        <button type="button" class="dropdown-item" (click)="selectClient(client)">
+                          {{ client.name }} <small class="text-muted">({{ client.phone || client.email }})</small>
+                        </button>
+                      </li>
+                    }
+                    @if (filteredClients.length === 0) {
+                      <li><span class="dropdown-item text-muted">No se encontraron clientes</span></li>
+                    }
+                  </ul>
+                }
+
+                @if (assignmentForm.get('clientId')?.errors?.['required'] && assignmentForm.get('clientSearch')?.touched) {
+                  <div class="invalid-feedback d-block">Debes seleccionar un cliente válido del listado.</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="serviceId" class="form-label">Servicio <span class="text-danger">*</span></label>
+                <select
+                  class="form-select"
+                  id="serviceId"
+                  formControlName="serviceId"
+                  [class.is-invalid]="assignmentForm.get('serviceId')?.invalid && assignmentForm.get('serviceId')?.touched"
+                >
+                  <option value="">Seleccione un servicio</option>
+                  @for (service of services; track service.id) {
+                    <option [value]="service.id">{{ service.name }}</option>
+                  }
+                </select>
+                @if (assignmentForm.get('serviceId')?.errors?.['required'] && assignmentForm.get('serviceId')?.touched) {
+                  <div class="invalid-feedback d-block">El servicio es requerido</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="accountId" class="form-label">Cuenta <span class="text-danger">*</span></label>
+                <select
+                  class="form-select"
+                  id="accountId"
+                  formControlName="accountId"
+                  [class.is-invalid]="assignmentForm.get('accountId')?.invalid && assignmentForm.get('accountId')?.touched"
+                >
+                  <option value="">Seleccione una cuenta</option>
+                  @for (account of accounts; track account.id) {
+                    <option [value]="account.id">{{ account.email }}</option>
+                  }
+                </select>
+                @if (assignmentForm.get('accountId')?.errors?.['required'] && assignmentForm.get('accountId')?.touched) {
+                  <div class="invalid-feedback d-block">La cuenta es requerida</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="profileId" class="form-label">Perfil <span class="text-danger">*</span></label>
+                <select
+                  class="form-select"
+                  id="profileId"
+                  formControlName="profileId"
+                  [class.is-invalid]="assignmentForm.get('profileId')?.invalid && assignmentForm.get('profileId')?.touched"
+                >
+                  <option value="">Seleccione un perfil disponible</option>
+                  @for (profile of profiles; track profile.id) {
+                    <option [value]="profile.id">
+                      {{ profile.name || 'Perfil Múltiple' }}
+                      @if (profile.pin) { (PIN: {{profile.pin}}) }
+                    </option>
+                  }
+                </select>
+                @if (assignmentForm.get('profileId')?.errors?.['required'] && assignmentForm.get('profileId')?.touched) {
+                  <div class="invalid-feedback d-block">El perfil es requerido</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="startDate" class="form-label">Fecha de Inicio <span class="text-danger">*</span></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="startDate"
+                  formControlName="startDate"
+                  [class.is-invalid]="assignmentForm.get('startDate')?.invalid && assignmentForm.get('startDate')?.touched"
+                />
+                @if (assignmentForm.get('startDate')?.errors?.['required'] && assignmentForm.get('startDate')?.touched) {
+                  <div class="invalid-feedback d-block">La fecha de inicio es requerida</div>
+                }
+              </div>
+
+              <div class="col-md-6">
+                <label for="endDate" class="form-label">Fecha de Vencimiento <span class="text-danger">*</span></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="endDate"
+                  formControlName="endDate"
+                  [class.is-invalid]="assignmentForm.get('endDate')?.invalid && assignmentForm.get('endDate')?.touched"
+                />
+                @if (assignmentForm.get('endDate')?.errors?.['required'] && assignmentForm.get('endDate')?.touched) {
+                  <div class="invalid-feedback d-block">La fecha de vencimiento es requerida</div>
+                }
+              </div>
+
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting || isLoadingData">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+            }
+            Confirmar Asignación
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

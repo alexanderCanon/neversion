@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { Platforms } from '../../model/platforms.model';
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlatformService } from '../../services/platform.service';
+import { ServiceResponse } from '@neversion/api-client';
 
 @Component({
   selector: 'app-home',
@@ -11,14 +11,14 @@ import { PlatformService } from '../../services/platform.service';
 })
 export class HomeComponent implements OnInit {
 
-  platforms$!: Observable<Platforms[]>;
+  platforms$!: Observable<ServiceResponse[]>;
 
   constructor(private _platformService: PlatformService) { }
 
   ngOnInit(): void {
-    // Obtenemos solo las primeras 4 plataformas ordenadas por ID para mostrar en el home
+    // Obtenemos solo los primeros 4 servicios para el home
     this.platforms$ = this._platformService.getPlatforms().pipe(
-      map((platforms: Platforms[]) => platforms.sort((a, b) => a.id - b.id).slice(0, 4))
+      map((services) => services.slice(0, 4))
     );
   }
 }

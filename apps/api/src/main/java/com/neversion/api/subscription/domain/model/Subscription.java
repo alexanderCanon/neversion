@@ -1,9 +1,11 @@
 package com.neversion.api.subscription.domain.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 import lombok.Builder;
@@ -41,6 +43,12 @@ public class Subscription {
     /** FK to Profile (Long) — resolved from profileUuid in service layer. */
     private Long profileId;
 
+    /** FK to Order (Long) — null for manual assignments outside storefront flow. */
+    private Long orderId;
+
+    /** FK to Service (Long) — financial snapshot for reporting and detail views. */
+    private Long serviceId;
+
     // ── Transient UUID fields — sent by the REST layer, resolved in service ──
 
     /** Incoming UUID from the REST request for the target Profile. */
@@ -52,10 +60,16 @@ public class Subscription {
     /** Incoming UUID from the REST request for the Account (for context/display). */
     private UUID accountUuid;
 
+    /** Incoming UUID from the REST request for the Service. */
+    private UUID serviceUuid;
+
     // ── Business fields ──────────────────────────────────────────────────────
 
     /** Date the client's access lifecycle began. Defaults to today. */
     private LocalDate startDate;
+
+    /** Date when the assigned access expires. */
+    private LocalDate endDate;
 
     /**
      * The date by which the client must pay to retain access.
@@ -65,6 +79,15 @@ public class Subscription {
 
     /** Number of months the client has paid. Incremented on each renewal. */
     private Long monthsPaid;
+
+    /** Commercial price agreed for this subscription at creation time. */
+    private BigDecimal priceSold;
+
+    /** Discount applied at creation time, if any. */
+    private BigDecimal discountApplied;
+
+    /** Sale mode snapshot at creation time. */
+    private SaleMode saleMode;
 
     /**
      * Current access status.
@@ -77,27 +100,40 @@ public class Subscription {
     /** Admin notes for this subscription (e.g. "has 35 credit"). */
     private String notes;
 
+    /** FK to vendors.id — multi-tenancy isolation (ADR-02, US-007). */
+    private Long vendorId;
+
     private LocalDateTime createdAt;
 
     public Subscription() {
     }
 
-    public Subscription(Long id, UUID uuid, Long clientId, Long profileId,
-            UUID profileUuid, UUID clientUuid, UUID accountUuid,
-            LocalDate startDate, LocalDate paymentDueDate,
-            Long monthsPaid, SubStatus status, String notes, LocalDateTime createdAt) {
+    public Subscription(Long id, UUID uuid, Long clientId, Long profileId, Long orderId, Long serviceId,
+            UUID profileUuid, UUID clientUuid, UUID accountUuid, UUID serviceUuid,
+            LocalDate startDate, LocalDate endDate, LocalDate paymentDueDate,
+            Long monthsPaid, BigDecimal priceSold, BigDecimal discountApplied, SaleMode saleMode,
+            SubStatus status, String notes, Long vendorId,
+            LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
         this.profileId = profileId;
+        this.orderId = orderId;
+        this.serviceId = serviceId;
         this.profileUuid = profileUuid;
         this.clientUuid = clientUuid;
         this.accountUuid = accountUuid;
+        this.serviceUuid = serviceUuid;
         this.startDate = startDate;
+        this.endDate = endDate;
         this.paymentDueDate = paymentDueDate;
         this.monthsPaid = monthsPaid;
+        this.priceSold = priceSold;
+        this.discountApplied = discountApplied;
+        this.saleMode = saleMode;
         this.status = status;
         this.notes = notes;
+        this.vendorId = vendorId;
         this.createdAt = createdAt;
     }
 }

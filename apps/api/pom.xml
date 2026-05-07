@@ -106,6 +106,17 @@
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
+		<!-- EPIC-08: Resend email API client -->
+		<dependency>
+			<groupId>com.resend</groupId>
+			<artifactId>resend-java</artifactId>
+			<version>4.13.0</version>
+		</dependency>
+		<!-- EPIC-08: Thymeleaf email templates -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

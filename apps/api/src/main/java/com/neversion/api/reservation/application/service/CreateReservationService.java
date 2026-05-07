@@ -11,6 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
+import com.neversion.api.exception.BusinessRuleException;
+import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.domain.model.Reservation;
@@ -18,17 +21,20 @@ import com.neversion.api.reservation.domain.model.ReservationDetail;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.reservation.domain.service.ReservationPricingService;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.vendor.domain.model.Vendor;
+import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 /**
- * UC1: Create Reservation (Checkout).
+ * UC1: Create Reservation (Checkout) — US-033.
  * <p>
- * The client ID is optional at creation — can be attached later via
- * PUT /reservations/{id}/client. Persists the reservation header with
- * status = PENDING, saves each item capturing the current price (BR-02),
- * and computes the total applying combo discount (BR-03).
+ * Full EPIC-05 implementation:
+ * - Resolves client → vendor for multi-tenancy
+ * - Fetches service prices from catalog (BR-14)
+ * - Validates profile availability per service (US-033 AC)
+ * - Computes discount using vendor's discount_cfg tiers (BR-13)
+ * - Sets payment method and 1-hour expiration
  * </p>
- * NOTE: Unit price per item is set to ZERO pending re-integration with
- * the Service pricing model (inventory module was removed).
  */
 @Service
 public class CreateReservationService implements CreateReservationUseCase {
@@ -38,66 +44,112 @@ public class CreateReservationService implements CreateReservationUseCase {
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final ReservationPricingService reservationPricingService;
     private final ClientRepositoryPort clientRepositoryPort;
+    private final ServiceRepositoryPort serviceRepositoryPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
+    private final VendorRepositoryPort vendorRepositoryPort;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
             ReservationPricingService reservationPricingService,
-            ClientRepositoryPort clientRepositoryPort) {
+            ClientRepositoryPort clientRepositoryPort,
+            ServiceRepositoryPort serviceRepositoryPort,
+            ProfileRepositoryPort profileRepositoryPort,
+            VendorRepositoryPort vendorRepositoryPort) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.reservationPricingService = reservationPricingService;
         this.clientRepositoryPort = clientRepositoryPort;
+        this.serviceRepositoryPort = serviceRepositoryPort;
+        this.profileRepositoryPort = profileRepositoryPort;
+        this.vendorRepositoryPort = vendorRepositoryPort;
     }
 
     @Override
     @Transactional
-    public Reservation create(UUID clientId, List<ReservationItemCommand> items) {
+    public Reservation create(UUID clientUuid, List<ReservationItemCommand> items,
+                               String paymentMethod) {
 
+        // 1. Resolve client and vendor for multi-tenancy
+        Client client = clientRepositoryPort.findById(clientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Client not found with id: " + clientUuid));
+
+        Long vendorId = client.getVendorId();
+        if (vendorId == null) {
+            throw new BusinessRuleException("Client is not linked to any vendor");
+        }
+
+        // 2. Load vendor for discount_cfg
+        Vendor vendor = vendorRepositoryPort.findByInternalId(vendorId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Vendor not found for client's vendor_id: " + vendorId));
+
+        // 3. Build reservation details — resolve prices from service catalog (BR-14)
+        List<ReservationDetail> detailsToSave = new ArrayList<>();
+        int totalItemQty = 0;
+
+        for (ReservationItemCommand item : items) {
+            com.neversion.api.service.domain.model.Service service =
+                    serviceRepositoryPort.findById(item.serviceUuid())
+                            .orElseThrow(() -> new ResourceNotFoundException(
+                                    "Service not found with uuid: " + item.serviceUuid()));
+
+            // BR-US033-01: Validate profile availability
+            long availableProfiles = profileRepositoryPort
+                    .countAvailableByServiceIdAndVendorId(service.getId(), vendorId);
+            if (availableProfiles < item.qty()) {
+                throw new BusinessRuleException(
+                        "Not enough available profiles for service '" + service.getName()
+                                + "'. Available: " + availableProfiles + ", requested: " + item.qty());
+            }
+
+            // Use priceProfile as default unit price (BR-14)
+            BigDecimal unitPrice = service.getPriceProfile() != null
+                    ? service.getPriceProfile()
+                    : BigDecimal.ZERO;
+
+            detailsToSave.add(new ReservationDetail(
+                    null,
+                    null, // uuid generated on persist
+                    null, // reservationId set after save
+                    service.getId(),
+                    item.qty(),
+                    unitPrice,
+                    null)); // subtotal is DB-computed
+
+            totalItemQty += item.qty();
+        }
+
+        // 4. Calculate pricing using domain service (BR-13)
+        BigDecimal grossTotal = reservationPricingService.calculateGrossTotal(detailsToSave);
+        BigDecimal discount = reservationPricingService.calculateComboDiscount(
+                grossTotal, totalItemQty, vendor.getDiscountCfg());
+        BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
+
+        // 5. Build and persist the reservation
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expirationDate = now.plusMinutes(EXPIRATION_MINUTES);
 
-        // Build reservation details — unit price is ZERO until service pricing is integrated
-        List<ReservationDetail> detailsToSave = new ArrayList<>();
-        for (ReservationItemCommand item : items) {
-            detailsToSave.add(new ReservationDetail(
-                    null,
-                    null, // reservationId set after save
-                    item.inventoryId(),
-                    item.qty(),
-                    BigDecimal.ZERO,
-                    null)); // subtotal is DB-computed
-        }
-
-        // Calculate pricing using domain service (BR-03)
-        BigDecimal grossTotal = reservationPricingService.calculateGrossTotal(detailsToSave);
-        BigDecimal discount = reservationPricingService.calculateComboDiscount(grossTotal, items.size());
-        BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
-
-        // Resolve internal Client ID if UUID is provided
-        Long internalClientId = null;
-        if (clientId != null) {
-            internalClientId = clientRepositoryPort.findById(clientId)
-                    .map(Client::getId)
-                    .orElse(null);
-        }
-
         Reservation reservation = Reservation.builder()
-                .clientId(internalClientId)
-                .clientUuid(clientId) // nullable — can be attached later
+                .clientId(client.getId())
+                .clientUuid(clientUuid)
+                .vendorId(vendorId)
                 .status(ReservationStatus.PENDING)
                 .discount(discount)
                 .total(finalTotal)
+                .paymentMethod(paymentMethod)
                 .expirationDate(expirationDate.toInstant())
                 .build();
 
         Reservation savedReservation = reservationRepositoryPort.save(reservation);
 
-        // Persist each detail linked to the saved reservation
+        // 6. Persist each detail linked to the saved reservation
         List<ReservationDetail> savedDetails = new ArrayList<>();
         for (ReservationDetail detail : detailsToSave) {
             ReservationDetail linked = new ReservationDetail(
                     null,
+                    null, // uuid generated on persist
                     savedReservation.getId(),
-                    detail.inventoryId(),
+                    detail.serviceId(),
                     detail.qty(),
                     detail.unitPrice(),
                     null);

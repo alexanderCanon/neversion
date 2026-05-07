@@ -1,61 +1,34 @@
-import { Injectable } from '@angular/core';
-import { ConnectionService } from './connection.service';
-import { Platforms } from '../model/platforms.model';
-import { Observable, from, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Injectable, inject } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { ServicesApiService, ServiceResponse } from '@neversion/api-client';
+import { runtimeConfig } from '../config/runtime-config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PlatformService {
+  private readonly servicesApi = inject(ServicesApiService);
 
-  constructor(private _supabaseService: ConnectionService) { }
-
-  //   async getPlatforms(): Promise<Platforms[]> {
-  //   const { data, error } = await this._supabaseService.client
-  //     .from('platforms')
-  //     .select('*');
-
-  //   if (error) {
-  //     throw error;
-  //   }
-
-  //   return data;
-  // }
-
-  public getPlatforms(): Observable<Platforms[]> {
-    return from(
-      this._supabaseService.client
-        .from("services")
-        .select("*")
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data as Platforms[];
-      }),
+  /**
+   * Fetch only ACTIVE services for the storefront (US-021)
+   */
+  public getPlatforms(): Observable<ServiceResponse[]> {
+    return this.servicesApi.listActive(runtimeConfig.storeVendorUuid).pipe(
       catchError(err => {
-        console.error('Error fetching platforms:', err);
+        console.error('Error fetching storefront services:', err);
         return throwError(() => err);
       })
     );
   }
 
-  public getPlatformById(id: number): Observable<Platforms[]> {
-    return from(
-      this._supabaseService.client
-        .from("services")
-        .select("*")
-        .eq("id", id)
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data as Platforms[];
-      }),
+  public getPlatformById(id: string): Observable<ServiceResponse> {
+    return this.servicesApi.getById(id).pipe(
       catchError(err => {
-        console.error('Error fetching platform:', err);
+        console.error('Error fetching service details:', err);
         return throwError(() => err);
       })
     );
   }
 
-} //end class PlatformService
+}

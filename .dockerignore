@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+
+**/node_modules
+**/dist
+**/.angular/cache
+**/target
+
+.env
+infra/.env
+*.log
