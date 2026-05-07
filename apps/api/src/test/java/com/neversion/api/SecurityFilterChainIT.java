@@ -100,6 +100,13 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
             mockMvc.perform(get("/api/v1/dashboard/products"))
                     .andExpect(status().isUnauthorized());
         }
+
+        @Test
+        @DisplayName("GET /actuator/prometheus - should return 401 without token (SUPER_ADMIN only)")
+        void actuatorPrometheus_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(get("/actuator/prometheus"))
+                    .andExpect(status().isUnauthorized());
+        }
     }
 
     // ── Invalid JWT ────────────────────────────────────────────────────

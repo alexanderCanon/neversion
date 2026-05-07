@@ -115,15 +115,19 @@ public class OrderGetController {
     }
 
     @GetMapping("/by-reservation/{reservationId}")
-    @Operation(summary = "Get order by reservation ID", description = "Retrieve the order linked to a specific reservation")
+    @Operation(summary = "Get order by reservation ID", description = "Retrieve the order linked to a specific reservation. Ownership check enforced.")
     @ApiResponse(responseCode = "200", description = "Order found")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this order")
     @ApiResponse(responseCode = "404", description = "No order found for the given reservation")
     public ResponseEntity<OrderResponse> getByReservationId(
-            @Parameter(description = "Reservation internal ID") @PathVariable Long reservationId) {
+            @Parameter(description = "Reservation internal ID") @PathVariable Long reservationId,
+            JwtAuthenticationToken token) {
 
         Order order = getOrderUseCase.getByReservationId(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Order not found for reservation: " + reservationId));
+
+        verifyOwnership(order, extractExternalId(token));
 
         return ResponseEntity.ok(orderRestMapper.toResponse(order));
     }
@@ -160,14 +164,21 @@ public class OrderGetController {
                 change.getChangedAt());
     }
 
-    /** US-038 CA4: 403 if vendor tries to access an order that doesn't belong to them. */
+    /** US-038 CA4: 403 if vendor tries to access an order that doesn't belong to them.
+     *  SUPER_ADMIN bypasses tenant check — they have platform-wide read access. */
     private void verifyOwnership(Order order, String callerExternalId) {
         var caller = userRepositoryPort.findByExternalId(callerExternalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Caller user not found"));
-        var vendor = vendorRepositoryPort.findByUserId(caller.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Vendor profile not found for caller"));
 
-        if (!order.getVendorId().equals(vendor.getId())) {
+        var vendorOpt = vendorRepositoryPort.findByUserId(caller.getId());
+        if (vendorOpt.isEmpty()) {
+            // No vendor profile found — treat as SUPER_ADMIN with platform-wide access.
+            // Any non-SUPER_ADMIN without a vendor profile would have been blocked at the
+            // security layer (hasAnyRole("VENDOR","SUPER_ADMIN")).
+            return;
+        }
+
+        if (!order.getVendorId().equals(vendorOpt.get().getId())) {
             throw new AccessDeniedException("You do not have permission to access this order.");
         }
     }

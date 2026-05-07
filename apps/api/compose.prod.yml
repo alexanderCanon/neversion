@@ -1,125 +1,76 @@
 # ══════════════════════════════════════════════════════════════════
-# Docker Compose — PROD profile (EC2 deployment)
+# Docker Compose — Dokploy deployment
 #
-# Purpose: Production deployment on an EC2 instance.
-# - NO database container (PostgreSQL lives in Supabase)
-# - ALL secrets are placeholders — inject via .env file or CI
-# - Includes Prometheus + Grafana for observability
+# Purpose: Production deployment managed by Dokploy.
+# - Dokploy builds the image from the Dockerfile in this directory.
+# - Dokploy handles reverse proxy (Traefik), SSL, and env var injection.
+# - NO database container (PostgreSQL lives in Supabase).
+# - NO Nginx/Certbot (Dokploy's Traefik handles TLS termination).
+# - NO Prometheus/Grafana (add as separate Dokploy services if needed).
 #
-# Usage:
-#   1. Create a .env file with your secrets (see .env.example)
-#   2. docker compose -f docker-compose.prod.yaml up -d
-#
+# Dokploy setup:
+#   - Source: GitHub repo root
+#   - Branch: main
+#   - Watch Path: apps/api/**
+#   - Build Path: apps/api
+#   - Compose file: apps/api/compose.prod.yml
 # ══════════════════════════════════════════════════════════════════
 
 services:
-  # ── Spring Boot Application ─────────────────────────────────────
   app:
-    image: 163053485479.dkr.ecr.us-east-2.amazonaws.com/mi-app-backend:latest
-    container_name: panel-app
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       # ── Spring profile ──────────────────────────────────────────
-      # Activates application-prod.yaml (Swagger disabled, WARN logging)
+      # Activates application-prod.yaml (Swagger disabled, WARN logging,
+      # HikariCP tuned, Flyway baseline-on-migrate false)
       SPRING_PROFILES_ACTIVE: prod
 
       # ── Database (Supabase PostgreSQL) ──────────────────────────
-      # Direct connection to your Supabase PostgreSQL instance.
-      # Format: jdbc:postgresql://HOST:PORT/DATABASE
+      # Direct connection → Supabase project → Settings → Database → URI
+      # Use the "Transaction" pooler URI (port 5432) for JPA compatibility.
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
       # ── Supabase Auth ───────────────────────────────────────────
-      # JWT secret from Supabase project settings → API → JWT Secret
+      # Supabase project → Settings → API → JWT Secret
       SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
 
       # ── CORS ────────────────────────────────────────────────────
-      # Comma-separated list of allowed frontend origins.
-      # Example: https://yourdomain.com,https://www.yourdomain.com
+      # Comma-separated allowed frontend origins (no trailing slash).
+      # Example: https://panel.neversion.com,https://neversion.com
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+
+      # ── Notifications (Resend) ──────────────────────────────────
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      NEVERSION_EMAIL_FROM: ${NEVERSION_EMAIL_FROM}
 
       # ── Server ──────────────────────────────────────────────────
       SERVER_PORT: 8080
-    # ── Memory limit ────────────────────────────────────────────
-    # Restricts the container to 512MB RAM. The JVM's
-    # -XX:MaxRAMPercentage=75.0 will cap heap at ~384MB,
-    # leaving 128MB for metaspace, threads, and OS overhead.
-    # Adjust based on your EC2 instance size.
+
+    ports:
+      - "8080:8080"
+
+    # ── Memory ──────────────────────────────────────────────────
+    # JVM flag -XX:MaxRAMPercentage=75.0 caps heap at ~384MB.
+    # Adjust memory limit based on your server's available RAM.
     deploy:
       resources:
         limits:
           memory: 512m
-    networks:
-      - monitoring
 
-  # ── Prometheus (Metrics Collector) ──────────────────────────────
-  # Prometheus scrapes the /actuator/prometheus endpoint every 15s
-  # and stores time-series metrics (HTTP request rates, JVM memory,
-  # garbage collection, connection pool stats, etc.)
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: panel-prometheus
-    restart: unless-stopped
-    volumes:
-      # Mount the scrape configuration file
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      # Persist metrics data across container restarts
-      - prometheus_data:/prometheus
-    networks:
-      - monitoring
-
-  # ── Grafana (Dashboards & Visualization) ────────────────────────
-  # Grafana reads metrics from Prometheus and renders dashboards.
-  # Pre-configured with Prometheus as a data source via provisioning.
-  grafana:
-    image: grafana/grafana:latest
-    container_name: panel-grafana
-    restart: unless-stopped
-    environment:
-      # Default admin credentials (change after first login!)
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
-    volumes:
-      # Auto-provision Prometheus as a data source on first boot
-      - ./monitoring/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      # Persist dashboards and settings across restarts
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - monitoring
-
-  # ── Nginx (Reverse Proxy) ───────────────────────────────────────
-  nginx:
-    image: nginx:alpine
-    container_name: panel-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - app
-    networks:
-      - monitoring
-
-  # ── Certbot (SSL Certificates) ──────────────────────────────────
-  certbot:
-    image: certbot/certbot
-    container_name: panel-certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-networks:
-  monitoring:
-    driver: bridge
-
-volumes:
-  prometheus_data:
-  grafana_data:
+    # ── Health check for Dokploy ────────────────────────────────
+    # Dokploy uses this to verify the container is ready before
+    # routing traffic. Matches the /actuator/health public endpoint.
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider",
+             "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

@@ -15,7 +15,7 @@ import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.exception.BadRequestException;
+import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
@@ -85,7 +85,7 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
 
         if (subscription.getStatus() != SubStatus.ACTIVE
                 && subscription.getStatus() != SubStatus.SUSPENDED) {
-            throw new BadRequestException("Only ACTIVE or SUSPENDED subscriptions can be renewed.");
+            throw new BusinessRuleException("Only ACTIVE or SUSPENDED subscriptions can be renewed.");
         }
 
         Profile profile = profileRepositoryPort.findByInternalId(subscription.getProfileId())

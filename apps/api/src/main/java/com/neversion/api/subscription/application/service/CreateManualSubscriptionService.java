@@ -93,7 +93,7 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
         ensureOwned(profile.getVendorId(), vendorId, "profile");
 
         if (profile.getStatus() != ProfileStatus.AVAILABLE) {
-            throw new BadRequestException("Selected profile must be AVAILABLE.");
+            throw new BusinessRuleException("Selected profile must be AVAILABLE.");
         }
 
         if (subscriptionRepositoryPort.existsActiveByProfileId(profile.getId())) {
@@ -149,14 +149,14 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
                 throw new BadRequestException("Full account subscriptions must use the owner profile.");
             }
             if (account.getStatus() != AccountStatus.AVAILABLE) {
-                throw new BadRequestException("Selected account must be AVAILABLE.");
+                throw new BusinessRuleException("Selected account must be AVAILABLE.");
             }
 
             var profiles = profileRepositoryPort.findByAccountId(account.getId());
             boolean hasUnavailableProfile = profiles.stream()
                     .anyMatch(profile -> profile.getStatus() != ProfileStatus.AVAILABLE);
             if (hasUnavailableProfile) {
-                throw new BadRequestException("All profiles must be AVAILABLE for a full account subscription.");
+                throw new BusinessRuleException("All profiles must be AVAILABLE for a full account subscription.");
             }
 
             profiles.forEach(profile -> profile.setStatus(ProfileStatus.ACTIVE));

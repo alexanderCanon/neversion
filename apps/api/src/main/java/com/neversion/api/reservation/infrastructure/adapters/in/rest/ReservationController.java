@@ -18,8 +18,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.reservation.application.port.in.CancelReservationUseCase;
 import com.neversion.api.reservation.application.port.in.CreateRenewalReservationUseCase;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
@@ -52,6 +52,7 @@ public class ReservationController {
     private final UploadReceiptUseCase uploadReceiptUseCase;
     private final ValidateReservationUseCase validateReservationUseCase;
     private final RejectReservationUseCase rejectReservationUseCase;
+    private final CancelReservationUseCase cancelReservationUseCase;
     private final ReservationRepositoryPort reservationRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
     private final ReservationRestMapper reservationRestMapper;
@@ -62,6 +63,7 @@ public class ReservationController {
             UploadReceiptUseCase uploadReceiptUseCase,
             ValidateReservationUseCase validateReservationUseCase,
             RejectReservationUseCase rejectReservationUseCase,
+            CancelReservationUseCase cancelReservationUseCase,
             ReservationRepositoryPort reservationRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             ReservationRestMapper reservationRestMapper) {
@@ -70,6 +72,7 @@ public class ReservationController {
         this.uploadReceiptUseCase = uploadReceiptUseCase;
         this.validateReservationUseCase = validateReservationUseCase;
         this.rejectReservationUseCase = rejectReservationUseCase;
+        this.cancelReservationUseCase = cancelReservationUseCase;
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.reservationRestMapper = reservationRestMapper;
@@ -202,25 +205,13 @@ public class ReservationController {
     @PutMapping("/{id}/cancel")
     @Operation(summary = "Cancel a reservation", description = "Admin or customer manually cancels a reservation. Only PENDING or UPLOADED can be cancelled.")
     @ApiResponse(responseCode = "200", description = "Reservation cancelled")
-    @ApiResponse(responseCode = "400", description = "Reservation cannot be cancelled in its current status")
+    @ApiResponse(responseCode = "409", description = "Reservation cannot be cancelled in its current status")
     @ApiResponse(responseCode = "404", description = "Reservation not found")
     public ResponseEntity<ReservationResponse> cancelReservation(
             @Parameter(description = "Reservation UUID") @PathVariable UUID id) {
 
-        Reservation reservation = reservationRepositoryPort.findByUuid(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Reservation not found with id: " + id));
-
-        if (reservation.getStatus() != ReservationStatus.PENDING
-                && reservation.getStatus() != ReservationStatus.UPLOADED) {
-            throw new BusinessRuleException(
-                    "Only PENDING or UPLOADED reservations can be cancelled. Current status: "
-                            + reservation.getStatus());
-        }
-
-        reservation.setStatus(ReservationStatus.CANCELLED);
-        Reservation updated = reservationRepositoryPort.update(reservation);
-        return ResponseEntity.ok(reservationRestMapper.toResponse(updated));
+        Reservation reservation = cancelReservationUseCase.cancel(id);
+        return ResponseEntity.ok(reservationRestMapper.toResponse(reservation));
     }
 
     // ── Attach Client ───────────────────────────────────────────────

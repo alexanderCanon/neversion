@@ -18,9 +18,10 @@ import org.springframework.stereotype.Component;
  * Extracts the user role from a Supabase JWT and maps it to Spring Security
  * authorities.
  *
- * Supabase stores custom roles in the {@code raw_app_meta_data} claim.
- * If the claim contains {@code "role": "admin"}, the user is granted
- * {@code ROLE_ADMIN}.
+ * Supabase stores custom roles in the {@code app_metadata} claim.
+ * If the claim contains {@code "role": "vendor"}, the user is granted
+ * {@code ROLE_VENDOR}, etc. If no role is present the token is authenticated
+ * but granted no authorities — it will be denied by any {@code hasRole()} rule.
  */
 @Component
 public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -39,10 +40,9 @@ public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
     }
 
     /**
-     * Extracts granted authorities from the JWT's {@code raw_app_meta_data.role}
-     * claim.
-     * Falls back to {@code user_metadata.role} if {@code raw_app_meta_data} is
-     * absent.
+     * Extracts granted authorities from the JWT's {@code app_metadata.role} claim.
+     * Returns an empty collection if the claim is absent — the caller will be
+     * authenticated but hold no roles.
      */
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();

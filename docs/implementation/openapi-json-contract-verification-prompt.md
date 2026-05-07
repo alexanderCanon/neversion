@@ -1,6 +1,4 @@
-# OpenAPI JSON Contract Verification Prompt
-
-Use this prompt in a fresh agent session to verify the OpenAPI JSON contract cleanup.
+# OpenAPI JSON Contract Verification
 
 ```text
 The goal of this session is to verify that the OpenAPI JSON contract cleanup is complete and that no defensive `Accept: application/json` overrides remain in the Angular apps.

@@ -12,7 +12,7 @@ import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.exception.BadRequestException;
+import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
@@ -71,7 +71,7 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
         }
 
         if (subscription.getStatus() == SubStatus.CANCELLED) {
-            throw new BadRequestException("Subscription is already cancelled.");
+            throw new BusinessRuleException("Subscription is already cancelled.");
         }
 
         Profile profile = profileRepositoryPort.findByInternalId(subscription.getProfileId())

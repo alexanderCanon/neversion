@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # ── Neversion API ────────────────────────────────────────────────
+  # Target: the 'app' service in the API Dokploy compose.
+  # In Dokploy, services in different composes communicate via the
+  # shared Traefik network. Use the internal Docker hostname:
+  # Format: <project>_<service>_1 or configure a Docker network alias.
+  # Simplest: expose /actuator/prometheus publicly behind basic auth,
+  # or use Dokploy's internal network name (check Dokploy settings).
+  - job_name: "neversion-api"
+    metrics_path: /actuator/prometheus
+    # ⚠ Replace with the actual internal hostname Dokploy assigns to the API
+    # container. Check: Dokploy → neversion-api app → Container → Network name.
+    # If the actuator is exposed publicly (with SUPER_ADMIN auth), use the public URL.
+    static_configs:
+      - targets: ["neversion-api-app-1:8080"]
+        labels:
+          application: "neversion-api"
+          environment: "production"

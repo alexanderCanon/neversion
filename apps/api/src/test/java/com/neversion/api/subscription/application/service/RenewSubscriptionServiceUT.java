@@ -30,7 +30,7 @@ import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.exception.BadRequestException;
+import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
@@ -196,14 +196,14 @@ class RenewSubscriptionServiceUT {
         }
 
         @Test
-        @DisplayName("should throw BadRequestException when status cannot be renewed")
-        void renew_wrongStatus_shouldThrow400() {
+        @DisplayName("should throw BusinessRuleException when status cannot be renewed")
+        void renew_wrongStatus_shouldThrow409() {
             when(subscriptionRepositoryPort.findById(SUBSCRIPTION_UUID))
                     .thenReturn(Optional.of(buildSubscription(SubStatus.CANCELLED, VENDOR_ID)));
             mockOwnershipResolution(VENDOR_ID);
 
             assertThatThrownBy(() -> renewSubscriptionService.renew(SUBSCRIPTION_UUID, EXTERNAL_ID))
-                    .isInstanceOf(BadRequestException.class)
+                    .isInstanceOf(BusinessRuleException.class)
                     .hasMessageContaining("ACTIVE or SUSPENDED");
         }
 
