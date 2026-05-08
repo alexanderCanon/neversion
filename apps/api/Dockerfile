@@ -78,6 +78,10 @@ EXPOSE 8080
 #   If the JVM runs out of memory, EXIT immediately instead of hanging.
 #   This lets Docker/ECS/K8s detect the crash and restart the container.
 #
+# Default Spring profile — ensures application-prod.yaml always loads.
+# Dokploy can still override this via its env var UI.
+ENV SPRING_PROFILES_ACTIVE=prod
+
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
     -XX:MaxRAMPercentage=75.0 \
     -XX:InitialRAMPercentage=50.0 \
