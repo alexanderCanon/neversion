@@ -23,7 +23,8 @@ spring:
   flyway:
     enabled: true
     execute-in-transaction: false
-    baseline-on-migrate: false
+    baseline-on-migrate: true
+    baseline-version: 0
     validate-on-migrate: true
     locations: classpath:db/migration
 
