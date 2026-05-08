@@ -1,5 +1,9 @@
 spring:
   datasource:
+    # Session Pooler (IPv4-compatible). Get values from Supabase → Settings → Database → Session Pooler.
+    # URL format:     jdbc:postgresql://aws-0-REGION.pooler.supabase.com:5432/postgres?preparedStatementCacheQueries=0&preparedStatementCacheSizeMiB=0
+    # Username format: postgres.PROJECTREF  (NOT just "postgres")
+    # Password:        your Supabase DB password
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
@@ -33,14 +37,14 @@ spring:
       hibernate:
         format_sql: false
 
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
 server:
   port: ${SERVER_PORT:8080}
   forward-headers-strategy: native
   shutdown: graceful
 
-spring:
-  lifecycle:
-    timeout-per-shutdown-phase: 30s
 
 logging:
   level:
