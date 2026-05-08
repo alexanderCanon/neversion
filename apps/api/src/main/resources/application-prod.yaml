@@ -45,7 +45,6 @@ server:
   forward-headers-strategy: native
   shutdown: graceful
 
-
 logging:
   level:
     root: WARN
