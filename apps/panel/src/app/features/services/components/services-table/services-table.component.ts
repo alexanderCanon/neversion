@@ -7,7 +7,7 @@ import { ServiceResponse } from '@neversion/models';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './services-table.component.html',
-  styleUrls: []
+  styleUrl: './services-table.component.scss'
 })
 export class ServicesTableComponent {
   @Input() services: ServiceResponse[] = [];

@@ -11,7 +11,7 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reservations-list.component.html',
-  styleUrls: []
+  styleUrl: './reservations-list.component.scss'
 })
 export class ReservationsListComponent implements OnInit {
   private readonly reservationsService = inject(ReservationsService);

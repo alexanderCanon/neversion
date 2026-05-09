@@ -1,6 +1,6 @@
-// Custom Colors for Corporate Theme
-$sidebar-bg: #1e293b; // Slate 800
-$primary-color: #3b82f6; // Blue 500
+// Custom Colors for Corporate Theme (Matched from logo)
+$sidebar-bg: #111B2D; 
+$primary-color: #3b82f6; 
 
 :host {
     display: block;
@@ -8,68 +8,96 @@ $primary-color: #3b82f6; // Blue 500
 }
 
 .sidebar {
-    width: 250px;
-    height: 100vh;
-    background-color: $sidebar-bg;
-    flex-shrink: 0;
+    width: var(--sidebar-width);
+    background-color: #111B2D !important; // Force logo background color
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, visibility 0.3s ease-in-out;
+
+    &.offcanvas-lg {
+        height: 100vh;
+        --bs-offcanvas-bg: #111B2D;
+        --bs-offcanvas-color: rgba(255, 255, 255, 0.5);
+    }
 
     .sidebar-brand {
-        height: 60px;
+        height: 100px; // Increased height for larger logo
         display: flex;
         align-items: center;
+        border-bottom: none; // Removed border for seamless transition
+        margin-bottom: 1rem !important;
+        background-color: transparent;
     }
 
     .nav-link {
-        color: #94a3b8; // Slate 400
-        transition: all 0.2s ease;
-        padding: 0.65rem 1rem;
-        border-radius: 6px;
-        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6) !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 0.75rem 1.25rem;
+        border-radius: 8px;
+        font-size: 0.925rem;
         font-weight: 500;
+        margin-bottom: 0.25rem;
 
         &:hover {
-            color: #f1f5f9; // Slate 100
-            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff !important;
+            background-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px);
         }
 
         &.active, &.active-link {
-            color: #fff;
-            background-color: $primary-color;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: #fff !important;
+            background-color: var(--color-brand-accent) !important;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            
+            i {
+                color: #fff !important;
+                opacity: 1;
+            }
         }
 
         i {
-            font-size: 1.1rem;
-            opacity: 0.8;
+            font-size: 1.2rem;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+        }
+    }
+}
+
+header {
+    height: var(--header-height);
+    background-color: #fff !important;
+}
+
+.search-wrapper {
+    .input-group-text {
+        border-right: none;
+        background-color: var(--color-surface);
+        border-color: var(--color-border);
+    }
+
+    .form-control {
+        background-color: var(--color-surface);
+        border-color: var(--color-border);
+        font-size: 0.875rem;
+
+        &:focus {
+            background-color: #fff;
+            border-color: var(--color-brand-accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
         }
     }
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+    background-color: #eff6ff !important;
+    color: #3b82f6 !important;
+    border: 1px solid #dbeafe;
 }
 
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-}
-
-// Ensure search input looks merged
-.input-group-text {
-    border-right: none;
-}
-
-.form-control:focus {
-    box-shadow: none;
-    border-color: #dee2e6;
-}
-
-// Responsive
-@media (max-width: 991px) {
-    .sidebar {
-        display: none !important;
-    }
+// Ensure offcanvas backdrop works correctly
+.offcanvas-backdrop {
+    background-color: rgba(17, 27, 45, 0.5);
 }

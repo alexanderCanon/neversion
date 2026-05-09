@@ -1,0 +1,52 @@
+.bg-brand-dark {
+    background-color: #111B2D;
+}
+
+.bg-surface {
+    background-color: #f8fafc;
+}
+
+.form-label-custom {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-brand-accent);
+    margin-bottom: 1rem;
+}
+
+.form-control-modern, .form-select-modern {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+        border-color: var(--color-brand-accent);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+}
+
+.input-group-text {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px 0 0 10px;
+    color: #94a3b8;
+}
+
+.input-group .form-control-modern {
+    border-radius: 0 10px 10px 0;
+}
+
+.form-section {
+    position: relative;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.x-small {
+    font-size: 0.7rem;
+}

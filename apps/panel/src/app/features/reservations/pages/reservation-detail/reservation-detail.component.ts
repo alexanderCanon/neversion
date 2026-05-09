@@ -12,7 +12,7 @@ import { ClientsService } from '../../../clients/services/clients.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './reservation-detail.component.html',
-  styleUrls: []
+  styleUrl: './reservation-detail.component.scss'
 })
 export class ReservationDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

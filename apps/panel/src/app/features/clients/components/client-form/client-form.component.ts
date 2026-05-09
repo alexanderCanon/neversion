@@ -24,8 +24,8 @@ declare const bootstrap: Bootstrap;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './client-form.component.html',
-  styleUrls: [],
-})
+  styleUrl: './client-form.component.scss'
+  })
 export class ClientFormComponent implements OnInit {
   @ViewChild('clientModal') modalElement!: ElementRef;
   @Output() clientCreated = new EventEmitter<ClientRequest>();

@@ -15,8 +15,8 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, SubscriptionFormComponent, ManualAssignmentModalComponent],
   templateUrl: './subscriptions-list.component.html',
-  styleUrls: [],
-})
+  styleUrl: './subscriptions-list.component.scss'
+  })
 export class SubscriptionsListComponent implements OnInit {
   @ViewChild('subscriptionForm') subscriptionForm!: SubscriptionFormComponent;
   @ViewChild('manualModal') manualModal!: ManualAssignmentModalComponent;

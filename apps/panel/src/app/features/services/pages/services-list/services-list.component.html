@@ -1,75 +1,81 @@
-<div class="container-fluid py-4 h-100 bg-light bg-opacity-50">
+<div class="container-fluid py-4 h-100 bg-surface">
   <!-- Header Title and Actions -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3 class="mb-0 fw-bold text-dark text-uppercase">Administración de Servicios</h3>
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+      <div>
+          <h3 class="mb-1 fw-bold text-dark">Catálogo de Servicios</h3>
+          <p class="text-muted small mb-0">Gestiona los servicios digitales, precios y modalidades de venta.</p>
+      </div>
       @if (!isSuperAdmin()) {
-      <button class="btn btn-primary d-flex align-items-center px-4 shadow-sm rounded-3" (click)="openNewServiceModal()">
-          <i class="bi bi-plus fs-5 pe-1"></i> Nuevo Servicio
+      <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="openNewServiceModal()">
+          <i class="bi bi-plus-lg me-2"></i> Nuevo Servicio
       </button>
       }
   </div>
 
-  <!-- Main Content Card -->
-  <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-body p-4 p-md-5">
-          
-          <!-- Toolbars / Filters -->
-          <div class="row mb-4 align-items-center">
-              <div class="col-12 col-md-6 mb-3 mb-md-0">
-                  <div class="input-group">
-                      <span class="input-group-text bg-white border-end-0 text-secondary" id="search-addon">
-                          <i class="bi bi-search"></i>
-                      </span>
-                      <input type="text" 
-                             class="form-control border-start-0 ps-0 text-secondary" 
-                             placeholder="Buscar por nombre de servicio..." 
-                             [ngModel]="searchTerm()"
-                             (ngModelChange)="onSearchChange($event)">
-                  </div>
-              </div>
-              <div class="col-12 col-md-auto ms-auto">
-                  <select class="form-select text-secondary border" 
-                          [ngModel]="selectedCategory()" 
-                          (ngModelChange)="onCategoryChange($event)">
-                      <option value="">Todas las categorías</option>
-                      <option value="STREAMING">Streaming</option>
-                      <option value="SOFTWARE">Software</option>
-                      <option value="GIFT_CARD">Gift Card</option>
-                      <option value="RECHARGE">Recargas</option>
-                      <option value="DIGITAL_SERVICE">Servicio digital</option>
-                  </select>
-              </div>
+  <!-- Filters Row -->
+  <div class="row g-3 mb-4">
+      <div class="col-12 col-md-8 col-lg-6">
+          <div class="search-container position-relative">
+              <i class="bi bi-search search-icon"></i>
+              <input type="text" 
+                     class="form-control search-input" 
+                     placeholder="Buscar por nombre de servicio..." 
+                     [ngModel]="searchTerm()"
+                     (ngModelChange)="onSearchChange($event)">
           </div>
+      </div>
+      <div class="col-12 col-md-4 col-lg-3 ms-md-auto">
+          <div class="select-container">
+              <select class="form-select border-0 shadow-sm" 
+                      [ngModel]="selectedCategory()" 
+                      (ngModelChange)="onCategoryChange($event)">
+                  <option value="">Todas las categorías</option>
+                  <option value="STREAMING">Streaming</option>
+                  <option value="SOFTWARE">Software</option>
+                  <option value="GIFT_CARD">Gift Card</option>
+                  <option value="RECHARGE">Recargas</option>
+                  <option value="DIGITAL_SERVICE">Servicio digital</option>
+              </select>
+          </div>
+      </div>
+  </div>
 
-          <!-- The Table -->
-          @if (isLoading()) {
-              <div class="text-center py-5">
-                  <div class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Cargando...</span>
-                  </div>
-                  <p class="mt-2 text-muted">Cargando servicios...</p>
+  <!-- Content -->
+  <div class="content-wrapper">
+      @if (isLoading()) {
+          <div class="d-flex flex-column align-items-center justify-content-center py-5">
+              <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                  <span class="visually-hidden">Cargando...</span>
               </div>
-          } @else if (filteredServices().length === 0) {
-              <div class="text-center py-5">
-                  <i class="bi bi-inbox fs-1 text-muted"></i>
-                  <p class="mt-2 text-muted">No encontramos servicios.</p>
-                  @if (searchTerm() || selectedCategory()) {
-                      <button class="btn btn-outline-secondary mt-2" (click)="searchTerm.set(''); selectedCategory.set('')">Limpiar filtros</button>
-                  } @else if (!isSuperAdmin()) {
-                      <button class="btn btn-primary mt-2" (click)="openNewServiceModal()">
-                          Crear el primer servicio
-                      </button>
-                  }
+              <p class="mt-3 text-muted">Obteniendo servicios...</p>
+          </div>
+      } @else if (filteredServices().length === 0) {
+          <div class="empty-state text-center py-5 bg-white rounded-4 shadow-sm border">
+              <div class="empty-state-icon mb-3">
+                  <i class="bi bi-box2-heart text-muted display-4"></i>
               </div>
-          } @else {
+              <h4 class="fw-semibold">No se encontraron servicios</h4>
+              <p class="text-muted">Prueba con otros filtros o crea uno nuevo.</p>
+              @if (searchTerm() || selectedCategory()) {
+                  <button class="btn btn-outline-secondary px-4 mt-2" (click)="searchTerm.set(''); selectedCategory.set('')">
+                      <i class="bi bi-x-lg me-2"></i> Limpiar filtros
+                  </button>
+              } @else if (!isSuperAdmin()) {
+                  <button class="btn btn-primary px-4 mt-2" (click)="openNewServiceModal()">
+                      <i class="bi bi-plus-lg me-2"></i> Crear el primero
+                  </button>
+              }
+          </div>
+      } @else {
+          <div class="table-container bg-white rounded-4 shadow-sm overflow-hidden border">
              <app-services-table 
                 [services]="filteredServices()"
                 [isReadOnly]="isSuperAdmin()"
                 (editService)="onEditService($event)"
                 (toggleStatus)="onToggleStatus($event)">
              </app-services-table>
-          }
-      </div>
+          </div>
+      }
   </div>
 </div>
 

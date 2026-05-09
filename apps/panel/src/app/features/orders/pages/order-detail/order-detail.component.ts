@@ -14,8 +14,8 @@ import { ProfileResponse } from '@neversion/models';
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './order-detail.component.html',
-  styles: []
-})
+  styleUrl: './order-detail.component.scss'
+  })
 export class OrderDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);

@@ -30,8 +30,8 @@ declare const bootstrap: Bootstrap;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './account-form.component.html',
-  styleUrls: [],
-})
+  styleUrl: './account-form.component.scss'
+  })
 export class AccountFormComponent implements OnInit {
   @ViewChild('accountModal') modalElement!: ElementRef;
   @Output() accountCreated = new EventEmitter<AccountRequest>();

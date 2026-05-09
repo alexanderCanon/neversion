@@ -11,7 +11,7 @@ import { OrderResponse, OrderStatus } from '@neversion/models';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './orders-list.component.html',
-  styleUrls: []
+  styleUrl: './orders-list.component.scss'
 })
 export class OrdersListComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);

@@ -1,64 +1,77 @@
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 h-100 bg-surface">
+    <!-- Breadcrumb & Header -->
     <div class="mb-4">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a routerLink="/reservations">Reservas</a></li>
+            <ol class="breadcrumb breadcrumb-modern mb-3">
+                <li class="breadcrumb-item"><a routerLink="/reservations" class="text-decoration-none">Reservas</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Detalle de Reserva</li>
             </ol>
         </nav>
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Reserva: <small class="text-muted">{{ reservation()?.id }}</small></h2>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                    Reserva: <code class="text-primary">{{ reservation()?.id?.substring(0, 8) }}</code>
+                </h3>
+                <p class="text-muted small mb-0">Gestión de validación de pago y asignación de cliente.</p>
+            </div>
             @if (reservation()?.status === 'PENDING' || reservation()?.status === 'UPLOADED') {
-                <button class="btn btn-outline-danger" (click)="cancelReservation()">
-                    <i class="bi bi-x-circle me-1"></i> Cancelar Reserva
+                <button class="btn btn-white text-danger border shadow-sm d-flex align-items-center gap-2" (click)="cancelReservation()">
+                    <i class="bi bi-x-circle"></i>
+                    <span class="fw-bold small">Cancelar Reserva</span>
                 </button>
             }
         </div>
     </div>
 
     @if (isLoading()) {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+            <p class="mt-3 text-muted">Cargando detalles de la reserva...</p>
         </div>
     } @else if (reservation()) {
-        <div class="row g-4">
-            <!-- Left Column: Details -->
+        <div class="row g-4 animate-fade-in">
+            <!-- Left Column: Articles & Receipt -->
             <div class="col-lg-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Artículos en Reserva</h5>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                            <i class="bi bi-cart-check text-primary"></i>
+                            Artículos en Reserva
+                        </h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table mb-0">
-                                <thead class="table-light text-muted small">
+                            <table class="table align-middle mb-0 border-0">
+                                <thead>
                                     <tr>
-                                        <th>ID Inventario</th>
-                                        <th>Cantidad</th>
+                                        <th class="ps-4">ID Inventario</th>
+                                        <th class="text-center">Cant.</th>
                                         <th>Precio Unitario</th>
-                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-end pe-4">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @for (item of reservation()!.details; track item.id) {
                                         <tr>
-                                            <td>{{ item.inventoryId }}</td>
-                                            <td>{{ item.qty }}</td>
-                                            <td>Q{{ item.unitPrice | number:'1.2-2' }}</td>
-                                            <td class="text-end fw-bold">Q{{ item.subtotal | number:'1.2-2' }}</td>
+                                            <td class="ps-4">
+                                                <code class="small text-muted">{{ item.inventoryId }}</code>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark border rounded-pill px-3">{{ item.qty }}</span>
+                                            </td>
+                                            <td class="small">Q{{ item.unitPrice | number:'1.2-2' }}</td>
+                                            <td class="text-end pe-4 fw-bold text-dark">Q{{ item.subtotal | number:'1.2-2' }}</td>
                                         </tr>
                                     }
                                 </tbody>
-                                <tfoot class="table-light">
+                                <tfoot class="bg-light">
                                     <tr>
-                                        <td colspan="3" class="text-end">Descuento:</td>
-                                        <td class="text-end text-danger">-Q{{ reservation()!.discount | number:'1.2-2' }}</td>
+                                        <td colspan="3" class="text-end py-3 text-muted small fw-bold text-uppercase">Descuento aplicado:</td>
+                                        <td class="text-end pe-4 py-3 text-danger fw-bold">-Q{{ reservation()!.discount | number:'1.2-2' }}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-bold">Total:</td>
-                                        <td class="text-end fw-bold fs-5">Q{{ reservation()!.total | number:'1.2-2' }}</td>
+                                        <td colspan="3" class="text-end py-3 fw-bold text-uppercase">Total a Pagar:</td>
+                                        <td class="text-end pe-4 py-3 fw-bold fs-4 text-primary">Q{{ reservation()!.total | number:'1.2-2' }}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -67,79 +80,85 @@
                 </div>
 
                 @if (reservation()!.receiptUrl) {
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white">
-                            <h5 class="card-title mb-0">Comprobante de Pago</h5>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 border-bottom">
+                            <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-image text-primary"></i>
+                                Comprobante de Pago
+                            </h5>
                         </div>
-                        <div class="card-body text-center bg-light">
-                            <img [src]="reservation()!.receiptUrl" class="img-fluid rounded border shadow-sm" style="max-height: 500px;" alt="Comprobante">
-                            <div class="mt-3">
-                                <a [href]="reservation()!.receiptUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver en tamaño completo
-                                </a>
+                        <div class="card-body text-center bg-light p-4">
+                            <div class="receipt-preview-container shadow-sm border rounded-4 bg-white p-2 mb-3">
+                                <img [src]="reservation()!.receiptUrl" class="img-fluid rounded-3" style="max-height: 500px;" alt="Comprobante">
                             </div>
+                            <a [href]="reservation()!.receiptUrl" target="_blank" class="btn btn-white border shadow-sm px-4 fw-bold">
+                                <i class="bi bi-box-arrow-up-right me-2"></i> Abrir en tamaño completo
+                            </a>
                         </div>
                     </div>
                 }
             </div>
 
-            <!-- Right Column: Info and Actions -->
+            <!-- Right Column: Info & Actions -->
             <div class="col-lg-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h6 class="text-muted small text-uppercase mb-3">Información General</h6>
-                        <ul class="list-group list-group-flush small">
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Estado:</span>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="text-muted x-small fw-bold text-uppercase mb-4 letter-spacing-1">Información General</h6>
+                        <div class="info-vertical-list">
+                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                <span class="text-muted small">Estado:</span>
                                 <span class="badge" [ngClass]="{
-                                    'bg-warning text-dark': reservation()!.status === 'PENDING',
-                                    'bg-info text-dark': reservation()!.status === 'UPLOADED',
-                                    'bg-success': reservation()!.status === 'VALIDATED',
-                                    'bg-secondary': reservation()!.status === 'EXPIRED',
-                                    'bg-danger': reservation()!.status === 'CANCELLED'
+                                    'bg-warning-subtle text-warning': reservation()!.status === 'PENDING',
+                                    'bg-info-subtle text-info': reservation()!.status === 'UPLOADED',
+                                    'bg-success-subtle text-success': reservation()!.status === 'VALIDATED',
+                                    'bg-secondary-subtle text-secondary': reservation()!.status === 'EXPIRED',
+                                    'bg-danger-subtle text-danger': reservation()!.status === 'CANCELLED'
                                 }">{{ reservation()!.status }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Creado:</span>
-                                <span>{{ reservation()!.createdAt | date:'short' }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Expiración:</span>
-                                <span>{{ reservation()!.expirationDate | date:'short' }}</span>
-                            </li>
-                        </ul>
+                            </div>
+                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                <span class="text-muted small">Fecha Creación:</span>
+                                <span class="text-dark fw-medium small">{{ reservation()!.createdAt | date:'short' }}</span>
+                            </div>
+                            <div class="info-row d-flex justify-content-between py-2">
+                                <span class="text-muted small">Vencimiento:</span>
+                                <span class="text-danger fw-bold small">{{ reservation()!.expirationDate | date:'short' }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Client Section -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h6 class="text-muted small text-uppercase mb-3">Cliente</h6>
+                <!-- Client Assignment -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="text-muted x-small fw-bold text-uppercase mb-4 letter-spacing-1">Cliente Responsable</h6>
                         @if (reservation()!.clientId) {
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                                <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold">
-                                    <i class="bi bi-person"></i>
+                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
+                                <div class="avatar-sm-circle bg-primary text-white shadow-sm">
+                                    <i class="bi bi-person-check"></i>
                                 </div>
-                                <div>
-                                    <div class="fw-bold small">{{ reservation()!.clientId }}</div>
-                                    <div class="text-muted extra-small">ID de Cliente asignado</div>
+                                <div class="overflow-hidden">
+                                    <div class="fw-bold text-dark text-truncate">{{ reservation()!.clientId }}</div>
+                                    <span class="x-small text-muted fw-semibold">Cliente Identificado</span>
                                 </div>
                             </div>
                         } @else {
-                            <div class="alert alert-warning py-2 mb-3 small">
-                                Sin cliente asignado.
+                            <div class="alert alert-warning-subtle border-0 rounded-4 p-3 mb-3 d-flex align-items-center gap-2">
+                                <i class="bi bi-person-x-fill fs-5"></i>
+                                <span class="small fw-medium">Sin cliente asignado.</span>
                             </div>
-                            <label for="assignClient" class="form-label small">Asignar Cliente</label>
-                            <div class="input-group input-group-sm">
-                                <select id="assignClient" class="form-select" [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
-                                    <option value="">Seleccionar...</option>
-                                    @for (client of clients(); track client.id) {
-                                        <option [value]="client.id">{{ client.name }} ({{ client.phone }})</option>
-                                    }
-                                </select>
-                                <button class="btn btn-primary" (click)="attachClient()" [disabled]="!selectedClientId()">
-                                    Asignar
-                                </button>
+                            <div class="form-section p-2">
+                                <label for="assignClient" class="form-label x-small fw-bold text-muted text-uppercase mb-2">Asignar Manualmente</label>
+                                <div class="d-flex flex-column gap-2">
+                                    <select id="assignClient" class="form-select form-select-modern" [ngModel]="selectedClientId()" (ngModelChange)="selectedClientId.set($event)">
+                                        <option value="">Seleccionar cliente...</option>
+                                        @for (client of clients(); track client.id) {
+                                            <option [value]="client.id">{{ client.name }} ({{ client.phone }})</option>
+                                        }
+                                    </select>
+                                    <button class="btn btn-primary w-100 rounded-3 fw-bold" (click)="attachClient()" [disabled]="!selectedClientId()">
+                                        Vincular a Reserva
+                                    </button>
+                                </div>
                             </div>
                         }
                     </div>
@@ -147,23 +166,26 @@
 
                 <!-- Validation Action -->
                 @if (reservation()!.status === 'UPLOADED') {
-                    <div class="card shadow-sm border-info bg-info-subtle">
-                        <div class="card-body">
-                            <h6 class="text-uppercase small mb-3 fw-bold">Validar Pago</h6>
-                            <div class="mb-3">
-                                <label for="validationNotes" class="form-label small">Notas de Validación</label>
-                                <textarea id="validationNotes" class="form-control form-control-sm" rows="3" 
-                                          placeholder="Ej: Pago recibido vía transferencia..."
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white border-top border-5 border-success">
+                        <div class="card-body p-4">
+                            <h6 class="text-success x-small fw-bold text-uppercase mb-3">Validación de Comprobante</h6>
+                            <div class="mb-4">
+                                <label for="validationNotes" class="form-label small fw-medium text-muted">Comentarios Internos</label>
+                                <textarea id="validationNotes" class="form-control form-control-modern" rows="3" 
+                                          placeholder="Ej: Transferencia confirmada por administración..."
                                           [ngModel]="validationNotes()" (ngModelChange)="validationNotes.set($event)"></textarea>
                             </div>
-                            <button class="btn btn-success w-100" (click)="validateReservation()" [disabled]="isValidating() || !validationNotes()">
+                            <button class="btn btn-success w-100 py-3 rounded-4 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" 
+                                    (click)="validateReservation()" [disabled]="isValidating() || !validationNotes()">
                                 @if (isValidating()) {
-                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                    <span>Validando...</span>
                                 } @else {
-                                    <i class="bi bi-check-circle me-1"></i>
+                                    <i class="bi bi-check2-circle fs-5"></i>
+                                    <span>Confirmar y Crear Orden</span>
                                 }
-                                Validar y Crear Orden
                             </button>
+                            <p class="x-small text-muted text-center mt-3 mb-0">Esta acción genera automáticamente una Orden de Entrega.</p>
                         </div>
                     </div>
                 }
@@ -171,3 +193,4 @@
         </div>
     }
 </div>
+
