@@ -7,8 +7,8 @@
         <li class="col" *ngFor="let platform of platforms">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <img [src]="platform.imageUrl || '/assets/placeholder-service.png'" [alt]="platform.name" 
+                    <div class="d-flex align-items-center mb-3 cursor-pointer" [routerLink]="['/platforms', platform.id]">
+                        <img [src]="resolveImageUrl(platform.imageUrl)" [alt]="platform.name" 
                              class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
                         <h5 class="fw-bold mb-0">{{ platform.name }}</h5>
                     </div>

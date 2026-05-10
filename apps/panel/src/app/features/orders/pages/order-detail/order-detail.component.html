@@ -1,75 +1,102 @@
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 h-100 bg-surface">
+    <!-- Breadcrumb & Header -->
     <div class="mb-4">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a routerLink="/orders">Órdenes</a></li>
+            <ol class="breadcrumb breadcrumb-modern mb-3">
+                <li class="breadcrumb-item"><a routerLink="/orders" class="text-decoration-none">Órdenes</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Detalle de Orden</li>
             </ol>
         </nav>
-        <div class="d-flex justify-content-between align-items-center">
-            <h2 class="mb-0">Orden: <small class="text-muted">{{ order()?.id }}</small></h2>
-            <span class="badge fs-6" [ngClass]="getStatusBadgeClass(order()?.status)">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+                <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                    Orden: <code class="text-primary">{{ order()?.id?.substring(0, 8) }}</code>
+                </h3>
+                <p class="text-muted small mb-0">Seguimiento de entrega y asignación de credenciales.</p>
+            </div>
+            <span class="badge fs-6 py-2 px-3 rounded-3 shadow-sm" [ngClass]="getStatusBadgeClass(order()?.status)">
+                <i class="bi bi-info-circle me-2"></i>
                 {{ order()?.status }}
             </span>
         </div>
     </div>
 
     @if (isLoading()) {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+            <p class="mt-3 text-muted">Cargando detalles de la orden...</p>
         </div>
     } @else if (order()) {
-        <div class="row g-4">
-            <!-- Left Column: Details -->
+        <div class="row g-4 animate-fade-in">
+            <!-- Left Column: Assignment & Services -->
             <div class="col-lg-8">
+                
                 <!-- Assignment Section (Only if VALIDATED) -->
                 @if (order()?.status === 'VALIDATED') {
-                    <div class="card shadow-sm mb-4 border-info">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="card-title mb-0">Asignación de Accesos</h5>
+                    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4 border-top border-5 border-info">
+                        <div class="card-header bg-white py-3 px-4">
+                            <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="bi bi-key text-info"></i>
+                                Asignación de Accesos
+                            </h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body p-4">
                             @if (isLoadingSuggestion()) {
-                                <div class="text-center py-3">
+                                <div class="text-center py-4">
                                     <div class="spinner-border text-info" role="status"></div>
+                                    <p class="small text-muted mt-2">Buscando mejor opción de inventario...</p>
                                 </div>
                             } @else if (suggestion()) {
                                 @if (suggestion()!.hasSuggestion) {
-                                    <div class="alert alert-success">
-                                        <h6 class="alert-heading fw-bold mb-2">Sugerencia del Sistema</h6>
-                                        <p class="mb-1"><strong>Servicio:</strong> {{ suggestion()!.serviceName }}</p>
-                                        <p class="mb-0"><strong>Cuenta:</strong> {{ suggestion()!.accountEmail }}</p>
+                                    <div class="alert alert-indigo-subtle border-0 rounded-4 p-4 mb-4">
+                                        <div class="d-flex gap-3">
+                                            <i class="bi bi-magic fs-4"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Sugerencia Inteligente</h6>
+                                                <p class="mb-2 small">El sistema ha identificado un perfil disponible que coincide con esta orden:</p>
+                                                <div class="d-flex flex-wrap gap-3">
+                                                    <span class="x-small fw-bold text-uppercase bg-white bg-opacity-50 px-2 py-1 rounded">
+                                                        Servicio: <strong>{{ suggestion()!.serviceName }}</strong>
+                                                    </span>
+                                                    <span class="x-small fw-bold text-uppercase bg-white bg-opacity-50 px-2 py-1 rounded">
+                                                        Cuenta: <strong>{{ suggestion()!.accountEmail }}</strong>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label for="profileSelect" class="form-label">Perfil a Asignar</label>
-                                        <select id="profileSelect" class="form-select" [(ngModel)]="selectedProfileId">
-                                            <option value="" disabled>Seleccione un perfil...</option>
+                                    <div class="mb-4">
+                                        <label for="profileSelect" class="form-label x-small fw-bold text-muted text-uppercase">Seleccionar Perfil Final</label>
+                                        <select id="profileSelect" class="form-select form-select-modern" [(ngModel)]="selectedProfileId">
+                                            <option value="" disabled>Elige el perfil para el cliente...</option>
                                             @for (profile of availableProfiles(); track profile.id) {
                                                 <option [value]="profile.id">
                                                     {{ profile.name }}
-                                                    @if (profile.id === suggestion()!.suggestedProfileId) { (Sugerido) }
+                                                    @if (profile.id === suggestion()!.suggestedProfileId) { (Sugerencia Recomendada) }
                                                 </option>
                                             }
                                         </select>
                                     </div>
 
-                                    <button class="btn btn-primary"
+                                    <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2"
                                             [disabled]="!selectedProfileId() || isConfirming()"
                                             (click)="confirmAssignment()">
                                         @if (isConfirming()) {
-                                            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                            Confirmando...
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                            <span>Confirmando...</span>
                                         } @else {
-                                            Confirmar Asignación
+                                            <i class="bi bi-check2-all fs-5"></i>
+                                            <span>Confirmar Entrega de Acceso</span>
                                         }
                                     </button>
                                 } @else {
-                                    <div class="alert alert-warning mb-0">
-                                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                                        <strong>Atención:</strong> {{ suggestion()!.noInventoryReason || 'No hay inventario disponible para este servicio.' }}
+                                    <div class="alert alert-warning-subtle border-0 rounded-4 p-4 mb-0 d-flex gap-3">
+                                        <i class="bi bi-exclamation-octagon-fill fs-4"></i>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">Sin Stock Disponible</h6>
+                                            <p class="mb-0 small">{{ suggestion()!.noInventoryReason || 'No hay perfiles disponibles para este servicio. Registra una nueva cuenta maestra primero.' }}</p>
+                                        </div>
                                     </div>
                                 }
                             }
@@ -77,39 +104,47 @@
                     </div>
                 }
 
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Servicios Contratados</h5>
+                <!-- Contracted Services -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                            <i class="bi bi-bag-check text-primary"></i>
+                            Servicios Contratados
+                        </h5>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table mb-0">
-                                <thead class="table-light text-muted small">
+                            <table class="table align-middle mb-0 border-0">
+                                <thead>
                                     <tr>
-                                        <th>Servicio</th>
-                                        <th>Cantidad</th>
-                                        <th>Precio Unitario</th>
-                                        <th class="text-end">Subtotal</th>
+                                        <th class="ps-4">Servicio</th>
+                                        <th class="text-center">Cant.</th>
+                                        <th>P. Unitario</th>
+                                        <th class="text-end pe-4">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @for (item of order()!.reservation?.details; track item.id) {
                                         <tr>
-                                            <td>{{ item.serviceId }}</td>
-                                            <td>{{ item.qty }}</td>
-                                            <td>Q{{ item.unitPrice | number:'1.2-2' }}</td>
-                                            <td class="text-end fw-bold">Q{{ item.subtotal | number:'1.2-2' }}</td>
+                                            <td class="ps-4 py-3">
+                                                <div class="fw-bold text-dark">{{ item.serviceId }}</div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark border rounded-pill px-3">{{ item.qty }}</span>
+                                            </td>
+                                            <td class="small">Q{{ item.unitPrice | number:'1.2-2' }}</td>
+                                            <td class="text-end pe-4 fw-bold text-dark">Q{{ item.subtotal | number:'1.2-2' }}</td>
                                         </tr>
                                     }
                                 </tbody>
-                                <tfoot class="table-light">
+                                <tfoot class="bg-light">
                                     <tr>
-                                        <td colspan="3" class="text-end">Descuento:</td>
-                                        <td class="text-end text-danger">-Q{{ order()!.discount | number:'1.2-2' }}</td>
+                                        <td colspan="3" class="text-end py-3 text-muted small fw-bold text-uppercase">Descuento aplicado:</td>
+                                        <td class="text-end pe-4 py-3 text-danger fw-bold">-Q{{ order()!.discount | number:'1.2-2' }}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="3" class="text-end fw-bold">Total:</td>
-                                        <td class="text-end fw-bold fs-5">Q{{ order()!.total | number:'1.2-2' }}</td>
+                                        <td colspan="3" class="text-end py-3 fw-bold text-uppercase">Importe Total:</td>
+                                        <td class="text-end pe-4 py-3 fw-bold fs-4 text-primary">Q{{ order()!.total | number:'1.2-2' }}</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -117,28 +152,34 @@
                     </div>
                 </div>
 
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Historial de Estados</h5>
+                <!-- Status Timeline -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-header bg-white py-3 px-4 border-bottom">
+                        <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                            <i class="bi bi-clock-history text-primary"></i>
+                            Línea de Tiempo
+                        </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="timeline small">
-                            @for (history of order()!.statusHistory; track history.changedAt) {
-                                <div class="d-flex mb-3">
-                                    <div class="me-3 text-center" style="width: 80px;">
-                                        <div class="fw-bold">{{ history.changedAt | date:'HH:mm' }}</div>
-                                        <div class="text-muted extra-small">{{ history.changedAt | date:'dd/MM' }}</div>
+                    <div class="card-body p-4">
+                        <div class="modern-timeline">
+                            @for (history of order()!.statusHistory; track history.changedAt; let last = $last) {
+                                <div class="timeline-item d-flex gap-4" [class.last-item]="last">
+                                    <div class="timeline-date text-end">
+                                        <div class="fw-bold text-dark small">{{ history.changedAt | date:'HH:mm' }}</div>
+                                        <div class="text-muted x-small">{{ history.changedAt | date:'dd MMM' }}</div>
                                     </div>
-                                    <div class="border-start ps-3 pb-3 position-relative">
-                                        <div class="position-absolute top-0 start-0 translate-middle-x bg-primary rounded-circle" 
-                                             style="width: 10px; height: 10px; margin-left: -5px;"></div>
-                                        <div class="fw-bold text-primary">{{ history.newStatus }}</div>
-                                        <div class="text-muted">{{ history.notes }}</div>
-                                        @if (history.changedBy) {
-                                            <div class="text-muted extra-small mt-1">
-                                                <i class="bi bi-person me-1"></i> Por: {{ history.changedBy }}
-                                            </div>
-                                        }
+                                    <div class="timeline-marker-wrapper">
+                                        <div class="timeline-marker shadow-sm" [class.bg-primary]="!last" [class.bg-success]="last"></div>
+                                        @if (!last) { <div class="timeline-line"></div> }
+                                    </div>
+                                    <div class="timeline-content pb-4">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="badge-status-sm" [ngClass]="getStatusBadgeClass(history.newStatus)">{{ history.newStatus }}</span>
+                                            @if (history.changedBy) {
+                                                <span class="text-muted x-small fw-semibold">• Por: {{ history.changedBy }}</span>
+                                            }
+                                        </div>
+                                        <p class="text-secondary small mb-0">{{ history.notes || 'Cambio de estado automático por el sistema.' }}</p>
                                     </div>
                                 </div>
                             }
@@ -147,44 +188,47 @@
                 </div>
             </div>
 
-            <!-- Right Column: Info and Receipt -->
+            <!-- Right Column: Summary & Receipt -->
             <div class="col-lg-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h6 class="text-muted small text-uppercase mb-3">Resumen de Transacción</h6>
-                        <ul class="list-group list-group-flush small">
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Método de Pago:</span>
-                                <span class="fw-bold">{{ order()!.paymentMethod }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>ID de Reserva:</span>
-                                <span>{{ order()!.reservationId }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Creada el:</span>
-                                <span>{{ order()!.createdAt | date:'short' }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>Aprobada el:</span>
-                                <span>{{ order()!.approvedAt | date:'short' }}</span>
-                            </li>
-                        </ul>
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="text-muted x-small fw-bold text-uppercase mb-4 letter-spacing-1">Resumen de Transacción</h6>
+                        <div class="info-vertical-list">
+                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                <span class="text-muted small">Método de Pago:</span>
+                                <span class="text-dark fw-bold small">{{ order()!.paymentMethod }}</span>
+                            </div>
+                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                <span class="text-muted small">Referencia Reserva:</span>
+                                <code class="text-primary small">{{ order()!.reservationId?.substring(0, 8) }}</code>
+                            </div>
+                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                <span class="text-muted small">Generada:</span>
+                                <span class="text-dark small">{{ order()!.createdAt | date:'short' }}</span>
+                            </div>
+                            <div class="info-row d-flex justify-content-between py-2">
+                                <span class="text-muted small">Aprobación:</span>
+                                <span class="text-success fw-bold small">{{ order()!.approvedAt | date:'short' }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 @if (order()!.receiptUrl) {
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-white">
-                            <h5 class="card-title mb-0">Comprobante de Pago</h5>
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-header bg-white py-3 px-4 border-bottom">
+                            <h5 class="card-title mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-check text-success"></i>
+                                Comprobante
+                            </h5>
                         </div>
-                        <div class="card-body text-center bg-light">
-                            <img [src]="order()!.receiptUrl" class="img-fluid rounded border shadow-sm" style="max-height: 400px;" alt="Comprobante">
-                            <div class="mt-3">
-                                <a [href]="order()!.receiptUrl" target="_blank" class="btn btn-sm btn-outline-primary w-100">
-                                    <i class="bi bi-box-arrow-up-right me-1"></i> Ver Comprobante
-                                </a>
+                        <div class="card-body text-center bg-light p-4">
+                            <div class="receipt-preview-container shadow-sm border rounded-4 bg-white p-2 mb-3">
+                                <img [src]="order()!.receiptUrl" class="img-fluid rounded-3" style="max-height: 400px;" alt="Comprobante">
                             </div>
+                            <a [href]="order()!.receiptUrl" target="_blank" class="btn btn-white border shadow-sm w-100 fw-bold">
+                                <i class="bi bi-zoom-in me-2"></i> Ver Comprobante
+                            </a>
                         </div>
                     </div>
                 }
@@ -192,3 +236,4 @@
         </div>
     }
 </div>
+

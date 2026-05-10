@@ -1,113 +1,131 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0 fw-bold">
-      <i class="bi bi-people me-2"></i>Clientes
-    </h2>
-    <button class="btn btn-primary" (click)="clientForm.openModal()">
-      <i class="bi bi-plus-lg me-1"></i>Nuevo cliente
+<div class="container-fluid py-4 h-100 bg-surface">
+  <!-- Header Title and Actions -->
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+        <h3 class="mb-1 fw-bold text-dark">Directorio de Clientes</h3>
+        <p class="text-muted small mb-0">Gestiona la base de datos de tus compradores y su historial de suscripciones.</p>
+    </div>
+    @if (!isSuperAdmin()) {
+    <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="clientForm.openModal()">
+        <i class="bi bi-person-plus-fill me-2"></i> Nuevo Cliente
     </button>
+    }
   </div>
 
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <div class="input-group">
-            <span class="input-group-text">
-              <i class="bi bi-search"></i>
-            </span>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Buscar por nombre, correo o teléfono..."
-              [ngModel]="searchTerm()"
-              (ngModelChange)="onSearchChange($event)"
-            />
-          </div>
+  <!-- Filters Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="search-container position-relative">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" 
+                   class="form-control search-input" 
+                   placeholder="Buscar por nombre, correo o teléfono..." 
+                   [ngModel]="searchTerm()"
+                   (ngModelChange)="onSearchChange($event)">
         </div>
-        <div class="col-md-3">
-          <button class="btn btn-outline-secondary w-100" (click)="loadClients()">
-            <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
-          </button>
-        </div>
-      </div>
+    </div>
+    <div class="col-auto ms-md-auto">
+        <button class="btn btn-white border shadow-sm h-100 px-3 d-flex align-items-center justify-content-center" (click)="loadClients()">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+  </div>
 
-      @if (isLoading()) {
-        <div class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Cargando...</span>
-          </div>
-          <p class="mt-2 text-muted">Cargando clientes...</p>
-        </div>
-      } @else if (filteredClients().length === 0) {
-        <div class="text-center py-5">
-          <i class="bi bi-people fs-1 text-muted"></i>
-          <p class="mt-2 text-muted">No hay clientes registrados</p>
-          <button class="btn btn-primary" (click)="clientForm.openModal()">
-            Registrar primer cliente
+  <!-- Content -->
+  <div class="content-wrapper">
+    @if (isLoading()) {
+      <div class="d-flex flex-column align-items-center justify-content-center py-5">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+        <p class="mt-3 text-muted">Obteniendo listado de clientes...</p>
+      </div>
+    } @else if (filteredClients().length === 0) {
+      <div class="empty-state text-center py-5 bg-white rounded-4 shadow-sm border">
+        <i class="bi bi-people text-muted display-4 mb-3"></i>
+        <h4 class="fw-semibold">No se encontraron clientes</h4>
+        <p class="text-muted">Inicia registrando un nuevo cliente en tu plataforma.</p>
+        @if (searchTerm()) {
+          <button class="btn btn-outline-secondary px-4 mt-2" (click)="searchTerm.set('')">
+              <i class="bi bi-x-lg me-2"></i> Limpiar búsqueda
           </button>
-        </div>
-      } @else {
+        } @else if (!isSuperAdmin()) {
+          <button class="btn btn-primary px-4 mt-2" (click)="clientForm.openModal()">
+            <i class="bi bi-plus-lg me-2"></i> Registrar Primer Cliente
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="table-container bg-white rounded-4 shadow-sm overflow-hidden border">
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-hover align-middle mb-0 border-0">
             <thead>
               <tr>
-                <th>Nombre</th>
-                <th>Correo</th>
-                <th>Teléfono</th>
-                <th class="text-center">Suscripciones</th>
-                <th>Acciones</th>
+                <th class="ps-4">Información del Cliente</th>
+                <th>Contacto Directo</th>
+                <th class="text-center">Suscripciones Activas</th>
+                <th class="text-end pe-4">Acciones</th>
               </tr>
             </thead>
             <tbody>
               @for (client of paginatedClients(); track trackByClientId($index, client)) {
-                <tr>
-                  <td>
-                    <i class="bi bi-person-circle me-2 text-muted"></i>
-                    <strong>{{ client.name }}</strong>
+                <tr class="client-row">
+                  <td class="ps-4 py-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="client-avatar shadow-sm">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-dark fs-6">{{ client.name }}</span>
+                            <span class="x-small text-muted fw-semibold">ID: {{ client.id.substring(0, 8) }}</span>
+                        </div>
+                    </div>
                   </td>
                   <td>
-                    @if (client.email) {
-                      <a [href]="'mailto:' + client.email">{{ client.email }}</a>
-                    } @else {
-                      <span class="text-muted">—</span>
-                    }
-                  </td>
-                  <td>
-                    @if (client.phone) {
-                      <a [href]="'tel:' + (client.phone | phone)" class="text-decoration-none">{{ client.phone | phone }}</a>
-                    } @else {
-                      <span class="text-muted">—</span>
-                    }
+                    <div class="d-flex flex-column gap-1">
+                        @if (client.email) {
+                            <a [href]="'mailto:' + client.email" class="text-decoration-none small d-flex align-items-center gap-2 text-primary">
+                                <i class="bi bi-envelope text-muted"></i>
+                                {{ client.email }}
+                            </a>
+                        }
+                        @if (client.phone) {
+                            <a [href]="'tel:' + (client.phone | phone)" class="text-decoration-none small d-flex align-items-center gap-2 text-dark">
+                                <i class="bi bi-whatsapp text-success"></i>
+                                {{ client.phone | phone }}
+                            </a>
+                        }
+                    </div>
                   </td>
                   <td class="text-center">
-                    <span class="badge" [ngClass]="client.activeSubscriptionCount > 0 ? 'bg-success' : 'bg-secondary'">
-                      {{ client.activeSubscriptionCount }}
-                    </span>
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill border bg-light">
+                        <i class="bi bi-card-checklist text-primary"></i>
+                        <span class="fw-bold" [ngClass]="client.activeSubscriptionCount > 0 ? 'text-success' : 'text-muted'">
+                            {{ client.activeSubscriptionCount }}
+                        </span>
+                    </div>
                   </td>
-                  <td>
-                    <div class="d-flex gap-2 justify-content-end">
-                      <a
-                        class="btn btn-sm btn-outline-info"
-                        [routerLink]="['/clients', client.id]"
-                        title="Ver Detalle"
-                      >
-                        <i class="bi bi-eye"></i>
-                      </a>
-                      <button
-                        class="btn btn-sm btn-outline-primary"
-                        (click)="clientForm.openModal(client)"
-                        title="Editar"
-                      >
-                        <i class="bi bi-pencil-square"></i>
-                      </button>
-                      <button
-                        class="btn btn-sm btn-outline-danger"
-                        (click)="deactivateClient(client)"
-                        title="Eliminar"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
+                  <td class="text-end pe-4">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a
+                          class="btn-action-sm view"
+                          [routerLink]="['/clients', client.id]"
+                          title="Ver Expediente"
+                        >
+                          <i class="bi bi-journal-text"></i>
+                        </a>
+                        <button
+                          class="btn-action-sm edit"
+                          (click)="clientForm.openModal(client)"
+                          title="Editar información"
+                        >
+                          <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button
+                          class="btn-action-sm deactivate"
+                          (click)="deactivateClient(client)"
+                          title="Eliminar registro"
+                        >
+                          <i class="bi bi-trash3"></i>
+                        </button>
                     </div>
                   </td>
                 </tr>
@@ -115,28 +133,28 @@
             </tbody>
           </table>
         </div>
+      </div>
 
-        @if (totalPages() > 1) {
-          <nav class="mt-4">
-            <ul class="pagination justify-content-center mb-0">
-              <li class="page-item" [class.disabled]="currentPage() === 1">
-                <button class="page-link" (click)="prevPage()">Anterior</button>
+      @if (totalPages() > 1) {
+        <nav class="mt-5">
+          <ul class="pagination pagination-modern justify-content-center mb-0 gap-2">
+            <li class="page-item" [class.disabled]="currentPage() === 1">
+              <button class="page-link rounded-3" (click)="prevPage()"><i class="bi bi-chevron-left"></i></button>
+            </li>
+            @for (pageNum of [].constructor(totalPages()); track $index) {
+              <li class="page-item" [class.active]="currentPage() === $index + 1">
+                <button class="page-link rounded-3 shadow-sm" (click)="currentPage.set($index + 1)">
+                  {{ $index + 1 }}
+                </button>
               </li>
-              @for (pageNum of [].constructor(totalPages()); track $index) {
-                <li class="page-item" [class.active]="currentPage() === $index + 1">
-                  <button class="page-link" (click)="currentPage.set($index + 1)">
-                    {{ $index + 1 }}
-                  </button>
-                </li>
-              }
-              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
-                <button class="page-link" (click)="nextPage()">Siguiente</button>
-              </li>
-            </ul>
-          </nav>
-        }
+            }
+            <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+              <button class="page-link rounded-3" (click)="nextPage()"><i class="bi bi-chevron-right"></i></button>
+            </li>
+          </ul>
+        </nav>
       }
-    </div>
+    }
   </div>
 </div>
 

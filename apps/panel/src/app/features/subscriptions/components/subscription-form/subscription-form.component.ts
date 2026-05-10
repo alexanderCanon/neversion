@@ -26,8 +26,8 @@ interface Bootstrap {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './subscription-form.component.html',
-  styleUrls: [],
-})
+  styleUrl: './subscription-form.component.scss'
+  })
 export class SubscriptionFormComponent implements OnInit {
   @ViewChild('subscriptionModal') modalElement!: ElementRef;
   @Output() subscriptionCreated = new EventEmitter<void>();

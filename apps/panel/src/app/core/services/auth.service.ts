@@ -44,6 +44,7 @@ export class AuthService {
     readonly contextLoadFailed = this._contextLoadFailed.asReadonly();
     readonly isAuthenticated = computed(() => this._currentUser() !== null);
     readonly currentVendorUuid = computed(() => this._currentContext()?.vendorUuid ?? null);
+    readonly isSuperAdmin = computed(() => this.userRole() === 'super_admin');
     
     /**
      * Role resolution. 

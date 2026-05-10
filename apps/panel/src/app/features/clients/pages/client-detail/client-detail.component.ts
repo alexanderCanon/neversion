@@ -11,8 +11,8 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, RouterModule, PhonePipe, DatePipe],
   templateUrl: './client-detail.component.html',
-  styleUrls: []
-})
+  styleUrl: './client-detail.component.scss'
+  })
 export class ClientDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly clientsService = inject(ClientsService);

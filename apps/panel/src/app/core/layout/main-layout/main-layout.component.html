@@ -1,32 +1,32 @@
 <div class="d-flex w-100 h-100 overflow-hidden bg-light">
-    <!-- Sidebar -->
-    <nav class="sidebar d-flex flex-column text-white p-3">
-        <div class="sidebar-brand mb-4 px-3">
-            <h5 class="fw-bold mb-0 text-white line-height-1">Neversion<br><span class="fs-6 fw-normal text-white-50">Agency</span></h5>
+    <!-- Sidebar / Offcanvas -->
+    <nav class="sidebar offcanvas-lg offcanvas-start d-flex flex-column text-bg-dark" id="sidebarMenu">
+        <div class="sidebar-brand mb-4 px-3 justify-content-center">
+            <img src="assets/neversion-logo.svg" alt="Neversion Logo" class="img-fluid" style="max-height: 65px;">
         </div>
 
-        <ul class="nav nav-pills flex-column mb-auto gap-1">
+        <ul class="nav nav-pills flex-column mb-auto gap-1 px-3">
             <li class="nav-item">
-                <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-grid"></i>
                     Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/services" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/services" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-box-seam"></i>
                     Servicios
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/accounts" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/accounts" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-wallet2"></i>
                     Cuentas
                 </a>
             </li>
             @if (isSuperAdmin()) {
             <li class="nav-item">
-                <a routerLink="/vendors" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/vendors" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-shop"></i>
                     Vendedores
                 </a>
@@ -34,32 +34,32 @@
             }
             <!-- Features -->
             <li class="nav-item">
-                <a routerLink="/clients" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/clients" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-people"></i>
                     Clientes
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/subscriptions" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/subscriptions" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-card-checklist"></i>
                     Suscripciones
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/reservations" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/reservations" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-calendar-check"></i>
                     Reservas
                 </a>
             </li>
             <li class="nav-item">
-                <a routerLink="/orders" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
+                <a routerLink="/orders" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-receipt"></i>
                     Órdenes
                 </a>
             </li>
         </ul>
 
-        <div class="mt-auto">
+        <div class="mt-auto px-3 pb-3">
             <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-3 mb-2">
                 <i class="bi bi-question-circle"></i>
                 Ayuda
@@ -75,16 +75,34 @@
     <main class="flex-grow-1 overflow-auto d-flex flex-column bg-body-tertiary">
         <!-- Top Bar -->
         <header
-            class="d-flex align-items-center justify-content-between px-4 py-3 bg-body border-bottom shadow-sm sticky-top">
-            <div class="search-wrapper" style="max-width: 400px; width: 100%;">
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text border bg-body ps-3">
-                        <i class="bi bi-search text-muted"></i>
-                    </span>
-                    <input type="text" class="form-control border-start-0 ps-0 bg-body text-body" placeholder="Buscar...">
+            class="d-flex align-items-center justify-content-between px-3 px-lg-4 py-3 bg-body border-bottom shadow-sm sticky-top">
+            
+            <div class="d-flex align-items-center gap-2">
+                <button 
+                    class="btn btn-link text-body p-0 d-lg-none" 
+                    type="button" 
+                    data-bs-toggle="offcanvas" 
+                    data-bs-target="#sidebarMenu" 
+                    aria-controls="sidebarMenu">
+                    <i class="bi bi-list fs-2"></i>
+                </button>
+                
+                <div class="search-wrapper d-none d-sm-block" style="max-width: 400px; width: 100%;">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text border bg-body ps-3">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 ps-0 bg-body text-body" placeholder="Buscar...">
+                    </div>
                 </div>
             </div>
-            <div class="user-profile d-flex align-items-center gap-3">
+
+            <div class="user-profile d-flex align-items-center gap-2 gap-sm-3">
+                <button 
+                    class="btn btn-link text-body p-0 d-sm-none" 
+                    title="Buscar">
+                    <i class="bi bi-search fs-5"></i>
+                </button>
                 <button
                     class="btn btn-link text-body p-0 me-2"
                     (click)="toggleTheme()"

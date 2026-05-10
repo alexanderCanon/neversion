@@ -6,12 +6,13 @@
   --secondary-color: oklch(0.5464 0.1313 242.68);
   --tertiary-color: oklch(56.311% 0.11957 235.066);
   --site-background: var(--light-text-color);
+  --primary-variant-color: var(--secondary-color);
 }
 
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  background-color: var(--purple-color);
+  background-color: var(--site-background);
   color: var(--dark-text-color);
 }
 

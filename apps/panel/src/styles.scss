@@ -4,38 +4,135 @@
 // Design Tokens
 // ─────────────────────────────────────────────
 :root {
-    // Brand
-    --primary-color:       oklch(0.2261 0.0377 241.61);
-    --darkest-primary-color: oklch(0.1658 0.0227 235.92);
+    // Brand (Matched from Neversion Logo)
+    --color-brand-dark:    #111B2D;
+    --color-brand-light:   #E2E2E2;
+    --color-brand-accent:  #1d4ed8; // Deeper, professional Blue
 
-    // Semantic (matches docs/uiux-audit/global-improvements.md)
-    --color-primary:       #1E40AF;
-    --color-primary-hover: #1D4ED8;
-    --color-danger:        #DC2626;
-    --color-success:       #16A34A;
-    --color-warning:       #D97706;
-    --color-neutral:       #6B7280;
-    --color-surface:       #F9FAFB;
-    --color-border:        #E5E7EB;
-    --color-text-primary:  #1F2937;
-    --color-text-secondary:#6B7280;
-    --color-text-placeholder: #9CA3AF;
+    // Semantic
+    --color-primary:       var(--color-brand-accent);
+    --color-primary-hover: #1e40af; // Indigo-ish blue
+    --color-danger:        #e11d48;
+    --color-success:       #059669;
+    --color-warning:       #d97706;
+    --color-neutral:       #64748b;
+    --color-surface:       #f8fafc;
+    --color-border:        #e2e8f0;
+    --color-text-primary:  #0f172a;
+    --color-text-secondary:#64748b;
+    --color-text-placeholder: #94a3b8;
 
-    // Typography
-    --light-text-color:    oklch(1 0 0);
-    --dark-text-color:     oklch(0.0658 0.0227 235.92);
+    // Layout
+    --sidebar-width:       260px;
+    --header-height:       70px;
 }
 
 // ─────────────────────────────────────────────
-// Bootstrap Overrides — Primary Button (unified)
+// Global Improvements
 // ─────────────────────────────────────────────
-.btn-primary {
-    --bs-btn-bg:               var(--primary-color);
-    --bs-btn-border-color:     var(--primary-color);
-    --bs-btn-hover-bg:         var(--darkest-primary-color);
-    --bs-btn-hover-border-color: var(--darkest-primary-color);
-    --bs-btn-active-bg:        var(--darkest-primary-color);
-    --bs-btn-active-border-color: var(--darkest-primary-color);
+.card {
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    transition: box-shadow 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .card-header {
+        background-color: #fff;
+        border-bottom: 1px solid var(--color-border);
+        padding: 1.25rem 1.5rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+.table {
+    --bs-table-border-color: var(--color-border);
+    
+    th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: var(--color-neutral);
+        padding: 1rem 1.5rem;
+        background-color: var(--color-surface);
+    }
+
+    td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        color: var(--color-text-primary);
+    }
+}
+
+.btn {
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+
+    &-primary {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+            border-color: var(--color-primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+        }
+    }
+
+    &-white {
+        background-color: #fff;
+        border-color: var(--color-border);
+        color: var(--color-text-primary);
+
+        &:hover {
+            background-color: var(--color-surface);
+            border-color: var(--color-border);
+            color: var(--color-brand-accent);
+        }
+    }
+}
+
+// ─────────────────────────────────────────────
+// Status Badges
+// ─────────────────────────────────────────────
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+
+    &-status-active {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    &-status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    &-status-suspended {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    &-status-cancelled {
+        background-color: #f1f5f9;
+        color: #475569;
+    }
 }
 
 // ─────────────────────────────────────────────

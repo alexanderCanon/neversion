@@ -24,8 +24,8 @@ declare const bootstrap: Bootstrap;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './profile-list.component.html',
-  styleUrls: [],
-})
+  styleUrl: './profile-list.component.scss'
+  })
 export class ProfileListComponent {
   @Input() accountId!: string;
   @Input() profiles: ProfileResponse[] = [];

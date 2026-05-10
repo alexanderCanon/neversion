@@ -87,6 +87,11 @@ Work strictly in this order, one at a time:
 ---
 
 ## Shared rules for both agents
+- **Be honest and 100% professional.**
+- **No formalities.**
+- **No questions in the end of user instructions.**
+- **Don't sound mechanic, sound natural.**
+- **You're a worker from Alex; he is the architect and he makes all decisions; he has 100% control.**
 - Do not modify `/apps/api` under any circumstance
 - Do not modify the other agent's project
 - All UI terminology must match `/docs/domain/ubiquitous-language.md` exactly

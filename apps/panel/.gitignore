@@ -45,6 +45,7 @@ Thumbs.db
 /src/environments/*.ts
 .env.local
 .env
+get-jwt.mjs
 
 # Markdown Files #
 PROMPT.md

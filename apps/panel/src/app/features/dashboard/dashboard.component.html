@@ -1,10 +1,12 @@
-<div class="container-fluid py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0 fw-bold">
-      <i class="bi bi-speedometer2 me-2"></i>Dashboard
-    </h2>
-    <button class="btn btn-outline-primary btn-sm" (click)="loadDashboard()">
-      <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+<div class="container-fluid py-4 bg-surface min-vh-100">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+      <h2 class="mb-1 fw-bold text-dark">Panel de Control</h2>
+      <p class="text-muted small mb-0">Vista general del rendimiento y vencimientos operativos.</p>
+    </div>
+    <button class="btn btn-white border shadow-sm d-flex align-items-center gap-2 px-3 py-2" (click)="loadDashboard()">
+      <i class="bi bi-arrow-clockwise"></i>
+      <span class="fw-medium">Actualizar</span>
     </button>
   </div>
 

@@ -16,8 +16,8 @@ import { ActivatedRoute } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, AccountFormComponent, ProfileListComponent],
   templateUrl: './accounts-list.component.html',
-  styleUrls: [],
-})
+  styleUrl: './accounts-list.component.scss'
+  })
 export class AccountsListComponent implements OnInit {
   @ViewChild('accountForm') accountForm!: AccountFormComponent;
 
@@ -30,6 +30,7 @@ export class AccountsListComponent implements OnInit {
   readonly accounts = this.accountsService.accounts;
   readonly isLoading = this.accountsService.isLoading;
   readonly vendorUuid = computed(() => this.authService.currentVendorUuid());
+  readonly isSuperAdmin = this.authService.isSuperAdmin;
   readonly hasRequestedAccounts = signal(false);
   readonly loadError = signal(false);
 

@@ -6,6 +6,7 @@ import { ClientResponse } from '@neversion/models';
 import { ClientFormComponent } from '../../components/client-form/client-form.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
+import { AuthService } from '../../../../core/services/auth.service';
 
 import { RouterModule } from '@angular/router';
 
@@ -14,16 +15,18 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule, ClientFormComponent, PhonePipe],
   templateUrl: './clients-list.component.html',
-  styleUrls: [],
-})
+  styleUrl: './clients-list.component.scss'
+  })
 export class ClientsListComponent implements OnInit {
   @ViewChild('clientForm') clientForm!: ClientFormComponent;
 
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
 
   readonly clients = this.clientsService.clients;
   readonly isLoading = this.clientsService.isLoading;
+  readonly isSuperAdmin = this.authService.isSuperAdmin;
 
   searchTerm = signal('');
   currentPage = signal(1);
