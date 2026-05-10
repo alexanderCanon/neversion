@@ -1,8 +1,8 @@
-<div class="card h-100 shadow-sm custom-card">
+<div class="card h-100 shadow-sm custom-card" [routerLink]="['/platforms', platforms?.id]">
     <!-- Image Wrapper: Inner frame for image, separated from card borders -->
     <div class="p-3">
         <div class="card-img-wrapper position-relative overflow-hidden rounded-3">
-            <img [src]="platforms?.imageUrl || '/assets/placeholder-service.png'" class="card-img-top service-img" [alt]="platforms?.name">
+            <img [src]="imageUrl" class="card-img-top service-img" [alt]="platforms?.name">
             <div class="overlay d-flex align-items-center justify-content-center">
                 <span class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">Ver detalles</span>
             </div>

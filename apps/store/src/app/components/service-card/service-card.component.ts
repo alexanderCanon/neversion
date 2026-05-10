@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { ServiceResponse } from '@neversion/api-client';
+import { ImageService } from '../../services/image.service';
 
 @Component({
   selector: 'app-service-card',
@@ -7,5 +8,10 @@ import { ServiceResponse } from '@neversion/api-client';
   styleUrls: ['./service-card.component.css']
 })
 export class ServiceCardComponent {
+  private readonly imageService = inject(ImageService);
   @Input() platforms: ServiceResponse | undefined;
+
+  get imageUrl(): string {
+    return this.imageService.resolveServiceImageUrl(this.platforms?.imageUrl);
+  }
 }
