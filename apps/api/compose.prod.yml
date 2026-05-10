@@ -57,12 +57,13 @@ services:
       - "8080:8080"
 
     # ── Memory ──────────────────────────────────────────────────
-    # JVM flag -XX:MaxRAMPercentage=75.0 caps heap at ~384MB.
-    # Adjust memory limit based on your server's available RAM.
+    # JVM -XX:MaxRAMPercentage=75.0 caps heap at ~576MB (75% of 768m).
+    # Spring Boot 3 startup (context + Flyway 24 migrations + JIT) needs ~450MB peak.
+    # Bump to 1g if OOM persists under load.
     deploy:
       resources:
         limits:
-          memory: 512m
+          memory: 768m
 
     # ── Health check for Dokploy ────────────────────────────────
     # Dokploy uses this to verify the container is ready before
