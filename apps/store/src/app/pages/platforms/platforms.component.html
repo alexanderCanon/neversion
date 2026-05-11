@@ -8,16 +8,22 @@
         </div>
     </div>
 
-    <div class="container">
-        <!-- Catalog Grid -->
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4" *ngIf="platforms$ | async as platforms">
-            <div class="col" *ngFor="let platform of platforms">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden service-card-premium transition-all hover-grow">
-                    <!-- Image Wrapper with Details Overlay -->
-                    <div class="position-relative overflow-hidden cursor-pointer" [routerLink]="['/platforms', platform.id]">
-                        <div class="bg-white p-4 text-center d-flex align-items-center justify-content-center" style="height: 160px;">
-                            <img [src]="resolveImageUrl(platform.imageUrl)" [alt]="platform.name" 
-                                 class="img-fluid rounded-3" style="max-height: 100%; object-fit: contain;">
+    <ul class="list-unstyled row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" *ngIf="platforms$ | async as platforms">
+        <li class="col" *ngFor="let platform of platforms">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3 cursor-pointer" [routerLink]="['/platforms', platform.id]">
+                        <img [src]="resolveImageUrl(platform.imageUrl)" [alt]="platform.name" 
+                             class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                        <h5 class="fw-bold mb-0">{{ platform.name }}</h5>
+                    </div>
+                    <p class="text-muted small mb-3">{{ platform.description }}</p>
+                    <div class="pricing mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small">Perfil: <strong class="text-primary">Q{{ platform.priceProfile }}</strong></span>
+                            <button (click)="addToCart(platform, 'PROFILE')" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                <i class="bi bi-cart-plus"></i>
+                            </button>
                         </div>
                         <div class="card-overlay d-flex align-items-center justify-content-center">
                             <span class="btn btn-light btn-sm rounded-pill fw-bold shadow-sm px-3">Ver detalles</span>

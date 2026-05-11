@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PlatformService } from '../../services/platform.service';
 import { ImageService } from '../../services/image.service';
 import { CartService } from '../../services/cart.service';
-import { ToastService } from '../../services/toast.service';
 import { ServiceResponse } from '@neversion/api-client';
 import { switchMap, finalize } from 'rxjs/operators';
 
@@ -18,7 +17,6 @@ export class PlatformDetailComponent implements OnInit {
   private readonly platformService = inject(PlatformService);
   private readonly imageService = inject(ImageService);
   private readonly cartService = inject(CartService);
-  private readonly toastService = inject(ToastService);
 
   platform?: ServiceResponse;
   loading: boolean = true;
@@ -75,8 +73,10 @@ export class PlatformDetailComponent implements OnInit {
   addToCart(type: 'PROFILE' | 'COMPLETE'): void {
     if (this.platform) {
       this.cartService.addToCart(this.platform, type);
-      const planName = type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa';
-      this.toastService.show(`${this.platform.name} (${planName}) añadido al carrito`, 'success', '¡Excelente elección!');
+      // Optional: Show a toast or redirect to checkout
+      if (confirm('¿Deseas ir al carrito para finalizar tu compra?')) {
+        this.router.navigate(['/checkout']);
+      }
     }
   }
 
