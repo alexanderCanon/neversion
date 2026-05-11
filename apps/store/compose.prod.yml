@@ -1,0 +1,14 @@
+services:
+  store:
+    build:
+      context: ../..
+      dockerfile: apps/store/Dockerfile
+    restart: unless-stopped
+    environment:
+      STORE_API_URL: ${STORE_API_URL}
+      STORE_SUPABASE_URL: ${STORE_SUPABASE_URL}
+      STORE_SUPABASE_KEY: ${STORE_SUPABASE_KEY}
+      STORE_VENDOR_UUID: ${STORE_VENDOR_UUID}
+    expose:
+      - "4000"
+

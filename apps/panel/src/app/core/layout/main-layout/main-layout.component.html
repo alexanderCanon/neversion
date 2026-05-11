@@ -6,6 +6,7 @@
         </div>
 
         <ul class="nav nav-pills flex-column mb-auto gap-1 px-3">
+            @if (!isSuperAdmin()) {
             <li class="nav-item">
                 <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu">
                     <i class="bi bi-grid"></i>

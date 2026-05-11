@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { PlatformService } from '../../services/platform.service';
 import { CartService } from '../../services/cart.service';
 import { ImageService } from '../../services/image.service';
+import { ToastService } from '../../services/toast.service';
 import { Observable } from 'rxjs';
 import { ServiceResponse } from '@neversion/api-client';
 
@@ -15,6 +16,7 @@ export class PlatformsComponent implements OnInit {
   private readonly _platformService = inject(PlatformService);
   private readonly _cartService = inject(CartService);
   private readonly _imageService = inject(ImageService);
+  private readonly _toastService = inject(ToastService);
 
   platforms$!: Observable<ServiceResponse[]>;
 
@@ -26,10 +28,6 @@ export class PlatformsComponent implements OnInit {
     this._cartService.addToCart(service, type);
     const planName = type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa';
     this._toastService.show(`${service.name} (${planName}) añadido al carrito`, 'success', 'Carrito Actualizado');
-  }
-
-  resolveImageUrl(url?: string): string {
-    return this._imageService.resolveServiceImageUrl(url);
   }
 
   resolveImageUrl(url?: string): string {
