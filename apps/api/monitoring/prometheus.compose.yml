@@ -5,9 +5,10 @@ services:
     environment:
       NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
       NEVERSION_API_TARGET: ${NEVERSION_API_TARGET:-neversion-api:8080}
-    command:
+    entrypoint:
       - /bin/sh
       - -c
+    command:
       - |
         set -eu
         cat > /tmp/prometheus.yml <<EOF
