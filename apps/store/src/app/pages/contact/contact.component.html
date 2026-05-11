@@ -1,34 +1,146 @@
-<div class="container">
-    <form [formGroup]="formContact" (ngSubmit)="send()">
-        <div class="mb-3">
-            <label for="name" class="form-label">Nombre</label>
-            <input [ngClass]="{'is-invalid': hasError('name', 'required') || hasError('name', 'minlength')}" type="name"
-                class="form-control" id="name" formControlName="name">
-            <div class="text-danger" *ngIf="hasError('name', 'required')">Nombre Requerido
+<div class="contact-page bg-light min-vh-100 pb-5">
+    <!-- Header -->
+    <div class="bg-primary text-white py-5 mb-5 shadow-lg"
+        style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
+        <div class="container py-5 text-center">
+            <h1 class="display-4 fw-bold mb-3 text-white"><i class="bi bi-chat-dots me-3"></i>Contáctanos</h1>
+            <p class="lead opacity-75 fs-4">Estamos aquí para resolver tus dudas y ayudarte en lo que necesites.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+                    <div class="row g-0">
+                        <!-- Info Sidebar -->
+                        <div class="col-md-5 d-none d-md-flex flex-column justify-content-center p-5 text-white"
+                            style="background: linear-gradient(135deg, var(--darkest-primary-color) 0%, var(--primary-color) 100%);">
+                            <h3 class="fw-bold mb-4">Información de Contacto</h3>
+                            <p class="opacity-75 mb-5">Si tienes alguna duda técnica o comercial, nuestro equipo está
+                                listo para atenderte.</p>
+
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 50px; height: 50px; min-width: 50px; flex-shrink: 0;">
+                                    <i class="bi bi-envelope fs-4"></i>
+                                </div>
+                                <div>
+                                    <div class="small opacity-50 fw-bold text-uppercase letter-spacing-1">Escríbenos
+                                    </div>
+                                    <div class="fw-bold">soporte@neversion.com</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 50px; height: 50px; min-width: 50px; flex-shrink: 0;">
+                                    <i class="bi bi-whatsapp fs-4"></i>
+                                </div>
+                                <div>
+                                    <div class="small opacity-50 fw-bold text-uppercase letter-spacing-1">WhatsApp</div>
+                                    <div class="fw-bold">+502 58550420</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 50px; height: 50px; min-width: 50px; flex-shrink: 0;">
+                                    <i class="bi bi-clock fs-4"></i>
+                                </div>
+                                <div>
+                                    <div class="small opacity-50 fw-bold text-uppercase letter-spacing-1">Horario de
+                                        Atención</div>
+                                    <div class="fw-bold">Lunes a Domingo<br>8:00 AM - 10:00 PM</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Area -->
+                        <div class="col-md-7 p-5 bg-white">
+                            <h3 class="fw-bold mb-4 text-dark text-center text-md-start">Envíanos un mensaje</h3>
+                            <form [formGroup]="formContact" (ngSubmit)="send()" class="row g-3">
+                                <!-- Name -->
+                                <div class="col-12">
+                                    <label for="name" class="form-label small fw-bold text-uppercase text-muted">Nombre
+                                        Completo</label>
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-text bg-light border-end-0 text-muted d-flex align-items-center justify-content-center"
+                                            style="width: 46px; min-width: 46px;"><i class="bi bi-person"></i></span>
+                                        <input type="text" class="form-control bg-light border-start-0 ps-0" id="name"
+                                            formControlName="name"
+                                            [class.is-invalid]="hasError('name', 'required') || hasError('name', 'minlength')"
+                                            placeholder="Ingresa tu nombre">
+                                        <div class="invalid-feedback" *ngIf="hasError('name', 'required')">El nombre es
+                                            requerido</div>
+                                        <div class="invalid-feedback" *ngIf="hasError('name', 'minlength')">El nombre
+                                            debe tener al menos 3 caracteres</div>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-12">
+                                    <label for="email" class="form-label small fw-bold text-uppercase text-muted">Correo
+                                        Electrónico</label>
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-text bg-light border-end-0 text-muted d-flex align-items-center justify-content-center"
+                                            style="width: 46px; min-width: 46px;"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" class="form-control bg-light border-start-0 ps-0" id="email"
+                                            formControlName="email"
+                                            [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+                                            placeholder="ejemplo@correo.com">
+                                        <div class="invalid-feedback" *ngIf="hasError('email', 'required')">El email es
+                                            requerido</div>
+                                        <div class="invalid-feedback" *ngIf="hasError('email', 'email')">Formato de
+                                            email inválido</div>
+                                    </div>
+                                </div>
+
+                                <!-- Options -->
+                                <div class="col-12">
+                                    <label for="options"
+                                        class="form-label small fw-bold text-uppercase text-muted">Motivo de
+                                        Consulta</label>
+                                    <div class="input-group">
+                                        <span
+                                            class="input-group-text bg-light border-end-0 text-muted d-flex align-items-center justify-content-center"
+                                            style="width: 46px; min-width: 46px;"><i
+                                                class="bi bi-list-check"></i></span>
+                                        <select class="form-select bg-light border-start-0 ps-0" id="options"
+                                            formControlName="option">
+                                            <option [ngValue]="null" selected disabled>Seleccione una categoría</option>
+                                            <option *ngFor="let option of options" [value]="option">{{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Message -->
+                                <div class="col-12">
+                                    <label for="message"
+                                        class="form-label small fw-bold text-uppercase text-muted">Mensaje</label>
+                                    <textarea class="form-control bg-light" id="message" formControlName="message"
+                                        rows="4" [class.is-invalid]="hasError('message', 'required')"
+                                        placeholder="¿En qué podemos ayudarte?"></textarea>
+                                    <div class="invalid-feedback" *ngIf="hasError('message', 'required')">El mensaje es
+                                        requerido</div>
+                                </div>
+
+                                <!-- Submit -->
+                                <div class="col-12 mt-4">
+                                    <button type="submit"
+                                        class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow transition-all hover-grow"
+                                        [disabled]="formContact.invalid">
+                                        Enviar Mensaje <i class="bi bi-send ms-2"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="text-danger" *ngIf="hasError('name', 'minlength')">Nombre debe tener al menos 3 caracteres
-            </div>
         </div>
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input [ngClass]="{'is-invalid': hasError('email', 'required') || hasError('email', 'email')}" type="email"
-                class="form-control" id="email" formControlName="email">
-            <div class="text-danger" *ngIf="hasError('email', 'required')">Email Requerido</div>
-            <div class="text-danger" *ngIf="hasError('email', 'email')">Email formato invalido</div>
-        </div>
-        <div class="mb-3">
-            <label for="options" class="form-label">Opciones</label>
-            <select class="form-select" aria-label="Default select example">
-                <option [ngValue]="null" selected>Seleccione una categoria de consulta</option>
-                <option *ngFor="let option of options" [value]="option">{{ option }}</option>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label for="message" class="form-label">Message</label>
-            <textarea [ngClass]="{'is-invalid': hasError('message', 'required')}" class="form-control" id="message"
-                formControlName="message"></textarea>
-            <div class="text-danger" *ngIf="hasError('message', 'required')">Mensaje Requerido</div>
-        </div>
-        <button type="submit" class="btn btn-primary">Enviar</button>
-    </form>
+    </div>
 </div>

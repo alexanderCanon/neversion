@@ -6,32 +6,31 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   templateUrl: './contact.component.html',
   styleUrls: ['./contact.component.css']
 })
-export class ContactComponent implements OnInit {
+export class ContactComponent {
 
   formContact: FormGroup;
-  userActive: string = "Esto se trae desde el backend";
   options: string[] = ['Problemas con servicios', 'Problemas con productos', 'Problemas con pagos'];
-
-  ngOnInit(): void {
-    this.formContact.valueChanges.subscribe(value => {
-      console.log(value);
-    })
-  }
 
   constructor(private formBuilder: FormBuilder) {
     this.formContact = this.formBuilder.group({
-      name: ['', Validators.required, Validators.minLength(3)],
-      email: ['', Validators.required, Validators.email],
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      option: [null, Validators.required],
       message: ['', Validators.required]
     })
   }
 
-  hasError(controlName: string, error: string) {
-    return this.formContact.get(controlName)?.hasError(error) && this.formContact.get(controlName)?.touched;
+  hasError(controlName: string, error: string): boolean {
+    const control = this.formContact.get(controlName);
+    return !!control && control.hasError(error) && control.touched;
   }
 
-  send() {
-    console.log(this.formContact.value);
+  send(): void {
+    if (this.formContact.valid) {
+      console.log('Form Submitted:', this.formContact.value);
+      alert('¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.');
+      this.formContact.reset();
+    }
   }
 
 

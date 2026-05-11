@@ -10,6 +10,14 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
+  // Fallback: Synchronous check of localStorage since Supabase restoreSession is async
+  if (typeof localStorage !== 'undefined') {
+    const authKey = Object.keys(localStorage).find((key) => key.startsWith('sb-') && key.endsWith('-auth-token'));
+    if (authKey && localStorage.getItem(authKey)) {
+      return true;
+    }
+  }
+
   // Redirect to login with returnUrl
   return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
 };

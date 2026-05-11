@@ -1,1 +1,112 @@
-<p>combo works!</p>
+<div class="combo-page bg-light min-vh-100 pb-5">
+    <!-- Hero Section -->
+    <header class="text-white py-5 mb-5 position-relative shadow-lg" 
+            style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
+        <div class="container py-5 text-center">
+            <h1 class="display-3 fw-bold mb-3 text-white">Arma tu Combo</h1>
+            <p class="lead fs-3 mb-5 opacity-75">Entre más compras, ¡más ahorras! Así de simple.</p>
+            <button (click)="startBuilding()" class="btn btn-light btn-lg rounded-pill px-5 fw-bold shadow-lg transition-all hover-grow" 
+                    style="color: var(--primary-color);">
+                Comenzar a armar <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- How it works -->
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-4">¿Cómo funcionan los Combos?</h2>
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100 border-top border-4" style="border-color: var(--primary-color) !important;">
+                        <div class="h1 mb-3" style="color: var(--primary-color);"><i class="bi bi-cart-plus"></i></div>
+                        <h5 class="fw-bold">1. Elige tus servicios</h5>
+                        <p class="text-muted">Navega por nuestro catálogo y añade los perfiles o cuentas que desees al carrito.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100 border-top border-4" style="border-color: var(--primary-color) !important;">
+                        <div class="h1 mb-3" style="color: var(--primary-color);"><i class="bi bi-calculator"></i></div>
+                        <h5 class="fw-bold">2. Descuento Automático</h5>
+                        <p class="text-muted">Nuestro sistema detecta la cantidad de items y aplica el descuento correspondiente al instante.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 rounded-4 bg-white shadow-sm h-100 border-top border-4" style="border-color: var(--primary-color) !important;">
+                        <div class="h1 mb-3" style="color: var(--primary-color);"><i class="bi bi-credit-card-2-back"></i></div>
+                        <h5 class="fw-bold">3. Paga y Disfruta</h5>
+                        <p class="text-muted">Finaliza tu compra con un precio reducido y recibe tus accesos en minutos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-5 opacity-10">
+
+        <!-- Savings Tiers -->
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Niveles de Ahorro</h2>
+                <p class="text-muted mb-5 fs-5">No necesitas cupones ni códigos especiales. El ahorro está integrado en nuestra plataforma para premiar tu lealtad.</p>
+                
+                <div class="d-flex flex-column gap-4">
+                    <div class="d-flex align-items-start gap-4 p-4 border bg-white rounded-4 transition-all hover-shadow" 
+                         *ngFor="let tier of comboTiers">
+                        <div class="p-3 rounded-circle h1 mb-0 shadow-sm text-white" 
+                             style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));">
+                            <i [class]="tier.icon"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-1">{{ tier.title }}</h4>
+                            <p class="text-muted mb-2">{{ tier.description }}</p>
+                            <div class="badge fs-5 px-3 py-2 rounded-pill shadow-sm" 
+                                 style="background-color: var(--primary-color);">
+                                {{ tier.discount }} de descuento total
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Aplica al comprar {{ tier.qty }} servicios
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+                    <div class="card-body p-5 text-white" 
+                         style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
+                        <h3 class="fw-bold mb-4 text-center">Ejemplo de Ahorro</h3>
+                        <div class="list-group list-group-flush bg-transparent">
+                            <div class="list-group-item bg-transparent text-white border-white-subtle px-0 py-3 d-flex justify-content-between">
+                                <span>Perfil Netflix</span>
+                                <span>Q40.00</span>
+                            </div>
+                            <div class="list-group-item bg-transparent text-white border-white-subtle px-0 py-3 d-flex justify-content-between">
+                                <span>Perfil Disney+</span>
+                                <span>Q40.00</span>
+                            </div>
+                            <div class="list-group-item bg-transparent text-white border-white-subtle px-0 py-3 d-flex justify-content-between">
+                                <span>Perfil HBO Max</span>
+                                <span>Q30.00</span>
+                            </div>
+                            <div class="list-group-item bg-transparent text-white border-0 px-0 pt-4 pb-0 d-flex justify-content-between">
+                                <span class="opacity-75">Subtotal</span>
+                                <span class="opacity-75">Q110.00</span>
+                            </div>
+                            <div class="list-group-item bg-transparent border-0 px-0 py-2 d-flex justify-content-between fw-bold" style="color: #00ffcc;">
+                                <span>Descuento Combo (5%)</span>
+                                <span>-Q5.50</span>
+                            </div>
+                            <div class="list-group-item bg-transparent text-white border-0 px-0 pt-4 pb-0 d-flex justify-content-between align-items-end">
+                                <h4 class="mb-0 fw-bold">Total a Pagar</h4>
+                                <h2 class="mb-0 fw-bold text-white">Q104.50</h2>
+                            </div>
+                        </div>
+                        <button (click) = "startBuilding()" class="btn btn-light w-100 mt-5 rounded-pill py-3 fw-bold shadow-sm">
+                            ¡Quiero mi combo!
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

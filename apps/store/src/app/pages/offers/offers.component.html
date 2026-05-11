@@ -1,1 +1,99 @@
-<p>Aquí van a ir las ofertas</p>
+<div class="offers-page bg-light min-vh-100 pb-5">
+    <!-- Hero Section: Combo Promo -->
+    <header class="bg-primary text-white py-5 mb-5 shadow-sm" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
+        <div class="container text-center py-4">
+            <h1 class="display-4 fw-bold mb-3">¡Ofertas y Combos Neversion!</h1>
+            <p class="lead mb-4 opacity-90">Arma tu combo ideal y recibe descuentos automáticos al instante.</p>
+            
+            <div class="row justify-content-center g-3">
+                <div class="col-6 col-md-3" *ngFor="let tier of comboTiers">
+                    <div class="bg-white text-primary rounded-4 p-3 shadow-sm h-100 border-bottom border-4" style="border-color: var(--primary-color) !important;">
+                        <div class="small fw-bold text-uppercase opacity-75 mb-1">{{ tier.label }}</div>
+                        <div class="h2 fw-bold mb-0 text-dark">{{ tier.discount }} OFF</div>
+                        <div class="small text-muted">Comprando {{ tier.qty }} items</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Featured Offers Section -->
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Servicios Destacados</h2>
+                <p class="text-muted">Nuestra mejor selección para ti</p>
+            </div>
+            <a routerLink="/platforms" class="btn btn-outline-primary rounded-pill px-4">Ver todo el catálogo</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" *ngIf="offers$ | async as offers; else loading">
+            <div class="col" *ngFor="let service of offers">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden offer-card transition-all">
+                    <!-- Image with Badge -->
+                    <div class="position-relative">
+                        <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill shadow-sm z-1" 
+                              style="background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));">
+                            PREMIUM
+                        </span>
+                        <div class="bg-white p-4 text-center">
+                            <img [src]="resolveImageUrl(service.imageUrl)" 
+                                 [alt]="service.name" 
+                                 class="img-fluid rounded-3" 
+                                 style="max-height: 120px; object-fit: contain;">
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 pt-2">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0">{{ service.name }}</h5>
+                            <span class="badge border border-dark-subtle text-dark small fw-normal">{{ service.category }}</span>
+                        </div>
+                        <p class="text-muted small mb-4 line-clamp-2">{{ service.description }}</p>
+
+                        <!-- Pricing Table -->
+                        <div class="pricing-options mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded-3">
+                                <span class="small fw-semibold">Perfil Individual</span>
+                                <span class="fw-bold text-primary">Q{{ service.priceProfile }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded-3">
+                                <span class="small fw-semibold">Cuenta Completa</span>
+                                <span class="fw-bold text-dark">Q{{ service.priceComplete }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary rounded-pill fw-bold" (click)="addToCart(service, 'PROFILE')">
+                                <i class="bi bi-cart-plus me-2"></i>Añadir Perfil
+                            </button>
+                            <button [routerLink]="['/platforms', service.id]" class="btn btn-link btn-sm text-muted text-decoration-none">
+                                Ver detalles técnicos
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-white border-top-0 pb-4 px-4">
+                        <div class="d-flex align-items-center text-success small fw-bold">
+                            <i class="bi bi-shield-check me-2"></i> Garantía de {{ service.durationDays }} días
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No data state -->
+        <div *ngIf="(offers$ | async)?.length === 0" class="text-center py-5">
+            <i class="bi bi-tag-fill text-muted display-1"></i>
+            <p class="mt-3 lead text-muted">No hay ofertas especiales activas en este momento.</p>
+        </div>
+
+        <ng-template #loading>
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Buscando las mejores ofertas...</p>
+            </div>
+        </ng-template>
+    </div>
+</div>

@@ -21,6 +21,8 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { PaymentPageComponent } from './pages/payment-page/payment-page.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { HowToBuyComponent } from './pages/how-to-buy/how-to-buy.component';
+import { SupportComponent } from './pages/support/support.component';
 import { LoginComponent } from './pages/login/login.component';
 import { runtimeConfig } from './config/runtime-config';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
@@ -44,6 +46,8 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PaymentPageComponent,
     PlatformDetailComponent,
     ContactComponent,
+    HowToBuyComponent,
+    SupportComponent,
     LoginComponent,
   ],
   imports: [

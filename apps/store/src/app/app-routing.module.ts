@@ -11,6 +11,8 @@ import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
+import { HowToBuyComponent } from './pages/how-to-buy/how-to-buy.component';
+import { SupportComponent } from './pages/support/support.component';
 import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './guards/auth.guard';
 import { guestGuard } from './guards/guest.guard';
@@ -24,6 +26,8 @@ const routes: Routes = [
     canActivate: [guestGuard]
   },
   { path: 'contact', component: ContactComponent },
+  { path: 'how-to-buy', component: HowToBuyComponent },
+  { path: 'support', component: SupportComponent },
   { path: 'payment-methods', component: PaymentMethodsComponent },
   { path: 'offers', component: OffersComponent },
   { path: 'games', component: GamesComponent },
@@ -45,7 +49,7 @@ const routes: Routes = [
     path: 'customer-panel', 
     loadChildren: () => import('./pages/customer-panel/customer-panel.module').then(m => m.CustomerPanelModule),
     canActivate: [authGuard, roleGuard],
-    data: { allowedRoles: ['cliente'] }
+    data: { allowedRoles: ['client'] }
   },
   { path: 'platforms/:platformId', component: PlatformDetailComponent },
   { path: '**', redirectTo: '', pathMatch: 'full' }

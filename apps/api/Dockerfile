@@ -83,10 +83,14 @@ EXPOSE 8080
 ENV SPRING_PROFILES_ACTIVE=prod
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport \
-    -XX:MaxRAMPercentage=75.0 \
-    -XX:InitialRAMPercentage=50.0 \
+    -XX:MaxRAMPercentage=65.0 \
+    -XX:InitialRAMPercentage=40.0 \
+    -XX:MaxMetaspaceSize=160m \
     -XX:+UseG1GC \
-    -XX:+ExitOnOutOfMemoryError"
+    -XX:G1HeapRegionSize=4m \
+    -Xss256k \
+    -XX:+ExitOnOutOfMemoryError \
+    -Dserver.tomcat.threads.max=50"
 
 # ── Health check ────────────────────────────────────────────────
 # Docker will periodically hit the Actuator health endpoint to verify
