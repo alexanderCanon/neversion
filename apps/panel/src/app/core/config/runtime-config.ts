@@ -4,6 +4,7 @@ interface NeversionRuntimeConfig {
   apiUrl?: string;
   supabaseUrl?: string;
   supabaseKey?: string;
+  grafanaUrl?: string;
 }
 
 declare global {
@@ -19,5 +20,6 @@ const browserConfig = typeof window !== 'undefined'
 export const runtimeConfig = {
   apiUrl: browserConfig?.apiUrl ?? environment.apiUrl,
   supabaseUrl: browserConfig?.supabaseUrl ?? environment.supabaseUrl,
-  supabaseKey: browserConfig?.supabaseKey ?? environment.supabaseKey
+  supabaseKey: browserConfig?.supabaseKey ?? environment.supabaseKey,
+  grafanaUrl: browserConfig?.grafanaUrl ?? environment.grafanaUrl
 };

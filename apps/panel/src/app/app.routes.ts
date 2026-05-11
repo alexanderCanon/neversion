@@ -35,55 +35,61 @@ export const routes: Routes = [
             {
                 path: 'services',
                 loadComponent: () => import('./features/services/pages/services-list/services-list.component').then(m => m.ServicesListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'accounts',
                 loadComponent: () => import('./features/accounts/pages/accounts-list/accounts-list.component').then(m => m.AccountsListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'clients',
                 loadComponent: () => import('./features/clients/pages/clients-list/clients-list.component').then(m => m.ClientsListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'clients/:id',
                 loadComponent: () => import('./features/clients/pages/client-detail/client-detail.component').then(m => m.ClientDetailComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'subscriptions',
                 loadComponent: () => import('./features/subscriptions/pages/subscriptions-list/subscriptions-list.component').then(m => m.SubscriptionsListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'reservations',
                 loadComponent: () => import('./features/reservations/pages/reservations-list/reservations-list.component').then(m => m.ReservationsListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'reservations/:id',
                 loadComponent: () => import('./features/reservations/pages/reservation-detail/reservation-detail.component').then(m => m.ReservationDetailComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'orders',
                 loadComponent: () => import('./features/orders/pages/orders-list/orders-list.component').then(m => m.OrdersListComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
             {
                 path: 'orders/:id',
                 loadComponent: () => import('./features/orders/pages/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
-                data: { allowedRoles: ['super_admin', 'vendor'] },
+                data: { allowedRoles: ['vendor'] },
+                canActivate: [roleGuard]
+            },
+            {
+                path: 'monitoring',
+                loadComponent: () => import('./features/monitoring/monitoring.component').then(m => m.MonitoringComponent),
+                data: { allowedRoles: ['super_admin'] },
                 canActivate: [roleGuard]
             },
             {
