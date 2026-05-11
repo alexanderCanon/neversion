@@ -1,11 +1,21 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, of, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
 import { AuthResponse } from '@supabase/auth-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
 import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
 import { runtimeConfig } from '../config/runtime-config';
+
+export interface RegisterFormData {
+  name: string;
+  lastname: string;
+  email: string;
+  password: string;
+  phone?: string;
+  checkNewsletter?: boolean;
+  checkCookies?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +26,11 @@ export class AuthService {
   
   private isLoadingSubject = new BehaviorSubject<boolean>(false);
   public isLoading$ = this.isLoadingSubject.asObservable();
+
+  // True while the initial Supabase session check is in-flight.
+  // Guards must wait for this to be false before evaluating auth state.
+  private isRestoringSubject = new BehaviorSubject<boolean>(true);
+  public isRestoring$ = this.isRestoringSubject.asObservable();
 
   constructor(
     private supabaseService: SupabaseService,
@@ -44,7 +59,7 @@ export class AuthService {
     );
   }
 
-  register(userData: any): Observable<AuthResult> {
+  register(userData: RegisterFormData): Observable<AuthResult> {
     this.isLoadingSubject.next(true);
 
     const apiRequest: RegisterClientRequest = {
@@ -70,10 +85,16 @@ export class AuthService {
     );
   }
 
-  logout(): void {
-    this.supabaseService.client.auth.signOut().then(() => {
-      this.currentUserSubject.next(null);
-    });
+  logout(): Observable<void> {
+    return from(this.supabaseService.client.auth.signOut()).pipe(
+      tap(() => this.currentUserSubject.next(null)),
+      map(() => void 0),
+      catchError(() => {
+        // Even if signOut fails remotely, clear local session
+        this.currentUserSubject.next(null);
+        return of(void 0);
+      })
+    );
   }
 
   private handleAuthResponse(response: AuthResponse): AuthResult {
@@ -85,7 +106,8 @@ export class AuthService {
     const mappedUser: User = {
       id: data.user?.id || '',
       email: data.user?.email || '',
-      role: (data.user?.user_metadata?.['role'] as UserRole) || 'client',
+      // app_metadata is server-controlled — cannot be tampered by the client
+      role: (data.user?.app_metadata?.['role'] as UserRole) || 'client',
       name: data.user?.user_metadata?.['name'],
       lastname: data.user?.user_metadata?.['lastname'],
       phone: data.user?.user_metadata?.['phone']
@@ -101,9 +123,13 @@ export class AuthService {
   }
 
   private async restoreSession() {
-    const { data: { session } } = await this.supabaseService.client.auth.getSession();
-    if (session) {
-      this.handleAuthResponse({ data: session, error: null } as any);
+    try {
+      const { data: { session } } = await this.supabaseService.client.auth.getSession();
+      if (session) {
+        this.handleAuthResponse({ data: session, error: null } as any);
+      }
+    } finally {
+      this.isRestoringSubject.next(false);
     }
   }
 

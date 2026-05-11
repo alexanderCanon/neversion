@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, RegisterFormData } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -72,7 +72,7 @@ export class LoginComponent implements OnInit {
 
     this.errorMessage = null;
     this.successMessage = null;
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(this.registerForm.value as RegisterFormData).subscribe({
       next: (result) => {
         if (result.success) {
           this.successMessage = '¡Registro exitoso! Por favor inicia sesión con tus nuevos accesos.';

@@ -16,7 +16,6 @@ import { ComboComponent } from './pages/combo/combo.component';
 import { PlatformsComponent } from './pages/platforms/platforms.component';
 import { GamesComponent } from './pages/games/games.component';
 import { WholesalersComponent } from './pages/wholesalers/wholesalers.component';
-import { AdminComponent } from './pages/admin/admin.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { PaymentPageComponent } from './pages/payment-page/payment-page.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
@@ -41,7 +40,6 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     PlatformsComponent,
     GamesComponent,
     WholesalersComponent,
-    AdminComponent,
     CheckoutComponent,
     PaymentPageComponent,
     PlatformDetailComponent,

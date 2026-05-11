@@ -8,7 +8,6 @@ import { PlatformsComponent } from './pages/platforms/platforms.component';
 import { ComboComponent } from './pages/combo/combo.component';
 import { WholesalersComponent } from './pages/wholesalers/wholesalers.component';
 import { CheckoutComponent } from './pages/checkout/checkout.component';
-import { AdminComponent } from './pages/admin/admin.component';
 import { PlatformDetailComponent } from './pages/platform-detail/platform-detail.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { HowToBuyComponent } from './pages/how-to-buy/how-to-buy.component';
@@ -38,12 +37,6 @@ const routes: Routes = [
     path: 'checkout', 
     component: CheckoutComponent,
     canActivate: [authGuard]
-  },
-  { 
-    path: 'admin', 
-    component: AdminComponent,
-    canActivate: [authGuard, roleGuard],
-    data: { allowedRoles: ['super_admin'] }
   },
   { 
     path: 'customer-panel', 
