@@ -21,11 +21,15 @@ scrape_configs:
     # The /actuator/prometheus endpoint returns metrics in Prometheus
     # text format (counters, gauges, histograms, summaries).
     metrics_path: /actuator/prometheus
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/secrets/scrape_token
 
     # Target is the Docker service name + internal port.
-    # Docker networking resolves 'app' to the panel-app container.
+    # In Dokploy this must be the API service/container name on the shared
+    # private Docker network.
     static_configs:
-      - targets: ["app:8080"]
+      - targets: ["neversion-api-app:8080"]
         labels:
-          application: "neversion-panel"
+          application: "neversion-api"
           environment: "production"

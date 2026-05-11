@@ -56,6 +56,11 @@ services:
     ports:
       - "8080:8080"
 
+    networks:
+      neversion-internal:
+        aliases:
+          - neversion-api
+
     # ── Memory ──────────────────────────────────────────────────
     # JVM -XX:MaxRAMPercentage=75.0 caps heap at ~576MB (75% of 768m).
     # Spring Boot 3 startup (context + Flyway 24 migrations + JIT) needs ~450MB peak.
@@ -75,3 +80,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+networks:
+  neversion-internal:
+    external: true

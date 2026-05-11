@@ -50,6 +50,7 @@ set -eu
 cat > /usr/share/nginx/html/assets/runtime-config.js <<CONFIG
 window.__NEVERSION_CONFIG__ = {
   apiUrl: "${PANEL_API_URL:-}",
+  grafanaUrl: "${GRAFANA_URL:-}",
   supabaseUrl: "${PANEL_SUPABASE_URL:-https://your-project.supabase.co}",
   supabaseKey: "${PANEL_SUPABASE_KEY:-your-anon-key}"
 };

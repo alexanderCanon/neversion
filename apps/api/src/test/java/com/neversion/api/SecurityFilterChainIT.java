@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @SpringBootTest
 @AutoConfigureMockMvc
+@AutoConfigureObservability
 @DisplayName("SecurityFilterChain IT — endpoint protection rules")
 class SecurityFilterChainIT extends BaseIntegrationTest {
 
@@ -106,6 +108,22 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         void actuatorPrometheus_shouldReturn401_withoutToken() throws Exception {
             mockMvc.perform(get("/actuator/prometheus"))
                     .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("GET /actuator/prometheus - should return 401 with invalid scrape token")
+        void actuatorPrometheus_shouldReturn401_withInvalidScrapeToken() throws Exception {
+            mockMvc.perform(get("/actuator/prometheus")
+                    .header("Authorization", "Bearer wrong-token"))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("GET /actuator/prometheus - should return 200 with valid scrape token")
+        void actuatorPrometheus_shouldReturn200_withValidScrapeToken() throws Exception {
+            mockMvc.perform(get("/actuator/prometheus")
+                    .header("Authorization", "Bearer test-prometheus-scrape-token"))
+                    .andExpect(status().isOk());
         }
     }
 

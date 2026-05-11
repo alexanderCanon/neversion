@@ -17,6 +17,8 @@ supabase:
     secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
 
 neversion:
+  monitoring:
+    scrape-token: test-prometheus-scrape-token
   renewal:
     grace-period-days: 2
   cron:

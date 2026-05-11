@@ -92,3 +92,42 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
 }
+
+/* Hover trigger for Cart Dropdown */
+.cart-dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+}
+.cart-dropdown .dropdown-menu {
+  top: 100%;
+  right: 0;
+  left: auto; /* Reset bootstrap default left positioning */
+  margin-top: 10px;
+  transform: translateX(15px); /* Small adjustment to align better without overflow */
+}
+
+/* Container overflow protection */
+@media (max-width: 400px) {
+  .cart-dropdown .dropdown-menu {
+    width: calc(100vw - 40px);
+    right: -20px;
+  }
+}
+
+.cart-dropdown::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: -20px;
+  width: calc(100% + 40px);
+  height: 20px;
+}
+
+/* Custom scrollbar for preview */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,0 +1,48 @@
+services:
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    restart: unless-stopped
+    environment:
+      NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
+      NEVERSION_API_TARGET: ${NEVERSION_API_TARGET:-neversion-api:8080}
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -eu
+        cat > /tmp/prometheus.yml <<EOF
+        global:
+          scrape_interval: 15s
+          evaluation_interval: 15s
+
+        scrape_configs:
+          - job_name: "neversion-api"
+            metrics_path: /actuator/prometheus
+            authorization:
+              type: Bearer
+              credentials: "$${NEVERSION_MONITORING_SCRAPE_TOKEN}"
+            static_configs:
+              - targets: ["$${NEVERSION_API_TARGET}"]
+                labels:
+                  application: "neversion-api"
+                  environment: "production"
+        EOF
+        exec /bin/prometheus \
+          --config.file=/tmp/prometheus.yml \
+          --storage.tsdb.path=/prometheus \
+          --web.enable-lifecycle
+    volumes:
+      - prometheus_data:/prometheus
+    expose:
+      - "9090"
+    networks:
+      neversion-internal:
+        aliases:
+          - prometheus
+
+volumes:
+  prometheus_data:
+
+networks:
+  neversion-internal:
+    external: true

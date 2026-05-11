@@ -1,6 +1,11 @@
-<div class="container py-5 mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Catálogo de Servicios</h2>
+<div class="platforms-page bg-light min-vh-100 pb-5">
+    <!-- Header -->
+    <div class="bg-primary text-white py-5 mb-5 shadow-lg" 
+         style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
+        <div class="container py-5 text-center">
+            <h1 class="display-4 fw-bold mb-3 text-white"><i class="bi bi-grid-3x3-gap me-3"></i>Catálogo de Servicios</h1>
+            <p class="lead opacity-75 fs-4">Explora nuestras plataformas premium con entrega inmediata.</p>
+        </div>
     </div>
 
     <ul class="list-unstyled row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" *ngIf="platforms$ | async as platforms">
@@ -20,24 +25,55 @@
                                 <i class="bi bi-cart-plus"></i>
                             </button>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="small">Cuenta Completa: <strong class="text-dark">Q{{ platform.priceComplete }}</strong></span>
-                            <button (click)="addToCart(platform, 'COMPLETE')" class="btn btn-sm btn-outline-dark py-0 px-2">
-                                <i class="bi bi-cart-plus"></i>
-                            </button>
+                        <div class="card-overlay d-flex align-items-center justify-content-center">
+                            <span class="btn btn-light btn-sm rounded-pill fw-bold shadow-sm px-3">Ver detalles</span>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
-                        <span class="badge bg-secondary-subtle text-secondary">{{ platform.category }}</span>
-                        <span class="small text-muted">{{ platform.durationDays }} días</span>
+
+                    <div class="card-body p-4 pt-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="fw-bold mb-0 text-dark">{{ platform.name }}</h5>
+                            <div class="text-warning small"><i class="bi bi-star-fill"></i> 5.0</div>
+                        </div>
+                        <p class="text-muted small mb-4 line-clamp-2" style="height: 2.5rem;">{{ platform.description }}</p>
+                        
+                        <!-- Pricing Grid -->
+                        <div class="pricing-container bg-light rounded-4 p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Perfil</div>
+                                    <div class="h5 fw-bold text-primary mb-0">Q{{ platform.priceProfile }}</div>
+                                </div>
+                                <button (click)="addToCart(platform, 'PROFILE')" class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center" 
+                                        style="width: 38px; height: 38px; min-width: 38px;">
+                                    <i class="bi bi-cart-plus fs-5"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Completa</div>
+                                    <div class="h5 fw-bold text-dark mb-0">Q{{ platform.priceComplete }}</div>
+                                </div>
+                                <button (click)="addToCart(platform, 'COMPLETE')" class="btn btn-outline-dark rounded-circle d-flex align-items-center justify-content-center" 
+                                        style="width: 38px; height: 38px; min-width: 38px;">
+                                    <i class="bi bi-cart-plus fs-5"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                            <span class="badge border border-dark-subtle text-dark small fw-normal">{{ platform.category }}</span>
+                            <span class="small text-muted fw-bold"><i class="bi bi-clock me-1"></i>{{ platform.durationDays }} días</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </li>
-    </ul>
+        </div>
 
-    <div *ngIf="(platforms$ | async)?.length === 0" class="text-center py-5">
-        <i class="bi bi-inbox fs-1 text-muted"></i>
-        <p class="mt-2 text-muted">No hay servicios disponibles en este momento.</p>
+        <!-- No data state -->
+        <div *ngIf="(platforms$ | async)?.length === 0" class="text-center py-5">
+            <i class="bi bi-inbox text-muted opacity-25 display-1"></i>
+            <p class="mt-3 lead text-muted">No hay servicios disponibles en este momento.</p>
+        </div>
     </div>
 </div>

@@ -24,6 +24,12 @@ export class PlatformsComponent implements OnInit {
 
   addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {
     this._cartService.addToCart(service, type);
+    const planName = type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa';
+    this._toastService.show(`${service.name} (${planName}) añadido al carrito`, 'success', 'Carrito Actualizado');
+  }
+
+  resolveImageUrl(url?: string): string {
+    return this._imageService.resolveServiceImageUrl(url);
   }
 
   resolveImageUrl(url?: string): string {

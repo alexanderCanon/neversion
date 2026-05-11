@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, RegisterFormData } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   
   isLoading$ = this.authService.isLoading$;
   errorMessage: string | null = null;
+  successMessage: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -52,6 +53,7 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.invalid) return;
 
     this.errorMessage = null;
+    this.successMessage = null;
     const { email, password } = this.loginForm.value;
     
     this.authService.login(email, password).subscribe({
@@ -69,11 +71,13 @@ export class LoginComponent implements OnInit {
     if (this.registerForm.invalid) return;
 
     this.errorMessage = null;
-    this.authService.register(this.registerForm.value).subscribe({
+    this.successMessage = null;
+    this.authService.register(this.registerForm.value as RegisterFormData).subscribe({
       next: (result) => {
         if (result.success) {
-          alert('¡Registro exitoso! Por favor verifica tu correo si es necesario.');
-          this.handleRedirect('cliente');
+          this.successMessage = '¡Registro exitoso! Por favor inicia sesión con tus nuevos accesos.';
+          this.isLoginMode = true; // Redirect to login
+          this.registerForm.reset();
         } else {
           this.errorMessage = result.error || 'Error al registrarse.';
         }
@@ -82,14 +86,14 @@ export class LoginComponent implements OnInit {
   }
 
   private handleRedirect(role: string): void {
-    if (role === 'cliente') {
-      // User Story US-014: Clients go to their specific area in store
-      this.router.navigate(['/customer-panel']);
+    if (role === 'client') {
+      this.successMessage = '¡Bienvenido de nuevo!';
+      setTimeout(() => {
+        this.router.navigate(['/customer-panel']);
+      }, 1500);
     } else {
-      // Vendedores or admins might log in here by mistake, or maybe it's allowed.
-      // We could redirect to the panel app (external URL) or just '/'
       alert('Bienvenido. Redirigiendo al Panel de Administración...');
-      window.location.href = '/panel'; // Assuming /panel is the base path or handled by proxy
+      window.location.href = '/panel';
     }
   }
 }

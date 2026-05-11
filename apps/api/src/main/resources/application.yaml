@@ -33,6 +33,8 @@ cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
 
 neversion:
+  monitoring:
+    scrape-token: ${NEVERSION_MONITORING_SCRAPE_TOKEN:}
   renewal:
     grace-period-days: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:2}
   cron:

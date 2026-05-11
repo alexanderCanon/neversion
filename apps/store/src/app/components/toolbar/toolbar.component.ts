@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { User } from '@neversion/models';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,12 +17,22 @@ export class ToolbarComponent {
   private readonly router = inject(Router);
 
   currentUser$: Observable<User | null> = this.authService.currentUser$;
+  cartItems$: Observable<CartItem[]> = this.cartService.items$;
   cartItemCount$: Observable<number> = this.cartService.items$.pipe(
     map(items => items.reduce((acc, item) => acc + item.quantity, 0))
   );
 
   logout(): void {
-    this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
+  }
+
+  getTotal(): number {
+    return this.cartService.getTotal();
+  }
+
+  removeItem(item: CartItem): void {
+    this.cartService.removeFromCart(item.service.id!, item.type);
   }
 }

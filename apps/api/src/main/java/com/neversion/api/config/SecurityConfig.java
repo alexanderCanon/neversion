@@ -6,9 +6,11 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -38,12 +40,18 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     private final SupabaseJwtAuthConverter supabaseJwtAuthConverter;
+    private final MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver;
+    private final MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter;
     private final List<HttpSecurityCustomizer> securityCustomizers;
 
     public SecurityConfig(
             SupabaseJwtAuthConverter supabaseJwtAuthConverter,
+            MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver,
+            MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter,
             List<HttpSecurityCustomizer> securityCustomizers) {
         this.supabaseJwtAuthConverter = supabaseJwtAuthConverter;
+        this.monitoringAwareBearerTokenResolver = monitoringAwareBearerTokenResolver;
+        this.monitoringScrapeTokenAuthenticationFilter = monitoringScrapeTokenAuthenticationFilter;
         this.securityCustomizers = securityCustomizers;
     }
 
@@ -68,7 +76,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/actuator/prometheus").access((authentication, context) -> {
+                    boolean granted = authentication.get().getAuthorities().stream()
+                            .anyMatch(authority -> "ROLE_SUPER_ADMIN".equals(authority.getAuthority())
+                                    || MonitoringScrapeTokenAuthenticationFilter.SCRAPER_ROLE.equals(authority.getAuthority()));
+                    return new AuthorizationDecision(granted);
+                })
                 .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN"));
+
+        http.addFilterBefore(monitoringScrapeTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
 
         // -- Delegate per-feature RBAC rules --
         for (HttpSecurityCustomizer customizer : securityCustomizers) {
@@ -80,6 +96,7 @@ public class SecurityConfig {
 
         // -- OAuth2 Resource Server: validate JWTs with our custom converter --
         http.oauth2ResourceServer(oauth2 -> oauth2
+                .bearerTokenResolver(monitoringAwareBearerTokenResolver)
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(supabaseJwtAuthConverter)));
