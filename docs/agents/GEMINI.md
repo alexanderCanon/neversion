@@ -25,8 +25,8 @@ git checkout -b feature/panel
 Build and maintain the vendor and super admin panel interface.
 This includes all screens that a Vendedor or Super Admin interacts with.
 
-### Mandatory Logging
-Register every change and progress in `/docs/implementation/panel-construction.md`.
+### Documentation
+Do not update bitácoras or documentation during normal panel work unless Alex explicitly asks for documentation changes.
 
 ### Module work order
 Work strictly in this order, one at a time:
@@ -67,8 +67,8 @@ git checkout -b feature/store
 Build and maintain the client store and client panel interface.
 This includes all screens that a Cliente interacts with.
 
-### Mandatory Logging
-Register every change and progress in `/docs/implementation/store-construction.md`.
+### Documentation
+Do not update bitácoras or documentation during normal store work unless Alex explicitly asks for documentation changes.
 
 ### Module work order
 Work strictly in this order, one at a time:

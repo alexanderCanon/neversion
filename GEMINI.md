@@ -28,7 +28,7 @@ Welcome to the **Neversion** repository. This file serves as the primary instruc
 ├── docs/             # Comprehensive documentation (Spanish)
 │   ├── agents/       # Agent-specific protocols (CRITICAL)
 │   ├── domain/       # Ubiquitous language and business rules
-│   └── implementation/# Progress logs (Bitácoras)
+│   └── implementation/# Historical implementation logs
 ├── infra/            # Docker and deployment configurations
 └── Makefile          # Root command hub
 ```
@@ -45,8 +45,7 @@ Before performing any task, you **MUST** read the relevant protocol in `docs/age
 ### Mandatory Rules for Agents
 - **Isolation:** Work only in your assigned app directory. Do not modify other apps.
 - **API-First:** Frontend agents must consume the API and never access the database.
-- **Logging:** Every change must be recorded in the implementation logs (bitácoras) in `docs/implementation/`.
-- **Diagrams:** At the end of an EPIC/US, create or update Mermaid diagrams in `docs/diagrams/` for visual tracking.
+- **Documentation:** Do not update bitácoras, implementation logs, or Mermaid diagrams unless Alex explicitly asks for documentation changes.
 - **Language:** Code and comments in **English**; UI labels and user messages in **Spanish**.
 - **Zero Guesswork:** If a requirement is unclear, stop and report a **BLOCKER** as defined in `AGENTS.md`.
 
@@ -78,7 +77,7 @@ Before performing any task, you **MUST** read the relevant protocol in `docs/age
 
 ## Development Workflow
 1.  **Research:** Read the documentation in `docs/` (Domain, Epics, Stories).
-2.  **Plan:** Create a strategy and update the implementation bitácora.
+2.  **Plan:** Create a strategy for the requested change.
 3.  **Implement:** Write surgical, idiomatic code.
 4.  **Validate:** Run tests and linting. A module is only done when tests are green.
 5.  **Sync:** If the API changed, run `pnpm api:sync` to update the frontend client.

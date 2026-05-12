@@ -50,7 +50,7 @@ docs/
   domain/           # Ubiquitous language, business rules (Spanish)
   architecture/     # ADRs, ER diagram, NFRs
   backlog/          # Epics + per-epic story files
-  implementation/   # Bitácoras — cross-session progress logs (critical memory)
+  implementation/   # Historical implementation logs (read-only for agents)
 ```
 
 ---
@@ -82,7 +82,7 @@ docs/
 - Work exclusively within your assigned directory.
 - Backend agent: `apps/api` only — never touch `apps/panel` or `apps/store`.
 - Frontend agent: `apps/panel` and/or `apps/store` only — never touch `apps/api` or the database.
-- `/docs` is read-only **except** for `/docs/implementation/` (bitácoras).
+- `/docs` is read-only for agents unless Alex explicitly asks for documentation changes.
 
 ### Surgical Execution
 - Every task is scoped to the minimum necessary change.
@@ -94,16 +94,10 @@ docs/
 - UI labels, placeholders, user-facing messages: **Spanish**
 - Domain terminology: must match `/docs/domain/ubiquitous-language.md` exactly
 
-### Update the Bitácoras
-After every completed module, append an entry to the relevant progress log:
-
-| Log | Path |
-|-----|------|
-| Backend | `docs/implementation/backend-construction.md` |
-| Panel UI | `docs/implementation/panel-construction.md` |
-| Store UI | `docs/implementation/store-construction.md` |
-
-The bitácoras are the single source of truth for project state across sessions. If it is not logged, it did not happen. After every completed EPIC/US, agents must also create or update Mermaid diagrams in `/docs/diagrams/` to maintain visual control.
+### Documentation Updates
+- Agents must **not** update bitácoras or Mermaid diagrams as part of normal implementation work.
+- Treat `docs/implementation/*.md` as historical reference only.
+- Only modify documentation when Alex explicitly requests documentation changes.
 
 ---
 

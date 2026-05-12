@@ -18,7 +18,6 @@ permissions:
   packages: write
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository }}/store
   DEPLOY_DIR: /opt/neversion/store
 
 jobs:
@@ -39,6 +38,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image name
+        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/store" >> "$GITHUB_ENV"
 
       - name: Build and push image
         uses: docker/build-push-action@v6

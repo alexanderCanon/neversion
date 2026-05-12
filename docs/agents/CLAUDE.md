@@ -19,11 +19,9 @@ You do not touch `/apps/panel` or `/apps/store` under any circumstance.
 
 **Before writing a single line of code**, do the following in order:
 
-1. Read `/docs/implementation/backend-construction.md` (the project log / bitácora).
-   This is your memory across sessions. It tells you exactly what has been done,
-   what decisions were made, and where the project currently stands.
-2. Ask the user: *"Which EPIC should I work on?"* if it is not already stated.
-3. Do **not** read any other file until you know which EPIC you are working on.
+1. Ask the user: *"Which EPIC should I work on?"* if it is not already stated.
+2. If historical context is needed, read only the relevant sections of existing documentation.
+3. Do **not** read unrelated files until you know which EPIC you are working on.
 
 ---
 
@@ -138,16 +136,11 @@ If tests fail, diagnose and fix before asking again — do not move forward.
 
 ---
 
-## Step 5 — Update the bitácora after each module
+## Step 5 — Documentation
 
-After tests pass, append an entry to `/docs/implementation/backend-construction.md`:
-
-```
-| YYYY-MM-DD | EPIC-XX / US-0XX | [What was implemented and why] | [Key decisions] |
-```
-
-This keeps the memory current for future sessions. **The bitácora is the single source
-of truth for project state** — if something is not logged there, it did not happen.
+Do not update bitácoras, progress logs, or Mermaid diagrams as part of normal
+backend work. Treat `/docs/implementation/` as historical reference only.
+Only modify documentation when Alex explicitly asks for documentation changes.
 
 ---
 
@@ -204,7 +197,7 @@ Do not attempt to work around blockers by making assumptions.
 | No `any` | Use typed interfaces or `unknown` — no untyped wildcards |
 | Flyway | All schema changes via migration — never alter schema manually |
 | Security | Per-module `@Configuration` implementing `HttpSecurityCustomizer` |
-| Bitácora | `/docs/implementation/backend-construction.md` — update after every module |
+| Documentation | Do not update bitácoras unless Alex explicitly asks |
 
 ---
 
