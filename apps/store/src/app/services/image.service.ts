@@ -11,20 +11,26 @@ export class ImageService {
   /**
    * Resolves a service image URL.
    * If the URL is empty, returns the default placeholder.
-   * If the URL starts with 'http', returns it as is.
+   * If the URL is HTTPS, returns it as is.
    * Otherwise, assumes it's a path within the Supabase 'services' bucket.
    */
   resolveServiceImageUrl(url?: string): string {
-    if (!url || url.trim() === '') {
+    const value = url?.trim();
+
+    if (!value) {
       return this.PLACEHOLDER;
     }
 
-    if (url.startsWith('http')) {
-      return url;
+    if (value.startsWith('https://')) {
+      return value;
+    }
+
+    if (value.startsWith('http://') || value.startsWith('//') || value.includes(':')) {
+      return this.PLACEHOLDER;
     }
 
     // Resolve as Supabase Storage Public URL
     // Format: https://[project-id].supabase.co/storage/v1/object/public/[bucket]/[path]
-    return `${runtimeConfig.supabaseUrl}/storage/v1/object/public/${this.STORAGE_BUCKET}/${url}`;
+    return `${runtimeConfig.supabaseUrl}/storage/v1/object/public/${this.STORAGE_BUCKET}/${value}`;
   }
 }

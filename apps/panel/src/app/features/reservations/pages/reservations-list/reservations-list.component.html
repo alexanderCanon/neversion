@@ -110,7 +110,7 @@
                   <td class="text-end pe-4">
                     <div class="d-flex justify-content-end gap-2">
                         @if (reserv.receiptUrl) {
-                            <a [href]="reserv.receiptUrl" target="_blank" class="btn-action-sm view" title="Ver Comprobante">
+                            <a [href]="reserv.receiptUrl" target="_blank" rel="noopener noreferrer" class="btn-action-sm view" title="Ver Comprobante">
                                 <i class="bi bi-file-earmark-image"></i>
                             </a>
                         }
@@ -161,4 +161,3 @@
     }
   </div>
 </div>
-
