@@ -22,7 +22,7 @@ docs/
   domain/     # Ubiquitous language, business rules, use cases (Spanish)
   architecture/ # ADRs, ER diagram, NFRs
   backlog/    # Epics + per-epic story files
-  implementation/ # Bitácoras (progress logs — critical cross-session memory)
+  implementation/ # Historical implementation logs
 ```
 
 ## Commands
@@ -130,14 +130,14 @@ Before working on any feature, read these files:
 
 | File | Purpose |
 |------|---------|
-| `docs/implementation/backend-construction.md` | Backend progress log — the authoritative record of what is done |
-| `docs/implementation/panel-construction.md` | Panel UI progress log |
-| `docs/implementation/store-construction.md` | Store UI progress log |
+| `docs/implementation/backend-construction.md` | Backend historical implementation log |
+| `docs/implementation/panel-construction.md` | Panel UI historical implementation log |
+| `docs/implementation/store-construction.md` | Store UI historical implementation log |
 | `docs/backlog/stories/EPIC-XX-<name>.md` | User stories for the active EPIC |
 | `docs/domain/ubiquitous-language.md` | Canonical Spanish/English business terminology |
 | `docs/architecture/decisions.md` | ADRs 1–10 |
 
-**The bitácoras are cross-session memory.** Update them after every completed module. At the end of an EPIC/US, also create or update Mermaid diagrams in `/docs/diagrams/` for visual tracking.
+Treat bitácoras as read-only historical reference. Do not update implementation logs or Mermaid diagrams unless Alex explicitly asks for documentation changes.
 
 ## EPIC Status
 
