@@ -1,0 +1,90 @@
+name: Deploy Store VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/store/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'apps/store/deploy/vps/**'
+      - '.github/workflows/deploy-store-vps.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository }}/store
+  DEPLOY_DIR: /opt/neversion/store
+
+jobs:
+  build-and-deploy:
+    name: Build image and deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/store/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.IMAGE_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Prepare SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.STORE_VPS_SSH_KEY }}" > ~/.ssh/store_vps_key
+          chmod 600 ~/.ssh/store_vps_key
+          ssh-keyscan -H "${{ secrets.STORE_VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Copy deployment files
+        run: |
+          ssh -i ~/.ssh/store_vps_key "${{ secrets.STORE_VPS_USER }}@${{ secrets.STORE_VPS_HOST }}" "mkdir -p '${{ env.DEPLOY_DIR }}'"
+          scp -i ~/.ssh/store_vps_key apps/store/deploy/vps/compose.yml apps/store/deploy/vps/Caddyfile "${{ secrets.STORE_VPS_USER }}@${{ secrets.STORE_VPS_HOST }}:${{ env.DEPLOY_DIR }}/"
+
+      - name: Write environment file
+        run: |
+          : > store.env
+          printf 'STORE_DOMAIN=%s\n' "$STORE_DOMAIN" >> store.env
+          printf 'CADDY_EMAIL=%s\n' "$CADDY_EMAIL" >> store.env
+          printf 'STORE_IMAGE=%s\n' "$STORE_IMAGE" >> store.env
+          printf 'STORE_API_URL=%s\n' "$STORE_API_URL" >> store.env
+          printf 'STORE_SUPABASE_URL=%s\n' "$STORE_SUPABASE_URL" >> store.env
+          printf 'STORE_SUPABASE_KEY=%s\n' "$STORE_SUPABASE_KEY" >> store.env
+          printf 'STORE_VENDOR_UUID=%s\n' "$STORE_VENDOR_UUID" >> store.env
+          scp -i ~/.ssh/store_vps_key store.env "${{ secrets.STORE_VPS_USER }}@${{ secrets.STORE_VPS_HOST }}:${{ env.DEPLOY_DIR }}/.env"
+          ssh -i ~/.ssh/store_vps_key "${{ secrets.STORE_VPS_USER }}@${{ secrets.STORE_VPS_HOST }}" "chmod 600 '${{ env.DEPLOY_DIR }}/.env'"
+        env:
+          STORE_DOMAIN: ${{ secrets.STORE_DOMAIN }}
+          CADDY_EMAIL: ${{ secrets.CADDY_EMAIL }}
+          STORE_IMAGE: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          STORE_API_URL: ${{ secrets.STORE_API_URL }}
+          STORE_SUPABASE_URL: ${{ secrets.STORE_SUPABASE_URL }}
+          STORE_SUPABASE_KEY: ${{ secrets.STORE_SUPABASE_KEY }}
+          STORE_VENDOR_UUID: ${{ secrets.STORE_VENDOR_UUID }}
+
+      - name: Deploy
+        run: |
+          ssh -i ~/.ssh/store_vps_key "${{ secrets.STORE_VPS_USER }}@${{ secrets.STORE_VPS_HOST }}" "cd '${{ env.DEPLOY_DIR }}' && echo '${{ secrets.GITHUB_TOKEN }}' | docker login ghcr.io -u '${{ github.actor }}' --password-stdin && docker compose pull && docker compose up -d --remove-orphans && docker image prune -f"
