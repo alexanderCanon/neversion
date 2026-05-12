@@ -1,0 +1,74 @@
+services:
+  alloy:
+    image: grafana/alloy:v1.6.1
+    restart: unless-stopped
+    environment:
+      NEVERSION_API_TARGET: ${NEVERSION_API_TARGET:-neversion-api:8080}
+      NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
+      GRAFANA_CLOUD_REMOTE_WRITE_URL: ${GRAFANA_CLOUD_REMOTE_WRITE_URL}
+      GRAFANA_CLOUD_PROMETHEUS_USERNAME: ${GRAFANA_CLOUD_PROMETHEUS_USERNAME}
+      GRAFANA_CLOUD_API_KEY: ${GRAFANA_CLOUD_API_KEY}
+    entrypoint:
+      - /bin/sh
+      - -c
+    command:
+      - |
+        set -eu
+        cat > /tmp/config.alloy <<'EOF'
+        logging {
+          level  = "info"
+          format = "logfmt"
+        }
+
+        prometheus.scrape "neversion_api" {
+          targets = [{
+            __address__ = sys.env("NEVERSION_API_TARGET"),
+            job         = "neversion-api",
+            application = "neversion-api",
+            environment = "production",
+          }]
+
+          metrics_path    = "/actuator/prometheus"
+          scrape_interval = "30s"
+
+          authorization {
+            type        = "Bearer"
+            credentials = sys.env("NEVERSION_MONITORING_SCRAPE_TOKEN")
+          }
+
+          forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+        }
+
+        prometheus.remote_write "grafana_cloud" {
+          endpoint {
+            url = sys.env("GRAFANA_CLOUD_REMOTE_WRITE_URL")
+
+            basic_auth {
+              username = sys.env("GRAFANA_CLOUD_PROMETHEUS_USERNAME")
+              password = sys.env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+        }
+        EOF
+
+        exec /bin/alloy run \
+          --server.http.listen-addr=0.0.0.0:12345 \
+          --storage.path=/var/lib/alloy/data \
+          /tmp/config.alloy
+    volumes:
+      - alloy_data:/var/lib/alloy/data
+    expose:
+      - "12345"
+    networks:
+      - neversion-internal
+    deploy:
+      resources:
+        limits:
+          memory: 192m
+
+volumes:
+  alloy_data:
+
+networks:
+  neversion-internal:
+    external: true
