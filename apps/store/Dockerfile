@@ -28,7 +28,7 @@ RUN pnpm run build:ssr
 # Use pnpm deploy to isolate the production bundle and its dependencies.
 # This eliminates the need to copy the entire monorepo node_modules.
 WORKDIR /workspace
-RUN pnpm deploy --filter=neversion-site --prod /prod/store
+RUN pnpm deploy --filter=neversion-site --prod --legacy /prod/store
 
 # ══════════════════════════════════════════════════════════════════
 # Stage 2: RUN — Node.js serves the SSR app.
