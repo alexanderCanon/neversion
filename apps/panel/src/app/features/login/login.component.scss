@@ -1,52 +1,143 @@
-.login-wrapper {
+.login-shell {
     min-height: 100vh;
-    background-color: var(--primary-color);
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(420px, 0.9fr);
+    background: #f8fafc;
+}
+
+.brand-panel {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #111b2d, #0f172a);
+    color: #fff;
+}
+
+.brand-content {
+    width: min(100%, 760px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    padding: clamp(2rem, 5vw, 4.5rem);
+}
+
+.brand-logo {
+    width: 88px;
+    height: 88px;
+    border-radius: 18px;
+}
+
+.eyebrow {
+    margin-bottom: 1rem;
+    color: #cbd5e1;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.brand-copy h1 {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(2.35rem, 5vw, 4.4rem);
+    line-height: 1.03;
+}
+
+.brand-description {
+    max-width: 560px;
+    margin: 1.35rem 0 0;
+    color: #dbe4ef;
+    font-size: 1.08rem;
+    line-height: 1.7;
+}
+
+.login-panel {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    padding: clamp(1.25rem, 4vw, 3.5rem);
 }
 
 .login-card {
-    background: white;
-    width: 100%;
-    max-width: 420px;
-    border-radius: 6px;
-    padding: 2.5rem;
+    width: min(100%, 440px);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.1);
 }
 
-.login-header {
-    text-align: center;
+:host ::ng-deep .login-header {
     margin-bottom: 2rem;
+    text-align: left;
+}
 
-    h2 {
-        margin-bottom: 0.5rem;
-        color: var(--dark-text-color);
-        font-weight: 600;
+:host ::ng-deep .login-header h2 {
+    margin-bottom: 0.5rem;
+    color: var(--color-text-primary);
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+:host ::ng-deep .login-header p {
+    max-width: 32rem;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+:host ::ng-deep .form-control {
+    min-height: 3rem;
+    border-radius: 8px;
+}
+
+:host ::ng-deep .form-control:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(29, 78, 216, 0.12);
+}
+
+:host ::ng-deep .alert-danger {
+    border-radius: 8px;
+    background: #fff1f2;
+    color: #9f1239;
+}
+
+:host ::ng-deep .login-btn {
+    min-height: 3rem;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+@media (max-width: 960px) {
+    .login-shell {
+        grid-template-columns: 1fr;
     }
 
-    p {
-        margin: 0;
-        color: #6c757d;
-        font-size: 0.9rem;
+    .brand-panel {
+        min-height: auto;
     }
 }
 
-/* Personalización Bootstrap */
+@media (max-width: 640px) {
+    .brand-content {
+        padding: 1.25rem;
+    }
 
-.form-control:focus {
-    border-color: var(--darkest-primary-color);
-    box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color) 25%, transparent);
-}
+    .brand-logo {
+        width: 64px;
+        height: 64px;
+        border-radius: 14px;
+    }
 
-.login-btn {
-    background-color: var(--primary-color);
-    border: none;
-    color: var(--light-text-color);
-    font-weight: 500;
-    padding: 0.65rem;
+    .login-panel {
+        padding: 1.25rem;
+        background: #fff;
+    }
 
-    &:hover {
-        background-color: var(--darkest-primary-color);
+    .login-card {
+        padding: 0;
+        border: 0;
+        box-shadow: none;
     }
 }

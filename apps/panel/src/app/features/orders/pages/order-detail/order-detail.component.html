@@ -226,7 +226,7 @@
                             <div class="receipt-preview-container shadow-sm border rounded-4 bg-white p-2 mb-3">
                                 <img [src]="order()!.receiptUrl" class="img-fluid rounded-3" style="max-height: 400px;" alt="Comprobante">
                             </div>
-                            <a [href]="order()!.receiptUrl" target="_blank" class="btn btn-white border shadow-sm w-100 fw-bold">
+                            <a [href]="order()!.receiptUrl" target="_blank" rel="noopener noreferrer" class="btn btn-white border shadow-sm w-100 fw-bold">
                                 <i class="bi bi-zoom-in me-2"></i> Ver Comprobante
                             </a>
                         </div>
@@ -236,4 +236,3 @@
         </div>
     }
 </div>
-

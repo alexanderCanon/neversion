@@ -133,13 +133,10 @@ export class ProfileListComponent {
     };
 
     this.profileService.updateProfile(this.selectedProfileId, request).subscribe({
-      next: (updatedProfile) => {
-        const index = this.profiles.findIndex(p => p.id === this.selectedProfileId);
-        if (index !== -1) {
-          this.profiles[index] = updatedProfile;
-        }
+      next: () => {
         this.toastService.success('Perfil actualizado exitosamente');
         this.closeEditModal();
+        this.profilesChanged.emit();
       },
       error: () => this.isSubmitting = false,
       complete: () => this.isSubmitting = false

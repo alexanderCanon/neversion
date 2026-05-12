@@ -11,4 +11,7 @@ services:
       STORE_VENDOR_UUID: ${STORE_VENDOR_UUID}
     expose:
       - "4000"
-
+    deploy:
+      resources:
+        limits:
+          memory: 512m
