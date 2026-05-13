@@ -28,7 +28,7 @@
           </div>
 
           <div class="mb-3">
-            <label for="email" class="form-label small fw-medium text-muted">Correo electrónico <span class="text-danger">*</span></label>
+            <label for="email" class="form-label small fw-medium text-muted">Correo electrónico</label>
             <input
               type="email"
               class="form-control form-control-modern"
@@ -37,13 +37,13 @@
               [readonly]="mode === 'EDIT'"
               placeholder="correo@ejemplo.com"
             />
-            @if (clientForm.get('email')?.errors?.['required'] && clientForm.get('email')?.touched) {
-              <div class="text-danger x-small mt-1">El correo electrónico es requerido</div>
+            @if (clientForm.get('email')?.errors?.['email'] && clientForm.get('email')?.touched) {
+              <div class="text-danger x-small mt-1">Ingresa un correo electrónico válido</div>
             }
           </div>
 
           <div class="mb-0">
-            <label for="phone" class="form-label small fw-medium text-muted">Teléfono / WhatsApp</label>
+            <label for="phone" class="form-label small fw-medium text-muted">Teléfono / WhatsApp <span class="text-danger">*</span></label>
             <div class="input-group">
                 <span class="input-group-text bg-white border-end-0 text-success"><i class="bi bi-whatsapp"></i></span>
                 <input
@@ -54,6 +54,9 @@
                   placeholder="44123456"
                 />
             </div>
+            @if (clientForm.get('phone')?.errors?.['required'] && clientForm.get('phone')?.touched) {
+              <div class="text-danger x-small mt-1">El teléfono es requerido</div>
+            }
           </div>
         </div>
 

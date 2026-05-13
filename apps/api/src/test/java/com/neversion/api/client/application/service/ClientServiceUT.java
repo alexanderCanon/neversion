@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -460,10 +462,14 @@ class ClientServiceUT {
         void createForVendor_validRequest_shouldCreate() {
             // Given
             mockOwnershipResolution();
-            Client newClient = Client.builder().name("Ana López").email("ana@test.com").build();
+            Client newClient = Client.builder()
+                    .name("Ana López")
+                    .email("ana@test.com")
+                    .phone("+502 5555-1111")
+                    .build();
             Client savedClient = Client.builder()
                     .id(2L).uuid(UUID.randomUUID()).vendorId(VENDOR_INTERNAL_ID)
-                    .name("Ana López").email("ana@test.com").build();
+                    .name("Ana López").email("ana@test.com").phone("50255551111").build();
 
             when(clientRepositoryPort.findByEmail("ana@test.com")).thenReturn(Optional.empty());
             when(clientRepositoryPort.save(any(Client.class))).thenReturn(savedClient);
@@ -474,19 +480,62 @@ class ClientServiceUT {
             // Then
             assertThat(result.getVendorId()).isEqualTo(VENDOR_INTERNAL_ID);
             assertThat(result.getEmail()).isEqualTo("ana@test.com");
+            assertThat(result.getPhone()).isEqualTo("50255551111");
             verify(notificationLogPort).record(eq("CLIENT_WELCOME"), eq("ana@test.com"), anyString(),
                     eq("client"), any(), eq("welcome"));
+        }
+
+        @Test
+        @DisplayName("should create client without email and skip welcome notification")
+        void createForVendor_withoutEmail_shouldCreateAndSkipNotification() {
+            // Given
+            mockOwnershipResolution();
+            Client newClient = Client.builder().name("Ana López").phone("55551111").build();
+            Client savedClient = Client.builder()
+                    .id(2L).uuid(UUID.randomUUID()).vendorId(VENDOR_INTERNAL_ID)
+                    .name("Ana López").phone("55551111").build();
+            when(clientRepositoryPort.save(any(Client.class))).thenReturn(savedClient);
+
+            // When
+            Client result = clientService.createForVendor(newClient, EXTERNAL_ID);
+
+            // Then
+            assertThat(result.getEmail()).isNull();
+            assertThat(result.getPhone()).isEqualTo("55551111");
+            verify(clientRepositoryPort, never()).findByEmail(anyString());
+            verifyNoInteractions(notificationLogPort);
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when phone already exists for vendor")
+        void createForVendor_duplicatePhone_shouldThrow400() {
+            // Given
+            mockOwnershipResolution();
+            when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_INTERNAL_ID, "55551111"))
+                    .thenReturn(Optional.of(buildClient()));
+
+            Client newClient = Client.builder().name("Otro").phone("5555-1111").build();
+
+            // When / Then
+            assertThatThrownBy(() -> clientService.createForVendor(newClient, EXTERNAL_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("55551111");
         }
 
         @Test
         @DisplayName("should throw IllegalArgumentException when email already exists")
         void createForVendor_duplicateEmail_shouldThrow400() {
             // Given
+            mockOwnershipResolution();
             Client existing = buildClient();
             when(clientRepositoryPort.findByEmail("juan@gmail.com"))
                     .thenReturn(Optional.of(existing));
 
-            Client newClient = Client.builder().name("Otro").email("juan@gmail.com").build();
+            Client newClient = Client.builder()
+                    .name("Otro")
+                    .email("juan@gmail.com")
+                    .phone("55551111")
+                    .build();
 
             // When / Then
             assertThatThrownBy(() -> clientService.createForVendor(newClient, EXTERNAL_ID))
