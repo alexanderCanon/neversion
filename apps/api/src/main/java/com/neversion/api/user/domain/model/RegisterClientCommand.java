@@ -10,7 +10,7 @@ import java.util.UUID;
  * @param email      Client's email address (used for Supabase Auth and notifications).
  * @param password   Client's chosen password.
  * @param name       Client's display name.
- * @param phone      Optional phone number — primary WhatsApp contact channel.
+ * @param phone      Required phone number — links existing manual clients within a vendor.
  * @param vendorUuid UUID of the vendor (store) the client is registering with (ADR-02).
  */
 public record RegisterClientCommand(

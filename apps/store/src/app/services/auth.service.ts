@@ -12,7 +12,7 @@ export interface RegisterFormData {
   lastname: string;
   email: string;
   password: string;
-  phone?: string;
+  phone: string;
   checkNewsletter?: boolean;
   checkCookies?: boolean;
 }

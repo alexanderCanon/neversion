@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Flow (Backend-Driven Auth):
  * <ol>
  *   <li>Resolves the vendor by UUID (multi-tenancy: ADR-02).</li>
+ *   <li>Links an existing manual client when the vendor-scoped phone matches.</li>
  *   <li>Service creates the Supabase Auth account directly with the CLIENT role.</li>
  *   <li>Receives the Supabase UUID as {@code externalId}.</li>
  *   <li>This service persists the internal User and Client records using that externalId.</li>
@@ -58,8 +59,30 @@ public class RegisterClientService implements RegisterClientUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Vendor not found: " + command.vendorUuid()));
 
+        String normalizedPhone = normalizePhone(command.phone());
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+        String normalizedEmail = normalizeEmail(command.email());
+
+        Client existingClient = clientRepositoryPort.findByVendorIdAndPhone(vendor.getId(), normalizedPhone)
+                .orElse(null);
+        if (existingClient != null && existingClient.getUserId() != null) {
+            throw new IllegalArgumentException("Phone already linked to an authenticated client");
+        }
+        if (existingClient != null
+                && hasText(existingClient.getEmail())
+                && !existingClient.getEmail().equalsIgnoreCase(normalizedEmail)) {
+            throw new IllegalArgumentException("Phone belongs to a client with a different email");
+        }
+        if (existingClient == null) {
+            clientRepositoryPort.findByEmail(normalizedEmail).ifPresent(client -> {
+                throw new IllegalArgumentException("Email already registered: " + normalizedEmail);
+            });
+        }
+
         // Step 2 — Create Supabase Auth user securely and get the externalId
-        String externalId = supabaseAuthPort.createUser(command.email(), command.password(), UserRole.CLIENT);
+        String externalId = supabaseAuthPort.createUser(normalizedEmail, command.password(), UserRole.CLIENT);
 
         // Step 3 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(
@@ -68,27 +91,47 @@ public class RegisterClientService implements RegisterClientUseCase {
                         .role(UserRole.CLIENT)
                         .build());
 
-        // Step 3 — Persist the client record linked to user and vendor
-        Client client = clientRepositoryPort.save(
-                Client.builder()
-                        .userId(user.getId())
-                        .vendorId(vendor.getId())
-                        .name(command.name())
-                        .email(command.email())
-                        .phone(command.phone())
-                        .build());
+        Client client;
+        if (existingClient != null) {
+            existingClient.setUserId(user.getId());
+            existingClient.setName(command.name());
+            existingClient.setEmail(normalizedEmail);
+            existingClient.setPhone(normalizedPhone);
+            client = clientRepositoryPort.save(existingClient);
+        } else {
+            client = clientRepositoryPort.save(
+                    Client.builder()
+                            .userId(user.getId())
+                            .vendorId(vendor.getId())
+                            .name(command.name())
+                            .email(normalizedEmail)
+                            .phone(normalizedPhone)
+                            .build());
+        }
 
         // Step 5 — Record notification event for Agent Notifications (NFR-05)
         String payload = String.format(
                 "{\"email\":\"%s\",\"name\":\"%s\",\"externalId\":\"%s\"}",
-                command.email(), command.name(), externalId);
-        notificationLogPort.record("CLIENT_REGISTRATION", command.email(), payload,
+                normalizedEmail, command.name(), externalId);
+        notificationLogPort.record("CLIENT_REGISTRATION", normalizedEmail, payload,
                 "client", client.getId(), "welcome");
 
         return new RegisterClientResult(
                 user.getUuid(),
                 client.getUuid(),
                 client.getName(),
-                command.email());
+                normalizedEmail);
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private String normalizeEmail(String email) {
+        return hasText(email) ? email.trim().toLowerCase() : null;
+    }
+
+    private String normalizePhone(String phone) {
+        return phone == null ? "" : phone.replaceAll("\\D", "");
     }
 }

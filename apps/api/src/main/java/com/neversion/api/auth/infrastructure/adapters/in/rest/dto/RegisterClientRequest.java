@@ -32,7 +32,8 @@ public record RegisterClientRequest(
         @Schema(description = "Client's display name", example = "Juan Pérez")
         String name,
 
-        @Schema(description = "Optional phone number — primary WhatsApp contact", example = "+502 5555-1234")
+        @NotBlank(message = "Phone is required")
+        @Schema(description = "Required phone number — used to link existing manual clients", example = "+502 5555-1234")
         String phone,
 
         @NotNull(message = "Vendor UUID is required")

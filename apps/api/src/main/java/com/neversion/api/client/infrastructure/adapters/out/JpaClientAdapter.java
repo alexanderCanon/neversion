@@ -101,6 +101,19 @@ public class JpaClientAdapter implements ClientRepositoryPort {
     }
 
     @Override
+    public Optional<Client> findByVendorIdAndPhone(Long vendorId, String phone) {
+        if (vendorId == null || !hasText(phone)) {
+            return Optional.empty();
+        }
+
+        String normalizedPhone = normalizePhone(phone);
+        return clientRepo.findByVendorId(vendorId).stream()
+                .map(clientMapper::toDomain)
+                .filter(client -> normalizedPhone.equals(normalizePhone(client.getPhone())))
+                .findFirst();
+    }
+
+    @Override
     public Optional<Client> findByUserId(Long userId) {
         return clientRepo.findByUserId(userId).map(clientMapper::toDomain);
     }
@@ -129,5 +142,12 @@ public class JpaClientAdapter implements ClientRepositoryPort {
     @Override
     public void deleteById(UUID uuid) {
         clientRepo.findByUuid(uuid).ifPresent(e -> clientRepo.deleteById(e.getId()));
+    }
+
+    private String normalizePhone(String phone) {
+        if (phone == null) {
+            return "";
+        }
+        return phone.replaceAll("\\D", "");
     }
 }

@@ -1,14 +1,14 @@
 export interface ClientRequest {
   name: string;
-  email: string;
-  phone?: string;
+  email?: string;
+  phone: string;
   notes?: string;
 }
 
 export interface ClientResponse {
   id: string;
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   notes?: string;
   activeSubscriptionCount: number;
