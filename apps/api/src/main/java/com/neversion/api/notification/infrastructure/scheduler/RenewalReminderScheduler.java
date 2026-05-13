@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.neversion.api.notification.application.port.in.SendAccountRenewalRemindersUseCase;
 import com.neversion.api.notification.application.port.in.SendRenewalRemindersUseCase;
 
 /**
@@ -19,16 +20,23 @@ public class RenewalReminderScheduler {
     private static final Logger log = LoggerFactory.getLogger(RenewalReminderScheduler.class);
 
     private final SendRenewalRemindersUseCase sendRenewalRemindersUseCase;
+    private final SendAccountRenewalRemindersUseCase sendAccountRenewalRemindersUseCase;
 
-    public RenewalReminderScheduler(SendRenewalRemindersUseCase sendRenewalRemindersUseCase) {
+    public RenewalReminderScheduler(
+            SendRenewalRemindersUseCase sendRenewalRemindersUseCase,
+            SendAccountRenewalRemindersUseCase sendAccountRenewalRemindersUseCase) {
         this.sendRenewalRemindersUseCase = sendRenewalRemindersUseCase;
+        this.sendAccountRenewalRemindersUseCase = sendAccountRenewalRemindersUseCase;
     }
 
     @Scheduled(cron = "${neversion.cron.renewal-reminders.cron:0 0 8 * * *}")
     public void sendReminders() {
-        int count = sendRenewalRemindersUseCase.sendReminders();
-        if (count > 0) {
-            log.info("Renewal reminder scheduler sent {} reminders", count);
+        int subscriptionCount = sendRenewalRemindersUseCase.sendReminders();
+        int accountCount = sendAccountRenewalRemindersUseCase.sendReminders();
+        int totalCount = subscriptionCount + accountCount;
+        if (totalCount > 0) {
+            log.info("Renewal reminder scheduler recorded {} reminders: subscriptions={}, accounts={}",
+                    totalCount, subscriptionCount, accountCount);
         }
     }
 }

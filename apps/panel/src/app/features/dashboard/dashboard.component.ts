@@ -1,28 +1,23 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import {
   MasterDashboardService,
   VendorDashboardKpis,
   VendorKpiMetrics
 } from './services/master-dashboard.service';
-import { ProductSummary } from '@neversion/models';
 import { DashboardMetricsComponent } from './components/dashboard-metrics/dashboard-metrics.component';
-import { ProductSummaryCardComponent } from './components/product-summary-card/product-summary-card.component';
 import { ExpiringSubscriptionResult, InventoryAvailabilityResult } from '@neversion/api-client';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, DashboardMetricsComponent, ProductSummaryCardComponent],
+  imports: [CommonModule, DashboardMetricsComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(MasterDashboardService);
-  private readonly router = inject(Router);
 
-  products = signal<ProductSummary[]>([]);
   kpis = signal<VendorDashboardKpis | null>(null);
   isLoading = signal(false);
   hasError = signal(false);
@@ -53,17 +48,13 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getVendorKpis().subscribe({
       next: (kpis) => {
         this.kpis.set(kpis);
-        this.loadProducts();
+        this.isLoading.set(false);
       },
       error: () => {
         this.hasError.set(true);
         this.isLoading.set(false);
       }
     });
-  }
-
-  onViewAccounts(productId: string): void {
-    this.router.navigate(['/dashboard/productos', productId]);
   }
 
   trackExpiringSubscription(_index: number, subscription: ExpiringSubscriptionResult): string {
@@ -74,16 +65,4 @@ export class DashboardComponent implements OnInit {
     return item.serviceId ?? item.serviceName ?? `${_index}`;
   }
 
-  private loadProducts(): void {
-    this.dashboardService.getProductsSummary('STREAMING').subscribe({
-      next: (data) => {
-        this.products.set(data);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.hasError.set(true);
-        this.isLoading.set(false);
-      }
-    });
-  }
 }

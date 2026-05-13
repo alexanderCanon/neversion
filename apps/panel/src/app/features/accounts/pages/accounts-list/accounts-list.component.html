@@ -70,9 +70,27 @@
         }
       </div>
     } @else {
-      <div class="accordion accordion-modern" id="accountsAccordion">
-        @for (account of paginatedAccounts(); track trackByAccountId($index, account)) {
-          <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
+      <div class="service-groups">
+        @for (group of groupedAccounts(); track group.key) {
+          <section class="service-group mb-4">
+            <div class="service-group-header d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+              <div>
+                <h5 class="mb-1 fw-bold text-dark">{{ group.name }}</h5>
+                <div class="text-muted x-small text-uppercase fw-semibold">
+                  {{ group.accounts.length }} {{ group.accounts.length === 1 ? 'cuenta' : 'cuentas' }}
+                </div>
+              </div>
+              <div class="d-flex align-items-center gap-2 text-muted small bg-white px-3 py-2 rounded-3 border">
+                <i class="bi bi-people-fill text-primary"></i>
+                <span class="fw-bold text-dark">{{ group.occupiedProfiles }}</span>
+                <span class="opacity-50">/</span>
+                <span>{{ group.totalProfiles }} perfiles</span>
+              </div>
+            </div>
+
+            <div class="accordion accordion-modern">
+              @for (account of group.accounts; track trackByAccountId($index, account)) {
+                <div class="accordion-item border-0 mb-3 shadow-sm rounded-4 overflow-hidden">
             <h2 class="accordion-header">
               <button
                 class="accordion-button px-4 py-3"
@@ -124,6 +142,9 @@
                     </div>
                     <app-profile-list 
                       [accountId]="account.id" 
+                      [accountEmail]="account.email"
+                      [accountPassword]="account.password || ''"
+                      [accountRenewalDate]="account.renewalDate"
                       [profiles]="getProfilesForAccount(account.id)"
                       [canGenerateProfiles]="account.saleMode === 'BY_PROFILE'"
                       (profilesChanged)="onProfilesChanged(account.id)">
@@ -140,10 +161,19 @@
                       <div class="card-body p-0">
                         <div class="info-list">
                             <div class="info-item">
-                                <span class="label">Password</span>
+                                <span class="label">Correo</span>
                                 <div class="value-container">
-                                    <code class="text-primary fw-bold">{{ account.password }}</code>
-                                    <button class="btn btn-link p-0 text-muted" (click)="$event.stopPropagation()" title="Copiar">
+                                    <code class="text-primary fw-bold">{{ account.email }}</code>
+                                    <button class="btn btn-link p-0 text-muted copy-action" type="button" (click)="copyAccountValue(account.email, 'Correo')" title="Copiar correo">
+                                        <i class="bi bi-clipboard"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Contraseña</span>
+                                <div class="value-container">
+                                    <code class="text-primary fw-bold">{{ account.password || 'No registrada' }}</code>
+                                    <button class="btn btn-link p-0 text-muted copy-action" type="button" (click)="copyAccountValue(account.password || '', 'Contraseña')" title="Copiar contraseña" [disabled]="!account.password">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
                                 </div>
@@ -179,28 +209,11 @@
               </div>
             </div>
           </div>
+              }
+            </div>
+          </section>
         }
       </div>
-
-      @if (totalPages() > 1) {
-        <nav class="mt-5">
-          <ul class="pagination pagination-modern justify-content-center mb-0 gap-2">
-            <li class="page-item" [class.disabled]="currentPage() === 1">
-              <button class="page-link rounded-3" (click)="prevPage()"><i class="bi bi-chevron-left"></i></button>
-            </li>
-            @for (pageNum of [].constructor(totalPages()); track $index) {
-              <li class="page-item" [class.active]="currentPage() === $index + 1">
-                <button class="page-link rounded-3 shadow-sm" (click)="currentPage.set($index + 1)">
-                  {{ $index + 1 }}
-                </button>
-              </li>
-            }
-            <li class="page-item" [class.disabled]="currentPage() === totalPages()">
-              <button class="page-link rounded-3" (click)="nextPage()"><i class="bi bi-chevron-right"></i></button>
-            </li>
-          </ul>
-        </nav>
-      }
     }
   </div>
 </div>

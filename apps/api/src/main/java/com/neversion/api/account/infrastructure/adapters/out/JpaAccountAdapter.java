@@ -1,5 +1,6 @@
 package com.neversion.api.account.infrastructure.adapters.out;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +56,13 @@ public class JpaAccountAdapter implements AccountRepositoryPort {
     @Override
     public List<Account> findByServiceIdAndVendorId(Long serviceId, Long vendorId) {
         return accountRepo.findByServiceIdAndVendorId(serviceId, vendorId).stream()
+                .map(accountMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Account> findByRenewalDate(LocalDate renewalDate) {
+        return accountRepo.findByRenewalDate(renewalDate).stream()
                 .map(accountMapper::toDomain)
                 .toList();
     }

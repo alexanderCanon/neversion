@@ -1,5 +1,6 @@
 package com.neversion.api.account.domain.port.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +19,8 @@ public interface AccountRepositoryPort {
     List<Account> findByServiceId(Long serviceId);
 
     List<Account> findByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
+    List<Account> findByRenewalDate(LocalDate renewalDate);
 
     /** US-024: All accounts for a vendor. */
     List<Account> findByVendorId(Long vendorId);

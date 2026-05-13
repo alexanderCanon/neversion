@@ -1,5 +1,6 @@
 package com.neversion.api.account.infrastructure.adapters.out;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +18,8 @@ public interface SpringDataAccountRepository
     List<AccountEntity> findByServiceId(Long serviceId);
 
     List<AccountEntity> findByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
+    List<AccountEntity> findByRenewalDate(LocalDate renewalDate);
 
     /** US-024: All accounts for a vendor. */
     List<AccountEntity> findByVendorId(Long vendorId);
