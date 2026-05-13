@@ -72,12 +72,16 @@ class AccountRepositoryIT extends BaseIntegrationTest {
     }
 
     private Account buildAccount(String email) {
+        return buildAccount(email, LocalDate.now().plusDays(30));
+    }
+
+    private Account buildAccount(String email, LocalDate renewalDate) {
         return Account.builder()
                 .serviceId(parentService.getId())
                 .vendorId(parentVendor.getId())
                 .email(email)
                 .password("secret123")
-                .renewalDate(LocalDate.now().plusDays(30))
+                .renewalDate(renewalDate)
                 .plan("Premium")
                 .saleMode(SaleMode.BY_PROFILE)
                 .notes("Test account")
@@ -158,6 +162,23 @@ class AccountRepositoryIT extends BaseIntegrationTest {
         assertThat(accounts)
                 .extracting(Account::getUuid)
                 .contains(saved.getUuid());
+    }
+
+    @Test
+    @DisplayName("findByRenewalDate - should return accounts with matching renewal date")
+    void findByRenewalDate_shouldReturnAccountsWithMatchingRenewalDate() {
+        LocalDate renewalDate = LocalDate.now().plusDays(7);
+        Account saved = accountRepositoryPort.save(buildAccount("renewal-date@netflix.com", renewalDate));
+        accountRepositoryPort.save(buildAccount("other-renewal-date@netflix.com", renewalDate.plusDays(1)));
+
+        List<Account> accounts = accountRepositoryPort.findByRenewalDate(renewalDate);
+
+        assertThat(accounts)
+                .extracting(Account::getUuid)
+                .contains(saved.getUuid());
+        assertThat(accounts)
+                .extracting(Account::getEmail)
+                .doesNotContain("other-renewal-date@netflix.com");
     }
 
     @Test

@@ -14,6 +14,8 @@ export interface AccountResponse {
     email?: string;
     password?: string;
     serviceId?: number;
+    serviceUuid?: string;
+    serviceName?: string;
     saleMode?: AccountResponse.SaleModeEnum;
     status?: AccountResponse.StatusEnum;
     renewalDate?: string;
@@ -42,5 +44,4 @@ export namespace AccountResponse {
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
-
 

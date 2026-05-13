@@ -137,30 +137,5 @@
         </section>
       </div>
     </div>
-
-    <section class="dashboard-section">
-      <div class="section-header">
-        <h3>Servicios</h3>
-        <span class="text-muted">Cuentas por servicio</span>
-      </div>
-
-      @if (products().length === 0) {
-        <div class="text-center py-5">
-          <i class="bi bi-inbox fs-1 text-muted"></i>
-          <p class="mt-2 text-muted">No hay servicios registrados.</p>
-        </div>
-      } @else {
-        <div class="row g-3">
-          @for (product of products(); track product.productId) {
-            <div class="col-md-4 col-lg-3">
-              <app-product-summary-card
-                [product]="product"
-                (viewAccounts)="onViewAccounts($event)">
-              </app-product-summary-card>
-            </div>
-          }
-        </div>
-      }
-    </section>
   }
 </div>

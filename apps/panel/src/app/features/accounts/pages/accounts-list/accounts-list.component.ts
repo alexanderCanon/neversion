@@ -11,6 +11,15 @@ import { AuthService } from '../../../../core/services/auth.service';
 
 import { ActivatedRoute } from '@angular/router';
 
+interface AccountServiceGroup {
+  key: string;
+  name: string;
+  accounts: AccountResponse[];
+  totalProfiles: number;
+  occupiedProfiles: number;
+  availableProfiles: number;
+}
+
 @Component({
   selector: 'app-accounts-list',
   standalone: true,
@@ -50,11 +59,37 @@ export class AccountsListComponent implements OnInit {
       result = result.filter(
         (a) =>
           a.email?.toLowerCase().includes(term) ||
-          a.plan?.toLowerCase().includes(term)
+          a.plan?.toLowerCase().includes(term) ||
+          a.serviceName?.toLowerCase().includes(term)
       );
     }
 
     return result;
+  });
+
+  readonly groupedAccounts = computed<AccountServiceGroup[]>(() => {
+    const groups = new Map<string, AccountServiceGroup>();
+
+    for (const account of this.filteredAccounts()) {
+      const key = account.serviceUuid || account.serviceId || 'unknown';
+      const group = groups.get(key) ?? {
+        key,
+        name: account.serviceName || this.unresolvedServiceLabel(account),
+        accounts: [],
+        totalProfiles: 0,
+        occupiedProfiles: 0,
+        availableProfiles: 0,
+      };
+
+      group.accounts.push(account);
+      group.totalProfiles += account.totalProfiles || 0;
+      group.occupiedProfiles += account.occupiedProfiles || 0;
+      group.availableProfiles += account.availableProfiles || 0;
+      groups.set(key, group);
+    }
+
+    return Array.from(groups.values())
+      .sort((a, b) => a.name.localeCompare(b.name, 'es'));
   });
 
   expandedAccounts = new Set<string>();
@@ -161,6 +196,17 @@ export class AccountsListComponent implements OnInit {
     }
   }
 
+  copyAccountValue(value: string, label: string): void {
+    if (!value) {
+      this.toastService.error(`${label} no disponible`);
+      return;
+    }
+
+    this.copyToClipboard(value)
+      .then(() => this.toastService.success(`${label} copiado`))
+      .catch(() => this.toastService.error(`No se pudo copiar ${label.toLowerCase()}`));
+  }
+
   getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
       case 'AVAILABLE': return 'bg-success';
@@ -203,5 +249,27 @@ export class AccountsListComponent implements OnInit {
 
   trackByAccountId(index: number, account: AccountResponse): string {
     return account.id;
+  }
+
+  private unresolvedServiceLabel(account: AccountResponse): string {
+    return account.serviceId ? `Servicio no resuelto #${account.serviceId}` : 'Servicio no resuelto';
+  }
+
+  private copyToClipboard(value: string): Promise<void> {
+    if (navigator.clipboard?.writeText) {
+      return navigator.clipboard.writeText(value);
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    return copied ? Promise.resolve() : Promise.reject();
   }
 }
