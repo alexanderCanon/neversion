@@ -23,7 +23,7 @@ This file serves as the **Single Source of Truth** for AI agents participating i
 2. Follow the protocol defined there exactly.
 ```
 
-This file contains your operational protocol (bitácora-first orientation, selective doc reading, structured planning, module-by-module test gates). Skipping it means operating without memory of past decisions.
+This file contains your operational protocol (selective doc reading, structured planning, module-by-module test gates). Skipping it means operating without the current project rules.
 
 ---
 
@@ -71,8 +71,8 @@ To ensure API-first consistency, development follows a strictly sequential modul
 ### 1. Scope & Boundaries
 - **Strict Isolation**: Work exclusively within your assigned project directory.
 - **Env Files Forbidden**: Agents must NEVER read, access, or modify any `.env` file under any circumstances. If environmental variables are needed, instruct the user to configure them.
-- **Read-Only Docs**: The `/docs` folder is immutable for agents, **except for the implementation logs** in `/docs/implementation/`.
-- **Mandatory Logging**: Every change, decision, or progress made must be registered in the corresponding bitácora file within `/docs/implementation/`.
+- **Read-Only Docs**: The `/docs` folder is immutable for agents unless Alex explicitly asks for documentation changes.
+- **No Mandatory Logging**: Agents must not update bitácoras or Mermaid diagrams as part of normal implementation work. Treat `/docs/implementation/` as historical reference only.
 - **No Cross-Talk**: Never modify files belonging to another agent's project scope.
 
 ### 2. Database Governance

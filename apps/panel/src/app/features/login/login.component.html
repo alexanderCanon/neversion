@@ -1,10 +1,26 @@
-<div class="login-wrapper">
-    <div class="login-card shadow-lg p-4">
-        <app-login-header></app-login-header>
-        <app-login-form 
-            [isLoading]="isLoading" 
-            [errorMessage]="errorMessage()" 
-            (submitLogin)="onSubmit($event)">
-        </app-login-form>
-    </div>
-</div>
+<main class="login-shell">
+    <section class="brand-panel" aria-label="Resumen del Panel del Vendedor">
+        <div class="brand-content">
+            <img src="assets/neversion-logo.svg" alt="Neversion" class="brand-logo">
+
+            <div class="brand-copy">
+                <p class="eyebrow">Panel operativo</p>
+                <h1>Gestiona tu negocio digital desde un solo lugar.</h1>
+                <p class="brand-description">
+                    Controla servicios, cuentas, perfiles, clientes y suscripciones con una vista clara de tu operación.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="login-panel" aria-label="Inicio de sesión">
+        <div class="login-card">
+            <app-login-header></app-login-header>
+            <app-login-form
+                [isLoading]="isLoading"
+                [errorMessage]="errorMessage()"
+                (submitLogin)="onSubmit($event)">
+            </app-login-form>
+        </div>
+    </section>
+</main>

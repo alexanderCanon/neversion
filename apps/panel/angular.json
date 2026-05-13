@@ -28,7 +28,17 @@
             "assets": [
               "src/favicon.ico",
               "src/favicon-neversion.svg",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "_redirects",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "_headers",
+                "input": "src",
+                "output": "/"
+              }
             ],
             "styles": [
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
