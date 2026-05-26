@@ -19,7 +19,11 @@
             <app-login-form
                 [isLoading]="isLoading"
                 [errorMessage]="errorMessage()"
-                (submitLogin)="onSubmit($event)">
+                [step]="step()"
+                [email]="selectedEmail()"
+                (submitEmail)="onEmailSubmit($event)"
+                (submitLogin)="onLoginSubmit($event)"
+                (goBack)="onGoBack()">
             </app-login-form>
         </div>
     </section>
