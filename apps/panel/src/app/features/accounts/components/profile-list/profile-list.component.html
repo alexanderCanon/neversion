@@ -89,6 +89,9 @@
                   <button class="btn btn-action-sm edit" (click)="openEditModal(profile)" title="Editar Perfil">
                     <i class="bi bi-pencil-square"></i>
                   </button>
+                  <button class="btn btn-action-sm copy" (click)="copyAccess(profile)" title="Generar Accesos">
+                    <i class="bi bi-whatsapp"></i>
+                  </button>
                   <button class="btn btn-action-sm" 
                           [ngClass]="profile.status === 'BLOCKED' ? 'activate' : 'deactivate'"
                           (click)="toggleBlocked(profile)" 
@@ -107,7 +110,7 @@
 
 
 <!-- Modal para Editar Perfil (US-026) -->
-<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" tabindex="-1" aria-hidden="true" #editProfileModal>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow">
       <div class="modal-header bg-primary text-white">

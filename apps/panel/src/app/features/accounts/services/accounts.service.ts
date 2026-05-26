@@ -143,6 +143,8 @@ export class AccountsService {
       email: api.email || '',
       password: credentials.password ?? credentials.pass,
       serviceId: String(api.serviceId || ''),
+      serviceUuid: api.serviceUuid || '',
+      serviceName: api.serviceName || '',
       saleMode: api.saleMode as unknown as SaleMode,
       status: api.status as unknown as AccountStatus,
       renewalDate: api.renewalDate || '',

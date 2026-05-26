@@ -14,6 +14,7 @@ public record UpdateClientRequest(
         @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
         String name,
 
+        @NotBlank(message = "Phone is required")
         @Size(max = 50, message = "Phone must not exceed 50 characters")
         String phone,
 

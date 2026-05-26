@@ -475,8 +475,8 @@ class ClientControllerIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("should return 400 when email is missing")
-        void create_missingEmail_shouldReturn400() throws Exception {
+        @DisplayName("should return 400 when phone is missing")
+        void create_missingPhone_shouldReturn400() throws Exception {
             String body = objectMapper.writeValueAsString(Map.of("name", "Ana López"));
             mockMvc.perform(post("/api/v1/clients")
                             .header("Authorization", "Bearer " + buildJwt("vendor"))
@@ -490,7 +490,8 @@ class ClientControllerIT extends BaseIntegrationTest {
         void create_invalidEmail_shouldReturn400() throws Exception {
             String body = objectMapper.writeValueAsString(Map.of(
                     "name", "Ana López",
-                    "email", "not-an-email"
+                    "email", "not-an-email",
+                    "phone", "55551111"
             ));
             mockMvc.perform(post("/api/v1/clients")
                             .header("Authorization", "Bearer " + buildJwt("vendor"))

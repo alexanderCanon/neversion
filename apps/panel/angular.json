@@ -27,6 +27,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
+              "src/favicon-neversion.svg",
               "src/assets",
               {
                 "glob": "_redirects",
@@ -106,6 +107,7 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
+              "src/favicon-neversion.svg",
               "src/assets"
             ],
             "styles": [

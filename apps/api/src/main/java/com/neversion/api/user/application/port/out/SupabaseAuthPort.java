@@ -1,5 +1,7 @@
 package com.neversion.api.user.application.port.out;
 
+import java.util.Optional;
+
 import com.neversion.api.user.domain.model.enums.UserRole;
 
 public interface SupabaseAuthPort {
@@ -14,4 +16,12 @@ public interface SupabaseAuthPort {
      * @throws RuntimeException if the user creation fails
      */
     String createUser(String email, String password, UserRole role);
+
+    /**
+     * Resolves the email address for an existing Supabase Auth user.
+     *
+     * @param externalId Supabase Auth user ID
+     * @return email address when Supabase returns a user with email
+     */
+    Optional<String> findEmailByExternalId(String externalId);
 }

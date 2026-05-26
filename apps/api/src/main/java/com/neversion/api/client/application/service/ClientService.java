@@ -35,7 +35,7 @@ import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
  *   - resolveVendorId() — resolves caller's vendorId from JWT externalId (ADR-09).
  *   - Ownership: callerVendorId must equal client.vendorId, else AccessDeniedException (403).
  *   - email is immutable after creation (BR-US032-01).
- *   - Notification log registered on CLIENT_WELCOME (US-031, EPIC-08 will send actual email).
+ *   - Notification log registered on CLIENT_WELCOME when email is present.
  */
 @Service
 public class ClientService implements ClientUseCase {
@@ -155,26 +155,37 @@ public class ClientService implements ClientUseCase {
 
     /**
      * Creates a client linked to the caller's vendor.
-     * Validates email uniqueness: 400 if email already exists (BR-US031-03).
-     * Registers CLIENT_WELCOME in notification_log for EPIC-08.
+     * Validates phone uniqueness inside the vendor and optional email uniqueness.
+     * Registers CLIENT_WELCOME in notification_log only when email is present.
      */
     @Override
     @Transactional
     public Client createForVendor(Client client, String callerExternalId) {
+        // Resolve vendor from JWT — BR-US031-01
+        Long vendorId = resolveVendorId(callerExternalId);
+        String normalizedPhone = normalizePhone(client.getPhone());
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+
+        clientRepositoryPort.findByVendorIdAndPhone(vendorId, normalizedPhone).ifPresent(existing -> {
+            throw new IllegalArgumentException(
+                    "Phone already registered for this vendor: " + normalizedPhone);
+        });
+
+        String normalizedEmail = normalizeEmail(client.getEmail());
         // BR-US031-03 — email uniqueness
-        if (client.getEmail() != null && !client.getEmail().isBlank()) {
-            clientRepositoryPort.findByEmail(client.getEmail()).ifPresent(existing -> {
+        if (hasText(normalizedEmail)) {
+            clientRepositoryPort.findByEmail(normalizedEmail).ifPresent(existing -> {
                 throw new IllegalArgumentException(
-                        "Email already registered: " + client.getEmail());
+                        "Email already registered: " + normalizedEmail);
             });
         }
 
-        // Resolve vendor from JWT — BR-US031-01
-        Long vendorId = resolveVendorId(callerExternalId);
         Client toSave = Client.builder()
                 .name(client.getName())
-                .email(client.getEmail())
-                .phone(client.getPhone())
+                .email(normalizedEmail)
+                .phone(normalizedPhone)
                 .notes(client.getNotes())
                 .vendorId(vendorId)
                 .build();
@@ -182,10 +193,12 @@ public class ClientService implements ClientUseCase {
         Client saved = clientRepositoryPort.save(toSave);
 
         // Notification log — EPIC-08 will send the actual email
-        String payload = String.format("{\"clientId\":\"%s\",\"name\":\"%s\",\"email\":\"%s\"}",
-                saved.getUuid(), saved.getName(), saved.getEmail());
-        notificationLogPort.record("CLIENT_WELCOME", saved.getEmail(), payload,
-                "client", saved.getId(), "welcome");
+        if (hasText(saved.getEmail())) {
+            String payload = String.format("{\"clientId\":\"%s\",\"name\":\"%s\",\"email\":\"%s\"}",
+                    saved.getUuid(), saved.getName(), saved.getEmail());
+            notificationLogPort.record("CLIENT_WELCOME", saved.getEmail(), payload,
+                    "client", saved.getId(), "welcome");
+        }
 
         return saved;
     }
@@ -213,7 +226,7 @@ public class ClientService implements ClientUseCase {
 
         // BR-US032-01 — email is NOT updated
         existing.setName(name);
-        existing.setPhone(phone);
+        existing.setPhone(normalizePhone(phone));
         existing.setNotes(notes);
 
         return clientRepositoryPort.save(existing);
@@ -302,7 +315,7 @@ public class ClientService implements ClientUseCase {
     public Client updateMyProfile(String name, String phone, String callerExternalId) {
         Client client = resolveClient(callerExternalId);
         client.setName(name);
-        client.setPhone(phone);
+        client.setPhone(normalizePhone(phone));
         return clientRepositoryPort.save(client);
     }
 
@@ -344,6 +357,18 @@ public class ClientService implements ClientUseCase {
      */
     private Long resolveClientId(String callerExternalId) {
         return resolveClient(callerExternalId).getId();
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private String normalizeEmail(String email) {
+        return hasText(email) ? email.trim().toLowerCase() : null;
+    }
+
+    private String normalizePhone(String phone) {
+        return phone == null ? "" : phone.replaceAll("\\D", "");
     }
 
     /**

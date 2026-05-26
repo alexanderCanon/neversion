@@ -9,9 +9,17 @@ import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountRequ
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountResponse;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.service.domain.model.Service;
+import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 
 @Component
 public class AccountMapper {
+
+    private final ServiceRepositoryPort serviceRepositoryPort;
+
+    public AccountMapper(ServiceRepositoryPort serviceRepositoryPort) {
+        this.serviceRepositoryPort = serviceRepositoryPort;
+    }
 
     public Account toDomain(AccountRequest request) {
         return request != null ? Account.builder()
@@ -43,6 +51,10 @@ public class AccountMapper {
     public AccountResponse toResponse(Account account, List<Profile> profiles) {
         if (account == null) return null;
 
+        Service service = account.getServiceId() != null
+                ? serviceRepositoryPort.findByInternalId(account.getServiceId()).orElse(null)
+                : null;
+
         int total     = profiles.size();
         int available = countByStatus(profiles, ProfileStatus.AVAILABLE);
         int occupied  = countByStatus(profiles, ProfileStatus.OCCUPIED)
@@ -55,6 +67,8 @@ public class AccountMapper {
                 .email(account.getEmail())
                 .password(account.getPassword())
                 .serviceId(account.getServiceId())
+                .serviceUuid(service != null ? service.getUuid() : account.getServiceUuid())
+                .serviceName(service != null ? service.getName() : null)
                 .saleMode(account.getSaleMode())
                 .status(account.getStatus())
                 .renewalDate(account.getRenewalDate())

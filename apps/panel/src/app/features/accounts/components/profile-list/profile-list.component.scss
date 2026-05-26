@@ -68,6 +68,12 @@
         border-color: #dbeafe;
     }
 
+    &.copy:hover {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+
     &.activate:hover {
         background-color: #f0fdf4;
         color: #22c55e;

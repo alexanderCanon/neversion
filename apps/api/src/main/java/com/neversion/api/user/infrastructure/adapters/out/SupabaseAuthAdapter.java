@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class SupabaseAuthAdapter implements SupabaseAuthPort {
@@ -66,6 +68,34 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
         }
     }
 
+    @Override
+    public Optional<String> findEmailByExternalId(String externalId) {
+        String url = supabaseUrl + "/auth/v1/admin/users/" + externalId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apikey", serviceRoleKey);
+        headers.setBearerAuth(serviceRoleKey);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        try {
+            var response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    SupabaseUserResponse.class);
+
+            if (response.getBody() == null || response.getBody().email() == null
+                    || response.getBody().email().isBlank()) {
+                return Optional.empty();
+            }
+
+            return Optional.of(response.getBody().email());
+        } catch (Exception e) {
+            throw new IllegalStateException("Error resolving Supabase user email: " + e.getMessage(), e);
+        }
+    }
+
     // Records for JSON mapping
     private record SupabaseCreateUserRequest(
             String email,
@@ -76,5 +106,10 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
 
     private record SupabaseCreateUserResponse(
             String id
+    ) {}
+
+    private record SupabaseUserResponse(
+            String id,
+            String email
     ) {}
 }

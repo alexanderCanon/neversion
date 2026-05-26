@@ -123,6 +123,68 @@ class RegisterClientServiceUT {
         assertThat(captured.getVendorId()).isEqualTo(VENDOR_ID);
         assertThat(captured.getName()).isEqualTo("Juan Pérez");
         assertThat(captured.getEmail()).isEqualTo("cliente@correo.com");
+        assertThat(captured.getPhone()).isEqualTo("50255551234");
+    }
+
+    @Test
+    @DisplayName("register - should link existing manual client by vendor phone and update name")
+    void register_existingManualClient_shouldLinkAndUpdateName() {
+        // Arrange
+        RegisterClientCommand command = buildCommand();
+        Vendor vendor = Vendor.builder()
+                .id(VENDOR_ID).uuid(VENDOR_UUID)
+                .userId(99L).storeName("Mi Tienda").build();
+        when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+        Client manualClient = Client.builder()
+                .id(1L).uuid(CLIENT_UUID).vendorId(VENDOR_ID)
+                .name("Nombre Viejo").phone("50255551234").build();
+        when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_ID, "50255551234"))
+                .thenReturn(Optional.of(manualClient));
+        User savedUser = User.builder()
+                .id(USER_ID).uuid(USER_UUID)
+                .externalId("supabase-uuid-abc123").role(UserRole.CLIENT).build();
+        when(supabaseAuthPort.createUser("cliente@correo.com", "secret123", UserRole.CLIENT))
+                .thenReturn("supabase-uuid-abc123");
+        when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
+        when(clientRepositoryPort.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Act
+        RegisterClientResult result = sut.register(command);
+
+        // Assert
+        assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
+        assertThat(result.name()).isEqualTo("Juan Pérez");
+        ArgumentCaptor<Client> clientCaptor = ArgumentCaptor.forClass(Client.class);
+        verify(clientRepositoryPort).save(clientCaptor.capture());
+        Client linkedClient = clientCaptor.getValue();
+        assertThat(linkedClient.getId()).isEqualTo(1L);
+        assertThat(linkedClient.getUserId()).isEqualTo(USER_ID);
+        assertThat(linkedClient.getName()).isEqualTo("Juan Pérez");
+        assertThat(linkedClient.getEmail()).isEqualTo("cliente@correo.com");
+        verify(clientRepositoryPort, never()).findByEmail(anyString());
+    }
+
+    @Test
+    @DisplayName("register - should reject phone already linked to authenticated client")
+    void register_existingLinkedClient_shouldThrow() {
+        RegisterClientCommand command = buildCommand();
+        Vendor vendor = Vendor.builder()
+                .id(VENDOR_ID).uuid(VENDOR_UUID)
+                .userId(99L).storeName("Mi Tienda").build();
+        when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+        Client linkedClient = Client.builder()
+                .id(1L).uuid(CLIENT_UUID).vendorId(VENDOR_ID).userId(77L)
+                .name("Juan").phone("50255551234").build();
+        when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_ID, "50255551234"))
+                .thenReturn(Optional.of(linkedClient));
+
+        assertThatThrownBy(() -> sut.register(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Phone already linked");
+
+        verifyNoInteractions(supabaseAuthPort);
+        verifyNoInteractions(userRepositoryPort);
+        verify(notificationLogPort, never()).record(anyString(), anyString(), anyString(), anyString(), any(), anyString());
     }
 
     @Test
@@ -185,7 +247,7 @@ class RegisterClientServiceUT {
         Client savedClient = Client.builder()
                 .id(1L).uuid(CLIENT_UUID)
                 .userId(USER_ID).vendorId(VENDOR_ID)
-                .name("Juan Pérez").email("cliente@correo.com").build();
+                .name("Juan Pérez").email("cliente@correo.com").phone("50255551234").build();
         when(clientRepositoryPort.save(any(Client.class))).thenReturn(savedClient);
     }
 }

@@ -16,6 +16,8 @@ public interface SpringDataClientRepository
 
     Optional<ClientEntity> findByUserId(Long userId);
 
+    List<ClientEntity> findByVendorId(Long vendorId);
+
     List<ClientEntity> findByName(String name);
 
     List<ClientEntity> findByPhone(String phone);
