@@ -16,11 +16,6 @@
             "outputPath": "dist/neversion-site",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "server": "src/main.server.ts",
-            "ssr": {
-              "entry": "server.ts"
-            },
-            "prerender": false,
             "polyfills": [
               "zone.js"
             ],

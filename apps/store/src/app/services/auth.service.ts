@@ -1,5 +1,4 @@
-import { isPlatformBrowser } from '@angular/common';
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
@@ -35,15 +34,10 @@ export class AuthService {
 
   constructor(
     private supabaseService: SupabaseService,
-    private authApiService: AuthApiService,
-    @Inject(PLATFORM_ID) platformId: object
+    private authApiService: AuthApiService
   ) {
-    if (isPlatformBrowser(platformId)) {
-      this.restoreSession();
-      this.listenToAuthChanges();
-    } else {
-      this.isRestoringSubject.next(false);
-    }
+    this.restoreSession();
+    this.listenToAuthChanges();
   }
 
   public get currentUserValue(): User | null {

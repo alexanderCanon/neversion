@@ -6,11 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "dev:ssr": "ng serve",
-    "serve:ssr": "node dist/neversion-site/server/server.mjs",
-    "build:ssr": "ng build",
-    "prerender": "ng build --prerender"
+    "test": "ng test"
   },
   "private": true,
   "dependencies": {
@@ -20,9 +16,7 @@
     "@angular/forms": "^17.3.0",
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
-    "@angular/platform-server": "^17.3.0",
     "@angular/router": "^17.3.0",
-    "@angular/ssr": "^17.3.17",
     "@neversion/api-client": "file:../../packages/api-client",
     "@neversion/models": "file:../../packages/models",
     "@supabase/auth-js": "2.105.3",
@@ -33,7 +27,6 @@
     "@supabase/supabase-js": "^2.93.3",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
-    "express": "^4.18.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
@@ -42,7 +35,6 @@
     "@angular-devkit/build-angular": "^17.3.17",
     "@angular/cli": "^17.3.17",
     "@angular/compiler-cli": "^17.3.0",
-    "@types/express": "^4.17.17",
     "@types/jasmine": "~4.3.0",
     "@types/node": "^18.18.0",
     "jasmine-core": "~4.6.0",

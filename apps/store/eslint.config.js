@@ -6,7 +6,7 @@ module.exports = [
   {
     files: ["**/*.ts"],
     rules: {
-      // The Store keeps NgModules while migrating its build and SSR infrastructure.
+      // The Store keeps NgModules while modernizing its build infrastructure.
       "@angular-eslint/prefer-standalone": "off"
     },
   },

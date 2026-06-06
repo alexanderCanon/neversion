@@ -9,10 +9,10 @@ services:
       STORE_SUPABASE_URL: ${STORE_SUPABASE_URL}
       STORE_SUPABASE_KEY: ${STORE_SUPABASE_KEY}
       STORE_VENDOR_UUID: ${STORE_VENDOR_UUID}
-    ports:
-      - "4000:4000"
+    expose:
+      - "80"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000/health"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -20,4 +20,4 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512m
+          memory: 128m

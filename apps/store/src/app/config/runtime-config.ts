@@ -11,29 +11,15 @@ declare global {
   }
 }
 
-type ProcessLike = {
-  env?: Record<string, string | undefined>;
-};
-
-const browserConfig = typeof window !== 'undefined'
-  ? window.__NEVERSION_CONFIG__
-  : undefined;
-
-const serverEnv = typeof process !== 'undefined'
-  ? (process as ProcessLike).env
-  : undefined;
+const browserConfig = window.__NEVERSION_CONFIG__;
 
 export const runtimeConfig = {
   apiUrl: browserConfig?.apiUrl
-    ?? serverEnv?.['STORE_API_URL']
     ?? 'http://localhost:8080',
   supabaseUrl: browserConfig?.supabaseUrl
-    ?? serverEnv?.['STORE_SUPABASE_URL']
     ?? 'https://your-project.supabase.co',
   supabaseKey: browserConfig?.supabaseKey
-    ?? serverEnv?.['STORE_SUPABASE_KEY']
     ?? 'your-anon-key',
   storeVendorUuid: browserConfig?.storeVendorUuid
-    ?? serverEnv?.['STORE_VENDOR_UUID']
     ?? '00000000-0000-0000-0000-000000000000'
 };
