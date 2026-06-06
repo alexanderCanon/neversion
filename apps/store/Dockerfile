@@ -1,20 +1,23 @@
 # ══════════════════════════════════════════════════════════════════
 # Stage 1: BUILD — install dependencies and compile the SSR bundle.
 # ══════════════════════════════════════════════════════════════════
+# syntax=docker/dockerfile:1.7
+
 FROM node:20-alpine AS build
 WORKDIR /workspace
 
-RUN npm install -g pnpm
+RUN corepack enable && corepack prepare pnpm@10.33.3 --activate
 
 # Copy manifests first to reuse Docker cache.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/store/package.json apps/store/package.json
 COPY packages/api-client/package.json packages/api-client/package.json
 COPY packages/models/package.json packages/models/package.json
-COPY packages/utils/package.json packages/utils/package.json
 
 # Install dependencies.
-RUN pnpm install --frozen-lockfile --filter neversion-site...
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install --frozen-lockfile --filter neversion-site...
 
 # Copy source code.
 COPY apps/store apps/store
@@ -23,12 +26,16 @@ COPY tsconfig.json tsconfig.json
 
 # Build the application.
 WORKDIR /workspace/apps/store
-RUN pnpm run build:ssr
+ENV NG_BUILD_MAX_WORKERS=1
+RUN --mount=type=cache,id=store-angular-cache,target=/workspace/apps/store/.angular/cache \
+    pnpm run build:ssr
 
 # Use pnpm deploy to isolate the production bundle and its dependencies.
 # This eliminates the need to copy the entire monorepo node_modules.
 WORKDIR /workspace
-RUN pnpm deploy --filter=neversion-site --prod --legacy /prod/store
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm deploy --filter=neversion-site --prod --legacy /prod/store
 
 # ══════════════════════════════════════════════════════════════════
 # Stage 2: RUN — Node.js serves the SSR app.
@@ -41,11 +48,11 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 WORKDIR /app
 
 # Copy the isolated production directory from the deploy stage.
-COPY --from=build /prod/store ./
+COPY --from=build --chown=appuser:appgroup /prod/store ./
 
 # Copy the build artifacts (dist) explicitly to ensure they are present.
 # pnpm deploy usually doesn't include the 'dist' folder if it's ignored by git/npm.
-COPY --from=build /workspace/apps/store/dist ./dist
+COPY --from=build --chown=appuser:appgroup /workspace/apps/store/dist ./dist
 
 RUN cat > /usr/local/bin/neversion-store-entrypoint <<'EOF' && \
     chmod +x /usr/local/bin/neversion-store-entrypoint
@@ -62,10 +69,9 @@ window.__NEVERSION_CONFIG__ = {
 };
 CONFIG
 
-exec node dist/neversion-site/server/main.js
+exec node dist/neversion-site/server/server.mjs
 EOF
 
-RUN chown -R appuser:appgroup /app
 USER appuser
 
 EXPOSE 4000
