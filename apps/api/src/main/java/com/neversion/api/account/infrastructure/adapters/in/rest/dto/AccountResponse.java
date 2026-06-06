@@ -21,6 +21,8 @@ public record AccountResponse(
         String email,
         String password,
         Long serviceId,
+        UUID serviceUuid,
+        String serviceName,
         SaleMode saleMode,
         AccountStatus status,
         LocalDate renewalDate,

@@ -36,6 +36,10 @@
     background-color: #f8fafc;
 }
 
+.service-group-header {
+    padding: 0 0.25rem;
+}
+
 .badge-status {
     padding: 0.4em 0.8em;
     font-size: 0.7rem;
@@ -81,6 +85,21 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            min-width: 0;
+
+            code {
+                overflow-wrap: anywhere;
+                text-align: right;
+            }
+
+            .copy-action {
+                flex: 0 0 auto;
+
+                &:disabled {
+                    opacity: 0.35;
+                    pointer-events: none;
+                }
+            }
         }
     }
 }

@@ -17,13 +17,34 @@ export class LoginComponent {
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
 
+    // Flow steps: email validation, password input, or partner info redirection
+    step = signal<'email' | 'password' | 'no-account'>('email');
+    selectedEmail = signal<string>('');
+
     // Local signal to display mapped error messages
     errorMessage = signal<string | null>(null);
 
-    onSubmit(credentials: {email: string, password: string}): void {
-        const { email, password } = credentials;
+    onEmailSubmit(email: string): void {
+        this.errorMessage.set(null);
 
-        // Reset the previous error before submitting
+        this.authService.checkEmailExists(email).subscribe({
+            next: (exists) => {
+                this.selectedEmail.set(email);
+                if (exists) {
+                    this.step.set('password');
+                } else {
+                    this.step.set('no-account');
+                }
+            },
+            error: (err: unknown) => {
+                const rawError = err instanceof Error ? err.message : 'Error inesperado';
+                this.errorMessage.set(this.mapAuthError(rawError));
+            }
+        });
+    }
+
+    onLoginSubmit(password: string): void {
+        const email = this.selectedEmail();
         this.errorMessage.set(null);
 
         this.authService.signIn(email, password).subscribe({
@@ -33,7 +54,6 @@ export class LoginComponent {
                     
                     if (role === 'client') {
                         // User story US-014: If a client tries to log in here, redirect to store or deny.
-                        // For now, we sign out and show error.
                         this.authService.signOut().subscribe();
                         this.errorMessage.set('Este panel es exclusivo para administradores y vendedores.');
                         return;
@@ -50,6 +70,11 @@ export class LoginComponent {
                 this.errorMessage.set('Ocurrió un error inesperado al iniciar sesión.');
             }
         });
+    }
+
+    onGoBack(): void {
+        this.step.set('email');
+        this.errorMessage.set(null);
     }
 
     get isLoading() {

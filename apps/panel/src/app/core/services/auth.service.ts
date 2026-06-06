@@ -80,6 +80,47 @@ export class AuthService {
         await this.loadCurrentContextIfAuthenticated();
     }
 
+    /**
+     * Probes Supabase Auth using a dummy password to verify if an email exists.
+     * Returns true if email exists (returns "Invalid credentials"), false if not (returns "User not found").
+     */
+    checkEmailExists(email: string): Observable<boolean> {
+        this._isLoading.set(true);
+        this._errorMessage.set(null);
+
+        const promise = this.supabaseService.client.auth.signInWithPassword({
+            email,
+            password: 'check-existence-only-dummy-password-probe-123456',
+        });
+
+        return from(promise).pipe(
+            map(({ error }) => {
+                this._isLoading.set(false);
+                if (error) {
+                    // Supabase returns "User not found" or "invalid_credentials" error code/message.
+                    // If error message contains "User not found", account does not exist.
+                    if (error.message.includes('User not found')) {
+                        return false;
+                    }
+                    // If error is "Invalid login credentials", account exists (since the dummy password failed).
+                    if (error.message.includes('Invalid login credentials')) {
+                        return true;
+                    }
+                    // If some other error happens (e.g. rate limit), throw it.
+                    throw new Error(error.message);
+                }
+                // If it succeeds (impossible with dummy pass), it exists.
+                return true;
+            }),
+            catchError((err: unknown) => {
+                this._isLoading.set(false);
+                const message = err instanceof Error ? err.message : 'Error al verificar el correo';
+                this._errorMessage.set(message);
+                throw err;
+            })
+        );
+    }
+
     // ── Sign In ───────────────────────────────────────────────────
     signIn(email: string, password: string): Observable<AuthResult> {
         this._isLoading.set(true);

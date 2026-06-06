@@ -31,6 +31,8 @@ export interface AccountResponse {
   email: string;
   password?: string; // Optional because API might not return it in list/detail
   serviceId: string;
+  serviceUuid?: string;
+  serviceName?: string;
   service?: ServiceResponse;
   saleMode: SaleMode;
   status: AccountStatus;

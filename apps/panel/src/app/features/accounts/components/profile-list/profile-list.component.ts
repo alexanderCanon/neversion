@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileRequest, ProfileResponse, ProfileStatus } from '@neversion/models';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
@@ -27,7 +27,12 @@ declare const bootstrap: Bootstrap;
   styleUrl: './profile-list.component.scss'
   })
 export class ProfileListComponent {
+  @ViewChild('editProfileModal') editProfileModal!: ElementRef<HTMLElement>;
+
   @Input() accountId!: string;
+  @Input() accountEmail = '';
+  @Input() accountPassword = '';
+  @Input() accountRenewalDate = '';
   @Input() profiles: ProfileResponse[] = [];
   @Input() canGenerateProfiles = true;
   @Output() profilesChanged = new EventEmitter<void>();
@@ -95,6 +100,22 @@ export class ProfileListComponent {
       });
   }
 
+  copyAccess(profile: ProfileResponse): void {
+    const access = [
+      '📺📺',
+      `📧 ${this.accountEmail || ''}`,
+      `🔑 ${this.accountPassword || ''}`,
+      `👤 ${profile.name || 'Perfil'}`,
+      `🔒 ${profile.pin || ''}`,
+      `📆 ${this.formatDate(this.accountRenewalDate)}`,
+      '⚠️ No hacer cambios en la cuenta, cualquier duda e inconveniente contactar con el vendedor.'
+    ].join('\n');
+
+    this.copyToClipboard(access)
+      .then(() => this.toastService.success('Accesos copiados'))
+      .catch(() => this.toastService.error('No se pudieron copiar los accesos'));
+  }
+
   openEditModal(profile: ProfileResponse): void {
     this.selectedProfileId = profile.id;
     this.profileForm.patchValue({
@@ -103,20 +124,33 @@ export class ProfileListComponent {
       isOwner: profile.isOwner
     });
 
-    const modalEl = document.getElementById('editProfileModal');
+    const modalEl = this.editProfileModal?.nativeElement;
     if (modalEl) {
       if (typeof bootstrap !== 'undefined') {
         new bootstrap.Modal(modalEl).show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        document.body.classList.add('modal-open');
+        const backdrop = document.createElement('div');
+        backdrop.classList.add('modal-backdrop', 'fade', 'show');
+        document.body.appendChild(backdrop);
       }
     }
   }
 
   closeEditModal(): void {
-    const modalEl = document.getElementById('editProfileModal');
+    const modalEl = this.editProfileModal?.nativeElement;
     if (modalEl) {
       if (typeof bootstrap !== 'undefined') {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
+      } else {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
       }
     }
     this.selectedProfileId = null;
@@ -141,5 +175,40 @@ export class ProfileListComponent {
       error: () => this.isSubmitting = false,
       complete: () => this.isSubmitting = false
     });
+  }
+
+  private formatDate(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('es-GT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  }
+
+  private copyToClipboard(value: string): Promise<void> {
+    if (navigator.clipboard?.writeText) {
+      return navigator.clipboard.writeText(value);
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(textarea);
+
+    return copied ? Promise.resolve() : Promise.reject();
   }
 }

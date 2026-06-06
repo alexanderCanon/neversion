@@ -1,33 +1,108 @@
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-        <label for="email" class="form-label fw-semibold">Correo electrónico</label>
-        <input id="email" type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com" autocomplete="email">
-        @if(loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-            <div class="text-danger small mt-1">El correo es obligatorio.</div>
-        }
-    </div>
-
-    <div class="mb-4">
-        <label for="password" class="form-label fw-semibold">Contraseña</label>
-        <input id="password" type="password" class="form-control" formControlName="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
-        @if(loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <div class="text-danger small mt-1">Mínimo 6 caracteres.</div>
-        }
-    </div>
-
-    @if(errorMessage) {
-        <div class="alert alert-danger d-flex align-items-start gap-2 p-3 small mb-4" role="alert">
-            <i class="bi bi-exclamation-circle-fill flex-shrink-0" aria-hidden="true"></i>
-            {{ errorMessage }}
+@if (step === 'email') {
+    <form [formGroup]="emailForm" (ngSubmit)="onSubmitEmail()">
+        <div class="mb-4">
+            <label for="email" class="form-label fw-semibold">Correo electrónico</label>
+            <input id="email" type="email" class="form-control" formControlName="email" placeholder="correo@ejemplo.com" autocomplete="email">
+            @if(emailForm.get('email')?.invalid && emailForm.get('email')?.touched) {
+                <div class="text-danger small mt-1">El correo ingresado no es válido.</div>
+            }
         </div>
-    }
 
-    <button type="submit" class="btn btn-primary w-100 login-btn" [disabled]="loginForm.invalid || isLoading">
-        @if(isLoading) {
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-            Ingresando...
-        } @else {
-            Ingresar
+        @if(errorMessage) {
+            <div class="alert alert-danger d-flex align-items-start gap-2 p-3 small mb-4" role="alert">
+                <i class="bi bi-exclamation-circle-fill flex-shrink-0" aria-hidden="true"></i>
+                {{ errorMessage }}
+            </div>
         }
-    </button>
-</form>
+
+        <button type="submit" class="btn btn-primary w-100 login-btn" [disabled]="emailForm.invalid || isLoading">
+            @if(isLoading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Verificando correo...
+            } @else {
+                Continuar
+            }
+        </button>
+    </form>
+}
+
+@if (step === 'password') {
+    <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPassword()">
+        <div class="email-badge-container d-flex align-items-center justify-content-between p-2 mb-3 bg-light rounded-3 border">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <i class="bi bi-person-circle text-muted fs-5 flex-shrink-0"></i>
+                <span class="small fw-medium text-dark text-truncate">{{ email }}</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-link text-decoration-none p-0 fw-semibold ms-2" (click)="onGoBackClick()">
+                Cambiar
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <label for="password" class="form-label fw-semibold">Contraseña</label>
+            <input id="password" type="password" class="form-control" formControlName="password" placeholder="Ingresa tu contraseña" autocomplete="current-password">
+            @if(passwordForm.get('password')?.invalid && passwordForm.get('password')?.touched) {
+                <div class="text-danger small mt-1">Mínimo 6 caracteres.</div>
+            }
+        </div>
+
+        @if(errorMessage) {
+            <div class="alert alert-danger d-flex align-items-start gap-2 p-3 small mb-4" role="alert">
+                <i class="bi bi-exclamation-circle-fill flex-shrink-0" aria-hidden="true"></i>
+                {{ errorMessage }}
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary w-100 login-btn" [disabled]="passwordForm.invalid || isLoading">
+            @if(isLoading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Ingresando...
+            } @else {
+                Ingresar
+            }
+        </button>
+    </form>
+}
+
+@if (step === 'no-account') {
+    <div class="no-account-container text-center py-2">
+        <div class="mb-4">
+            <div class="warning-icon-wrapper mx-auto d-flex align-items-center justify-content-center rounded-circle" style="width: 72px; height: 72px; background-color: #fffbeb; border: 1px solid #fef3c7;">
+                <i class="bi bi-shield-slash-fill text-warning fs-1"></i>
+            </div>
+        </div>
+        
+        <h3 class="fw-bold mb-2 text-dark">Acceso restringido</h3>
+        <p class="text-secondary small mb-4">
+            No existe una cuenta activa vinculada al correo <br><strong class="text-dark">{{ email }}</strong>.
+        </p>
+
+        <div class="card border-0 bg-light p-3 mb-4 rounded-3 text-start shadow-sm">
+            <h6 class="fw-bold text-primary mb-2 d-flex align-items-center gap-2">
+                <i class="bi bi-gem"></i> ¿Deseas una cuenta en Neversion?
+            </h6>
+            <p class="text-secondary small mb-0 lh-base">
+                Neversion es una plataforma exclusiva. Para registrarte como <strong>Partner, Asociado o Distribuidor Mayorista</strong>, debes contactar de forma directa al propietario del software para su respectiva autorización.
+            </p>
+        </div>
+
+        <!-- Contact Options -->
+        <div class="d-flex flex-column gap-2 mb-4">
+            <a href="https://wa.me/50242158656?text=Hola%20Alexander,%20me%20gustar%C3%ADa%20obtener%20una%20cuenta%20en%20Neversion%20como%20Partner/Distribuidor.%20Mi%20correo%20es:%20{{ email }}" 
+               target="_blank" 
+               class="btn btn-success d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold shadow-sm text-white text-decoration-none">
+                <i class="bi bi-whatsapp"></i>
+                Contactar por WhatsApp
+            </a>
+            <a href="mailto:alexander@neversion.com?subject=Solicitud de Cuenta Neversion - Partner/Distribuidor&body=Hola Alexander,%0D%0A%0D%0AMe gustaría solicitar una cuenta en Neversion.%0D%0A%0D%0ACorreo de registro: {{ email }}" 
+               class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-2 py-2 fw-semibold text-decoration-none">
+                <i class="bi bi-envelope"></i>
+                Enviar correo electrónico
+            </a>
+        </div>
+
+        <button type="button" class="btn btn-link text-decoration-none text-muted small fw-semibold" (click)="onGoBackClick()">
+            <i class="bi bi-arrow-left me-1"></i> Regresar al inicio de sesión
+        </button>
+    </div>
+}

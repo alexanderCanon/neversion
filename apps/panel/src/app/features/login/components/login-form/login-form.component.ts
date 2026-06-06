@@ -13,20 +13,50 @@ export class LoginFormComponent {
 
   @Input() isLoading = false;
   @Input() errorMessage: string | null = null;
+  @Input() step: 'email' | 'password' | 'no-account' = 'email';
   
-  @Output() submitLogin = new EventEmitter<{email: string, password: string}>();
+  private _email = '';
+  @Input()
+  set email(val: string) {
+    this._email = val;
+    if (this.emailForm) {
+      this.emailForm.patchValue({ email: val }, { emitEvent: false });
+    }
+  }
+  get email(): string {
+    return this._email;
+  }
 
-  loginForm: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
+  @Output() submitEmail = new EventEmitter<string>();
+  @Output() submitLogin = new EventEmitter<string>();
+  @Output() goBack = new EventEmitter<void>();
+
+  emailForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]]
+  });
+
+  passwordForm: FormGroup = this.fb.group({
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
+  onSubmitEmail(): void {
+    if (this.emailForm.invalid) {
+      this.emailForm.markAllAsTouched();
       return;
     }
+    this.submitEmail.emit(this.emailForm.value.email);
+  }
 
-    this.submitLogin.emit(this.loginForm.value);
+  onSubmitPassword(): void {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
+    this.submitLogin.emit(this.passwordForm.value.password);
+  }
+
+  onGoBackClick(): void {
+    this.passwordForm.reset();
+    this.goBack.emit();
   }
 }

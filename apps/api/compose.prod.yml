@@ -60,6 +60,7 @@ services:
       neversion-internal:
         aliases:
           - neversion-api
+      dokploy-network:
 
     # ── Memory ──────────────────────────────────────────────────
     # JVM -XX:MaxRAMPercentage=75.0 caps heap at ~576MB (75% of 768m).
@@ -83,4 +84,6 @@ services:
 
 networks:
   neversion-internal:
+    external: true
+  dokploy-network:
     external: true

@@ -41,6 +41,10 @@ public class NotificationTemplateResolver {
             Map.entry("RENEWAL_REMINDER_7D", new TemplateMapping("email/renewal-reminder", "Tu suscripción vence en 7 días")),
             Map.entry("RENEWAL_REMINDER_3D", new TemplateMapping("email/renewal-reminder", "Tu suscripción vence en 3 días")),
             Map.entry("RENEWAL_REMINDER_1D", new TemplateMapping("email/renewal-reminder", "Tu suscripción vence mañana")),
+            Map.entry("ACCOUNT_RENEWAL_REMINDER_7D", new TemplateMapping("email/account-renewal-reminder", "Renovación de cuenta matriz en 7 días")),
+            Map.entry("ACCOUNT_RENEWAL_REMINDER_3D", new TemplateMapping("email/account-renewal-reminder", "Renovación de cuenta matriz en 3 días")),
+            Map.entry("ACCOUNT_RENEWAL_REMINDER_1D", new TemplateMapping("email/account-renewal-reminder", "Renovación de cuenta matriz mañana")),
+            Map.entry("ACCOUNT_RENEWAL_REMINDER_DUE", new TemplateMapping("email/account-renewal-reminder", "Renovación de cuenta matriz hoy")),
             Map.entry("ORDER_COMPLETED", new TemplateMapping("email/order-completed", "Tu orden ha sido completada")),
             Map.entry("ORDER_CANCELLED", new TemplateMapping("email/order-cancelled", "Tu orden ha sido cancelada"))
     );
