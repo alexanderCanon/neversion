@@ -1,3 +1,8 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+allowBuilds:
+  '@nestjs/core': set this to true or false
+  '@openapitools/openapi-generator-cli': set this to true or false
+  esbuild: set this to true or false
+  nice-napi: set this to true or false

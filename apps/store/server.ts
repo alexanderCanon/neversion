@@ -31,6 +31,11 @@ export function app(): express.Express {
     next();
   });
 
+  // Health check endpoint for Dokploy/container orchestration
+  server.get('/health', (_req, res) => {
+    res.status(200).json({ status: 'ok', time: new Date().toISOString() });
+  });
+
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
   // Serve static files from /browser
