@@ -71,40 +71,42 @@
               @for (reserv of paginatedReservations(); track reserv.id) {
                 <tr class="reservation-row">
                   <td class="ps-4 py-3">
-                    <div class="d-flex flex-column">
-                        <code class="text-primary fw-bold small">{{ reserv.id.substring(0, 8) }}</code>
-                        <span class="x-small text-muted fw-semibold">Fecha: {{ reserv.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <div class="d-flex flex-column gap-1">
+                        <span class="font-monospace text-dark fw-bold" style="font-size: 0.9rem;">#{{ reserv.id.substring(0, 8) }}</span>
+                        <span class="text-muted" style="font-size: 0.8rem;">
+                            <i class="bi bi-clock me-1"></i>{{ reserv.createdAt | date:'dd/MM/yyyy HH:mm' }}
+                        </span>
                     </div>
                   </td>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                        <div class="avatar-sm-circle bg-light border text-muted">
-                            <i class="bi bi-person"></i>
+                        <div class="avatar-sm-circle bg-light text-secondary border d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <i class="bi bi-person-fill"></i>
                         </div>
                         @if (reserv.clientId) {
                             <div class="d-flex flex-column">
-                                <span class="fw-bold text-dark small">ID: {{ reserv.clientId.substring(0, 8) }}</span>
-                                <span class="x-small text-muted">Asignado</span>
+                                <span class="fw-bold text-dark font-monospace" style="font-size: 0.85rem;">#{{ reserv.clientId.substring(0, 8) }}</span>
+                                <span class="text-muted" style="font-size: 0.75rem;">Cliente asignado</span>
                             </div>
                         } @else {
-                            <span class="text-muted small italic">Sin asignar</span>
+                            <span class="text-muted" style="font-size: 0.8rem; font-style: italic;">Sin asignar</span>
                         }
                     </div>
                   </td>
                   <td>
-                    <span class="badge" [ngClass]="getStatusBadgeClass(reserv.status)">
-                        {{ reserv.status }}
+                    <span [class]="getStatusBadgeClass(reserv.status)">
+                        {{ getStatusLabel(reserv.status) }}
                     </span>
                   </td>
                   <td>
-                    <span class="fw-bold text-dark">Q{{ reserv.total | number:'1.2-2' }}</span>
+                    <span class="fw-semibold text-dark" style="font-size: 0.95rem;">Q{{ reserv.total | number:'1.2-2' }}</span>
                   </td>
                   <td>
                     <div class="d-flex flex-column">
-                        <span class="small fw-medium" [class.text-danger]="reserv.status === 'EXPIRED'">
+                        <span class="small fw-semibold text-dark" [class.text-danger]="reserv.status === 'EXPIRED'">
                             {{ reserv.expirationDate | date:'dd/MM/yyyy' }}
                         </span>
-                        <span class="x-small text-muted">{{ reserv.expirationDate | date:'HH:mm' }}</span>
+                        <span class="text-muted" style="font-size: 0.8rem;">{{ reserv.expirationDate | date:'HH:mm' }}</span>
                     </div>
                   </td>
                   <td class="text-end pe-4">

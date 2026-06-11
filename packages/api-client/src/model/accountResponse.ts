@@ -45,3 +45,4 @@ export namespace AccountResponse {
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
 
+

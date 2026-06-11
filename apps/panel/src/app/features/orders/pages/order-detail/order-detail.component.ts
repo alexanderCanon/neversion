@@ -5,6 +5,7 @@ import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
 import { OrderDetailResponse, SuggestAssignmentResponse } from '@neversion/api-client';
 import { ToastService } from '../../../../core/services/toast.service';
+import { ReceiptImageService } from '../../../../core/services/receipt-image.service';
 import { AssignmentsService } from '../../../assignments/services/assignments.service';
 import { ProfileService } from '../../../accounts/services/profile.service';
 import { ProfileResponse } from '@neversion/models';
@@ -21,6 +22,7 @@ export class OrderDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly ordersService = inject(OrdersService);
   private readonly toastService = inject(ToastService);
+  readonly receiptImageService = inject(ReceiptImageService);
   private readonly assignmentsService = inject(AssignmentsService);
   private readonly profileService = inject(ProfileService);
 

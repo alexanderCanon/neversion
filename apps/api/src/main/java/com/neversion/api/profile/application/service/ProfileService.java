@@ -84,6 +84,20 @@ public class ProfileService implements ProfileUseCase {
         return profileRepositoryPort.findAvailableByAccountId(accountId);
     }
 
+    @Override
+    public List<Profile> findByAccountUuid(UUID accountUuid) {
+        var account = accountRepositoryPort.findById(accountUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + accountUuid));
+        return profileRepositoryPort.findByAccountId(account.getId());
+    }
+
+    @Override
+    public List<Profile> findAvailableByAccountUuid(UUID accountUuid) {
+        var account = accountRepositoryPort.findById(accountUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + accountUuid));
+        return profileRepositoryPort.findAvailableByAccountId(account.getId());
+    }
+
     // ─── US-022 / BR-01: auto-generation on account creation ─────────────────
 
     /**

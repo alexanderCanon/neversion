@@ -17,6 +17,10 @@ public interface ProfileUseCase {
 
     List<Profile> findAvailableByAccountId(Long accountId);
 
+    List<Profile> findByAccountUuid(UUID accountUuid);
+
+    List<Profile> findAvailableByAccountUuid(UUID accountUuid);
+
     /**
      * Auto-generates N blank profiles upon account creation (BR-01).
      * vendorId propagated for multi-tenancy (ADR-02).

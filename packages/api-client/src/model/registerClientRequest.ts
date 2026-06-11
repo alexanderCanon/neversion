@@ -23,7 +23,7 @@ export interface RegisterClientRequest {
      */
     name?: string;
     /**
-     * Optional phone number — primary WhatsApp contact
+     * Required phone number — used to link existing manual clients
      */
     phone?: string;
     /**

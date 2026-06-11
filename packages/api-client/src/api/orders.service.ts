@@ -243,7 +243,7 @@ export class OrdersApiService extends BaseService {
 
     /**
      * Get order by reservation ID
-     * Retrieve the order linked to a specific reservation
+     * Retrieve the order linked to a specific reservation. Ownership check enforced.
      * @endpoint get /api/v1/orders/by-reservation/{reservationId}
      * @param reservationId Reservation internal ID
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

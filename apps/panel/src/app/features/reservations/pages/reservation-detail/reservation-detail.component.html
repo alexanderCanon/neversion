@@ -10,25 +10,9 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-                    Reserva: <code class="text-primary font-monospace">{{ reservation()?.id?.substring(0, 8) }}</code>
-                    <span class="badge badge-pill-premium" [ngClass]="{
-                        'bg-warning-subtle text-warning border-warning-pill': reservation()?.status === 'PENDING',
-                        'bg-info-subtle text-info border-info-pill': reservation()?.status === 'UPLOADED',
-                        'bg-success-subtle text-success border-success-pill': reservation()?.status === 'VALIDATED',
-                        'bg-secondary-subtle text-secondary border-secondary-pill': reservation()?.status === 'EXPIRED',
-                        'bg-danger-subtle text-danger border-danger-pill': reservation()?.status === 'CANCELLED'
-                    }">
-                        <i class="bi me-1" [ngClass]="{
-                            'bi-clock-history': reservation()?.status === 'PENDING',
-                            'bi-cloud-upload-fill': reservation()?.status === 'UPLOADED',
-                            'bi-check-circle-fill': reservation()?.status === 'VALIDATED',
-                            'bi-hourglass-bottom': reservation()?.status === 'EXPIRED',
-                            'bi-x-circle-fill': reservation()?.status === 'CANCELLED'
-                        }"></i>
-                        {{ reservation()?.status === 'PENDING' ? 'Pendiente de Pago' : 
-                           reservation()?.status === 'UPLOADED' ? 'Pago Subido' : 
-                           reservation()?.status === 'VALIDATED' ? 'Validada' : 
-                           reservation()?.status === 'EXPIRED' ? 'Expirada' : 'Cancelada' }}
+                    Reserva: <span class="font-monospace text-dark fw-bold">#{{ reservation()?.id?.substring(0, 8) }}</span>
+                    <span [class]="getStatusBadgeClass(reservation()?.status)">
+                        {{ getStatusLabel(reservation()?.status) }}
                     </span>
                 </h3>
                 <p class="text-muted small mb-0">Gestión de validación de pago y asignación de cliente.</p>
@@ -58,7 +42,7 @@
                         
                         <!-- Step 1: Creada -->
                         <div class="col text-center position-relative z-1">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle timeline-step-badge bg-primary text-white shadow-sm mb-2">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white shadow-sm mb-2" style="width: 42px; height: 42px; border: 3px solid #fff; z-index: 2; font-size: 1.15rem; margin: 0 auto;">
                                 <i class="bi bi-file-earmark-plus-fill"></i>
                             </div>
                             <h6 class="mb-1 fw-bold text-dark font-small">Reserva Creada</h6>
@@ -67,7 +51,8 @@
 
                         <!-- Step 2: Comprobante Subido -->
                         <div class="col text-center position-relative z-1">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle timeline-step-badge"
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+                                 style="width: 42px; height: 42px; border: 3px solid #fff; z-index: 2; font-size: 1.15rem; margin: 0 auto;"
                                  [ngClass]="{
                                     'bg-primary text-white shadow-sm': reservation()?.status === 'UPLOADED' || reservation()?.status === 'VALIDATED',
                                     'bg-white text-muted border': reservation()?.status === 'PENDING'
@@ -90,7 +75,8 @@
 
                         <!-- Step 3: Validada -->
                         <div class="col text-center position-relative z-1">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle timeline-step-badge"
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2"
+                                 style="width: 42px; height: 42px; border: 3px solid #fff; z-index: 2; font-size: 1.15rem; margin: 0 auto;"
                                  [ngClass]="{
                                     'bg-success text-white shadow-sm': reservation()?.status === 'VALIDATED',
                                     'bg-white text-muted border': reservation()?.status !== 'VALIDATED'
@@ -201,10 +187,10 @@
                         @if (reservation()!.receiptUrl) {
                             <div class="receipt-preview-wrapper mb-3">
                                 <div class="receipt-preview-container shadow-sm border rounded-4 bg-white p-2">
-                                    <img [src]="reservation()!.receiptUrl" class="img-fluid rounded-3 receipt-zoom" style="max-height: 480px; object-fit: contain;" alt="Comprobante de Pago">
+                                    <img [src]="receiptImageService.resolveReceiptUrl(reservation()!.receiptUrl)" class="img-fluid rounded-3 receipt-zoom" style="max-height: 480px; object-fit: contain;" alt="Comprobante de Pago">
                                 </div>
                             </div>
-                            <a [href]="reservation()!.receiptUrl" target="_blank" rel="noopener noreferrer" 
+                            <a [href]="receiptImageService.resolveReceiptUrl(reservation()!.receiptUrl)" target="_blank" rel="noopener noreferrer" 
                                class="btn btn-white border shadow-sm px-4 py-2 rounded-pill fw-bold hover-scale transition-all">
                                 <i class="bi bi-box-arrow-up-right me-2 text-primary"></i> Abrir en tamaño completo
                             </a>
@@ -232,13 +218,9 @@
                                 <span class="text-muted text-xs d-flex align-items-center gap-1">
                                     <i class="bi bi-tag text-secondary"></i> Estado:
                                 </span>
-                                <span class="badge" [ngClass]="{
-                                    'bg-warning-subtle text-warning': reservation()!.status === 'PENDING',
-                                    'bg-info-subtle text-info': reservation()!.status === 'UPLOADED',
-                                    'bg-success-subtle text-success': reservation()!.status === 'VALIDATED',
-                                    'bg-secondary-subtle text-secondary': reservation()!.status === 'EXPIRED',
-                                    'bg-danger-subtle text-danger': reservation()!.status === 'CANCELLED'
-                                }">{{ reservation()!.status }}</span>
+                                <span [class]="getStatusBadgeClass(reservation()!.status)">
+                                    {{ getStatusLabel(reservation()!.status) }}
+                                </span>
                             </div>
                             <div class="info-row d-flex justify-content-between align-items-center py-2.5 border-bottom">
                                 <span class="text-muted text-xs d-flex align-items-center gap-1">
