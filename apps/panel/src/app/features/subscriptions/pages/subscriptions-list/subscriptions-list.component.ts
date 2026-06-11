@@ -166,11 +166,11 @@ export class SubscriptionsListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'ACTIVE':    return 'bg-success';
-      case 'EXPIRED':   return 'bg-danger';
-      case 'CANCELLED': return 'bg-secondary';
-      case 'SUSPENDED': return 'bg-warning text-dark';
-      default:          return 'bg-info';
+      case 'ACTIVE':    return 'badge-status active';
+      case 'EXPIRED':   return 'badge-status expired';
+      case 'CANCELLED': return 'badge-status cancelled';
+      case 'SUSPENDED': return 'badge-status suspended';
+      default:          return 'badge-status default';
     }
   }
 

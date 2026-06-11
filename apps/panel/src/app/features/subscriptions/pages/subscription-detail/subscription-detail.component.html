@@ -8,10 +8,10 @@
                     <li class="breadcrumb-item active">Detalle</li>
                 </ol>
             </nav>
-            <h2 class="mb-0 fw-bold">
+            <h2 class="mb-0 fw-bold d-flex align-items-center gap-3">
                 Detalle de Suscripción
                 @if (subscription()) {
-                    <span class="badge ms-2" [ngClass]="getStatusClass(subscription()!.status!)">
+                    <span [class]="getStatusClass(subscription()!.status!)">
                         {{ getStatusLabel(subscription()!.status!) }}
                     </span>
                 }
@@ -62,7 +62,7 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="text-muted small d-block">ID de Suscripción</label>
-                                <span class="font-monospace">{{ subscription()!.id }}</span>
+                                <span class="font-monospace text-dark fw-bold">#{{ subscription()!.id }}</span>
                             </div>
                             <div class="col-md-6">
                                 <label class="text-muted small d-block">Fecha de Inicio</label>
@@ -157,23 +157,42 @@
                                 </span>
                             </div>
 
-                            <div class="p-3 bg-light rounded">
+                            <div class="p-3 bg-light rounded-4 border">
                                 <div class="mb-3">
                                     <label class="text-muted small d-block">Correo de la Cuenta</label>
-                                    <code class="text-primary">{{ subscription()!.access!.accountEmail || 'No disponible' }}</code>
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.accountEmail || 'No disponible' }}</span>
+                                        @if (subscription()!.access!.accountEmail) {
+                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountEmail, 'Correo')" title="Copiar Correo">
+                                                <i class="bi bi-copy"></i>
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="text-muted small d-block">Contraseña</label>
-                                    <code class="text-primary">{{ subscription()!.access!.accountPassword || 'No disponible' }}</code>
+                                    <div class="d-flex align-items-center justify-content-between gap-2">
+                                        <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.accountPassword || 'No disponible' }}</span>
+                                        @if (subscription()!.access!.accountPassword) {
+                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountPassword, 'Contraseña')" title="Copiar Contraseña">
+                                                <i class="bi bi-copy"></i>
+                                            </button>
+                                        }
+                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="text-muted small d-block">Perfil Asignado</label>
-                                    <strong>{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
+                                    <strong class="text-dark">{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
                                 </div>
                                 <div>
                                     <label class="text-muted small d-block">PIN</label>
                                     @if (subscription()!.access!.profilePin) {
-                                        <code class="text-primary">{{ subscription()!.access!.profilePin }}</code>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.profilePin }}</span>
+                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.profilePin, 'PIN')" title="Copiar PIN">
+                                                <i class="bi bi-copy"></i>
+                                            </button>
+                                        </div>
                                     } @else {
                                         <span class="text-muted">Sin PIN</span>
                                     }
@@ -185,15 +204,15 @@
 
                 <!-- Orden de Origen -->
                 @if (subscription()!.order) {
-                    <div class="card shadow-sm mt-4 border-info">
-                        <div class="card-body">
+                    <div class="card border-0 shadow-sm mt-4">
+                        <div class="card-body p-4">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <label class="text-muted small d-block">Orden de Origen</label>
-                                    <strong>#{{ subscription()!.order!.id | slice:0:8 }}</strong>
+                                    <label class="text-muted small d-block mb-1">Orden de Origen</label>
+                                    <span class="font-monospace text-dark fw-bold">#{{ subscription()!.order!.id | slice:0:8 }}</span>
                                 </div>
-                                <a [routerLink]="['/orders', subscription()!.order!.id]" class="btn btn-sm btn-info text-white">
-                                    Ver Orden
+                                <a [routerLink]="['/orders', subscription()!.order!.id]" class="btn btn-sm btn-white border fw-bold text-primary px-3 py-2 rounded-3 shadow-sm">
+                                    <i class="bi bi-eye me-1"></i> Ver Orden
                                 </a>
                             </div>
                         </div>

@@ -95,9 +95,9 @@
               @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
                 <tr class="subscription-row">
                   <td class="ps-4 py-3">
-                    <div class="d-flex flex-column">
-                        <span class="fw-bold text-dark fs-6">{{ sub.serviceName }}</span>
-                        <span class="x-small text-muted fw-semibold">ID: {{ sub.id?.substring(0, 8) }}</span>
+                    <div class="d-flex flex-column gap-1">
+                        <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ sub.serviceName }}</span>
+                        <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ sub.id?.substring(0, 8) }}</span>
                     </div>
                   </td>
                   <td>
@@ -113,17 +113,27 @@
                     <span class="small text-muted">{{ sub.startDate | date:'dd/MM/yyyy' }}</span>
                   </td>
                   <td>
-                    <div class="d-flex flex-column">
-                        <span class="fw-bold small" [class.text-danger]="sub.status === 'SUSPENDED'">
-                          {{ sub.paymentDueDate | date:'dd/MM/yyyy' }}
+                    <div class="d-flex flex-column gap-1">
+                        <span class="text-dark fw-semibold" style="font-size: 0.85rem;" [class.text-danger]="$any(sub.status) === 'SUSPENDED' || $any(sub.status) === 'EXPIRED'">
+                          <i class="bi bi-calendar-check me-1 text-muted"></i>{{ sub.paymentDueDate | date:'dd/MM/yyyy' }}
                         </span>
                         @if (sub.status === 'ACTIVE') {
-                            <span class="x-small text-success fw-bold text-uppercase" style="font-size: 0.6rem;">Al día</span>
+                            <span class="text-success fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                <i class="bi bi-check-circle-fill me-1"></i>Al día
+                            </span>
+                        } @else if (sub.status === 'SUSPENDED') {
+                            <span class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Suspendido
+                            </span>
+                        } @else if ($any(sub.status) === 'EXPIRED') {
+                            <span class="text-danger fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                <i class="bi bi-exclamation-octagon-fill me-1"></i>Vencido
+                            </span>
                         }
                     </div>
                   </td>
                   <td>
-                    <span class="badge" [ngClass]="getStatusClass(sub.status!)">
+                    <span [class]="getStatusClass(sub.status!)">
                       {{ getStatusLabel(sub.status!) }}
                     </span>
                   </td>
@@ -185,10 +195,6 @@
     }
   </div>
 </div>
-
-<app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>
-<app-manual-assignment-modal #manualModal (assignmentCreated)="onManualAssignmentCreated()"></app-manual-assignment-modal>
-
 
 <app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>
 <app-manual-assignment-modal #manualModal (assignmentCreated)="onManualAssignmentCreated()"></app-manual-assignment-modal>

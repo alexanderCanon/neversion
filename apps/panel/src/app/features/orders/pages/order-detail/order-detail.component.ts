@@ -111,14 +111,27 @@ export class OrderDetailComponent implements OnInit {
       });
   }
 
+  getStatusLabel(status: string | undefined): string {
+    if (!status) return '';
+    const labels: Record<string, string> = {
+      PENDING: 'Pendiente',
+      VALIDATED: 'Validada',
+      COMPLETED: 'Completada',
+      REJECTED: 'Rechazada',
+      CANCELLED: 'Cancelada'
+    };
+    return labels[status] ?? status;
+  }
+
   getStatusBadgeClass(status: string | undefined): string {
+    if (!status) return 'badge-status default';
     switch (status) {
-      case 'PENDING': return 'bg-warning text-dark';
-      case 'VALIDATED': return 'bg-info text-dark';
-      case 'COMPLETED': return 'bg-success';
-      case 'REJECTED': return 'bg-danger';
-      case 'CANCELLED': return 'bg-secondary';
-      default: return 'bg-light text-dark';
+      case 'PENDING': return 'badge-status pending';
+      case 'VALIDATED': return 'badge-status validated';
+      case 'COMPLETED': return 'badge-status completed';
+      case 'REJECTED': return 'badge-status rejected';
+      case 'CANCELLED': return 'badge-status cancelled';
+      default: return 'badge-status default';
     }
   }
 }

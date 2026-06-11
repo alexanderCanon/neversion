@@ -10,7 +10,7 @@ import { ToastService } from '../../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './subscription-detail.component.html',
-  styleUrls: []
+  styleUrl: './subscription-detail.component.scss'
 })
 export class SubscriptionDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -92,13 +92,22 @@ export class SubscriptionDetailComponent implements OnInit {
     }
   }
 
+  copyToClipboard(text: string | undefined, label: string): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastService.success(`${label} copiado al portapapeles`);
+    }).catch(() => {
+      this.toastService.error(`No se pudo copiar el ${label.toLowerCase()}`);
+    });
+  }
+
   getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'ACTIVE':    return 'bg-success';
-      case 'EXPIRED':   return 'bg-danger';
-      case 'CANCELLED': return 'bg-secondary';
-      case 'SUSPENDED': return 'bg-warning text-dark';
-      default:          return 'bg-info';
+      case 'ACTIVE':    return 'badge-status active';
+      case 'EXPIRED':   return 'badge-status expired';
+      case 'CANCELLED': return 'badge-status cancelled';
+      case 'SUSPENDED': return 'badge-status suspended';
+      default:          return 'badge-status default';
     }
   }
 
