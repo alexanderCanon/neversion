@@ -1,9 +1,11 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { PlatformService } from '../../services/platform.service';
 import { CartService } from '../../services/cart.service';
 import { ImageService } from '../../services/image.service';
 import { ToastService } from '../../services/toast.service';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
 import { ServiceResponse } from '@neversion/api-client';
 
 @Component({
@@ -17,11 +19,28 @@ export class PlatformsComponent implements OnInit {
   private readonly _cartService = inject(CartService);
   private readonly _imageService = inject(ImageService);
   private readonly _toastService = inject(ToastService);
+  private readonly _route = inject(ActivatedRoute);
 
   platforms$!: Observable<ServiceResponse[]>;
+  searchQuery$!: Observable<string>;
 
   ngOnInit(): void {
-    this.platforms$ = this._platformService.getPlatforms();
+    const allPlatforms$ = this._platformService.getPlatforms();
+    this.searchQuery$ = this._route.queryParams.pipe(
+      map(params => (params['q'] || '').trim())
+    );
+
+    this.platforms$ = combineLatest([allPlatforms$, this.searchQuery$]).pipe(
+      map(([platforms, query]) => {
+        if (!query) return platforms;
+        const lower = query.toLowerCase();
+        return platforms.filter(p =>
+          (p.name?.toLowerCase().includes(lower)) ||
+          (p.category?.toLowerCase().includes(lower)) ||
+          (p.description?.toLowerCase().includes(lower))
+        );
+      })
+    );
   }
 
   addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {

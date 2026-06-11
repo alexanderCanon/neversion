@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
@@ -47,6 +48,7 @@ public class CreateReservationService implements CreateReservationUseCase {
     private final ServiceRepositoryPort serviceRepositoryPort;
     private final ProfileRepositoryPort profileRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
+    private final UserRepositoryPort userRepositoryPort;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
@@ -54,13 +56,15 @@ public class CreateReservationService implements CreateReservationUseCase {
             ClientRepositoryPort clientRepositoryPort,
             ServiceRepositoryPort serviceRepositoryPort,
             ProfileRepositoryPort profileRepositoryPort,
-            VendorRepositoryPort vendorRepositoryPort) {
+            VendorRepositoryPort vendorRepositoryPort,
+            UserRepositoryPort userRepositoryPort) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.reservationPricingService = reservationPricingService;
         this.clientRepositoryPort = clientRepositoryPort;
         this.serviceRepositoryPort = serviceRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
+        this.userRepositoryPort = userRepositoryPort;
     }
 
     @Override
@@ -69,9 +73,13 @@ public class CreateReservationService implements CreateReservationUseCase {
                                String paymentMethod) {
 
         // 1. Resolve client and vendor for multi-tenancy
-        Client client = clientRepositoryPort.findById(clientUuid)
+        var user = userRepositoryPort.findByExternalId(clientUuid.toString())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Client not found with id: " + clientUuid));
+                        "User not found for externalId: " + clientUuid));
+
+        Client client = clientRepositoryPort.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Client record not found for userId: " + user.getId()));
 
         Long vendorId = client.getVendorId();
         if (vendorId == null) {

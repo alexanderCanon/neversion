@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
@@ -29,6 +29,12 @@ export class ReservationDetailComponent implements OnInit {
   // For client attachment
   clients = this.clientsService.clients;
   selectedClientId = signal('');
+
+  assignedClient = computed(() => {
+    const res = this.reservation();
+    if (!res || !res.clientId) return null;
+    return this.clients().find(c => c.id === res.clientId) || null;
+  });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

@@ -21,6 +21,15 @@ export class CheckoutComponent implements OnInit {
   total$: Observable<number> = this.cartItems$.pipe(
     map(() => this.cartService.getTotal())
   );
+  discountPercent$: Observable<number> = this.cartItems$.pipe(
+    map(() => this.cartService.getComboDiscountPercent())
+  );
+  discountAmount$: Observable<number> = this.cartItems$.pipe(
+    map(() => this.cartService.getComboDiscountAmount())
+  );
+  discountedTotal$: Observable<number> = this.cartItems$.pipe(
+    map(() => this.cartService.getDiscountedTotal())
+  );
 
   paymentMethods = [
     { id: 'TRANSFERENCIA', label: 'Transferencia Bancaria' },
