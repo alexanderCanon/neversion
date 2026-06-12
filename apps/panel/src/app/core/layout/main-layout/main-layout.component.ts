@@ -46,8 +46,6 @@ export class MainLayoutComponent {
     return 'US';
   });
 
-
-
   retryContext(): void {
     this.isRecoveringContext.set(true);
     this.authService.retryCurrentContext()
