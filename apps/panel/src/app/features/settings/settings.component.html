@@ -2,7 +2,7 @@
     <!-- Header Page -->
     <div class="mb-4">
         <h3 class="fw-bold mb-1 text-dark">Configuración del Sistema</h3>
-        <p class="text-secondary small mb-0">Gestiona tus preferencias visuales, información de cuenta y seguridad del panel.</p>
+        <p class="text-secondary small mb-0">Gestiona tu información de cuenta y seguridad del panel.</p>
     </div>
 
     <!-- Main Grid Layout -->
@@ -17,13 +17,6 @@
                         (click)="selectSection('profile')">
                         <i class="bi bi-person-circle fs-5"></i>
                         <span class="fw-bold">Mi Perfil</span>
-                    </button>
-                    <button 
-                        class="list-group-item list-group-item-action border-0 rounded-3 py-3 px-4 d-flex align-items-center gap-3 transition-all" 
-                        [class.active-item]="activeSection() === 'preferences'"
-                        (click)="selectSection('preferences')">
-                        <i class="bi bi-palette fs-5"></i>
-                        <span class="fw-bold">Preferencias</span>
                     </button>
                     <button 
                         class="list-group-item list-group-item-action border-0 rounded-3 py-3 px-4 d-flex align-items-center gap-3 transition-all" 
@@ -78,42 +71,6 @@
                                     <p class="mb-0 small opacity-90">
                                         Por motivos de seguridad y auditoría en la plataforma multi-tenant, el cambio del nombre de la tienda o del correo del vendedor debe solicitarse directamente al administrador principal del sistema. Puedes hacerlo a través de la sección de Ayuda.
                                     </p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- SECTION: PREFERENCES -->
-                    @if (activeSection() === 'preferences') {
-                        <div class="section-header mb-4">
-                            <h4 class="fw-bold mb-2">Preferencias del Sistema</h4>
-                            <p class="text-secondary small">Personaliza el aspecto visual del panel administrativo a tu gusto.</p>
-                        </div>
-                        <hr class="mb-4 opacity-10">
-
-                        <h6 class="fw-bold text-secondary mb-3 text-uppercase tracking-wider fs-7">Tema de Color</h6>
-                        <div class="row g-3">
-                            <!-- Theme Light -->
-                            <div class="col-sm-6">
-                                <div 
-                                    class="theme-selector-card p-4 rounded-4 border text-center transition-all cursor-pointer"
-                                    [class.selected-theme]="currentTheme() === 'light'"
-                                    (click)="setTheme('light')">
-                                    <i class="bi bi-sun-fill text-warning display-4 mb-3 d-block"></i>
-                                    <h5 class="fw-bold text-dark mb-1">Tema Claro</h5>
-                                    <p class="text-secondary small mb-0">Recomendado para entornos con buena iluminación</p>
-                                </div>
-                            </div>
-
-                            <!-- Theme Dark -->
-                            <div class="col-sm-6">
-                                <div 
-                                    class="theme-selector-card p-4 rounded-4 border text-center transition-all cursor-pointer"
-                                    [class.selected-theme]="currentTheme() === 'dark'"
-                                    (click)="setTheme('dark')">
-                                    <i class="bi bi-moon-stars-fill text-indigo display-4 mb-3 d-block"></i>
-                                    <h5 class="fw-bold text-dark mb-1">Tema Oscuro</h5>
-                                    <p class="text-secondary small mb-0">Ideal para reducir la fatiga visual en la noche</p>
                                 </div>
                             </div>
                         </div>

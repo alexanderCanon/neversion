@@ -19,10 +19,7 @@ export class SettingsComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
 
   // Active Menu / Section
-  activeSection = signal<'profile' | 'preferences' | 'security'>('profile');
-
-  // Theme preferences
-  currentTheme = signal<'light' | 'dark'>('light');
+  activeSection = signal<'profile' | 'security'>('profile');
 
   // Auth context signals
   readonly storeName = signal<string>('Mi Tienda');
@@ -47,10 +44,6 @@ export class SettingsComponent implements OnInit {
       this.userEmail.set(user.email || '');
     }
 
-    // Load initial theme setting
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    this.currentTheme.set(savedTheme || 'light');
-
     // Initialize password form
     this.passwordForm = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
@@ -65,16 +58,8 @@ export class SettingsComponent implements OnInit {
   }
 
   // Change active section
-  selectSection(section: 'profile' | 'preferences' | 'security'): void {
+  selectSection(section: 'profile' | 'security'): void {
     this.activeSection.set(section);
-  }
-
-  // Toggle theme selection
-  setTheme(theme: 'light' | 'dark'): void {
-    this.currentTheme.set(theme);
-    localStorage.setItem('theme', theme);
-    document.documentElement.setAttribute('data-bs-theme', theme);
-    this.toastService.success(`Tema ${theme === 'light' ? 'claro' : 'oscuro'} aplicado`);
   }
 
   // Update password in Supabase

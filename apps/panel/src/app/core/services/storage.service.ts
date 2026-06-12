@@ -37,4 +37,22 @@ export class StorageService {
       })
     );
   }
+
+  /**
+   * Deletes a file from Supabase Storage.
+   * @param path The path/filename in the bucket (e.g. "1717283921_logo.png")
+   * @returns Observable that completes when the deletion is finished
+   */
+  deleteServiceImage(path: string): Observable<void> {
+    const deletePromise = this.supabase.storage
+      .from(this.BUCKET_SERVICES)
+      .remove([path]);
+
+    return from(deletePromise).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        return;
+      })
+    );
+  }
 }

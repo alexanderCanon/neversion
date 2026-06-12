@@ -96,29 +96,9 @@
                     aria-controls="sidebarMenu">
                     <i class="bi bi-list fs-2"></i>
                 </button>
-                
-                <div class="search-wrapper d-none d-sm-block" style="max-width: 400px; width: 100%;">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text border bg-body ps-3">
-                            <i class="bi bi-search text-muted"></i>
-                        </span>
-                        <input type="text" class="form-control border-start-0 ps-0 bg-body text-body" placeholder="Buscar...">
-                    </div>
-                </div>
             </div>
 
             <div class="user-profile d-flex align-items-center gap-2 gap-sm-3">
-                <button 
-                    class="btn btn-link text-body p-0 d-sm-none" 
-                    title="Buscar">
-                    <i class="bi bi-search fs-5"></i>
-                </button>
-                <button
-                    class="btn btn-link text-body p-0 me-2"
-                    (click)="toggleTheme()"
-                    title="Alternar tema">
-                    <i class="bi" [ngClass]="theme() === 'light' ? 'bi-moon' : 'bi-sun text-warning'"></i>
-                </button>
                 <div class="dropdown">
                     <div
                         class="avatar bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" 

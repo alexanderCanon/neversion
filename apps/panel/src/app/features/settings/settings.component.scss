@@ -51,36 +51,7 @@
     }
 }
 
-// Theme Selector Cards
-.theme-selector-card {
-    border-color: var(--color-border);
-    background-color: #ffffff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-    
-    i {
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
 
-    &:hover {
-        border-color: var(--color-brand-accent-muted);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-        transform: translateY(-2px);
-        
-        i {
-            transform: scale(1.15) rotate(8deg);
-        }
-    }
-
-    &.selected-theme {
-        border-width: 2px !important;
-        border-color: var(--color-primary) !important;
-        background-color: var(--color-brand-accent-light);
-        
-        h5 {
-            color: var(--color-primary) !important;
-        }
-    }
-}
 
 // Form adjustments
 .max-width-600 {
