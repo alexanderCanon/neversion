@@ -40,7 +40,7 @@ export const routes: Routes = [
             },
             {
                 path: 'accounts',
-                loadComponent: () => import('./features/accounts/pages/accounts-list/accounts-list.component').then(m => m.AccountsListComponent),
+                loadChildren: () => import('./features/accounts/accounts.routes').then(m => m.accountsRoutes),
                 data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },
@@ -102,6 +102,18 @@ export const routes: Routes = [
                 path: 'vendors/register',
                 loadComponent: () => import('./features/vendors/pages/vendor-registration/vendor-registration.component').then(m => m.VendorRegistrationComponent),
                 data: { allowedRoles: ['super_admin'] },
+                canActivate: [roleGuard]
+            },
+            {
+                path: 'help',
+                loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent),
+                data: { allowedRoles: ['vendor', 'super_admin'] },
+                canActivate: [roleGuard]
+            },
+            {
+                path: 'settings',
+                loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent),
+                data: { allowedRoles: ['vendor', 'super_admin'] },
                 canActivate: [roleGuard]
             }
         ]

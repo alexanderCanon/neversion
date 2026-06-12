@@ -1,0 +1,334 @@
+<div class="container-fluid py-4 px-3 px-lg-4">
+    <!-- Hero Banner with rich aesthetics -->
+    <div class="hero-banner rounded-4 mb-4 text-white p-4 p-md-5 position-relative overflow-hidden shadow">
+        <div class="position-relative z-1 max-width-600">
+            <span class="badge bg-white-50 text-white mb-2 fs-7 px-3 py-2 rounded-pill text-uppercase tracking-wider">Centro de Soporte</span>
+            <h1 class="display-5 fw-bold mb-3">¿En qué podemos ayudarte?</h1>
+            <p class="fs-5 opacity-90 mb-4">
+                Explora el glosario de términos, resuelve dudas de tu flujo de trabajo de Neversion o ponte en contacto con soporte.
+            </p>
+            
+            <!-- Dynamic Search input -->
+            @if (activeTab() === 'faq' || activeTab() === 'glossary') {
+            <div class="search-container position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted fs-5"></i>
+                <input 
+                    type="text" 
+                    class="form-control form-control-lg border-0 ps-5 py-3 rounded-3 shadow-sm" 
+                    [placeholder]="activeTab() === 'faq' ? 'Buscar en preguntas frecuentes...' : 'Buscar término en el glosario...'"
+                    [ngModel]="searchQuery()"
+                    (ngModelChange)="searchQuery.set($event)"
+                />
+            </div>
+            }
+        </div>
+        <div class="hero-bg-shapes"></div>
+    </div>
+
+    <!-- Navigation Tabs / Category Selector -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <button 
+                class="btn w-100 py-3 d-flex align-items-center gap-3 text-start border shadow-sm transition-all" 
+                [class.btn-primary]="activeTab() === 'faq'" 
+                [class.btn-white]="activeTab() !== 'faq'"
+                (click)="selectTab('faq')">
+                <i class="bi bi-question-circle fs-4"></i>
+                <div>
+                    <div class="fw-bold">Preguntas Frecuentes</div>
+                    <small class="opacity-75 d-block fs-8">FAQs y resolución rápida</small>
+                </div>
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button 
+                class="btn w-100 py-3 d-flex align-items-center gap-3 text-start border shadow-sm transition-all" 
+                [class.btn-primary]="activeTab() === 'glossary'" 
+                [class.btn-white]="activeTab() !== 'glossary'"
+                (click)="selectTab('glossary')">
+                <i class="bi bi-book fs-4"></i>
+                <div>
+                    <div class="fw-bold">Glosario de Términos</div>
+                    <small class="opacity-75 d-block fs-8">Vocabulario de Neversion</small>
+                </div>
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button 
+                class="btn w-100 py-3 d-flex align-items-center gap-3 text-start border shadow-sm transition-all" 
+                [class.btn-primary]="activeTab() === 'workflow'" 
+                [class.btn-white]="activeTab() !== 'workflow'"
+                (click)="selectTab('workflow')">
+                <i class="bi bi-arrow-repeat fs-4"></i>
+                <div>
+                    <div class="fw-bold">Flujo Operativo</div>
+                    <small class="opacity-75 d-block fs-8">Ciclo de vida del servicio</small>
+                </div>
+            </button>
+        </div>
+        <div class="col-md-3">
+            <button 
+                class="btn w-100 py-3 d-flex align-items-center gap-3 text-start border shadow-sm transition-all" 
+                [class.btn-primary]="activeTab() === 'support'" 
+                [class.btn-white]="activeTab() !== 'support'"
+                (click)="selectTab('support')">
+                <i class="bi bi-headset fs-4"></i>
+                <div>
+                    <div class="fw-bold">Soporte Técnico</div>
+                    <small class="opacity-75 d-block fs-8">Contacto y ayuda directa</small>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Tab Content -->
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-4 p-md-5">
+            
+            <!-- TAB: FAQ -->
+            @if (activeTab() === 'faq') {
+                <div class="tab-header mb-4">
+                    <h3 class="fw-bold mb-2">Preguntas Frecuentes</h3>
+                    <p class="text-secondary">Encuentra respuestas a las inquietudes más comunes en la operación del panel.</p>
+                </div>
+
+                @if (filteredFaqs().length > 0) {
+                    <div class="accordion d-flex flex-column gap-3" id="faqAccordion">
+                        @for (faq of filteredFaqs(); track faq.question) {
+                            <div class="accordion-item border rounded-3 overflow-hidden transition-all shadow-sm">
+                                <h2 class="accordion-header">
+                                    <button 
+                                        class="accordion-button py-3 px-4 fw-semibold text-dark shadow-none bg-white d-flex justify-content-between align-items-center w-100 border-0" 
+                                        type="button" 
+                                        (click)="toggleFaq(faq)"
+                                        [attr.aria-expanded]="faq.isOpen">
+                                        <span>{{ faq.question }}</span>
+                                        <i class="bi" [class.bi-chevron-down]="!faq.isOpen" [class.bi-chevron-up]="faq.isOpen"></i>
+                                    </button>
+                                </h2>
+                                @if (faq.isOpen) {
+                                    <div class="accordion-collapse collapse show">
+                                        <div class="accordion-body px-4 pb-4 pt-0 text-secondary border-0 fs-6 lh-lg">
+                                            <hr class="mt-0 mb-3 opacity-10">
+                                            {{ faq.answer }}
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                } @else {
+                    <div class="text-center py-5">
+                        <i class="bi bi-search fs-1 text-muted opacity-50 mb-3 d-block"></i>
+                        <p class="fs-5 text-secondary">No se encontraron preguntas para "{{ searchQuery() }}"</p>
+                        <button class="btn btn-white btn-sm mt-2" (click)="searchQuery.set('')">Limpiar búsqueda</button>
+                    </div>
+                }
+            }
+
+            <!-- TAB: Glossary -->
+            @if (activeTab() === 'glossary') {
+                <div class="tab-header mb-4">
+                    <h3 class="fw-bold mb-2">Glosario de Términos</h3>
+                    <p class="text-secondary">Familiarízate con los conceptos clave y el lenguaje ubicuo utilizado en Neversion.</p>
+                </div>
+
+                @if (filteredGlossary().length > 0) {
+                    <div class="row g-4">
+                        @for (item of filteredGlossary(); track item.term) {
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 border-0 bg-light p-4 rounded-4 hover-translate-up shadow-sm">
+                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                        <div class="icon-wrapper bg-primary text-white rounded-3 p-2 d-flex align-items-center justify-content-center">
+                                            <i class="bi {{ item.icon }} fs-4"></i>
+                                        </div>
+                                        <h5 class="mb-0 fw-bold text-dark">{{ item.term }}</h5>
+                                    </div>
+                                    <p class="text-secondary mb-0 fs-6 lh-base">{{ item.definition }}</p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                } @else {
+                    <div class="text-center py-5">
+                        <i class="bi bi-search fs-1 text-muted opacity-50 mb-3 d-block"></i>
+                        <p class="fs-5 text-secondary">No se encontraron términos para "{{ searchQuery() }}"</p>
+                        <button class="btn btn-white btn-sm mt-2" (click)="searchQuery.set('')">Limpiar búsqueda</button>
+                    </div>
+                }
+            }
+
+            <!-- TAB: Workflow -->
+            @if (activeTab() === 'workflow') {
+                <div class="tab-header mb-4">
+                    <h3 class="fw-bold mb-2">Flujo Operativo (Ciclo del Servicio)</h3>
+                    <p class="text-secondary">Entiende el paso a paso desde el inventario inicial hasta el disfrute de la suscripción del cliente final.</p>
+                </div>
+
+                <div class="workflow-steps position-relative py-3">
+                    <div class="row g-4">
+                        <!-- Step 1 -->
+                        <div class="col-lg-4">
+                            <div class="workflow-card p-4 rounded-4 border bg-white h-100 shadow-sm position-relative">
+                                <span class="step-badge position-absolute top-0 start-50 translate-middle badge rounded-pill bg-primary px-3 py-2 fs-6 shadow">1</span>
+                                <div class="text-center mt-3 mb-3">
+                                    <i class="bi bi-wallet2 text-primary display-5"></i>
+                                </div>
+                                <h5 class="fw-bold text-center mb-3">Cuentas Maestras</h5>
+                                <p class="text-secondary fs-6 text-center mb-0">
+                                    El vendedor adquiere y registra la cuenta principal en la sección <strong>Cuentas</strong>, ingresando email, clave y perfiles máximos.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="col-lg-4">
+                            <div class="workflow-card p-4 rounded-4 border bg-white h-100 shadow-sm position-relative">
+                                <span class="step-badge position-absolute top-0 start-50 translate-middle badge rounded-pill bg-primary px-3 py-2 fs-6 shadow">2</span>
+                                <div class="text-center mt-3 mb-3">
+                                    <i class="bi bi-cart-plus text-primary display-5"></i>
+                                </div>
+                                <h5 class="fw-bold text-center mb-3">Orden & Reserva</h5>
+                                <p class="text-secondary fs-6 text-center mb-0">
+                                    El cliente solicita un perfil en la tienda pública (storefront). El sistema crea una <strong>Orden</strong> en espera y <strong>Reserva</strong> el perfil de forma inmediata.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="col-lg-4">
+                            <div class="workflow-card p-4 rounded-4 border bg-white h-100 shadow-sm position-relative">
+                                <span class="step-badge position-absolute top-0 start-50 translate-middle badge rounded-pill bg-success px-3 py-2 fs-6 shadow">3</span>
+                                <div class="text-center mt-3 mb-3">
+                                    <i class="bi bi-shield-check text-success display-5"></i>
+                                </div>
+                                <h5 class="fw-bold text-center mb-3">Entrega y Activación</h5>
+                                <p class="text-secondary fs-6 text-center mb-0">
+                                    Al validar el pago de la orden en el panel, la suscripción se activa, se asigna el PIN del perfil y se entregan las credenciales al cliente automáticamente.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow diagram visualization -->
+                <div class="bg-light p-4 rounded-4 mt-5">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-diagram-3 me-2 text-primary"></i>¿Por qué este flujo?</h5>
+                    <p class="text-secondary mb-0 fs-6">
+                        Este sistema previene la sobreventa de perfiles (overbooking), asegura que ningún cliente use una cuenta sin haber pagado, y automatiza la asignación de pines y accesos de forma limpia, reduciendo el trabajo manual del vendedor.
+                    </p>
+                </div>
+            }
+
+            <!-- TAB: Support -->
+            @if (activeTab() === 'support') {
+                <div class="tab-header mb-4">
+                    <h3 class="fw-bold mb-2">Soporte Técnico y Contacto</h3>
+                    <p class="text-secondary">¿Tienes algún problema técnico o duda sobre el panel? Ponte en contacto con nosotros.</p>
+                </div>
+
+                <div class="row g-4 mt-2">
+                    <!-- Contact Cards -->
+                    <div class="col-lg-5">
+                        <div class="d-flex flex-column gap-3 h-100">
+                            <!-- WhatsApp Support -->
+                            <a href="https://wa.me/50258550420?text=Hola%20Alexander,%20tengo%20una%20consulta%20sobre%20el%20panel%20de%20Neversion." target="_blank" class="card support-card support-card-whatsapp p-4 rounded-4 text-decoration-none shadow-sm">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="support-icon-wrapper rounded-3">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold support-card-title">Soporte por WhatsApp</h5>
+                                        <p class="mb-0 support-card-desc">Atención rápida para emergencias operativas</p>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!-- Email Support -->
+                            <a href="mailto:soporte@neversion.com" class="card support-card support-card-email p-4 rounded-4 text-decoration-none shadow-sm">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="support-icon-wrapper rounded-3">
+                                        <i class="bi bi-envelope-at"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold support-card-title">Correo de Soporte</h5>
+                                        <p class="mb-0 support-card-desc">Consultas administrativas y de facturación</p>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <!-- FAQ Redirect -->
+                            <div class="card border p-4 rounded-4 flex-grow-1 shadow-sm">
+                                <h5 class="fw-bold mb-2">Horario de Atención</h5>
+                                <p class="text-secondary fs-6 mb-2">Lunes a Viernes: 8:00 AM - 6:00 PM</p>
+                                <p class="text-secondary fs-6 mb-0">Sábados: 9:00 AM - 1:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="col-lg-7">
+                        <div class="card border p-4 p-md-5 rounded-4 shadow-sm">
+                            <h4 class="fw-bold mb-3">Envíanos un mensaje</h4>
+                            
+                            @if (supportSuccess()) {
+                                <div class="alert alert-success d-flex align-items-center gap-3 rounded-3 py-3" role="alert">
+                                    <i class="bi bi-check-circle-fill fs-4"></i>
+                                    <div>
+                                        <strong>¡Mensaje enviado con éxito!</strong> Nos comunicaremos contigo muy pronto.
+                                    </div>
+                                </div>
+                            }
+
+                            <form (submit)="onSubmitSupport($event)">
+                                <div class="mb-3">
+                                    <label for="supportName" class="form-label fw-semibold">Nombre Completo</label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control py-custom-y rounded-3 border-secondary-subtle" 
+                                        id="supportName" 
+                                        placeholder="Ej. Alexander Canon" 
+                                        [ngModel]="supportName()"
+                                        (ngModelChange)="supportName.set($event)"
+                                        name="supportName"
+                                        required
+                                    />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="supportEmail" class="form-label fw-semibold">Correo Electrónico</label>
+                                    <input 
+                                        type="email" 
+                                        class="form-control py-custom-y rounded-3 border-secondary-subtle" 
+                                        id="supportEmail" 
+                                        placeholder="ejemplo@correo.com" 
+                                        [ngModel]="supportEmail()"
+                                        (ngModelChange)="supportEmail.set($event)"
+                                        name="supportEmail"
+                                        required
+                                    />
+                                </div>
+                                <div class="mb-4">
+                                    <label for="supportMessage" class="form-label fw-semibold">Tu Consulta o Reporte</label>
+                                    <textarea 
+                                        class="form-control py-custom-y rounded-3 border-secondary-subtle" 
+                                        id="supportMessage" 
+                                        rows="4" 
+                                        placeholder="Describe brevemente el problema técnico o duda..." 
+                                        [ngModel]="supportMessage()"
+                                        (ngModelChange)="supportMessage.set($event)"
+                                        name="supportMessage"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-3" [disabled]="!supportName() || !supportEmail() || !supportMessage()">
+                                    Enviar Mensaje
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

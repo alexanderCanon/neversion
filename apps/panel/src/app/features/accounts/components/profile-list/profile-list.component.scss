@@ -24,9 +24,10 @@
 
 .badge-pin {
     background-color: #f1f5f9;
-    color: #475569;
+    color: #0f172a;
     font-family: var(--bs-font-monospace);
     font-weight: 700;
+    font-style: normal;
     padding: 0.25rem 0.5rem;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -88,6 +89,14 @@
 }
 
 .italic { font-style: italic; }
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
 
 thead th {
     background-color: #f8fafc;

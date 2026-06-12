@@ -25,7 +25,13 @@
 
 .cursor-pointer { cursor: pointer; }
 
-.bg-brand-dark { background-color: #111B2D; }
+.bg-brand-dark {
+  background-color: #111B2D;
+
+  .modal-title {
+    color: #fff !important;
+  }
+}
 .bg-surface { background-color: #f8fafc; }
 
 .form-label-custom {
@@ -43,6 +49,7 @@
     border-radius: 10px;
     padding: 0.6rem 1rem;
     font-size: 0.9rem;
+    min-height: 44px;
     transition: all 0.2s ease;
 
     &:focus {
@@ -66,3 +73,9 @@
 }
 
 .x-small { font-size: 0.7rem; }
+
+.bi-question-circle {
+    color: var(--color-brand-accent-muted);
+    cursor: help;
+    font-size: 0.8rem;
+}

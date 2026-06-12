@@ -6,14 +6,21 @@
         <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
           <div class="flex-grow-1">
             <h6 class="mb-1 fw-bold text-dark">Generación Rápida</h6>
-            <p class="text-muted extra-small mb-0">Crea múltiples perfiles automáticamente para esta cuenta.</p>
+            @if (isLimitReached) {
+              <p class="text-warning extra-small mb-0 fw-semibold">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Límite de perfiles alcanzado ({{ currentProfileCount }}/{{ maxProfiles }})
+              </p>
+            } @else {
+              <p class="text-muted extra-small mb-0">Crea múltiples perfiles automáticamente para esta cuenta.</p>
+            }
           </div>
           <div class="d-flex align-items-center gap-2">
             <div class="input-group input-group-sm" style="width: 140px;">
                 <span class="input-group-text bg-light border-end-0 text-muted fw-bold">CANT.</span>
-                <input type="number" class="form-control border-start-0 text-center fw-bold" [(ngModel)]="generateCount" min="1" max="10">
+                <input type="number" class="form-control border-start-0 text-center fw-bold" [(ngModel)]="generateCount" min="1" max="10" [disabled]="isLimitReached">
             </div>
-            <button class="btn btn-sm btn-primary px-4 fw-semibold rounded-3 shadow-sm d-flex align-items-center gap-2" (click)="onGenerateProfiles()" [disabled]="isSubmitting">
+            <button class="btn btn-sm btn-primary px-4 fw-semibold rounded-3 shadow-sm d-flex align-items-center gap-2" (click)="onGenerateProfiles()" [disabled]="isSubmitting || isLimitReached">
               @if (isSubmitting) {
                 <span class="spinner-border spinner-border-sm"></span>
               } @else {
@@ -81,7 +88,7 @@
               <td>
                 <div class="d-flex align-items-center gap-2">
                     <span class="status-dot" [ngClass]="profile.status.toLowerCase()"></span>
-                    <span class="x-small fw-bold text-uppercase text-muted">{{ getStatusLabel(profile) }}</span>
+                    <span class="x-small fw-bold text-capitalize text-muted">{{ getStatusLabel(profile) }}</span>
                 </div>
               </td>
               <td class="text-end pe-4">

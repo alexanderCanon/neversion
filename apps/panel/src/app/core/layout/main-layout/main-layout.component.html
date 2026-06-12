@@ -70,11 +70,11 @@
         </ul>
 
         <div class="mt-auto px-3 pb-3">
-            <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-3 mb-2">
+            <a routerLink="/help" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3 mb-2">
                 <i class="bi bi-question-circle"></i>
                 Ayuda
             </a>
-            <a href="#" class="nav-link text-white-50 d-flex align-items-center gap-3">
+            <a routerLink="/settings" routerLinkActive="active" class="nav-link text-white-50 d-flex align-items-center gap-3">
                 <i class="bi bi-gear"></i>
                 Configuración
             </a>
@@ -125,10 +125,10 @@
                         style="cursor: pointer; width: 40px; height: 40px;"
                         data-bs-toggle="dropdown" 
                         aria-expanded="false">
-                        JD
+                        {{ userInitials() }}
                     </div>
                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-                        <li><a class="dropdown-item d-flex align-items-center gap-2" routerLink="/profile"><i class="bi bi-person"></i> Perfil</a></li>
+                        <li><a class="dropdown-item d-flex align-items-center gap-2" routerLink="/settings"><i class="bi bi-person"></i> Configuración</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><button class="dropdown-item d-flex align-items-center gap-2 text-danger" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Salir</button></li>
                     </ul>

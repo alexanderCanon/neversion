@@ -1,9 +1,14 @@
 <div class="container-fluid py-4 h-100 bg-surface">
   <!-- Header Title and Actions -->
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
-    <div>
-        <h3 class="mb-1 fw-bold text-dark">Gestión de Cuentas</h3>
-        <p class="text-muted small mb-0">Administra tus cuentas maestras, perfiles y stock disponible.</p>
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-white border shadow-sm px-3" (click)="goBackToSelector()" title="Volver a servicios">
+          <i class="bi bi-arrow-left"></i>
+        </button>
+        <div>
+            <h3 class="mb-1 fw-bold text-dark">{{ currentService()?.name || 'Cuentas' }}</h3>
+            <p class="text-muted small mb-0">Administra las cuentas maestras, perfiles y stock disponible.</p>
+        </div>
     </div>
     @if (!isSuperAdmin()) {
     <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="accountForm.openModal()">
@@ -106,7 +111,7 @@
                     </div>
                     
                     <span class="badge-status" [ngClass]="getStatusClass(account.status)">
-                      {{ account.status }}
+                      {{ getAccountStatusLabel(account.status) }}
                     </span>
                     
                     <div class="d-none d-lg-flex align-items-center gap-2 text-muted small bg-light px-3 py-1 rounded-pill border">
@@ -119,11 +124,11 @@
 
                   <div class="text-end d-none d-md-block">
                     <div class="small text-muted mb-0">
-                      Vence: <span class="text-dark fw-bold">{{ account.renewalDate | date:'dd MMM yyyy' }}</span>
+                      Vence: <span class="text-dark fw-semibold">{{ account.renewalDate | date:'dd MMM yyyy' }}</span>
                     </div>
-                    <div class="x-small fw-bold text-uppercase" [ngClass]="account.saleMode === 'FULL_ACCOUNT' ? 'text-indigo' : 'text-primary'">
-                      {{ account.saleMode === 'FULL_ACCOUNT' ? 'Cuenta Completa' : 'Por Perfiles' }}
-                    </div>
+                    <span class="sale-mode-pill" [class.full-account]="account.saleMode === 'FULL_ACCOUNT'">
+                      {{ account.saleMode === 'FULL_ACCOUNT' ? 'Completa' : 'Perfiles' }}
+                    </span>
                   </div>
                 </div>
               </button>
@@ -147,6 +152,8 @@
                       [accountRenewalDate]="account.renewalDate"
                       [profiles]="getProfilesForAccount(account.id)"
                       [canGenerateProfiles]="account.saleMode === 'BY_PROFILE'"
+                      [maxProfiles]="currentService()?.maxProfiles || 0"
+                      [currentProfileCount]="account.totalProfiles"
                       (profilesChanged)="onProfilesChanged(account.id)">
                     </app-profile-list>
                   </div>
@@ -163,7 +170,7 @@
                             <div class="info-item">
                                 <span class="label">Correo</span>
                                 <div class="value-container">
-                                    <code class="text-primary fw-bold">{{ account.email }}</code>
+                                    <span class="value fw-semibold text-dark font-monospace">{{ account.email }}</span>
                                     <button class="btn btn-link p-0 text-muted copy-action" type="button" (click)="copyAccountValue(account.email, 'Correo')" title="Copiar correo">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
@@ -172,7 +179,7 @@
                             <div class="info-item">
                                 <span class="label">Contraseña</span>
                                 <div class="value-container">
-                                    <code class="text-primary fw-bold">{{ account.password || 'No registrada' }}</code>
+                                    <span class="value fw-semibold text-dark font-monospace">{{ account.password || 'No registrada' }}</span>
                                     <button class="btn btn-link p-0 text-muted copy-action" type="button" (click)="copyAccountValue(account.password || '', 'Contraseña')" title="Copiar contraseña" [disabled]="!account.password">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
@@ -184,11 +191,11 @@
                             </div>
                             <div class="info-item">
                                 <span class="label">Proveedor / Origen</span>
-                                <span class="value">{{ account.source || 'No especificado' }}</span>
+                                <span class="value">{{ account.source || '—' }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="label">Fecha Compra</span>
-                                <span class="value">{{ account.purchasedAt | date:'dd/MM/yyyy' }}</span>
+                                <span class="value">{{ account.purchasedAt ? (account.purchasedAt | date:'dd/MM/yyyy') : '—' }}</span>
                             </div>
                             <div class="info-item flex-column align-items-start gap-1">
                                 <span class="label">Notas Adicionales</span>
@@ -197,9 +204,12 @@
                         </div>
                         
                         <div class="p-3 bg-light border-top d-grid">
-                           <button class="btn btn-sm btn-outline-danger border-0 rounded-3 d-flex align-items-center justify-content-center gap-2" (click)="deactivateAccount(account)">
-                              <i class="bi bi-trash3"></i>
-                              <span>Eliminar esta cuenta</span>
+                           <button class="btn btn-sm btn-outline-danger border-0 rounded-3 d-flex flex-column align-items-center justify-content-center gap-1 py-2" (click)="deleteAccount(account)">
+                              <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-trash3-fill"></i>
+                                <span>Eliminar permanentemente</span>
+                              </div>
+                              <small class="text-muted fw-normal">Esta acción no se puede deshacer</small>
                            </button>
                         </div>
                       </div>

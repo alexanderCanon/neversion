@@ -55,7 +55,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="plan" class="form-label small fw-medium text-muted">Plan / Variante (Opcional)</label>
+                        <label for="plan" class="form-label small fw-medium text-muted">
+                          Plan / Variante (Opcional)
+                          <i class="bi bi-question-circle ms-1" title="Identifica el tipo de plan adquirido (ej. Premium 4K, Familiar). Útil para diferenciar cuentas del mismo servicio."></i>
+                        </label>
                         <input type="text" class="form-control form-control-modern" id="plan" formControlName="plan" placeholder="Ej. Premium 4K, Familiar...">
                     </div>
 
@@ -97,11 +100,11 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <label for="purchasedAt" class="form-label x-small fw-bold text-muted text-uppercase">Fecha Compra</label>
-                            <input type="date" class="form-control form-control-modern py-1 px-2" style="font-size: 0.8rem;" id="purchasedAt" formControlName="purchasedAt">
+                            <input type="date" class="form-control form-control-modern" id="purchasedAt" formControlName="purchasedAt">
                         </div>
                         <div class="col-6">
                             <label for="source" class="form-label x-small fw-bold text-muted text-uppercase">Fuente</label>
-                            <input type="text" class="form-control form-control-modern py-1 px-2" style="font-size: 0.8rem;" id="source" formControlName="source" placeholder="Ej. AliExpress">
+                            <input type="text" class="form-control form-control-modern" id="source" formControlName="source" placeholder="Ej. AliExpress">
                         </div>
                     </div>
                 </div>

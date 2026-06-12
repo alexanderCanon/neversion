@@ -1,0 +1,214 @@
+// Hero Banner Styling
+.hero-banner {
+    background: linear-gradient(135deg, var(--color-brand-dark) 0%, var(--color-primary) 100%);
+    border: none;
+}
+
+.max-width-600 {
+    max-width: 600px;
+}
+
+// Custom badges and text sizes
+.bg-white-50 {
+    background-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(4px);
+}
+
+.fs-7 {
+    font-size: 0.8rem;
+}
+
+.fs-8 {
+    font-size: 0.72rem;
+}
+
+.tracking-wider {
+    letter-spacing: 0.08em;
+}
+
+// Background decorative elements
+.hero-bg-shapes {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.08;
+    background-image: 
+        radial-gradient(circle at 80% 20%, #ffffff 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, #ffffff 0%, transparent 30%);
+}
+
+// Search styling
+.search-container {
+    input {
+        background-color: rgba(255, 255, 255, 0.95);
+        color: var(--color-text-primary);
+        font-size: 1.05rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+
+        &:focus {
+            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            outline: none;
+        }
+    }
+}
+
+// Transition effects
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-translate-up {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+    }
+}
+
+// Glossary Icon wrapper
+.icon-wrapper {
+    width: 42px;
+    height: 42px;
+    background-color: var(--color-brand-accent-light) !important;
+    color: var(--color-brand-accent) !important;
+}
+
+// Accordion Customization
+.accordion-item {
+    border-color: var(--color-border);
+    
+    &:hover {
+        border-color: var(--color-brand-accent-muted);
+    }
+}
+
+.accordion-button {
+    color: var(--color-text-primary) !important;
+    
+    &:not(.collapsed) {
+        background-color: var(--color-brand-accent-light);
+        color: var(--color-primary) !important;
+    }
+    
+    i {
+        font-size: 1.1rem;
+        transition: transform 0.2s ease;
+    }
+}
+
+// Workflow style
+.workflow-steps {
+    .step-badge {
+        font-size: 0.95rem;
+        font-weight: 700;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .workflow-card {
+        border-color: var(--color-border);
+        transition: all 0.2s ease;
+        
+        &:hover {
+            border-color: var(--color-primary);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05) !important;
+        }
+    }
+}
+
+// Form fields alignment
+.form-control {
+    &:focus {
+        border-color: var(--color-brand-accent-muted);
+        box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.15);
+    }
+}
+
+// Custom opacity styles
+.py-custom-y {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+// Support Cards Custom Styling
+.support-card {
+    border: 1px solid var(--color-border) !important;
+    background-color: #ffffff !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    
+    .support-icon-wrapper {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .support-card-title {
+        color: var(--color-text-primary);
+        font-size: 1rem;
+        transition: color 0.2s ease;
+    }
+    
+    .support-card-desc {
+        color: var(--color-text-secondary);
+        font-size: 0.75rem;
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.08) !important;
+        
+        .support-icon-wrapper {
+            transform: scale(1.08);
+        }
+    }
+}
+
+// WhatsApp Card Specifics
+.support-card-whatsapp {
+    .support-icon-wrapper {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    &:hover {
+        border-color: #a5d6a7 !important;
+        background-color: #f1f8f5 !important;
+        
+        .support-card-title {
+            color: #2e7d32;
+        }
+    }
+}
+
+// Email Card Specifics
+.support-card-email {
+    .support-icon-wrapper {
+        background-color: #f1f5f9;
+        color: #475569;
+    }
+    
+    &:hover {
+        border-color: #cbd5e1 !important;
+        background-color: #f8fafc !important;
+        
+        .support-card-title {
+            color: #1e293b;
+        }
+    }
+}
+
