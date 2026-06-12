@@ -33,6 +33,7 @@ public class AccountMapper {
                 .source(request.source())
                 .purchasedAt(request.purchasedAt())
                 .notes(request.notes())
+                .maxProfiles(request.maxProfiles())
                 .build() : null;
     }
 
@@ -78,6 +79,7 @@ public class AccountMapper {
                 .purchasedAt(account.getPurchasedAt())
                 .notes(account.getNotes())
                 .createdAt(account.getCreatedAt())
+                .maxProfiles(account.getMaxProfiles())
                 .totalProfiles(total)
                 .availableProfiles(available)
                 .occupiedProfiles(occupied)

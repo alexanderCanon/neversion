@@ -139,16 +139,12 @@ public class ProfileService implements ProfileUseCase {
                     "Cannot generate profiles for a full-account sale mode account.");
         }
 
-        // Validate maxProfiles (BR-US025-02)
-        var service = serviceRepositoryPort.findByInternalId(account.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Service not found for account: " + accountUuid));
-
-        int maxProfiles = service.getMaxProfiles() != null ? service.getMaxProfiles() : 0;
+        // Validate maxProfiles against account-level limit (BR-US025-02)
+        int maxProfiles = account.getMaxProfiles() != null ? account.getMaxProfiles() : 0;
         int existing = profileRepositoryPort.findByAccountId(account.getId()).size();
-        if (existing + count > maxProfiles) {
+        if (maxProfiles > 0 && existing + count > maxProfiles) {
             throw new BusinessRuleException(
-                    "Cannot generate " + count + " profiles: would exceed maxProfiles (" + maxProfiles + ") for this service. Current: " + existing);
+                    "Cannot generate " + count + " profiles: would exceed maxProfiles (" + maxProfiles + ") for this account. Current: " + existing);
         }
 
         List<Profile> profiles = new ArrayList<>();

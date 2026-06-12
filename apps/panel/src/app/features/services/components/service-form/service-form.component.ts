@@ -40,29 +40,14 @@ export class ServiceFormComponent {
   serviceForm: FormGroup;
   categoryDetails = [
     {
-      value: 'STREAMING',
+      value: 'streaming',
       label: 'streaming',
       description: 'Todas las plataformas para visualizar contenido multimedia como películas, videos y música (Netflix, Disney, YouTube, Crunchyroll, etc.)'
     },
     {
-      value: 'SOFTWARE',
-      label: 'software',
-      description: 'Programas o soluciones tipo SaaS. Nota: Se requiere aprobación del Super Administrador antes de crear este servicio.'
-    },
-    {
-      value: 'GIFT_CARD',
-      label: 'gift_card',
-      description: 'Tarjetas de regalo y códigos de juegos (al estilo Eneba).'
-    },
-    {
-      value: 'RECHARGE',
-      label: 'recharge',
-      description: 'Recargas directas en juegos (Free Fire, Call of Duty Mobile, PUBG Mobile, Fortnite, etc.).'
-    },
-    {
-      value: 'DIGITAL_SERVICE',
+      value: 'digital_service',
       label: 'digital_service',
-      description: 'Suscripciones a otros servicios digitales (Canva, ChatGPT Plus, PornHub, Microsoft 365, etc.).'
+      description: 'Suscripciones a otros servicios digitales como herramientas de productividad o entretenimiento (Canva, ChatGPT Plus, Microsoft 365, etc.).'
     }
   ];
   isBrowser: boolean;
@@ -78,18 +63,15 @@ export class ServiceFormComponent {
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
       imageUrl: [''],
-      category: ['STREAMING', Validators.required],
+      category: ['streaming', Validators.required],
       maxProfiles: [1, [Validators.required, Validators.min(1)]],
       priceProfile: [0, [Validators.required, Validators.min(0)]],
       priceComplete: [0, [Validators.required, Validators.min(0)]],
       durationDays: [30, [Validators.required, Validators.min(1)]]
     });
 
-    // Escuchar cambios de categoría para lógica dinámica y alertas de Software
+    // Escuchar cambios de categoría para ajustar campos dinámicamente
     this.serviceForm.get('category')?.valueChanges.subscribe(value => {
-      if (value === 'SOFTWARE') {
-        this.toastService.warning('Se requiere la aprobación del Super Administrador antes de poder activar y comercializar servicios de la categoría Software.');
-      }
       this.adjustFieldsForCategory(value);
     });
   }
@@ -100,11 +82,17 @@ export class ServiceFormComponent {
     return detail ? detail.description : '';
   }
 
+  showDurationDays(): boolean {
+    const category = this.serviceForm?.get('category')?.value;
+    return category === 'streaming' || category === 'digital_service';
+  }
+
   private adjustFieldsForCategory(category: string): void {
-    if (category !== 'STREAMING') {
+    if (category !== 'streaming') {
+      // digital_service: solo 1 perfil, precio mínimo requerido por @Positive
       this.serviceForm.patchValue({
         maxProfiles: 1,
-        priceProfile: 0
+        priceProfile: 1
       }, { emitEvent: false });
     }
   }
@@ -174,22 +162,23 @@ export class ServiceFormComponent {
   openModal(service?: ServiceResponse): void {    if (service) {
       this.isEditMode = true;
       this.editingServiceId = service.id;
+      const normalizedCategory = service.category ? service.category.toLowerCase() : 'streaming';
       this.serviceForm.patchValue({
         name: service.name,
         description: service.description,
         imageUrl: service.imageUrl,
-        category: service.category,
+        category: normalizedCategory,
         maxProfiles: service.maxProfiles,
         priceProfile: service.priceProfile,
         priceComplete: service.priceComplete,
         durationDays: service.durationDays
       });
-      this.adjustFieldsForCategory(service.category);
+      this.adjustFieldsForCategory(normalizedCategory);
     } else {
       this.isEditMode = false;
       this.editingServiceId = null;
       this.resetForm();
-      this.adjustFieldsForCategory('STREAMING');
+      this.adjustFieldsForCategory('streaming');
     }
 
     if (this.isBrowser) {
@@ -267,7 +256,7 @@ export class ServiceFormComponent {
 
   resetForm(): void {
     this.serviceForm.reset({
-      category: 'STREAMING',
+      category: 'streaming',
       maxProfiles: 1,
       priceProfile: 0,
       priceComplete: 0,

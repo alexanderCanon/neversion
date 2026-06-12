@@ -9,6 +9,7 @@ import { ServicesDataService } from '../../../services/services/services-data.se
 interface ServiceOption {
   id: string;
   displayName: string;
+  maxProfiles: number;
 }
 
 interface BootstrapModal {
@@ -63,7 +64,8 @@ export class AccountFormComponent implements OnInit {
       next: (services) => {
         const options: ServiceOption[] = services.map(s => ({
           id: s.id,
-          displayName: s.name
+          displayName: s.name,
+          maxProfiles: s.maxProfiles || 1
         }));
         this.serviceOptions.set(options);
       },
@@ -78,6 +80,7 @@ export class AccountFormComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(1)]],
       serviceId: [null, [Validators.required]],
       plan: [''],
+      maxProfiles: [1, [Validators.required, Validators.min(1)]],
       saleMode: [SaleMode.BY_PROFILE, Validators.required],
       renewalDate: ['', [Validators.required]],
       cost: [0, [Validators.required, Validators.min(0)]],
@@ -85,6 +88,13 @@ export class AccountFormComponent implements OnInit {
       purchasedAt: [today],
       notes: ['']
     });
+  }
+
+  onServiceChange(serviceId: string): void {
+    const service = this.serviceOptions().find(s => s.id === serviceId);
+    if (service) {
+      this.accountForm.patchValue({ maxProfiles: service.maxProfiles });
+    }
   }
 
   openModal(): void {
@@ -140,7 +150,8 @@ export class AccountFormComponent implements OnInit {
         cost: Number(formValue.cost),
         source: formValue.source || undefined,
         purchasedAt: formValue.purchasedAt || undefined,
-        notes: formValue.notes || undefined
+        notes: formValue.notes || undefined,
+        maxProfiles: Number(formValue.maxProfiles) || undefined
       };
 
       this.accountsService.createAccount(accountRequest).subscribe({
@@ -165,6 +176,7 @@ export class AccountFormComponent implements OnInit {
     this.accountForm.reset({
       saleMode: SaleMode.BY_PROFILE,
       cost: 0,
+      maxProfiles: 1,
       purchasedAt: today
     });
     this.isSubmitting = false;

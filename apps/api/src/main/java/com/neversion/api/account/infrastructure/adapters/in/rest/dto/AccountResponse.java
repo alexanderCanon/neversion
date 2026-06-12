@@ -33,6 +33,9 @@ public record AccountResponse(
         String notes,
         LocalDateTime createdAt,
 
+        /** Max profiles this account can hold. */
+        Integer maxProfiles,
+
         /** US-024 — profile counters for listing view. */
         int totalProfiles,
         int availableProfiles,

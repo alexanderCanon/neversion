@@ -84,25 +84,27 @@
                 </div>
 
                 <div class="row g-3">
-                  @if (serviceForm.get('category')?.value === 'STREAMING') {
+                  @if (serviceForm.get('category')?.value === 'streaming') {
                     <div class="col-6">
                       <label for="maxProfiles" class="form-label small fw-medium text-muted">Perfiles Máx.</label>
                       <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1">
                     </div>
                   }
-                  <div class="col" [class.col-6]="serviceForm.get('category')?.value === 'STREAMING'">
-                    <label for="durationDays" class="form-label small fw-medium text-muted">Duración (Días)</label>
-                    <input type="number" class="form-control form-control-modern" id="durationDays" formControlName="durationDays" min="1">
-                  </div>
+                  @if (showDurationDays()) {
+                    <div class="col" [class.col-6]="serviceForm.get('category')?.value === 'streaming'">
+                      <label for="durationDays" class="form-label small fw-medium text-muted">Duración (Días)</label>
+                      <input type="number" class="form-control form-control-modern" id="durationDays" formControlName="durationDays" min="1">
+                    </div>
+                  }
                 </div>
               </div>
 
               <div class="form-section p-3 rounded-3 bg-white border shadow-sm">
                 <label class="form-label-custom text-primary mb-3">
-                  {{ serviceForm.get('category')?.value === 'STREAMING' ? 'Precios de Venta (Q)' : 'Precio de Venta (Q)' }}
+                  {{ serviceForm.get('category')?.value === 'streaming' ? 'Precios de Venta (Q)' : 'Precio de Venta (Q)' }}
                 </label>
                 
-                @if (serviceForm.get('category')?.value === 'STREAMING') {
+                @if (serviceForm.get('category')?.value === 'streaming') {
                   <div class="mb-3">
                     <label for="priceProfile" class="form-label small fw-medium text-muted">Precio por Perfil <span class="text-danger">*</span></label>
                     <div class="input-group">
@@ -114,7 +116,7 @@
 
                 <div class="mb-0">
                   <label for="priceComplete" class="form-label small fw-medium text-muted">
-                    {{ serviceForm.get('category')?.value === 'STREAMING' ? 'Cuenta Completa' : 'Precio de Venta' }} <span class="text-danger">*</span>
+                    {{ serviceForm.get('category')?.value === 'streaming' ? 'Cuenta Completa' : 'Precio de Venta' }} <span class="text-danger">*</span>
                   </label>
                   <div class="input-group">
                     <span class="input-group-text border-end-0 bg-light fw-bold text-muted">Q</span>

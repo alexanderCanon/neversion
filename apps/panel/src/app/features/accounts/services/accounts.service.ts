@@ -154,6 +154,7 @@ export class AccountsService {
       purchasedAt: api.purchasedAt || '',
       notes: api.notes || '',
       createdAt: api.createdAt || '',
+      maxProfiles: (api as any).maxProfiles || 0,
       totalProfiles: api.totalProfiles || 0,
       availableProfiles: api.availableProfiles || 0,
       occupiedProfiles: api.occupiedProfiles || 0,

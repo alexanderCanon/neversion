@@ -58,6 +58,11 @@ public class CreateAccountService implements CreateAccountUseCase {
                         .orElseThrow(() -> new ResourceNotFoundException(
                                 "Service not found: " + account.getServiceUuid()));
 
+        // Resolve maxProfiles: use request value if provided, else inherit from service template
+        int resolvedMaxProfiles = account.getMaxProfiles() != null && account.getMaxProfiles() > 0
+                ? account.getMaxProfiles()
+                : (service.getMaxProfiles() != null ? service.getMaxProfiles() : 1);
+
         Account toSave = Account.builder()
                 .email(account.getEmail())
                 .password(account.getPassword())
@@ -69,6 +74,7 @@ public class CreateAccountService implements CreateAccountUseCase {
                 .source(account.getSource())
                 .purchasedAt(account.getPurchasedAt())
                 .notes(account.getNotes())
+                .maxProfiles(resolvedMaxProfiles)
                 .vendorId(vendorId)
                 .build();
 
@@ -78,7 +84,7 @@ public class CreateAccountService implements CreateAccountUseCase {
         if (account.getSaleMode() != null) {
             switch (account.getSaleMode()) {
                 case BY_PROFILE -> {
-                    int count = service.getMaxProfiles() != null ? service.getMaxProfiles() : 1;
+                    int count = saved.getMaxProfiles();
                     profileUseCase.generateProfilesForAccount(saved.getId(), count, vendorId);
                 }
                 case FULL_ACCOUNT -> profileUseCase.generateProfilesForAccount(saved.getId(), 1, vendorId);

@@ -43,7 +43,7 @@
                     
                     <div class="mb-3">
                         <label for="serviceId" class="form-label small fw-medium text-muted">Servicio Digital <span class="text-danger">*</span></label>
-                        <select class="form-select form-select-modern" id="serviceId" formControlName="serviceId">
+                        <select class="form-select form-select-modern" id="serviceId" formControlName="serviceId" (change)="onServiceChange($any($event.target).value)">
                           <option [ngValue]="null">Selecciona un servicio</option>
                           @for (item of serviceOptions(); track item.id) {
                             <option [value]="item.id">{{ item.displayName }}</option>
@@ -60,6 +60,17 @@
                           <i class="bi bi-question-circle ms-1" title="Identifica el tipo de plan adquirido (ej. Premium 4K, Familiar). Útil para diferenciar cuentas del mismo servicio."></i>
                         </label>
                         <input type="text" class="form-control form-control-modern" id="plan" formControlName="plan" placeholder="Ej. Premium 4K, Familiar...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="maxProfiles" class="form-label small fw-medium text-muted">
+                          Máx. Perfiles
+                          <i class="bi bi-question-circle ms-1" title="Cantidad máxima de perfiles que puede tener esta cuenta. Se auto-completa del servicio, pero puedes personalizarlo."></i>
+                        </label>
+                        <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1" max="50">
+                        @if (accountForm.get('maxProfiles')?.invalid && accountForm.get('maxProfiles')?.touched) {
+                          <div class="text-danger x-small mt-1">Mínimo 1 perfil</div>
+                        }
                     </div>
 
                     <div class="mb-0">

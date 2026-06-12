@@ -33,24 +33,20 @@ export class ServiceSelectorComponent implements OnInit {
   }
 
   getCategoryIcon(category: string): string {
-    switch (category) {
-      case 'STREAMING': return 'bi-play-circle-fill';
-      case 'SOFTWARE': return 'bi-laptop';
-      case 'GIFT_CARD': return 'bi-gift-fill';
-      case 'RECHARGE': return 'bi-phone-fill';
-      case 'DIGITAL_SERVICE': return 'bi-cloud-fill';
+    const cat = category?.toLowerCase();
+    switch (cat) {
+      case 'streaming': return 'bi-play-circle-fill';
+      case 'digital_service': return 'bi-cloud-fill';
       default: return 'bi-box';
     }
   }
 
   getCategoryLabel(category: string): string {
+    const cat = category?.toLowerCase();
     const labels: Record<string, string> = {
-      STREAMING: 'Streaming',
-      SOFTWARE: 'Software',
-      GIFT_CARD: 'Gift Card',
-      RECHARGE: 'Recarga',
-      DIGITAL_SERVICE: 'Servicio Digital'
+      streaming: 'streaming',
+      digital_service: 'servicio digital'
     };
-    return labels[category] || category;
+    return labels[cat] || cat;
   }
 }

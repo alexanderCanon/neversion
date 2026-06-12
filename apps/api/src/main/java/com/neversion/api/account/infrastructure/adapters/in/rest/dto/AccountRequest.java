@@ -41,5 +41,8 @@ public record AccountRequest(
         LocalDate purchasedAt,
 
         /** Private admin notes. Optional. */
-        String notes) {
+        String notes,
+
+        /** Max profiles for this account. Optional — defaults to service template if null. */
+        Integer maxProfiles) {
 }

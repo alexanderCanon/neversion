@@ -1,6 +1,6 @@
 export interface ServiceRequest {
   name: string;
-  category: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE';
+  category: 'streaming' | 'digital_service';
   priceProfile: number;
   priceComplete: number;
   durationDays: number;
@@ -13,7 +13,7 @@ export interface ServiceRequest {
 export interface ServiceResponse {
   id: string;
   name: string;
-  category: 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE';
+  category: 'streaming' | 'digital_service';
   priceProfile: number;
   priceComplete: number;
   durationDays: number;

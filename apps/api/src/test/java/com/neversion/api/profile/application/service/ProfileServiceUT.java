@@ -25,7 +25,6 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
-import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -72,7 +71,6 @@ class ProfileServiceUT {
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Cannot generate profiles");
 
-        verify(serviceRepositoryPort, never()).findByInternalId(SERVICE_ID);
         verify(profileRepositoryPort, never()).saveAll(anyList());
     }
 
@@ -87,8 +85,6 @@ class ProfileServiceUT {
                 Profile.builder().id(3L).accountId(ACCOUNT_ID).vendorId(VENDOR_ID).build());
 
         stubOwnership(account);
-        when(serviceRepositoryPort.findByInternalId(SERVICE_ID))
-                .thenReturn(Optional.of(Service.builder().id(SERVICE_ID).maxProfiles(3).build()));
         when(profileRepositoryPort.findByAccountId(ACCOUNT_ID))
                 .thenReturn(List.of(existingProfile))
                 .thenReturn(updatedProfiles);
@@ -118,6 +114,7 @@ class ProfileServiceUT {
                 .vendorId(VENDOR_ID)
                 .serviceId(SERVICE_ID)
                 .saleMode(saleMode)
+                .maxProfiles(5)
                 .build();
     }
 }

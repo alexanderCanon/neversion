@@ -23,8 +23,11 @@
     .placeholder-img {
         width: 100%;
         height: 100%;
-        background-color: #f1f5f9;
-        color: var(--color-brand-accent);
+        background: linear-gradient(135deg, #4285f4 0%, #a142f4 100%);
+        color: #ffffff;
+        font-size: 1.1rem;
+        letter-spacing: 0.05em;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 }
 
@@ -41,7 +44,7 @@
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 600;
-    text-transform: uppercase;
+    text-transform: lowercase;
     letter-spacing: 0.02em;
 
     &.text-bg-primary { background-color: #eff6ff; color: #3b82f6; }
@@ -62,44 +65,94 @@
     &.inactive { background-color: #94a3b8; }
 }
 
-.btn-action {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    border: 1px solid var(--color-border);
-    background-color: #fff;
-    color: var(--color-text-secondary);
+/* Pricing Layout */
+.pricing-card-container {
+    width: 220px;
+}
+
+.pricing-pill {
+    background-color: #f8fafc;
+    border-color: #e2e8f0 !important;
     transition: all 0.2s ease;
 
     &:hover {
-        transform: translateY(-2px);
+        background-color: #f1f5f9;
+        border-color: #cbd5e1 !important;
     }
 
-    &.edit:hover {
-        background-color: #eff6ff;
-        color: #3b82f6;
-        border-color: #dbeafe;
+    .pricing-type {
+        font-size: 0.75rem;
     }
 
-    &.activate:hover {
-        background-color: #f0fdf4;
-        color: #22c55e;
-        border-color: #dcfce7;
+    .pricing-info {
+        font-size: 0.75rem;
+        transition: color 0.2s;
+        
+        &:hover {
+            color: #64748b;
+        }
     }
 
-    &.deactivate:hover {
-        background-color: #fef2f2;
-        color: #ef4444;
-        border-color: #fee2e2;
+    .pricing-amount {
+        font-size: 0.85rem;
+    }
+
+    &.complete-account {
+        background-color: #fefcf8;
+        border-color: #fef08a !important;
+
+        &:hover {
+            background-color: #fef9c3;
+            border-color: #fde047 !important;
+        }
     }
 }
 
-.x-small {
-    font-size: 0.65rem;
+/* Action Buttons (More prominent & descriptive) */
+.btn-action-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+    color: #475569;
+    border-color: #e2e8f0;
+
+    i {
+        font-size: 0.9rem;
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    &.edit:hover {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #3b82f6;
+    }
+
+    &.activate {
+        color: #16a34a;
+        border-color: #bbf7d0;
+        
+        &:hover {
+            background-color: #16a34a;
+            color: #ffffff;
+            border-color: #16a34a;
+        }
+    }
+
+    &.deactivate {
+        color: #dc2626;
+        border-color: #fecaca;
+        
+        &:hover {
+            background-color: #dc2626;
+            color: #ffffff;
+            border-color: #dc2626;
+        }
+    }
 }
 
 thead th {
@@ -108,4 +161,8 @@ thead th {
     color: var(--color-neutral);
     font-size: 0.75rem;
     padding: 1.25rem 1.5rem !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }

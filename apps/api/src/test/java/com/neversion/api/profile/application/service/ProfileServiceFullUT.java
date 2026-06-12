@@ -28,7 +28,6 @@ import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
-import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -72,7 +71,7 @@ class ProfileServiceFullUT {
         return Account.builder()
                 .id(ACCOUNT_ID).uuid(ACCOUNT_UUID)
                 .vendorId(VENDOR_ID).serviceId(SERVICE_ID)
-                .saleMode(mode).build();
+                .saleMode(mode).maxProfiles(5).build();
     }
 
     private Profile profile() {
@@ -122,9 +121,11 @@ class ProfileServiceFullUT {
         @Test
         @DisplayName("generate_exceedsMaxProfiles_shouldThrow409")
         void generate_exceedsMaxProfiles_shouldThrow409() {
-            stubOwnership(account(SaleMode.BY_PROFILE));
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID))
-                    .thenReturn(Optional.of(Service.builder().id(SERVICE_ID).maxProfiles(2).build()));
+            Account limited = Account.builder()
+                    .id(ACCOUNT_ID).uuid(ACCOUNT_UUID)
+                    .vendorId(VENDOR_ID).serviceId(SERVICE_ID)
+                    .saleMode(SaleMode.BY_PROFILE).maxProfiles(2).build();
+            stubOwnership(limited);
             when(profileRepositoryPort.findByAccountId(ACCOUNT_ID))
                     .thenReturn(List.of(profile(), profile()));
 
@@ -157,8 +158,6 @@ class ProfileServiceFullUT {
         @DisplayName("generate_valid_shouldSaveAndReturnList")
         void generate_valid_shouldSaveAndReturnList() {
             stubOwnership(account(SaleMode.BY_PROFILE));
-            when(serviceRepositoryPort.findByInternalId(SERVICE_ID))
-                    .thenReturn(Optional.of(Service.builder().id(SERVICE_ID).maxProfiles(5).build()));
             when(profileRepositoryPort.findByAccountId(ACCOUNT_ID))
                     .thenReturn(List.of(profile()))
                     .thenReturn(List.of(profile(), profile(), profile()));

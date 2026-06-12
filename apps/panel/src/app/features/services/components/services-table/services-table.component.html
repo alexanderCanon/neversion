@@ -4,7 +4,7 @@
       <tr>
         <th scope="col" class="ps-4">Detalle del Servicio</th>
         <th scope="col">Categoría</th>
-        <th scope="col">Precios Unitarios</th>
+        <th scope="col">Estructura de Precios</th>
         <th scope="col">Configuración</th>
         <th scope="col">Estado</th>
         @if (!isReadOnly) {
@@ -22,8 +22,8 @@
                 @if (service.imageUrl) {
                   <img [src]="service.imageUrl" alt="{{service.name}}" class="img-fluid rounded">
                 } @else {
-                  <div class="placeholder-img d-flex align-items-center justify-content-center">
-                    <i class="bi bi-box-seam fs-4"></i>
+                  <div class="placeholder-img d-flex align-items-center justify-content-center text-white fw-bold">
+                    {{ getServiceInitials(service.name) }}
                   </div>
                 }
               </div>
@@ -36,61 +36,72 @@
           
           <!-- Category -->
           <td>
-            <span class="badge-category" [ngClass]="getCategoryBadgeClass(service.category)">
-              {{ service.category }}
+            <span class="badge-category" [ngClass]="getCategoryBadgeClass(service.category)" [ngStyle]="getCategoryBadgeStyle(service.category)">
+              {{ getCategoryLabel(service.category) }}
             </span>
           </td>
-
+ 
           <!-- Pricing -->
           <td>
-            <div class="d-flex flex-column gap-1">
-              <div class="d-flex justify-content-between align-items-center gap-3">
-                <span class="text-muted x-small text-uppercase fw-semibold">Perfil:</span>
-                <span class="fw-bold text-primary">Q{{ service.priceProfile }}</span>
+            <div class="pricing-card-container d-flex flex-column gap-2">
+              <div class="pricing-pill d-flex align-items-center justify-content-between px-3 py-1-5 rounded-3 border">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="pricing-type text-secondary small fw-semibold">Por Perfil</span>
+                  <span class="pricing-info text-muted cursor-pointer" title="Precio cobrado al cliente por adquirir un único perfil/pantalla individual dentro de la cuenta compartida.">
+                    <i class="bi bi-info-circle-fill"></i>
+                  </span>
+                </div>
+                <span class="pricing-amount fw-bold text-primary">Q{{ service.priceProfile }}</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center gap-3">
-                <span class="text-muted x-small text-uppercase fw-semibold">Cuenta:</span>
-                <span class="fw-bold text-dark">Q{{ service.priceComplete }}</span>
+              <div class="pricing-pill d-flex align-items-center justify-content-between px-3 py-1-5 rounded-3 border complete-account">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="pricing-type text-secondary small fw-semibold">Cuenta Completa</span>
+                  <span class="pricing-info text-muted cursor-pointer" title="Precio cobrado al cliente por comprar la cuenta maestra completa con todos sus perfiles disponibles.">
+                    <i class="bi bi-info-circle-fill"></i>
+                  </span>
+                </div>
+                <span class="pricing-amount fw-bold text-dark">Q{{ service.priceComplete }}</span>
               </div>
             </div>
           </td>
-
+ 
           <!-- Max Profiles / Duration -->
           <td>
             <div class="d-flex flex-column gap-1">
               <div class="small d-flex align-items-center text-muted">
-                <i class="bi bi-people me-2"></i>
-                <span>Máx: <strong>{{ service.maxProfiles }}</strong></span>
+                <i class="bi bi-people me-2 text-primary"></i>
+                <span>Máx: <strong class="text-dark">{{ service.maxProfiles }}</strong> perfiles</span>
               </div>
               <div class="small d-flex align-items-center text-muted">
-                <i class="bi bi-clock-history me-2"></i>
-                <span>Duración: <strong>{{ service.durationDays }}</strong> días</span>
+                <i class="bi bi-clock-history me-2 text-primary"></i>
+                <span>Duración: <strong class="text-dark">{{ service.durationDays }}</strong> días</span>
               </div>
             </div>
           </td>
-
+ 
           <!-- Status -->
           <td>
             <div class="form-check form-switch p-0 d-flex align-items-center gap-2">
                 <span class="status-indicator" [ngClass]="service.isActive ? 'active' : 'inactive'"></span>
-                <span class="small fw-medium" [ngClass]="service.isActive ? 'text-success' : 'text-muted'">
+                <span class="small fw-semibold" [ngClass]="service.isActive ? 'text-success' : 'text-muted'">
                     {{ service.isActive ? 'Activo' : 'Inactivo' }}
                 </span>
             </div>
           </td>
-
+ 
           <!-- Actions -->
           @if (!isReadOnly) {
           <td class="text-end pe-4">
             <div class="d-flex justify-content-end gap-2">
-              <button class="btn btn-action edit" (click)="editService.emit(service)" title="Editar servicio">
-                <i class="bi bi-pencil-square"></i>
+              <button class="btn btn-action-text edit d-inline-flex align-items-center px-3 py-2 border rounded-3" (click)="editService.emit(service)">
+                <i class="bi bi-pencil-square me-1"></i>
+                <span>Editar</span>
               </button>
-              <button class="btn btn-action" 
+              <button class="btn btn-action-text d-inline-flex align-items-center px-3 py-2 border rounded-3" 
                       [ngClass]="service.isActive ? 'deactivate' : 'activate'"
-                      (click)="toggleStatus.emit(service.id)" 
-                      [title]="service.isActive ? 'Desactivar' : 'Activar'">
-                <i class="bi" [ngClass]="service.isActive ? 'bi-eye-slash' : 'bi-eye'"></i>
+                      (click)="toggleStatus.emit(service.id)">
+                <i class="bi me-1" [ngClass]="service.isActive ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                <span>{{ service.isActive ? 'Desactivar' : 'Activar' }}</span>
               </button>
             </div>
           </td>
