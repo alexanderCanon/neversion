@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ClientsService } from '../../services/clients.service';
@@ -24,6 +25,7 @@ export class ClientsListComponent implements OnInit {
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly clients = this.clientsService.clients;
   readonly isLoading = this.clientsService.isLoading;
