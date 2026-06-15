@@ -18,7 +18,7 @@ public class SubscriptionSecurityConfig implements HttpSecurityCustomizer {
     public void customize(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/v1/subscriptions/detect-expired")
-                .hasRole("SUPER_ADMIN")
+                .hasAnyRole("VENDOR", "SUPER_ADMIN")
                 .requestMatchers("/api/v1/subscriptions/**")
                 .hasAnyRole("VENDOR", "SUPER_ADMIN"));
     }

@@ -40,6 +40,7 @@ neversion:
   cron:
     subscription-expiry:
       enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
+      schedule: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_SCHEDULE:0 0 8 * * *}
     notification-worker:
       enabled: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:false}
       interval-ms: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:30000}
