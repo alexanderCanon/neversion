@@ -74,7 +74,6 @@ neversion:
     host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:notification-service}
     port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
 
-
 springdoc:
   api-docs:
     enabled: false
