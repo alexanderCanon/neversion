@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 public interface SubscriptionRepositoryPort {
@@ -29,6 +30,14 @@ public interface SubscriptionRepositoryPort {
      * service and subscription status. Results are ordered by payment due date ASC.
      */
     List<Subscription> findByVendorIdFiltered(Long vendorId, Long serviceId, SubStatus status);
+
+    /**
+     * US-043 / tech-debt A3: Returns enriched list views for a vendor's
+     * subscriptions in a single query (profile, client, account and service
+     * joined), avoiding the per-row N+1 lookups previously done in the
+     * controller. Ordered by payment due date ASC.
+     */
+    List<SubscriptionListView> findVendorSubscriptionViews(Long vendorId, Long serviceId, SubStatus status);
 
     List<Subscription> findAll();
 

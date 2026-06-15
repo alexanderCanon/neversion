@@ -24,6 +24,7 @@ import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.CategoryType;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
@@ -231,6 +232,55 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
         assertThat(result)
                 .extracting(Subscription::getUuid)
                 .contains(saved.getUuid());
+    }
+
+    @Test
+    @DisplayName("findVendorSubscriptionViews - should enrich profile, client and service names in one query")
+    void findVendorSubscriptionViews_shouldReturnEnrichedView() {
+        Subscription saved = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+
+        List<SubscriptionListView> views = subscriptionRepositoryPort.findVendorSubscriptionViews(
+                parentVendor.getId(), null, null);
+
+        assertThat(views)
+                .filteredOn(v -> v.subscriptionUuid().equals(saved.getUuid()))
+                .singleElement()
+                .satisfies(v -> {
+                    assertThat(v.profileUuid()).isEqualTo(parentProfile.getUuid());
+                    assertThat(v.profileName()).isEqualTo(parentProfile.getName());
+                    assertThat(v.clientUuid()).isEqualTo(parentClient.getUuid());
+                    assertThat(v.clientName()).isEqualTo(parentClient.getName());
+                    assertThat(v.serviceName()).isEqualTo(parentService.getName());
+                    assertThat(v.status()).isEqualTo(SubStatus.ACTIVE);
+                });
+    }
+
+    @Test
+    @DisplayName("findVendorSubscriptionViews - should filter by status")
+    void findVendorSubscriptionViews_statusFilter_shouldReturnMatching() {
+        Subscription active = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+        subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10)));
+
+        List<SubscriptionListView> views = subscriptionRepositoryPort.findVendorSubscriptionViews(
+                parentVendor.getId(), null, SubStatus.ACTIVE);
+
+        assertThat(views).extracting(SubscriptionListView::subscriptionUuid).contains(active.getUuid());
+        assertThat(views).allMatch(v -> v.status() == SubStatus.ACTIVE);
+    }
+
+    @Test
+    @DisplayName("findVendorSubscriptionViews - should filter by service")
+    void findVendorSubscriptionViews_serviceFilter_shouldReturnMatching() {
+        Subscription saved = subscriptionRepositoryPort.save(
+                buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+
+        List<SubscriptionListView> views = subscriptionRepositoryPort.findVendorSubscriptionViews(
+                parentVendor.getId(), parentService.getId(), null);
+
+        assertThat(views).extracting(SubscriptionListView::subscriptionUuid).contains(saved.getUuid());
     }
 
     @Test

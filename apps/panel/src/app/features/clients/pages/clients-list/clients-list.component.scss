@@ -95,3 +95,14 @@ thead th {
 tbody td {
     padding: 1rem 1.5rem !important;
 }
+
+.modal-backdrop-custom {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+}
+
+.modal.d-block {
+    z-index: 1050;
+}

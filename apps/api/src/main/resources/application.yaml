@@ -46,6 +46,9 @@ neversion:
       interval-ms: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:30000}
     renewal-reminders:
       enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:false}
+    inventory-reconciliation:
+      enabled: ${NEVERSION_CRON_INVENTORY_RECONCILIATION_ENABLED:false}
+      schedule: ${NEVERSION_CRON_INVENTORY_RECONCILIATION_SCHEDULE:0 30 3 * * *}
   email:
     resend:
       api-key: ${RESEND_API_KEY:re_placeholder}

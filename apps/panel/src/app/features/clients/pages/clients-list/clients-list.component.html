@@ -120,7 +120,7 @@
                         <button
                           class="btn-action-sm deactivate"
                           (click)="deactivateClient(client)"
-                          title="Eliminar registro"
+                          title="Eliminar cliente"
                         >
                           <i class="bi bi-trash3"></i>
                         </button>
@@ -157,3 +157,87 @@
 </div>
 
 <app-client-form #clientForm (clientCreated)="onClientCreated()"></app-client-form>
+
+<!-- Modal: Confirmación de eliminación con datos reales -->
+@if (pendingDeleteClient()) {
+  <div class="modal-backdrop-custom" (click)="cancelDelete()"></div>
+  <div class="modal d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+        <div class="modal-header bg-danger text-white py-3 px-4">
+          <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Eliminar Cliente
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cancelDelete()" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <p class="text-dark mb-1">
+            Estás a punto de eliminar a
+            <strong>{{ pendingDeleteClient()?.name }}</strong>.
+            Esta acción es irreversible.
+          </p>
+
+          @if (isDeletionCheckLoading()) {
+            <div class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-danger" role="status"></div>
+              <span class="ms-2 small text-muted">Verificando datos relacionados...</span>
+            </div>
+          } @else if (deletionCheck()) {
+            @if (deletionCheck()!.hasRelatedData) {
+              <div class="alert alert-warning rounded-3 border-0 mt-3 mb-0 p-3">
+                <p class="fw-semibold small mb-2">
+                  <i class="bi bi-exclamation-circle-fill me-1"></i>
+                  Este cliente tiene datos asociados:
+                </p>
+                <ul class="mb-0 small ps-3">
+                  @if (deletionCheck()!.activeSubscriptions > 0) {
+                    <li>
+                      <strong>{{ deletionCheck()!.activeSubscriptions }}</strong>
+                      suscripción(es) activa(s)
+                    </li>
+                  }
+                  @if (deletionCheck()!.pendingReservations > 0) {
+                    <li>
+                      <strong>{{ deletionCheck()!.pendingReservations }}</strong>
+                      reserva(s) pendiente(s)
+                    </li>
+                  }
+                  @if (deletionCheck()!.totalOrders > 0) {
+                    <li>
+                      <strong>{{ deletionCheck()!.totalOrders }}</strong>
+                      orden(es) registrada(s)
+                    </li>
+                  }
+                </ul>
+              </div>
+            } @else {
+              <div class="alert alert-light border rounded-3 mt-3 mb-0 p-3 small text-muted">
+                <i class="bi bi-check-circle me-1 text-success"></i>
+                Este cliente no tiene suscripciones activas ni reservas pendientes.
+              </div>
+            }
+          }
+        </div>
+
+        <div class="modal-footer bg-white border-top py-3 px-4">
+          <button type="button" class="btn btn-link text-muted text-decoration-none me-auto" (click)="cancelDelete()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger px-4 fw-semibold"
+            (click)="confirmDelete()"
+            [disabled]="isDeletionCheckLoading()"
+          >
+            <i class="bi bi-trash3 me-2"></i>
+            Confirmar eliminación
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

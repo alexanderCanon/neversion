@@ -22,6 +22,7 @@ import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -342,12 +343,57 @@ public class ClientService implements ClientUseCase {
         return clientRepositoryPort.findAll();
     }
 
+    // ── Deletion check ───────────────────────────────────────────────────
+
+    /**
+     * Returns counts of related data so the vendor can review before deleting.
+     * Ownership check: 403 if caller's vendorId != client.vendorId.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public DeletionCheck checkDeletion(UUID clientUuid, String callerExternalId) {
+        Client client = clientRepositoryPort.findById(clientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + clientUuid));
+
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (!callerVendorId.equals(client.getVendorId())) {
+            throw new AccessDeniedException("Access denied: client " + clientUuid
+                    + " does not belong to your vendor");
+        }
+
+        long activeSubscriptions = subscriptionRepositoryPort.findByClientId(client.getId())
+                .stream()
+                .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                .count();
+
+        long pendingReservations = reservationRepositoryPort.findByClientId(client.getId())
+                .stream()
+                .filter(r -> r.getStatus() == ReservationStatus.PENDING
+                        || r.getStatus() == ReservationStatus.UPLOADED)
+                .count();
+
+        long totalOrders = orderRepositoryPort.findByClientId(client.getId()).size();
+
+        return new DeletionCheck(activeSubscriptions, pendingReservations, totalOrders);
+    }
+
+    /**
+     * Soft-deletes the client (sets deleted_at via @SQLDelete).
+     * Ownership check: 403 if caller's vendorId != client.vendorId.
+     */
     @Override
     @Transactional
-    public void delete(UUID uuid) {
-        clientRepositoryPort.findById(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + uuid));
-        clientRepositoryPort.deleteById(uuid);
+    public void delete(UUID clientUuid, String callerExternalId) {
+        Client client = clientRepositoryPort.findById(clientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + clientUuid));
+
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (!callerVendorId.equals(client.getVendorId())) {
+            throw new AccessDeniedException("Access denied: client " + clientUuid
+                    + " does not belong to your vendor");
+        }
+
+        clientRepositoryPort.deleteById(clientUuid);
     }
 
     // ── Helper — ownership resolution ─────────────────────────────────────

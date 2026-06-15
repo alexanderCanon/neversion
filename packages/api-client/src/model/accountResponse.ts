@@ -25,6 +25,7 @@ export interface AccountResponse {
     purchasedAt?: string;
     notes?: string;
     createdAt?: string;
+    maxProfiles?: number;
     totalProfiles?: number;
     availableProfiles?: number;
     occupiedProfiles?: number;

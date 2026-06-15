@@ -13,19 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
-import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.application.port.in.DetectExpiredSubscriptionsUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService.InventoryMutation;
 
 /**
  * US-047: Detects expired subscriptions and suspends access.
@@ -40,6 +39,7 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
     private final AccountRepositoryPort accountRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
     private final NotificationLogPort notificationLogPort;
+    private final InventoryStateDomainService inventoryStateDomainService;
     private final Clock clock;
 
     public DetectExpiredSubscriptionsService(
@@ -48,12 +48,14 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
             AccountRepositoryPort accountRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             NotificationLogPort notificationLogPort,
+            InventoryStateDomainService inventoryStateDomainService,
             Clock clock) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.notificationLogPort = notificationLogPort;
+        this.inventoryStateDomainService = inventoryStateDomainService;
         this.clock = clock;
     }
 
@@ -86,17 +88,11 @@ public class DetectExpiredSubscriptionsService implements DetectExpiredSubscript
     }
 
     private void expireInventory(Account account, Profile selectedProfile) {
-        if (account.getSaleMode() == SaleMode.FULL_ACCOUNT) {
-            var profiles = profileRepositoryPort.findByAccountId(account.getId());
-            profiles.forEach(profile -> profile.setStatus(ProfileStatus.EXPIRED));
-            profileRepositoryPort.saveAll(profiles);
-            account.setStatus(AccountStatus.EXPIRED);
-            accountRepositoryPort.save(account);
-            return;
-        }
-
-        selectedProfile.setStatus(ProfileStatus.EXPIRED);
-        profileRepositoryPort.save(selectedProfile);
+        List<Profile> accountProfiles = profileRepositoryPort.findByAccountId(account.getId());
+        InventoryMutation mutation = inventoryStateDomainService.expire(
+                account, selectedProfile, accountProfiles);
+        profileRepositoryPort.saveAll(mutation.profilesToPersist());
+        mutation.account().ifPresent(accountRepositoryPort::save);
     }
 
     /**

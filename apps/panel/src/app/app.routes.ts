@@ -58,7 +58,7 @@ export const routes: Routes = [
             },
             {
                 path: 'subscriptions',
-                loadComponent: () => import('./features/subscriptions/pages/subscriptions-list/subscriptions-list.component').then(m => m.SubscriptionsListComponent),
+                loadChildren: () => import('./features/subscriptions/subscriptions.routes').then(m => m.subscriptionsRoutes),
                 data: { allowedRoles: ['vendor'] },
                 canActivate: [roleGuard]
             },

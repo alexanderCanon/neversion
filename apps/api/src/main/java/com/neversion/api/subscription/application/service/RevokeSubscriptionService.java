@@ -1,5 +1,6 @@
 package com.neversion.api.subscription.application.service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,21 +9,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
-import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.application.port.in.RevokeSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService.InventoryMutation;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
@@ -39,6 +39,7 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final NotificationLogPort notificationLogPort;
+    private final InventoryStateDomainService inventoryStateDomainService;
 
     public RevokeSubscriptionService(
             SubscriptionRepositoryPort subscriptionRepositoryPort,
@@ -47,7 +48,8 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
             ClientRepositoryPort clientRepositoryPort,
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            NotificationLogPort notificationLogPort) {
+            NotificationLogPort notificationLogPort,
+            InventoryStateDomainService inventoryStateDomainService) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
@@ -55,6 +57,7 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.notificationLogPort = notificationLogPort;
+        this.inventoryStateDomainService = inventoryStateDomainService;
     }
 
     @Override
@@ -93,17 +96,11 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
     }
 
     private void releaseInventory(Account account, Profile selectedProfile) {
-        if (account.getSaleMode() == SaleMode.FULL_ACCOUNT) {
-            var profiles = profileRepositoryPort.findByAccountId(account.getId());
-            profiles.forEach(profile -> profile.setStatus(ProfileStatus.AVAILABLE));
-            profileRepositoryPort.saveAll(profiles);
-            account.setStatus(AccountStatus.AVAILABLE);
-            accountRepositoryPort.save(account);
-            return;
-        }
-
-        selectedProfile.setStatus(ProfileStatus.AVAILABLE);
-        profileRepositoryPort.save(selectedProfile);
+        List<Profile> accountProfiles = profileRepositoryPort.findByAccountId(account.getId());
+        InventoryMutation mutation = inventoryStateDomainService.release(
+                account, selectedProfile, accountProfiles);
+        profileRepositoryPort.saveAll(mutation.profilesToPersist());
+        mutation.account().ifPresent(accountRepositoryPort::save);
     }
 
     private void recordRevocationNotification(Subscription subscription, Client client) {

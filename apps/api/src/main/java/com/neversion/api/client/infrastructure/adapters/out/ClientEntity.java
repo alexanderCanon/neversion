@@ -1,7 +1,11 @@
 package com.neversion.api.client.infrastructure.adapters.out;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.UUID;
+
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,6 +31,8 @@ import lombok.Setter;
  */
 @Entity
 @Table(name = "clients")
+@SQLDelete(sql = "UPDATE clients SET deleted_at = now() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 @Getter
 @Setter
 @Builder
@@ -69,6 +75,10 @@ public class ClientEntity {
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    /** Soft delete timestamp — null means the record is active. */
+    @Column(name = "deleted_at")
+    private OffsetDateTime deletedAt;
 
     @PrePersist
     void prePersist() {

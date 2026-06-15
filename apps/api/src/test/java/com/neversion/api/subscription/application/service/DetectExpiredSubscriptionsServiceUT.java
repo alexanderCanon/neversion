@@ -36,6 +36,7 @@ import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("DetectExpiredSubscriptionsService — US-047 unit tests")
@@ -63,6 +64,7 @@ class DetectExpiredSubscriptionsServiceUT {
                 accountRepositoryPort,
                 clientRepositoryPort,
                 notificationLogPort,
+                new InventoryStateDomainService(),
                 FIXED_CLOCK);
     }
 
@@ -110,7 +112,7 @@ class DetectExpiredSubscriptionsServiceUT {
             assertThat(result).isEqualTo(1);
             assertThat(subscription.getStatus()).isEqualTo(SubStatus.SUSPENDED);
             assertThat(profile.getStatus()).isEqualTo(ProfileStatus.EXPIRED);
-            verify(profileRepositoryPort).save(profile);
+            verify(profileRepositoryPort).saveAll(List.of(profile));
         }
 
         @Test

@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
@@ -34,12 +35,15 @@ class UpdateSubscriptionServiceUT {
 
     @Mock
     private SubscriptionRepositoryPort subscriptionRepositoryPort;
+    @Mock
+    private ProfileRepositoryPort profileRepositoryPort;
 
     private UpdateSubscriptionService updateSubscriptionService;
 
     @BeforeEach
     void setUp() {
-        updateSubscriptionService = new UpdateSubscriptionService(subscriptionRepositoryPort);
+        updateSubscriptionService = new UpdateSubscriptionService(
+                subscriptionRepositoryPort, profileRepositoryPort);
     }
 
     private Subscription buildSubscription(SubStatus status) {
@@ -59,13 +63,15 @@ class UpdateSubscriptionServiceUT {
     class Suspend {
 
         @Test
-        @DisplayName("should suspend an ACTIVE subscription")
+        @DisplayName("should suspend an ACTIVE subscription and set profile to RESERVED")
         void shouldSuspendActive() {
             Subscription active = buildSubscription(SubStatus.ACTIVE);
             when(subscriptionRepositoryPort.findById(active.getUuid()))
                     .thenReturn(Optional.of(active));
             when(subscriptionRepositoryPort.save(any(Subscription.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
+            when(profileRepositoryPort.findByInternalId(10L))
+                    .thenReturn(Optional.empty());
 
             Subscription result = updateSubscriptionService.suspend(active.getUuid());
 

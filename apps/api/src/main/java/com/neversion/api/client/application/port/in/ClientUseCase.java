@@ -82,12 +82,22 @@ public interface ClientUseCase {
      */
     Client updateMyProfile(String name, String phone, String callerExternalId);
 
+    /**
+     * Returns counts of related data (subscriptions, reservations, orders) so the
+     * vendor can make an informed decision before soft-deleting the client.
+     */
+    DeletionCheck checkDeletion(UUID clientUuid, String callerExternalId);
+
+    /**
+     * Soft-deletes the client (sets deleted_at). Ownership check enforced.
+     */
+    void delete(UUID clientUuid, String callerExternalId);
+
     // ── Generic getters (legacy) ───────────────────────────────────────
     Client getById(UUID uuid);
     List<Client> getByName(String name);
     List<Client> getByPhone(String phone);
     List<Client> getAll();
-    void delete(UUID uuid);
 
     // ── Inner record for US-030 detail ────────────────────────────────
     record ClientDetail(
@@ -133,6 +143,15 @@ public interface ClientUseCase {
             UUID serviceId,
             String serviceName,
             Integer quantity) {}
+
+    record DeletionCheck(
+            long activeSubscriptions,
+            long pendingReservations,
+            long totalOrders) {
+        public boolean hasRelatedData() {
+            return activeSubscriptions > 0 || pendingReservations > 0 || totalOrders > 0;
+        }
+    }
 
     record ClientReservationStatusDetail(
             UUID id,

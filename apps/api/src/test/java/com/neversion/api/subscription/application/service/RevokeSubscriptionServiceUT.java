@@ -36,6 +36,7 @@ import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.subscription.domain.service.InventoryStateDomainService;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.model.enums.UserRole;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -73,7 +74,8 @@ class RevokeSubscriptionServiceUT {
                 clientRepositoryPort,
                 userRepositoryPort,
                 vendorRepositoryPort,
-                notificationLogPort);
+                notificationLogPort,
+                new InventoryStateDomainService());
     }
 
     private void mockOwnershipResolution(Long vendorId) {
@@ -138,7 +140,7 @@ class RevokeSubscriptionServiceUT {
 
             assertThat(result.getStatus()).isEqualTo(SubStatus.CANCELLED);
             assertThat(profile.getStatus()).isEqualTo(ProfileStatus.AVAILABLE);
-            verify(profileRepositoryPort).save(profile);
+            verify(profileRepositoryPort).saveAll(List.of(profile));
             verify(notificationLogPort).record(eq("ACCESS_REVOKED"), eq("client@test.com"), contains(SUBSCRIPTION_UUID.toString()),
                     eq("subscription"), eq(1L), eq("revoked"));
         }

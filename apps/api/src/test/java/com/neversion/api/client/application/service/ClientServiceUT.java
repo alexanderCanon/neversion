@@ -632,11 +632,33 @@ class ClientServiceUT {
         }
 
         @Test
-        @DisplayName("delete - should delete client when found")
-        void delete_shouldDeleteClient_whenFound() {
+        @DisplayName("delete - should soft-delete client when caller owns it")
+        void delete_shouldSoftDeleteClient_whenCallerOwns() {
+            // Given
+            mockOwnershipResolution();
             when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
-            clientService.delete(CLIENT_UUID);
+
+            // When
+            clientService.delete(CLIENT_UUID, EXTERNAL_ID);
+
+            // Then
             verify(clientRepositoryPort).deleteById(CLIENT_UUID);
+        }
+
+        @Test
+        @DisplayName("delete - should throw AccessDeniedException when caller does not own client")
+        void delete_shouldThrow403_whenCallerDoesNotOwnClient() {
+            // Given
+            Client otherVendorClient = Client.builder()
+                    .id(CLIENT_INTERNAL_ID).uuid(CLIENT_UUID).vendorId(99L)
+                    .name("Juan Pérez").email("juan@gmail.com").phone("55551234").build();
+            mockOwnershipResolution();
+            when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(otherVendorClient));
+
+            // When / Then
+            assertThatThrownBy(() -> clientService.delete(CLIENT_UUID, EXTERNAL_ID))
+                    .isInstanceOf(AccessDeniedException.class);
+            verify(clientRepositoryPort, never()).deleteById(any());
         }
     }
 }

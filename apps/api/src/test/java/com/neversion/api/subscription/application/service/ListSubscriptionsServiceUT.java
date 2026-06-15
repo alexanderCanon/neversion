@@ -23,6 +23,7 @@ import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
@@ -154,6 +155,68 @@ class ListSubscriptionsServiceUT {
             assertThatThrownBy(() -> listSubscriptionsService.listByVendor(
                     VENDOR_UUID, null, null, EXTERNAL_ID))
                     .isInstanceOf(ResourceNotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("listViewsByVendor (tech-debt A3 — single-query projection)")
+    class ListViewsByVendor {
+
+        private SubscriptionListView buildView() {
+            return new SubscriptionListView(
+                    UUID.randomUUID(), UUID.randomUUID(), "Profile 1",
+                    UUID.randomUUID(), "Client", UUID.randomUUID(), "Netflix",
+                    SubStatus.ACTIVE, LocalDate.now(), null, LocalDate.now().plusDays(3),
+                    1L, null, null);
+        }
+
+        @Test
+        @DisplayName("should delegate to the projection query when caller owns vendor")
+        void listViewsByVendor_ownedVendor_shouldReturnViews() {
+            Vendor vendor = buildVendor(VENDOR_ID, VENDOR_UUID);
+            SubscriptionListView view = buildView();
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            mockOwnershipResolution();
+            when(subscriptionRepositoryPort.findVendorSubscriptionViews(VENDOR_ID, null, null))
+                    .thenReturn(List.of(view));
+
+            List<SubscriptionListView> result = listSubscriptionsService.listViewsByVendor(
+                    VENDOR_UUID, null, null, EXTERNAL_ID);
+
+            assertThat(result).containsExactly(view);
+            verify(subscriptionRepositoryPort).findVendorSubscriptionViews(VENDOR_ID, null, null);
+        }
+
+        @Test
+        @DisplayName("should throw AccessDeniedException when caller does not own vendor")
+        void listViewsByVendor_wrongVendor_shouldThrow403() {
+            UUID otherVendorUuid = UUID.randomUUID();
+            Vendor otherVendor = buildVendor(99L, otherVendorUuid);
+            when(vendorRepositoryPort.findByUuid(otherVendorUuid)).thenReturn(Optional.of(otherVendor));
+            mockOwnershipResolution();
+
+            assertThatThrownBy(() -> listSubscriptionsService.listViewsByVendor(
+                    otherVendorUuid, null, null, EXTERNAL_ID))
+                    .isInstanceOf(AccessDeniedException.class);
+        }
+
+        @Test
+        @DisplayName("should resolve service UUID filter before querying the projection")
+        void listViewsByVendor_serviceFilter_shouldResolveServiceId() {
+            Vendor vendor = buildVendor(VENDOR_ID, VENDOR_UUID);
+            Service service = Service.builder().id(SERVICE_ID).uuid(SERVICE_UUID).name("Netflix").build();
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            mockOwnershipResolution();
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
+            when(subscriptionRepositoryPort.findVendorSubscriptionViews(VENDOR_ID, SERVICE_ID, SubStatus.ACTIVE))
+                    .thenReturn(List.of());
+
+            List<SubscriptionListView> result = listSubscriptionsService.listViewsByVendor(
+                    VENDOR_UUID, SERVICE_UUID, SubStatus.ACTIVE, EXTERNAL_ID);
+
+            assertThat(result).isEmpty();
+            verify(subscriptionRepositoryPort)
+                    .findVendorSubscriptionViews(VENDOR_ID, SERVICE_ID, SubStatus.ACTIVE);
         }
     }
 }

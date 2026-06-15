@@ -39,9 +39,9 @@ export interface VendorDashboardKpis {
 export class MasterDashboardService {
   private readonly dashboardApi = inject(DashboardApiService);
 
-  getProductsSummary(category = 'STREAMING'): Observable<ProductSummary[]> {
+  getProductsSummary(category = 'streaming'): Observable<ProductSummary[]> {
     return this.dashboardApi.getProductsSummary(
-      category as 'STREAMING',
+      category as 'streaming',
       'body',
       false,
     ).pipe(

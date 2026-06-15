@@ -26,7 +26,7 @@ interface Bootstrap {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './manual-assignment-modal.component.html',
-  styleUrls: [],
+  styleUrl: './manual-assignment-modal.component.scss',
 })
 export class ManualAssignmentModalComponent implements OnInit {
   @ViewChild('manualModal') modalElement!: ElementRef;
@@ -90,12 +90,23 @@ export class ManualAssignmentModalComponent implements OnInit {
 
     this.assignmentForm.get('accountId')?.valueChanges.subscribe(accountId => {
         if (accountId) {
-          const selectedAccount = this.accounts.find(a => a.id === accountId);
-          if (selectedAccount && selectedAccount.profiles) {
-            this.profiles = selectedAccount.profiles.filter(p => p.status === 'AVAILABLE');
-          } else {
-            this.profiles = [];
-          }
+          this.accountsService.getAccountDetail(accountId).subscribe({
+            next: (detail) => {
+              this.profiles = (detail.profiles ?? []).map(profile => ({
+                id: profile.id || '',
+                accountId,
+                name: profile.name || '',
+                pin: profile.pin,
+                isOwner: profile.isOwner ?? false,
+                status: profile.status as ProfileResponse['status'],
+                createdAt: '',
+              })).filter(p => p.status === 'AVAILABLE');
+            },
+            error: () => {
+              this.profiles = [];
+              this.toastService.error('No se pudieron cargar los perfiles de la cuenta.');
+            },
+          });
           this.assignmentForm.patchValue({ profileId: '' });
         } else {
           this.profiles = [];
@@ -163,9 +174,12 @@ export class ManualAssignmentModalComponent implements OnInit {
   }
 
   private loadAccountsForService(serviceId: string): void {
-      this.accountsService.getAccounts().subscribe({
-          next: (allAccounts) => {
-              this.accounts = allAccounts.filter(a => a.service?.id === serviceId && a.status !== 'EXPIRED');
+      this.accounts = [];
+      this.profiles = [];
+      this.assignmentForm.patchValue({ accountId: '', profileId: '' });
+      this.accountsService.getAccounts({ serviceId }).subscribe({
+          next: (accounts) => {
+              this.accounts = accounts.filter(a => a.status !== 'EXPIRED');
           }
       });
   }

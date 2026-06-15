@@ -27,11 +27,11 @@ model/accountResponse.ts
 model/accountSummary.ts
 model/accountSummaryResponse.ts
 model/activeClientsKpiResult.ts
-model/activeSubscriptionSummary.ts
+model/activeSubscriptionSummaryDto.ts
 model/changeProfileStatusRequest.ts
-model/client.ts
 model/clientAccessResponse.ts
-model/clientDetail.ts
+model/clientDeletionCheckResponse.ts
+model/clientDetailResponse.ts
 model/clientOrderHistoryResponse.ts
 model/clientOrderServiceResponse.ts
 model/clientRequest.ts
@@ -55,6 +55,7 @@ model/models.ts
 model/orderDetailResponse.ts
 model/orderResponse.ts
 model/orderSummary.ts
+model/orderSummaryDto.ts
 model/productSummaryResult.ts
 model/profileCustomerResult.ts
 model/profileRequest.ts
