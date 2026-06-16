@@ -112,20 +112,21 @@
                   <td class="text-end pe-4">
                     <div class="d-flex justify-content-end gap-2">
                         @if (reserv.receiptUrl) {
-                            <a [href]="reserv.receiptUrl" target="_blank" rel="noopener noreferrer" class="btn-action-sm view" title="Ver Comprobante">
+                            <a [href]="reserv.receiptUrl" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-white border shadow-sm text-success px-2 py-1" title="Ver Comprobante">
                                 <i class="bi bi-file-earmark-image"></i>
                             </a>
                         }
                         <a
-                          class="btn-action-sm detail"
+                          class="btn btn-sm btn-white border shadow-sm text-primary px-3 py-1 d-inline-flex align-items-center gap-1"
                           [routerLink]="['/reservations', reserv.id]"
                           title="Gestionar Detalle"
                         >
                           <i class="bi bi-journal-text"></i>
+                          <span class="fw-semibold small">Gestionar</span>
                         </a>
                         @if (reserv.status === 'PENDING' || reserv.status === 'UPLOADED') {
                             <button
-                              class="btn-action-sm cancel"
+                              class="btn btn-sm btn-white border shadow-sm text-danger px-2 py-1"
                               (click)="cancelReservation(reserv)"
                               title="Cancelar Reserva"
                             >

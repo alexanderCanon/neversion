@@ -1,13 +1,15 @@
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-start mb-4">
+<div class="container-fluid py-4 h-100 bg-surface">
+    <!-- Back Button -->
+    <div class="mb-4 d-flex align-items-center gap-3">
+        <a routerLink="/subscriptions" class="btn btn-white border shadow-sm d-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i>
+            <span class="fw-medium">Regresar</span>
+        </a>
+    </div>
+
+    <!-- Header / Title & Actions -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a routerLink="/subscriptions">Suscripciones</a></li>
-                    <li class="breadcrumb-item active">Detalle</li>
-                </ol>
-            </nav>
             <h2 class="mb-0 fw-bold d-flex align-items-center gap-3">
                 Detalle de Suscripción
                 @if (subscription()) {
@@ -18,16 +20,16 @@
             </h2>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary" (click)="loadSubscription(subscription()!.id!)" [disabled]="isLoading()">
+            <button class="btn btn-white border shadow-sm" (click)="loadSubscription(subscription()!.id!)" [disabled]="isLoading()">
                 <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
             </button>
             @if (subscription()?.status === 'ACTIVE' || subscription()?.status === 'SUSPENDED') {
-                <button class="btn btn-success" (click)="renew()">
+                <button class="btn btn-primary shadow-sm" (click)="renew()">
                     <i class="bi bi-arrow-repeat me-1"></i>Renovar
                 </button>
             }
             @if (subscription()?.status !== 'CANCELLED') {
-                <button class="btn btn-danger" (click)="revoke()">
+                <button class="btn btn-danger shadow-sm" (click)="revoke()">
                     <i class="bi bi-x-circle me-1"></i>Revocar Acceso
                 </button>
             }
@@ -35,18 +37,19 @@
     </div>
 
     @if (isLoading()) {
-        <div class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Cargando...</span>
-            </div>
-            <p class="mt-2 text-muted">Cargando información detallada...</p>
+        <div class="d-flex flex-column align-items-center justify-content-center py-5">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+            <p class="mt-3 text-muted">Cargando información detallada...</p>
         </div>
     } @else if (error()) {
-        <div class="alert alert-danger" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            {{ error() }}
-            <div class="mt-2">
-                <a routerLink="/subscriptions" class="btn btn-outline-danger btn-sm">Volver al listado</a>
+        <div class="alert alert-danger rounded-4 border-0 shadow-sm d-flex align-items-center gap-3 p-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+            <div>
+                <h6 class="fw-bold mb-1">Ocurrió un problema</h6>
+                <p class="mb-0 small">{{ error() }}</p>
+                <div class="mt-2">
+                    <a routerLink="/subscriptions" class="btn btn-outline-danger btn-sm">Volver al listado</a>
+                </div>
             </div>
         </div>
     } @else if (subscription()) {
@@ -54,42 +57,43 @@
             <!-- Columna Izquierda: Info Maestra y Financiera -->
             <div class="col-lg-8">
                 <!-- Info Maestra -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-info-circle me-2 text-primary"></i>Información de la Suscripción</h5>
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary fs-5"></i>
+                        <h5 class="mb-0 fw-bold">Información de la Suscripción</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
+                    <div class="card-body pt-0">
+                        <div class="row g-4">
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">ID de Suscripción</label>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">ID de Suscripción</label>
                                 <span class="font-monospace text-dark fw-bold">#{{ subscription()!.id }}</span>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">Fecha de Inicio</label>
-                                <strong>{{ subscription()!.startDate | date:'fullDate' }}</strong>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Fecha de Inicio</label>
+                                <strong class="text-dark">{{ subscription()!.startDate | date:'longDate' }}</strong>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">Fecha de Vencimiento (Fin)</label>
-                                <strong class="text-danger">{{ subscription()!.endDate | date:'fullDate' }}</strong>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Fecha de Vencimiento (Fin)</label>
+                                <strong class="text-danger">{{ subscription()!.endDate | date:'longDate' }}</strong>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">Próximo Vencimiento de Pago</label>
-                                <strong class="text-primary">{{ subscription()!.paymentDueDate | date:'fullDate' }}</strong>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Próximo Vencimiento de Pago</label>
+                                <strong class="text-primary">{{ subscription()!.paymentDueDate | date:'longDate' }}</strong>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">Meses Pagados</label>
-                                <span class="badge bg-info text-dark fs-6">{{ subscription()!.monthsPaid }} meses</span>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Meses Pagados</label>
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-3 fs-6">{{ subscription()!.monthsPaid }} meses</span>
                             </div>
                             <div class="col-md-6">
-                                <label class="text-muted small d-block">Creado el</label>
-                                <span>{{ subscription()!.createdAt | date:'short' }}</span>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Creado el</label>
+                                <span class="text-dark">{{ subscription()!.createdAt | date:'short' }}</span>
                             </div>
                         </div>
 
                         @if (subscription()!.notes) {
-                            <div class="mt-4 p-3 bg-light rounded">
-                                <label class="text-muted small d-block mb-1">Notas Administrativas</label>
-                                <p class="mb-0 italic">{{ subscription()!.notes }}</p>
+                            <div class="mt-4 p-3 bg-indigo-subtle-light rounded-4 border border-indigo-subtle">
+                                <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Notas Administrativas</label>
+                                <p class="mb-0 text-dark small lh-base">{{ subscription()!.notes }}</p>
                             </div>
                         }
                     </div>
@@ -97,23 +101,24 @@
 
                 <!-- Snapshot Financiero -->
                 @if (subscription()!.financialSnapshot) {
-                    <div class="card shadow-sm border-success">
-                        <div class="card-header bg-success text-white py-3">
-                            <h5 class="mb-0 fw-bold"><i class="bi bi-currency-dollar me-2"></i>Resumen Económico (Venta)</h5>
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-currency-dollar text-success fs-5"></i>
+                            <h5 class="mb-0 fw-bold">Resumen Económico (Venta)</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body pt-0">
                             <div class="row text-center g-3">
                                 <div class="col-md-4 border-end">
-                                    <label class="text-muted small d-block">Precio Pactado</label>
-                                    <h4 class="fw-bold mb-0 text-success">${{ subscription()!.financialSnapshot!.priceSold | number:'1.2-2' }}</h4>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Precio Pactado</label>
+                                    <h4 class="fw-bold mb-0 text-success">Q{{ subscription()!.financialSnapshot!.priceSold | number:'1.2-2' }}</h4>
                                 </div>
                                 <div class="col-md-4 border-end">
-                                    <label class="text-muted small d-block">Descuento Aplicado</label>
-                                    <h4 class="fw-bold mb-0 text-muted">${{ (subscription()!.financialSnapshot!.discountApplied || 0) | number:'1.2-2' }}</h4>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Descuento Aplicado</label>
+                                    <h4 class="fw-bold mb-0 text-muted">Q{{ (subscription()!.financialSnapshot!.discountApplied || 0) | number:'1.2-2' }}</h4>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="text-muted small d-block">Modalidad de Venta</label>
-                                    <h4 class="fw-bold mb-0">{{ getSaleModeLabel(subscription()!.financialSnapshot!.saleMode) }}</h4>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-2 d-block">Modalidad de Venta</label>
+                                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 1.15rem;">{{ getSaleModeLabel(subscription()!.financialSnapshot!.saleMode) }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -124,34 +129,43 @@
             <!-- Columna Derecha: Cliente y Perfil -->
             <div class="col-lg-4">
                 <!-- Cliente -->
-                <div class="card shadow-sm mb-4 border-primary">
-                    <div class="card-header bg-primary text-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-person-fill me-2"></i>Cliente</h5>
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-fill text-primary fs-5"></i>
+                        <h5 class="mb-0 fw-bold">Cliente</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body pt-0">
                         @if (subscription()!.client) {
-                            <h5 class="fw-bold mb-1">{{ subscription()!.client!.name }}</h5>
-                            <p class="text-muted mb-3"><i class="bi bi-envelope me-2"></i>{{ subscription()!.client!.email }}</p>
-                            <a [routerLink]="['/clients', subscription()!.client!.id, 'detail']" class="btn btn-sm btn-outline-primary w-100">
-                                Ver Perfil del Cliente
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="client-avatar shadow-sm" style="width: 48px; height: 48px; border-radius: 50%; background-color: var(--color-brand-accent-light); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
+                                    {{ subscription()!.client!.name?.charAt(0) | uppercase }}
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0" style="font-size: 1.05rem;">{{ subscription()!.client!.name }}</h5>
+                                    <span class="text-muted small">{{ subscription()!.client!.email }}</span>
+                                </div>
+                            </div>
+                            <a [routerLink]="['/clients', subscription()!.client!.id, 'detail']" class="btn btn-sm btn-white border shadow-sm w-100 fw-semibold py-2">
+                                Ver Expediente del Cliente
                             </a>
                         }
                     </div>
                 </div>
 
                 <!-- Acceso de la Suscripción -->
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="bi bi-key-fill me-2"></i>Acceso de la Suscripción</h5>
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-0 py-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-key-fill text-dark fs-5"></i>
+                        <h5 class="mb-0 fw-bold">Acceso de la Suscripción</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body pt-0">
                         @if (subscription()!.access) {
                             <div class="mb-3">
-                                <label class="text-muted small d-block">Servicio</label>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Servicio</label>
                                 <strong class="fs-5 text-primary">{{ subscription()!.financialSnapshot?.serviceName || 'Servicio no especificado' }}</strong>
                             </div>
                             <div class="mb-3">
-                                <label class="text-muted small d-block">Modalidad</label>
+                                <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Modalidad</label>
                                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
                                     {{ getSaleModeLabel(subscription()!.access!.saleMode) }}
                                 </span>
@@ -159,9 +173,9 @@
 
                             <div class="p-3 bg-light rounded-4 border">
                                 <div class="mb-3">
-                                    <label class="text-muted small d-block">Correo de la Cuenta</label>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Correo de la Cuenta</label>
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.accountEmail || 'No disponible' }}</span>
+                                        <span class="font-monospace text-dark fw-semibold small text-truncate">{{ subscription()!.access!.accountEmail || 'No disponible' }}</span>
                                         @if (subscription()!.access!.accountEmail) {
                                             <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountEmail, 'Correo')" title="Copiar Correo">
                                                 <i class="bi bi-copy"></i>
@@ -170,9 +184,9 @@
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="text-muted small d-block">Contraseña</label>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Contraseña</label>
                                     <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.accountPassword || 'No disponible' }}</span>
+                                        <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.accountPassword || 'No disponible' }}</span>
                                         @if (subscription()!.access!.accountPassword) {
                                             <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountPassword, 'Contraseña')" title="Copiar Contraseña">
                                                 <i class="bi bi-copy"></i>
@@ -181,20 +195,20 @@
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="text-muted small d-block">Perfil Asignado</label>
-                                    <strong class="text-dark">{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Perfil Asignado</label>
+                                    <strong class="text-dark small">{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
                                 </div>
                                 <div>
-                                    <label class="text-muted small d-block">PIN</label>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">PIN</label>
                                     @if (subscription()!.access!.profilePin) {
                                         <div class="d-flex align-items-center justify-content-between gap-2">
-                                            <span class="font-monospace text-dark fw-semibold">{{ subscription()!.access!.profilePin }}</span>
+                                            <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.profilePin }}</span>
                                             <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.profilePin, 'PIN')" title="Copiar PIN">
                                                 <i class="bi bi-copy"></i>
                                             </button>
                                         </div>
                                     } @else {
-                                        <span class="text-muted">Sin PIN</span>
+                                        <span class="text-muted small">Sin PIN</span>
                                     }
                                 </div>
                             </div>
@@ -204,11 +218,11 @@
 
                 <!-- Orden de Origen -->
                 @if (subscription()!.order) {
-                    <div class="card border-0 shadow-sm mt-4">
-                        <div class="card-body p-4">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <label class="text-muted small d-block mb-1">Orden de Origen</label>
+                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Orden de Origen</label>
                                     <span class="font-monospace text-dark fw-bold">#{{ subscription()!.order!.id | slice:0:8 }}</span>
                                 </div>
                                 <a [routerLink]="['/orders', subscription()!.order!.id]" class="btn btn-sm btn-white border fw-bold text-primary px-3 py-2 rounded-3 shadow-sm">

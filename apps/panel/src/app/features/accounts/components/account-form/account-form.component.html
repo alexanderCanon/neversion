@@ -13,116 +13,114 @@
         <div class="modal-body p-4 bg-surface">
           <div class="row g-4">
             
-            <!-- Account Credentials -->
+            <!-- 1. Servicio Digital -->
             <div class="col-12">
-                <div class="form-section mb-2">
-                    <label class="form-label-custom">Credenciales de Acceso</label>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="email" class="form-label small fw-medium text-muted">Correo electrónico <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control form-control-modern" id="email" formControlName="email" placeholder="cuenta@ejemplo.com">
-                            @if (accountForm.get('email')?.invalid && accountForm.get('email')?.touched) {
-                              <div class="text-danger x-small mt-1">Correo válido requerido</div>
-                            }
-                        </div>
-                        <div class="col-md-6">
-                            <label for="password" class="form-label small fw-medium text-muted">Contraseña <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control form-control-modern" id="password" formControlName="password" placeholder="••••••••">
-                            @if (accountForm.get('password')?.invalid && accountForm.get('password')?.touched) {
-                              <div class="text-danger x-small mt-1">Contraseña requerida</div>
-                            }
-                        </div>
-                    </div>
-                </div>
+              <label for="serviceId" class="form-label small fw-semibold text-muted">Servicio Digital <span class="text-danger">*</span></label>
+              <select class="form-select form-select-modern" id="serviceId" formControlName="serviceId" (change)="onServiceChange($any($event.target).value)">
+                <option [ngValue]="null">Selecciona un servicio</option>
+                @for (item of serviceOptions(); track item.id) {
+                  <option [value]="item.id">{{ item.displayName }}</option>
+                }
+              </select>
+              @if (accountForm.get('serviceId')?.invalid && accountForm.get('serviceId')?.touched) {
+                <div class="text-danger x-small mt-1">Selecciona un servicio</div>
+              }
             </div>
 
-            <!-- Service & Plan -->
-            <div class="col-md-7">
-                <div class="form-section">
-                    <label class="form-label-custom">Configuración de Venta</label>
-                    
-                    <div class="mb-3">
-                        <label for="serviceId" class="form-label small fw-medium text-muted">Servicio Digital <span class="text-danger">*</span></label>
-                        <select class="form-select form-select-modern" id="serviceId" formControlName="serviceId" (change)="onServiceChange($any($event.target).value)">
-                          <option [ngValue]="null">Selecciona un servicio</option>
-                          @for (item of serviceOptions(); track item.id) {
-                            <option [value]="item.id">{{ item.displayName }}</option>
-                          }
-                        </select>
-                        @if (accountForm.get('serviceId')?.invalid && accountForm.get('serviceId')?.touched) {
-                          <div class="text-danger x-small mt-1">Selecciona un servicio</div>
-                        }
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="plan" class="form-label small fw-medium text-muted">
-                          Plan / Variante (Opcional)
-                          <i class="bi bi-question-circle ms-1" title="Identifica el tipo de plan adquirido (ej. Premium 4K, Familiar). Útil para diferenciar cuentas del mismo servicio."></i>
-                        </label>
-                        <input type="text" class="form-control form-control-modern" id="plan" formControlName="plan" placeholder="Ej. Premium 4K, Familiar...">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="maxProfiles" class="form-label small fw-medium text-muted">
-                          Máx. Perfiles
-                          <i class="bi bi-question-circle ms-1" title="Cantidad máxima de perfiles que puede tener esta cuenta. Se auto-completa del servicio, pero puedes personalizarlo."></i>
-                        </label>
-                        <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1" max="50">
-                        @if (accountForm.get('maxProfiles')?.invalid && accountForm.get('maxProfiles')?.touched) {
-                          <div class="text-danger x-small mt-1">Mínimo 1 perfil</div>
-                        }
-                    </div>
-
-                    <div class="mb-0">
-                        <label class="form-label small fw-medium text-muted d-block mb-2">Modalidad de Venta <span class="text-danger">*</span></label>
-                        <div class="d-flex gap-3">
-                            @for (mode of saleModes; track mode) {
-                                <div class="sale-mode-option" [class.active]="accountForm.get('saleMode')?.value === mode">
-                                    <input class="form-check-input d-none" type="radio" formControlName="saleMode" [id]="'mode_' + mode" [value]="mode">
-                                    <label class="form-check-label w-100 py-2 px-3 rounded-3 border text-center cursor-pointer" [for]="'mode_' + mode">
-                                        <div class="fw-bold small">{{ mode === 'BY_PROFILE' ? 'Por Perfiles' : 'Cuenta Completa' }}</div>
-                                        <div class="x-small text-muted opacity-75">{{ mode === 'BY_PROFILE' ? 'Venta individual' : 'Venta única' }}</div>
-                                    </label>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
+            <!-- 2. Credenciales de Acceso -->
+            <div class="col-md-6">
+              <label for="email" class="form-label small fw-semibold text-muted">Correo electrónico <span class="text-danger">*</span></label>
+              <input type="email" class="form-control form-control-modern" id="email" formControlName="email" placeholder="cuenta@ejemplo.com" data-bwignore>
+              @if (accountForm.get('email')?.invalid && accountForm.get('email')?.touched) {
+                <div class="text-danger x-small mt-1">Correo válido requerido</div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="password" class="form-label small fw-semibold text-muted">Contraseña <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-modern" id="password" formControlName="password" placeholder="••••••••" data-bwignore>
+              @if (accountForm.get('password')?.invalid && accountForm.get('password')?.touched) {
+                <div class="text-danger x-small mt-1">Contraseña requerida</div>
+              }
             </div>
 
-            <!-- Dates & Costs -->
-            <div class="col-md-5">
-                <div class="form-section p-3 rounded-4 bg-white border shadow-sm">
-                    <label class="form-label-custom text-primary mb-3">Operación y Costos</label>
-                    
-                    <div class="mb-3">
-                        <label for="renewalDate" class="form-label small fw-medium text-muted">Próximo Vencimiento <span class="text-danger">*</span></label>
-                        <input type="date" class="form-control form-control-modern" id="renewalDate" formControlName="renewalDate">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="cost" class="form-label small fw-medium text-muted">Costo Adquisición (Q)</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 fw-bold">Q</span>
-                            <input type="number" class="form-control form-control-modern border-start-0" id="cost" formControlName="cost" min="0">
-                        </div>
-                    </div>
-
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <label for="purchasedAt" class="form-label x-small fw-bold text-muted text-uppercase">Fecha Compra</label>
-                            <input type="date" class="form-control form-control-modern" id="purchasedAt" formControlName="purchasedAt">
-                        </div>
-                        <div class="col-6">
-                            <label for="source" class="form-label x-small fw-bold text-muted text-uppercase">Fuente</label>
-                            <input type="text" class="form-control form-control-modern" id="source" formControlName="source" placeholder="Ej. AliExpress">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <!-- 3. Modalidad de Venta -->
             <div class="col-12">
-              <label for="notes" class="form-label small fw-medium text-muted text-uppercase">Observaciones Internas</label>
+              <span class="form-label small fw-semibold text-muted d-block mb-2">Modalidad de Venta <span class="text-danger">*</span></span>
+              <div class="d-flex gap-3">
+                @for (mode of saleModes; track mode) {
+                  <div class="sale-mode-option" [class.active]="accountForm.get('saleMode')?.value === mode">
+                    <input class="form-check-input d-none" type="radio" formControlName="saleMode" [id]="'mode_' + mode" [value]="mode">
+                    <label class="form-check-label w-100 py-2 px-3 rounded-3 border text-center cursor-pointer" [for]="'mode_' + mode">
+                      <div class="fw-bold small">{{ mode === 'BY_PROFILE' ? 'Por Perfiles' : 'Cuenta Completa' }}</div>
+                      <div class="x-small text-muted opacity-75">{{ mode === 'BY_PROFILE' ? 'Venta individual' : 'Venta única' }}</div>
+                    </label>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- 4. Máx. Perfiles (Conditional) -->
+            @if (accountForm.get('saleMode')?.value === 'BY_PROFILE') {
+              <div class="col-12">
+                <label for="maxProfiles" class="form-label small fw-semibold text-muted">
+                  Perfiles de Cuenta
+                  <i class="bi bi-question-circle ms-1" title="Cantidad máxima de perfiles que puede tener esta cuenta. Se auto-completa del servicio, pero puedes personalizarlo."></i>
+                </label>
+                <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1" max="50">
+                @if (accountForm.get('maxProfiles')?.invalid && accountForm.get('maxProfiles')?.touched) {
+                  <div class="text-danger x-small mt-1">Mínimo 1 perfil</div>
+                }
+              </div>
+            }
+
+            <!-- 5. Operación y Costos -->
+            <div class="col-12 mt-4 pt-3 border-top">
+              <h6 class="form-label-custom">Operación y Costos</h6>
+              <div class="row g-3">
+                <!-- Fecha Compra -->
+                <div class="col-md-6">
+                  <label for="purchasedAt" class="form-label small fw-semibold text-muted">
+                    Fecha de Compra
+                    <i class="bi bi-question-circle ms-1" title="La fecha en que se adquirió la cuenta."></i>
+                  </label>
+                  <input type="date" class="form-control form-control-modern" id="purchasedAt" formControlName="purchasedAt">
+                </div>
+
+                <!-- Próximo Vencimiento -->
+                <div class="col-md-6">
+                  <label for="renewalDate" class="form-label small fw-semibold text-muted">Próximo Vencimiento <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control form-control-modern" id="renewalDate" formControlName="renewalDate">
+                  @if (accountForm.get('renewalDate')?.invalid && accountForm.get('renewalDate')?.touched) {
+                    <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida</div>
+                  }
+                </div>
+
+                <!-- Costo de Adquisición -->
+                <div class="col-md-6">
+                  <label for="cost" class="form-label small fw-semibold text-muted">Costo Adquisición (Q) <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 fw-bold">Q</span>
+                    <input type="number" class="form-control form-control-modern border-start-0" id="cost" formControlName="cost" min="0">
+                  </div>
+                  @if (accountForm.get('cost')?.invalid && accountForm.get('cost')?.touched) {
+                    <div class="text-danger x-small mt-1">El costo debe ser 0 o mayor</div>
+                  }
+                </div>
+
+                <!-- Fuente -->
+                <div class="col-md-6">
+                  <label for="source" class="form-label small fw-semibold text-muted">
+                    Fuente / Origen
+                    <i class="bi bi-question-circle ms-1" title="Fuente se refiere al origen de la cuenta, distribuidor externo, tarjeta de credito/debito, regalo, etc"></i>
+                  </label>
+                  <input type="text" class="form-control form-control-modern" id="source" formControlName="source" placeholder="Ej. AliExpress, distribuidor, etc.">
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Observaciones Internas -->
+            <div class="col-12 mt-3">
+              <label for="notes" class="form-label small fw-semibold text-muted">OBSERVACIONES INTERNAS</label>
               <textarea class="form-control form-control-modern" id="notes" formControlName="notes" rows="2" placeholder="Notas sobre el proveedor, métodos de pago, etc."></textarea>
             </div>
             

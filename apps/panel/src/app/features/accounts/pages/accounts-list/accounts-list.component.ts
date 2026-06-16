@@ -199,7 +199,8 @@ export class AccountsListComponent implements OnInit {
 
   onProfilesChanged(accountId: string): void {
       this.detailedData.update((current) => {
-        const { [accountId]: _removed, ...remainingDetails } = current;
+        const remainingDetails = { ...current };
+        delete remainingDetails[accountId];
         return remainingDetails;
       });
       this.loadAccountDetail(accountId);

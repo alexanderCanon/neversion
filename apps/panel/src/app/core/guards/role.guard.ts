@@ -10,6 +10,13 @@ export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  // If the backend context request failed (e.g. server down/restarting),
+  // we do not redirect to prevent infinite loops with guestGuard.
+  // MainLayoutComponent will safely intercept this and display a connection error overlay.
+  if (authService.contextLoadFailed()) {
+    return true;
+  }
+
   const allowedRoles = route.data['allowedRoles'] as string[];
   const userRole = authService.userRole();
 

@@ -1,7 +1,7 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AccountRequest, SaleMode } from '@neversion/models';
+import { AccountRequest, SaleMode, ServiceResponse } from '@neversion/models';
 import { AccountsService } from '../../services/accounts.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
@@ -36,6 +36,24 @@ declare const bootstrap: Bootstrap;
 export class AccountFormComponent implements OnInit {
   @ViewChild('accountModal') modalElement!: ElementRef;
   @Output() accountCreated = new EventEmitter<AccountRequest>();
+
+  private _preselectedService: ServiceOption | null = null;
+
+  @Input() set preselectedService(service: ServiceResponse | null) {
+    if (service) {
+      this._preselectedService = {
+        id: service.id,
+        displayName: service.name,
+        maxProfiles: service.maxProfiles || 1
+      };
+      this.applyPreselectedService();
+    } else {
+      this._preselectedService = null;
+      if (this.accountForm) {
+        this.accountForm.get('serviceId')?.enable();
+      }
+    }
+  }
 
   accountForm!: FormGroup;
   isSubmitting = false;
@@ -79,7 +97,6 @@ export class AccountFormComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(1)]],
       serviceId: [null, [Validators.required]],
-      plan: [''],
       maxProfiles: [1, [Validators.required, Validators.min(1)]],
       saleMode: [SaleMode.BY_PROFILE, Validators.required],
       renewalDate: ['', [Validators.required]],
@@ -88,11 +105,37 @@ export class AccountFormComponent implements OnInit {
       purchasedAt: [today],
       notes: ['']
     });
+
+    // Listen to saleMode changes to enable/disable maxProfiles
+    this.accountForm.get('saleMode')?.valueChanges.subscribe(mode => {
+      const maxProfilesCtrl = this.accountForm.get('maxProfiles');
+      if (mode === SaleMode.FULL_ACCOUNT) {
+        maxProfilesCtrl?.setValue(1);
+        maxProfilesCtrl?.disable();
+      } else {
+        maxProfilesCtrl?.enable();
+        const serviceId = this.accountForm.get('serviceId')?.value;
+        const service = this.serviceOptions().find(s => s.id === serviceId);
+        maxProfilesCtrl?.setValue(service ? service.maxProfiles : 1);
+      }
+    });
+
+    this.applyPreselectedService();
+  }
+
+  private applyPreselectedService(): void {
+    if (this._preselectedService && this.accountForm) {
+      this.accountForm.patchValue({
+        serviceId: this._preselectedService.id,
+        maxProfiles: this._preselectedService.maxProfiles
+      });
+      this.accountForm.get('serviceId')?.disable();
+    }
   }
 
   onServiceChange(serviceId: string): void {
     const service = this.serviceOptions().find(s => s.id === serviceId);
-    if (service) {
+    if (service && this.accountForm.get('saleMode')?.value === SaleMode.BY_PROFILE) {
       this.accountForm.patchValue({ maxProfiles: service.maxProfiles });
     }
   }
@@ -138,20 +181,19 @@ export class AccountFormComponent implements OnInit {
   onSubmit(): void {
     if (this.accountForm.valid) {
       this.isSubmitting = true;
-      const formValue = this.accountForm.value;
+      const formValue = this.accountForm.getRawValue();
 
       const accountRequest: AccountRequest = {
         email: formValue.email,
         password: formValue.password,
         serviceId: formValue.serviceId,
-        plan: formValue.plan || undefined,
         saleMode: formValue.saleMode as SaleMode,
         renewalDate: formValue.renewalDate,
         cost: Number(formValue.cost),
         source: formValue.source || undefined,
         purchasedAt: formValue.purchasedAt || undefined,
         notes: formValue.notes || undefined,
-        maxProfiles: Number(formValue.maxProfiles) || undefined
+        maxProfiles: formValue.saleMode === SaleMode.FULL_ACCOUNT ? 1 : (Number(formValue.maxProfiles) || undefined)
       };
 
       this.accountsService.createAccount(accountRequest).subscribe({
@@ -179,6 +221,8 @@ export class AccountFormComponent implements OnInit {
       maxProfiles: 1,
       purchasedAt: today
     });
+    this.accountForm.get('maxProfiles')?.enable();
+    this.applyPreselectedService();
     this.isSubmitting = false;
   }
 }

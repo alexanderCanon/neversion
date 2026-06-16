@@ -228,4 +228,4 @@
   </div>
 </div>
 
-<app-account-form #accountForm (accountCreated)="onAccountCreated()"></app-account-form>
+<app-account-form #accountForm [preselectedService]="currentService()" (accountCreated)="onAccountCreated()"></app-account-form>

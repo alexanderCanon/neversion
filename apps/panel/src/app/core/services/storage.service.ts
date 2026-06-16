@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { from, Observable, map, throwError } from 'rxjs';
+import { from, Observable, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +49,7 @@ export class StorageService {
       .remove([path]);
 
     return from(deletePromise).pipe(
-      map(({ data, error }) => {
+      map(({ error }) => {
         if (error) throw error;
         return;
       })

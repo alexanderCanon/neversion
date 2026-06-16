@@ -26,11 +26,14 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
 
     private final SpringDataSubscriptionRepository subscriptionRepo;
     private final SubscriptionPersistenceMapper subscriptionMapper;
+    private final SubscriptionQueryRepository subscriptionQueryRepository;
 
     public JpaSubscriptionAdapter(SpringDataSubscriptionRepository subscriptionRepo,
-            SubscriptionPersistenceMapper subscriptionMapper) {
+            SubscriptionPersistenceMapper subscriptionMapper,
+            SubscriptionQueryRepository subscriptionQueryRepository) {
         this.subscriptionRepo = subscriptionRepo;
         this.subscriptionMapper = subscriptionMapper;
+        this.subscriptionQueryRepository = subscriptionQueryRepository;
     }
 
     @Override
@@ -89,7 +92,7 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
     @Override
     public List<SubscriptionListView> findVendorSubscriptionViews(
             Long vendorId, Long serviceId, SubStatus status) {
-        return subscriptionRepo.findVendorSubscriptionViews(vendorId, serviceId, status);
+        return subscriptionQueryRepository.findVendorSubscriptionViews(vendorId, serviceId, status);
     }
 
     private Specification<SubscriptionEntity> subscriptionFilter(

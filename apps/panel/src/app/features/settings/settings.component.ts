@@ -70,7 +70,7 @@ export class SettingsComponent implements OnInit {
     const newPassword = this.passwordForm.get('newPassword')?.value;
 
     this.supabaseService.client.auth.updateUser({ password: newPassword })
-      .then(({ data, error }) => {
+      .then(({ error }) => {
         this.isSubmitting.set(false);
         if (error) {
           this.toastService.error(`Error al actualizar contraseña: ${error.message}`);
