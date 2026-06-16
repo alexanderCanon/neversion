@@ -10,10 +10,10 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,23 +33,23 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${supabase.jwt.secret}")
-    private String supabaseJwtSecret;
+    @Value("${auth.jwt.secret}")
+    private String jwtSecret;
 
     @Value("${cors.allowed-origins:*}")
     private String allowedOrigins;
 
-    private final SupabaseJwtAuthConverter supabaseJwtAuthConverter;
+    private final AuthJwtRoleConverter authJwtRoleConverter;
     private final MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver;
     private final MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter;
     private final List<HttpSecurityCustomizer> securityCustomizers;
 
     public SecurityConfig(
-            SupabaseJwtAuthConverter supabaseJwtAuthConverter,
+            AuthJwtRoleConverter authJwtRoleConverter,
             MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver,
             MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter,
             List<HttpSecurityCustomizer> securityCustomizers) {
-        this.supabaseJwtAuthConverter = supabaseJwtAuthConverter;
+        this.authJwtRoleConverter = authJwtRoleConverter;
         this.monitoringAwareBearerTokenResolver = monitoringAwareBearerTokenResolver;
         this.monitoringScrapeTokenAuthenticationFilter = monitoringScrapeTokenAuthenticationFilter;
         this.securityCustomizers = securityCustomizers;
@@ -58,21 +58,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // -- Stateless: no HTTP session --
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Disable CSRF for stateless REST API
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-                // -- CSRF disabled for stateless REST API --
-                .csrf(csrf -> csrf.disable())
+        // Add Prometheus monitoring token auth filter before standard Spring Security filters
+        http.addFilterBefore(monitoringScrapeTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-                // -- CORS --
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // -- Disable form login & HTTP Basic (API-only) --
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
-
-        // -- Public docs, health probe (load balancer), and protected actuator --
+        // Public docs, health probe (load balancer), and protected actuator
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
@@ -83,8 +77,6 @@ public class SecurityConfig {
                     return new AuthorizationDecision(granted);
                 })
                 .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN"));
-
-        http.addFilterBefore(monitoringScrapeTokenAuthenticationFilter, BearerTokenAuthenticationFilter.class);
 
         // -- Delegate per-feature RBAC rules --
         for (HttpSecurityCustomizer customizer : securityCustomizers) {
@@ -99,17 +91,17 @@ public class SecurityConfig {
                 .bearerTokenResolver(monitoringAwareBearerTokenResolver)
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(supabaseJwtAuthConverter)));
+                        .jwtAuthenticationConverter(authJwtRoleConverter)));
 
         return http.build();
     }
 
     /**
-     * Decodes Supabase JWTs using the project's HS256 secret key.
+     * Decodes JWTs using the project's HS256 secret key.
      */
     @Bean
     public JwtDecoder jwtDecoder() {
-        byte[] secretBytes = supabaseJwtSecret.getBytes();
+        byte[] secretBytes = jwtSecret.getBytes();
         SecretKey secretKey = new SecretKeySpec(secretBytes, "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }

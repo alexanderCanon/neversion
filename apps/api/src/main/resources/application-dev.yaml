@@ -41,11 +41,11 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
 
-supabase:
+auth:
   jwt:
-    secret: ${SUPABASE_JWT_SECRET:your-dev-jwt-secret}
-  url: ${SUPABASE_URL:http://localhost:9999}
-  service-role-key: ${SUPABASE_SERVICE_ROLE_KEY:your-dev-service-role-key}
+    secret: ${AUTH_JWT_SECRET:your-dev-jwt-secret}
+  api-url: ${AUTH_API_URL:http://localhost:9999}
+  admin-key: ${AUTH_ADMIN_KEY:your-dev-service-role-key}
 
 neversion:
   renewal:

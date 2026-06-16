@@ -15,18 +15,17 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 
 /**
- * Extracts the user role from a Supabase JWT and maps it to Spring Security
- * authorities.
+ * Extracts the user role from an auth JWT and maps it to Spring Security authorities.
  *
- * Supabase stores custom roles in the {@code app_metadata} claim.
+ * It checks the {@code app_metadata} claim.
  * If the claim contains {@code "role": "vendor"}, the user is granted
  * {@code ROLE_VENDOR}, etc. If no role is present the token is authenticated
  * but granted no authorities — it will be denied by any {@code hasRole()} rule.
  */
 @Component
-public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+public class AuthJwtRoleConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private static final Logger log = LoggerFactory.getLogger(SupabaseJwtAuthConverter.class);
+    private static final Logger log = LoggerFactory.getLogger(AuthJwtRoleConverter.class);
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
@@ -39,21 +38,14 @@ public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
         return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
     }
 
-    /**
-     * Extracts granted authorities from the JWT's {@code app_metadata.role} claim.
-     * Returns an empty collection if the claim is absent — the caller will be
-     * authenticated but hold no roles.
-     */
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
 
         String role = extractRole(jwt);
         if (role != null && !role.isBlank()) {
-            // Map the Supabase role to a Spring Security authority (e.g., "admin" →
-            // "ROLE_ADMIN")
             String springRole = "ROLE_" + role.toUpperCase();
             authorities.add(new SimpleGrantedAuthority(springRole));
-            log.debug("Mapped Supabase role '{}' → '{}'", role, springRole);
+            log.debug("Mapped role '{}' -> '{}'", role, springRole);
         } else {
             log.debug("No role found in JWT claims for subject: {}", jwt.getSubject());
         }
@@ -62,7 +54,6 @@ public class SupabaseJwtAuthConverter implements Converter<Jwt, AbstractAuthenti
     }
 
     private String extractRole(Jwt jwt) {
-        // Strict: raw_app_meta_data.role (Supabase Admin stores custom roles here)
         Map<String, Object> appMetadata = jwt.getClaim("app_metadata");
         if (appMetadata != null && appMetadata.containsKey("role")) {
             return String.valueOf(appMetadata.get("role"));

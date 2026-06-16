@@ -1,7 +1,7 @@
 package com.neversion.api.user.infrastructure.adapters.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.model.enums.UserRole;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -16,32 +16,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * REST adapter for AuthServicePort calling the external auth service via HTTP.
+ */
 @Component
-public class SupabaseAuthAdapter implements SupabaseAuthPort {
+public class RestAuthAdapter implements AuthServicePort {
 
     private final RestTemplate restTemplate;
-    private final String supabaseUrl;
-    private final String serviceRoleKey;
+    private final String authApiUrl;
+    private final String adminKey;
 
-    public SupabaseAuthAdapter(
+    public RestAuthAdapter(
             RestTemplateBuilder restTemplateBuilder,
-            @Value("${supabase.url}") String supabaseUrl,
-            @Value("${supabase.service-role-key}") String serviceRoleKey) {
+            @Value("${auth.api-url}") String authApiUrl,
+            @Value("${auth.admin-key}") String adminKey) {
         this.restTemplate = restTemplateBuilder.build();
-        this.supabaseUrl = supabaseUrl;
-        this.serviceRoleKey = serviceRoleKey;
+        this.authApiUrl = authApiUrl;
+        this.adminKey = adminKey;
     }
 
     @Override
     public String createUser(String email, String password, UserRole role) {
-        String url = supabaseUrl + "/auth/v1/admin/users";
+        String url = authApiUrl + "/auth/v1/admin/users";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("apikey", serviceRoleKey);
-        headers.setBearerAuth(serviceRoleKey);
+        headers.set("apikey", adminKey);
+        headers.setBearerAuth(adminKey);
 
-        SupabaseCreateUserRequest requestBody = new SupabaseCreateUserRequest(
+        CreateUserRequest requestBody = new CreateUserRequest(
                 email,
                 password,
                 true, // email_confirm
@@ -52,29 +55,29 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
                 ) // app_metadata
         );
 
-        HttpEntity<SupabaseCreateUserRequest> request = new HttpEntity<>(requestBody, headers);
+        HttpEntity<CreateUserRequest> request = new HttpEntity<>(requestBody, headers);
 
         try {
-            SupabaseCreateUserResponse response = restTemplate.postForObject(
-                    url, request, SupabaseCreateUserResponse.class);
+            CreateUserResponse response = restTemplate.postForObject(
+                    url, request, CreateUserResponse.class);
 
             if (response == null || response.id() == null) {
-                throw new IllegalStateException("Failed to create user in Supabase: no ID returned");
+                throw new IllegalStateException("Failed to create user in auth service: no ID returned");
             }
 
             return response.id();
         } catch (Exception e) {
-            throw new IllegalStateException("Error calling Supabase Admin API: " + e.getMessage(), e);
+            throw new IllegalStateException("Error calling auth service Admin API: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Optional<String> findEmailByExternalId(String externalId) {
-        String url = supabaseUrl + "/auth/v1/admin/users/" + externalId;
+        String url = authApiUrl + "/auth/v1/admin/users/" + externalId;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("apikey", serviceRoleKey);
-        headers.setBearerAuth(serviceRoleKey);
+        headers.set("apikey", adminKey);
+        headers.setBearerAuth(adminKey);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
@@ -83,7 +86,7 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
                     url,
                     HttpMethod.GET,
                     request,
-                    SupabaseUserResponse.class);
+                    UserResponse.class);
 
             if (response.getBody() == null || response.getBody().email() == null
                     || response.getBody().email().isBlank()) {
@@ -92,23 +95,23 @@ public class SupabaseAuthAdapter implements SupabaseAuthPort {
 
             return Optional.of(response.getBody().email());
         } catch (Exception e) {
-            throw new IllegalStateException("Error resolving Supabase user email: " + e.getMessage(), e);
+            throw new IllegalStateException("Error resolving user email from auth service: " + e.getMessage(), e);
         }
     }
 
     // Records for JSON mapping
-    private record SupabaseCreateUserRequest(
+    private record CreateUserRequest(
             String email,
             String password,
             @JsonProperty("email_confirm") boolean emailConfirm,
             @JsonProperty("app_metadata") Map<String, Object> appMetadata
     ) {}
 
-    private record SupabaseCreateUserResponse(
+    private record CreateUserResponse(
             String id
     ) {}
 
-    private record SupabaseUserResponse(
+    private record UserResponse(
             String id,
             String email
     ) {}

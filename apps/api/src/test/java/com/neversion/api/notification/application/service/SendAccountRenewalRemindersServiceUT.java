@@ -30,7 +30,7 @@ import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.model.enums.UserRole;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -44,7 +44,7 @@ class SendAccountRenewalRemindersServiceUT {
     @Mock private ServiceRepositoryPort serviceRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private UserRepositoryPort userRepositoryPort;
-    @Mock private SupabaseAuthPort supabaseAuthPort;
+    @Mock private AuthServicePort authServicePort;
     @Mock private NotificationLogPort notificationLogPort;
 
     private SendAccountRenewalRemindersService service;
@@ -61,7 +61,7 @@ class SendAccountRenewalRemindersServiceUT {
                 serviceRepositoryPort,
                 vendorRepositoryPort,
                 userRepositoryPort,
-                supabaseAuthPort,
+                authServicePort,
                 notificationLogPort,
                 new ObjectMapper(),
                 fixedClock);
@@ -116,7 +116,7 @@ class SendAccountRenewalRemindersServiceUT {
                 .thenReturn(false);
         when(vendorRepositoryPort.findByInternalId(7L)).thenReturn(Optional.of(buildVendor()));
         when(userRepositoryPort.findById(100L)).thenReturn(Optional.of(buildUser()));
-        when(supabaseAuthPort.findEmailByExternalId("supabase-vendor-id")).thenReturn(Optional.empty());
+        when(authServicePort.findEmailByExternalId("supabase-vendor-id")).thenReturn(Optional.empty());
 
         int result = service.sendReminders();
 
@@ -162,7 +162,7 @@ class SendAccountRenewalRemindersServiceUT {
     private void mockVendorRecipient() {
         when(vendorRepositoryPort.findByInternalId(7L)).thenReturn(Optional.of(buildVendor()));
         when(userRepositoryPort.findById(100L)).thenReturn(Optional.of(buildUser()));
-        when(supabaseAuthPort.findEmailByExternalId("supabase-vendor-id")).thenReturn(Optional.of("vendor@test.com"));
+        when(authServicePort.findEmailByExternalId("supabase-vendor-id")).thenReturn(Optional.of("vendor@test.com"));
     }
 
     private void mockServiceName() {

@@ -1,7 +1,7 @@
 package com.neversion.api.user.application.service;
 
 import com.neversion.api.shared.port.out.NotificationLogPort;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.application.port.in.RegisterVendorUseCase;
 import com.neversion.api.user.domain.model.RegisterVendorCommand;
 import com.neversion.api.user.domain.model.RegisterVendorResult;
@@ -18,11 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>
  * Flow (Backend-Driven Auth):
  * <ol>
- *   <li>Service creates the Supabase Auth account and explicitly injects the VENDOR role.</li>
- *   <li>Receives the Supabase UUID as {@code externalId}.</li>
+ *   <li>Service creates the Auth account and explicitly injects the VENDOR role.</li>
+ *   <li>Receives the Auth UUID as {@code externalId}.</li>
  *   <li>This service persists the internal User and Vendor records using that externalId.</li>
  *   <li>Records a VENDOR_WELCOME event in notification_log for Agent Notifications.</li>
  * </ol>
+ * </p>
  */
 @Service
 public class RegisterVendorService implements RegisterVendorUseCase {
@@ -30,24 +31,24 @@ public class RegisterVendorService implements RegisterVendorUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final NotificationLogPort notificationLogPort;
-    private final SupabaseAuthPort supabaseAuthPort;
+    private final AuthServicePort authServicePort;
 
     public RegisterVendorService(
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
             NotificationLogPort notificationLogPort,
-            SupabaseAuthPort supabaseAuthPort) {
+            AuthServicePort authServicePort) {
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.notificationLogPort = notificationLogPort;
-        this.supabaseAuthPort = supabaseAuthPort;
+        this.authServicePort = authServicePort;
     }
 
     @Override
     @Transactional
     public RegisterVendorResult register(RegisterVendorCommand command) {
-        // Step 1 — Create Supabase Auth user securely and get the externalId
-        String externalId = supabaseAuthPort.createUser(command.email(), command.password(), UserRole.VENDOR);
+        // Step 1 — Create Auth user securely and get the externalId
+        String externalId = authServicePort.createUser(command.email(), command.password(), UserRole.VENDOR);
 
         // Step 2 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(

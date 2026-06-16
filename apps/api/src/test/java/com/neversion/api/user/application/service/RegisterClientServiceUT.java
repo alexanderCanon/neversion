@@ -4,7 +4,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.port.out.NotificationLogPort;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.model.RegisterClientCommand;
 import com.neversion.api.user.domain.model.RegisterClientResult;
 import com.neversion.api.user.domain.model.User;
@@ -51,7 +51,7 @@ class RegisterClientServiceUT {
     private NotificationLogPort notificationLogPort;
 
     @Mock
-    private SupabaseAuthPort supabaseAuthPort;
+    private AuthServicePort authServicePort;
 
     private RegisterClientService sut;
 
@@ -65,7 +65,7 @@ class RegisterClientServiceUT {
     void setUp() {
         sut = new RegisterClientService(
                 userRepositoryPort, clientRepositoryPort,
-                vendorRepositoryPort, notificationLogPort, supabaseAuthPort);
+                vendorRepositoryPort, notificationLogPort, authServicePort);
     }
 
     // ─── happy path ──────────────────────────────────────────────────────────
@@ -88,7 +88,7 @@ class RegisterClientServiceUT {
 
         // Assert — interactions
         verify(vendorRepositoryPort, times(1)).findByUuid(VENDOR_UUID);
-        verify(supabaseAuthPort, times(1)).createUser("cliente@correo.com", "secret123", UserRole.CLIENT);
+        verify(authServicePort, times(1)).createUser("cliente@correo.com", "secret123", UserRole.CLIENT);
         verify(userRepositoryPort, times(1)).save(any(User.class));
         verify(clientRepositoryPort, times(1)).save(any(Client.class));
         verify(notificationLogPort, times(1))
@@ -143,7 +143,7 @@ class RegisterClientServiceUT {
         User savedUser = User.builder()
                 .id(USER_ID).uuid(USER_UUID)
                 .externalId("supabase-uuid-abc123").role(UserRole.CLIENT).build();
-        when(supabaseAuthPort.createUser("cliente@correo.com", "secret123", UserRole.CLIENT))
+        when(authServicePort.createUser("cliente@correo.com", "secret123", UserRole.CLIENT))
                 .thenReturn("supabase-uuid-abc123");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
         when(clientRepositoryPort.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -182,7 +182,7 @@ class RegisterClientServiceUT {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Phone already linked");
 
-        verifyNoInteractions(supabaseAuthPort);
+        verifyNoInteractions(authServicePort);
         verifyNoInteractions(userRepositoryPort);
         verify(notificationLogPort, never()).record(anyString(), anyString(), anyString(), anyString(), any(), anyString());
     }
@@ -240,7 +240,7 @@ class RegisterClientServiceUT {
         User savedUser = User.builder()
                 .id(USER_ID).uuid(USER_UUID)
                 .externalId("supabase-uuid-abc123").role(UserRole.CLIENT).build();
-        when(supabaseAuthPort.createUser(anyString(), anyString(), any(UserRole.class)))
+        when(authServicePort.createUser(anyString(), anyString(), any(UserRole.class)))
                 .thenReturn("supabase-uuid-abc123");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
 

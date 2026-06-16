@@ -4,7 +4,7 @@
 # Purpose: Production deployment managed by Dokploy.
 # - Dokploy builds the image from the Dockerfile in this directory.
 # - Dokploy handles reverse proxy (Traefik), SSL, and env var injection.
-# - NO database container (PostgreSQL lives in Supabase).
+# - NO database container (PostgreSQL is self-hosted or external).
 # - NO Nginx/Certbot (Dokploy's Traefik handles TLS termination).
 # - NO Prometheus/Grafana (add as separate Dokploy services if needed).
 #
@@ -28,18 +28,15 @@ services:
       # HikariCP tuned, Flyway baseline-on-migrate false)
       SPRING_PROFILES_ACTIVE: prod
 
-      # ── Database (Supabase PostgreSQL) ──────────────────────────
-      # Direct connection → Supabase project → Settings → Database → URI
-      # Use the "Transaction" pooler URI (port 5432) for JPA compatibility.
+      # ── Database ────────────────────────────────────────────────
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
 
-      # ── Supabase Auth ───────────────────────────────────────────
-      # Supabase project → Settings → API → JWT Secret
-      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
-      SUPABASE_URL: ${SUPABASE_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # ── Auth (GoTrue / Self-hosted Auth) ────────────────────────
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      AUTH_API_URL: ${AUTH_API_URL}
+      AUTH_ADMIN_KEY: ${AUTH_ADMIN_KEY}
 
       # ── CORS ────────────────────────────────────────────────────
       # Comma-separated allowed frontend origins (no trailing slash).

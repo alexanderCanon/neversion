@@ -18,7 +18,7 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.notification.application.port.in.SendAccountRenewalRemindersUseCase;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
@@ -43,7 +43,7 @@ public class SendAccountRenewalRemindersService implements SendAccountRenewalRem
     private final ServiceRepositoryPort serviceRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
-    private final SupabaseAuthPort supabaseAuthPort;
+    private final AuthServicePort authServicePort;
     private final NotificationLogPort notificationLogPort;
     private final ObjectMapper objectMapper;
     private final Clock clock;
@@ -53,7 +53,7 @@ public class SendAccountRenewalRemindersService implements SendAccountRenewalRem
             ServiceRepositoryPort serviceRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
             UserRepositoryPort userRepositoryPort,
-            SupabaseAuthPort supabaseAuthPort,
+            AuthServicePort authServicePort,
             NotificationLogPort notificationLogPort,
             ObjectMapper objectMapper,
             Clock clock) {
@@ -61,7 +61,7 @@ public class SendAccountRenewalRemindersService implements SendAccountRenewalRem
         this.serviceRepositoryPort = serviceRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
-        this.supabaseAuthPort = supabaseAuthPort;
+        this.authServicePort = authServicePort;
         this.notificationLogPort = notificationLogPort;
         this.objectMapper = objectMapper;
         this.clock = clock;
@@ -119,7 +119,7 @@ public class SendAccountRenewalRemindersService implements SendAccountRenewalRem
         }
 
         return userRepositoryPort.findById(vendor.get().getUserId())
-                .flatMap(user -> supabaseAuthPort.findEmailByExternalId(user.getExternalId())
+                .flatMap(user -> authServicePort.findEmailByExternalId(user.getExternalId())
                         .map(email -> new VendorRecipient(
                                 email,
                                 vendor.get().getUuid().toString(),
