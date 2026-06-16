@@ -48,7 +48,10 @@ server:
 
 logging:
   level:
-    root: WARN
+    root: INFO
+  structured:
+    format:
+      console: ecs
 
 supabase:
   jwt:
@@ -66,15 +69,12 @@ neversion:
     subscription-expiry:
       enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
       schedule: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_SCHEDULE:0 0 8 * * *}
-    notification-worker:
-      enabled: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:true}
-      interval-ms: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:30000}
     renewal-reminders:
       enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}
-  email:
-    resend:
-      api-key: ${RESEND_API_KEY}
-    from: ${NEVERSION_EMAIL_FROM:Neversion <noreply@neversion.com>}
+  notification-service:
+    host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:notification-service}
+    port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
+
 
 springdoc:
   api-docs:

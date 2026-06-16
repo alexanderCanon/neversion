@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
@@ -34,6 +35,10 @@ public record RegisterClientRequest(
 
         @NotBlank(message = "Phone is required")
         @Schema(description = "Required phone number — used to link existing manual clients", example = "+502 5555-1234")
+        @Pattern(
+                regexp = "^(?:\\+?502[-\\s]?)?[23457]\\d{3}[-\\s]?\\d{4}$",
+                message = "El número de teléfono debe ser de Guatemala (8 dígitos locales comenzando con 2, 3, 4, 5 o 7)."
+        )
         String phone,
 
         @NotNull(message = "Vendor UUID is required")

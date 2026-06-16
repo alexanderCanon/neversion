@@ -3,18 +3,17 @@ package com.neversion.api.subscription.application.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.subscription.application.port.in.ListSubscriptionsUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
-import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
@@ -27,17 +26,17 @@ public class ListSubscriptionsService implements ListSubscriptionsUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
-    private final UserRepositoryPort userRepositoryPort;
     private final ServiceRepositoryPort serviceRepositoryPort;
+    private final VendorSecurityService vendorSecurityService;
 
     public ListSubscriptionsService(SubscriptionRepositoryPort subscriptionRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            UserRepositoryPort userRepositoryPort,
-            ServiceRepositoryPort serviceRepositoryPort) {
+            ServiceRepositoryPort serviceRepositoryPort,
+            VendorSecurityService vendorSecurityService) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
-        this.userRepositoryPort = userRepositoryPort;
         this.serviceRepositoryPort = serviceRepositoryPort;
+        this.vendorSecurityService = vendorSecurityService;
     }
 
     @Override
@@ -66,10 +65,8 @@ public class ListSubscriptionsService implements ListSubscriptionsUseCase {
         Vendor vendor = vendorRepositoryPort.findByUuid(vendorUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid));
 
-        Long callerVendorId = resolveVendorId(callerExternalId);
-        if (!callerVendorId.equals(vendor.getId())) {
-            throw new AccessDeniedException("Access denied: you do not own vendor " + vendorUuid);
-        }
+        Long callerVendorId = vendorSecurityService.resolveVendorId(callerExternalId);
+        vendorSecurityService.assertOwnership(callerVendorId, vendor.getId(), "vendor " + vendorUuid);
         return vendor;
     }
 
@@ -79,16 +76,6 @@ public class ListSubscriptionsService implements ListSubscriptionsUseCase {
         }
         return serviceRepositoryPort.findById(serviceUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Service not found: " + serviceUuid))
-                .getId();
-    }
-
-    private Long resolveVendorId(String callerExternalId) {
-        var user = userRepositoryPort.findByExternalId(callerExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found for externalId: " + callerExternalId));
-        return vendorRepositoryPort.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor not found for userId: " + user.getId()))
                 .getId();
     }
 }

@@ -39,6 +39,7 @@ import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.subscription.domain.service.SubscriptionRenewalDomainService;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.model.enums.UserRole;
@@ -77,10 +78,9 @@ class RenewSubscriptionServiceUT {
                 profileRepositoryPort,
                 accountRepositoryPort,
                 clientRepositoryPort,
-                userRepositoryPort,
-                vendorRepositoryPort,
                 notificationLogPort,
                 new SubscriptionRenewalDomainService(),
+                new VendorSecurityService(userRepositoryPort, vendorRepositoryPort),
                 FIXED_CLOCK,
                 2);
     }

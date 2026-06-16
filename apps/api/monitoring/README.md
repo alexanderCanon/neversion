@@ -67,7 +67,9 @@ NEVERSION_MONITORING_SCRAPE_TOKEN=<same-token-as-api>
 NEVERSION_API_TARGET=neversion-api:8080
 GRAFANA_CLOUD_REMOTE_WRITE_URL=https://prometheus-xxx.grafana.net/api/prom/push
 GRAFANA_CLOUD_PROMETHEUS_USERNAME=<metrics-instance-id>
-GRAFANA_CLOUD_API_KEY=<cloud-access-policy-token-with-metrics-write>
+GRAFANA_CLOUD_LOKI_URL=https://logs-prod-xxx.grafana.net/loki/api/v1/push
+GRAFANA_CLOUD_LOKI_USERNAME=<logs-instance-id>
+GRAFANA_CLOUD_API_KEY=<cloud-access-policy-token-with-metrics-and-logs-write>
 ```
 
 Use the same `NEVERSION_MONITORING_SCRAPE_TOKEN` configured in the API app.

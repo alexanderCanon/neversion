@@ -374,7 +374,7 @@ class ClientControllerIT extends BaseIntegrationTest {
         void updateMyProfile_noToken_shouldReturn401() throws Exception {
             String body = objectMapper.writeValueAsString(Map.of(
                     "name", "Juan Actualizado",
-                    "phone", "99998888"
+                    "phone", "59998888"
             ));
 
             mockMvc.perform(put("/api/v1/clients/me")
@@ -388,7 +388,7 @@ class ClientControllerIT extends BaseIntegrationTest {
         void updateMyProfile_vendorRole_shouldReturn403() throws Exception {
             String body = objectMapper.writeValueAsString(Map.of(
                     "name", "Juan Actualizado",
-                    "phone", "99998888"
+                    "phone", "59998888"
             ));
 
             mockMvc.perform(put("/api/v1/clients/me")
@@ -401,7 +401,22 @@ class ClientControllerIT extends BaseIntegrationTest {
         @Test
         @DisplayName("PUT should return 400 when name is missing")
         void updateMyProfile_missingName_shouldReturn400() throws Exception {
-            String body = objectMapper.writeValueAsString(Map.of("phone", "99998888"));
+            String body = objectMapper.writeValueAsString(Map.of("phone", "59998888"));
+
+            mockMvc.perform(put("/api/v1/clients/me")
+                            .header("Authorization", "Bearer " + buildJwt("client"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        @DisplayName("PUT should return 400 when phone is invalid")
+        void updateMyProfile_invalidPhone_shouldReturn400() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Juan Actualizado",
+                    "phone", "999988888"
+            ));
 
             mockMvc.perform(put("/api/v1/clients/me")
                             .header("Authorization", "Bearer " + buildJwt("client"))
@@ -417,16 +432,16 @@ class ClientControllerIT extends BaseIntegrationTest {
                     .id(1L).uuid(CLIENT_UUID).vendorId(10L)
                     .name("Juan Actualizado")
                     .email("juan@test.com")
-                    .phone("99998888")
+                    .phone("50259998888")
                     .notes("Test")
                     .createdAt(LocalDateTime.now())
                     .build();
-            when(clientUseCase.updateMyProfile(eq("Juan Actualizado"), eq("99998888"), anyString()))
+            when(clientUseCase.updateMyProfile(eq("Juan Actualizado"), eq("59998888"), anyString()))
                     .thenReturn(updated);
 
             String body = objectMapper.writeValueAsString(Map.of(
                     "name", "Juan Actualizado",
-                    "phone", "99998888"
+                    "phone", "59998888"
             ));
 
             mockMvc.perform(put("/api/v1/clients/me")
@@ -435,7 +450,7 @@ class ClientControllerIT extends BaseIntegrationTest {
                             .content(body))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value("Juan Actualizado"))
-                    .andExpect(jsonPath("$.phone").value("99998888"))
+                    .andExpect(jsonPath("$.phone").value("50259998888"))
                     .andExpect(jsonPath("$.email").value("juan@test.com"));
         }
     }
@@ -501,6 +516,20 @@ class ClientControllerIT extends BaseIntegrationTest {
         }
 
         @Test
+        @DisplayName("should return 400 when phone format is invalid")
+        void create_invalidPhone_shouldReturn400() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Ana López",
+                    "phone", "88888888"
+            ));
+            mockMvc.perform(post("/api/v1/clients")
+                            .header("Authorization", "Bearer " + buildJwt("vendor"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
         @DisplayName("should return 201 when VENDOR creates client successfully")
         void create_validRequest_shouldReturn201() throws Exception {
             Client saved = buildClient();
@@ -539,7 +568,7 @@ class ClientControllerIT extends BaseIntegrationTest {
         private String validBody() throws Exception {
             return objectMapper.writeValueAsString(Map.of(
                     "name", "Juan Actualizado",
-                    "phone", "99998888",
+                    "phone", "59998888",
                     "notes", "VIP"
             ));
         }
@@ -575,15 +604,30 @@ class ClientControllerIT extends BaseIntegrationTest {
         }
 
         @Test
+        @DisplayName("should return 400 when phone is invalid")
+        void update_invalidPhone_shouldReturn400() throws Exception {
+            String body = objectMapper.writeValueAsString(Map.of(
+                    "name", "Juan Actualizado",
+                    "phone", "12345678",
+                    "notes", "VIP"
+            ));
+            mockMvc.perform(put("/api/v1/clients/{id}", CLIENT_UUID)
+                            .header("Authorization", "Bearer " + buildJwt("vendor"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body))
+                    .andExpect(status().isBadRequest());
+        }
+
+        @Test
         @DisplayName("should return 200 when VENDOR updates own client")
         void update_ownedClient_shouldReturn200() throws Exception {
             Client updated = Client.builder()
                     .id(1L).uuid(CLIENT_UUID).vendorId(10L)
-                    .name("Juan Actualizado").phone("99998888").notes("VIP")
+                    .name("Juan Actualizado").phone("50259998888").notes("VIP")
                     .email("juan@test.com").createdAt(LocalDateTime.now())
                     .build();
             when(clientUseCase.update(eq(CLIENT_UUID), eq("Juan Actualizado"),
-                    eq("99998888"), eq("VIP"), anyString())).thenReturn(updated);
+                    eq("59998888"), eq("VIP"), anyString())).thenReturn(updated);
 
             mockMvc.perform(put("/api/v1/clients/{id}", CLIENT_UUID)
                             .header("Authorization", "Bearer " + buildJwt("vendor"))
@@ -591,7 +635,7 @@ class ClientControllerIT extends BaseIntegrationTest {
                             .content(validBody()))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value("Juan Actualizado"))
-                    .andExpect(jsonPath("$.phone").value("99998888"));
+                    .andExpect(jsonPath("$.phone").value("50259998888"));
         }
     }
 }

@@ -32,6 +32,7 @@ import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
@@ -72,10 +73,9 @@ class RevokeSubscriptionServiceUT {
                 profileRepositoryPort,
                 accountRepositoryPort,
                 clientRepositoryPort,
-                userRepositoryPort,
-                vendorRepositoryPort,
                 notificationLogPort,
-                new InventoryStateDomainService());
+                new InventoryStateDomainService(),
+                new VendorSecurityService(userRepositoryPort, vendorRepositoryPort));
     }
 
     private void mockOwnershipResolution(Long vendorId) {

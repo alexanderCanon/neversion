@@ -422,14 +422,29 @@ class ClientServiceUT {
             when(clientRepositoryPort.save(existing)).thenReturn(existing);
 
             // When
-            Client updated = clientService.updateMyProfile("Juan Nuevo", "99998888", EXTERNAL_ID);
+            Client updated = clientService.updateMyProfile("Juan Nuevo", "59998888", EXTERNAL_ID);
 
             // Then
             assertThat(updated.getName()).isEqualTo("Juan Nuevo");
-            assertThat(updated.getPhone()).isEqualTo("99998888");
+            assertThat(updated.getPhone()).isEqualTo("50259998888");
             assertThat(updated.getEmail()).isEqualTo("juan@gmail.com");
             assertThat(updated.getNotes()).isEqualTo("Regular customer");
             verify(clientRepositoryPort).save(existing);
+        }
+
+        @Test
+        @DisplayName("updateMyProfile (US-062) - should throw IllegalArgumentException when phone number is not a valid Guatemala format")
+        void updateMyProfile_invalidGuatemalaPhone_shouldThrow400() {
+            // Given
+            User user = buildUser();
+            Client existing = buildClient();
+            when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
+            when(clientRepositoryPort.findByUserId(user.getId())).thenReturn(Optional.of(existing));
+
+            // When / Then
+            assertThatThrownBy(() -> clientService.updateMyProfile("Juan Nuevo", "60255551", EXTERNAL_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("El número de teléfono debe ser de Guatemala");
         }
 
         @Test
@@ -493,7 +508,7 @@ class ClientServiceUT {
             Client newClient = Client.builder().name("Ana López").phone("55551111").build();
             Client savedClient = Client.builder()
                     .id(2L).uuid(UUID.randomUUID()).vendorId(VENDOR_INTERNAL_ID)
-                    .name("Ana López").phone("55551111").build();
+                    .name("Ana López").phone("50255551111").build();
             when(clientRepositoryPort.save(any(Client.class))).thenReturn(savedClient);
 
             // When
@@ -501,7 +516,7 @@ class ClientServiceUT {
 
             // Then
             assertThat(result.getEmail()).isNull();
-            assertThat(result.getPhone()).isEqualTo("55551111");
+            assertThat(result.getPhone()).isEqualTo("50255551111");
             verify(clientRepositoryPort, never()).findByEmail(anyString());
             verifyNoInteractions(notificationLogPort);
         }
@@ -511,7 +526,7 @@ class ClientServiceUT {
         void createForVendor_duplicatePhone_shouldThrow400() {
             // Given
             mockOwnershipResolution();
-            when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_INTERNAL_ID, "55551111"))
+            when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_INTERNAL_ID, "50255551111"))
                     .thenReturn(Optional.of(buildClient()));
 
             Client newClient = Client.builder().name("Otro").phone("5555-1111").build();
@@ -519,7 +534,20 @@ class ClientServiceUT {
             // When / Then
             assertThatThrownBy(() -> clientService.createForVendor(newClient, EXTERNAL_ID))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("55551111");
+                    .hasMessageContaining("50255551111");
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when phone number is not a valid Guatemala format")
+        void createForVendor_invalidGuatemalaPhone_shouldThrow400() {
+            // Given
+            mockOwnershipResolution();
+            Client newClient = Client.builder().name("Ana López").phone("12345678").build();
+
+            // When / Then
+            assertThatThrownBy(() -> clientService.createForVendor(newClient, EXTERNAL_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("El número de teléfono debe ser de Guatemala");
         }
 
         @Test
@@ -560,16 +588,31 @@ class ClientServiceUT {
             when(clientRepositoryPort.save(existing)).thenReturn(existing);
 
             // When
-            Client result = clientService.update(CLIENT_UUID, "Juan Nuevo", "99998888", "VIP",
+            Client result = clientService.update(CLIENT_UUID, "Juan Nuevo", "59998888", "VIP",
                     EXTERNAL_ID);
 
             // Then
             assertThat(result.getName()).isEqualTo("Juan Nuevo");
-            assertThat(result.getPhone()).isEqualTo("99998888");
+            assertThat(result.getPhone()).isEqualTo("50259998888");
             assertThat(result.getNotes()).isEqualTo("VIP");
             // email must NOT change
             assertThat(result.getEmail()).isEqualTo("juan@gmail.com");
             verify(clientRepositoryPort).save(existing);
+        }
+
+        @Test
+        @DisplayName("should throw IllegalArgumentException when updated phone number is not a valid Guatemala format")
+        void update_invalidGuatemalaPhone_shouldThrow400() {
+            // Given
+            mockOwnershipResolution();
+            Client existing = buildClient();
+            when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(existing));
+
+            // When / Then
+            assertThatThrownBy(() -> clientService.update(
+                    CLIENT_UUID, "Juan Nuevo", "99999999", "VIP", EXTERNAL_ID))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("El número de teléfono debe ser de Guatemala");
         }
 
         @Test

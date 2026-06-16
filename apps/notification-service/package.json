@@ -1,0 +1,26 @@
+{
+  "name": "@neversion/notification-service",
+  "version": "0.1.0",
+  "description": "gRPC notification service for Neversion utilizing SQLite and Resend",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.2",
+    "@grpc/proto-loader": "^0.7.13",
+    "better-sqlite3": "^11.5.0",
+    "dotenv": "^16.4.5",
+    "resend": "^4.0.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.2"
+  }
+}

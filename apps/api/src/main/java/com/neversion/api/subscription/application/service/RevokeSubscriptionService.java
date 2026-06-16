@@ -1,10 +1,8 @@
 package com.neversion.api.subscription.application.service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +14,7 @@ import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.application.port.in.RevokeSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
@@ -23,8 +22,6 @@ import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.subscription.domain.service.InventoryStateDomainService;
 import com.neversion.api.subscription.domain.service.InventoryStateDomainService.InventoryMutation;
-import com.neversion.api.user.domain.port.out.UserRepositoryPort;
-import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 /**
  * US-046: Revokes subscription access and releases inventory.
@@ -36,28 +33,25 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
-    private final UserRepositoryPort userRepositoryPort;
-    private final VendorRepositoryPort vendorRepositoryPort;
     private final NotificationLogPort notificationLogPort;
     private final InventoryStateDomainService inventoryStateDomainService;
+    private final VendorSecurityService vendorSecurityService;
 
     public RevokeSubscriptionService(
             SubscriptionRepositoryPort subscriptionRepositoryPort,
             ProfileRepositoryPort profileRepositoryPort,
             AccountRepositoryPort accountRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
-            UserRepositoryPort userRepositoryPort,
-            VendorRepositoryPort vendorRepositoryPort,
             NotificationLogPort notificationLogPort,
-            InventoryStateDomainService inventoryStateDomainService) {
+            InventoryStateDomainService inventoryStateDomainService,
+            VendorSecurityService vendorSecurityService) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
-        this.userRepositoryPort = userRepositoryPort;
-        this.vendorRepositoryPort = vendorRepositoryPort;
         this.notificationLogPort = notificationLogPort;
         this.inventoryStateDomainService = inventoryStateDomainService;
+        this.vendorSecurityService = vendorSecurityService;
     }
 
     @Override
@@ -67,11 +61,9 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Subscription not found with id: " + subscriptionUuid));
 
-        Long callerVendorId = resolveVendorId(callerExternalId);
-        if (!Objects.equals(callerVendorId, subscription.getVendorId())) {
-            throw new AccessDeniedException("Access denied: subscription " + subscriptionUuid
-                    + " does not belong to your vendor");
-        }
+        Long callerVendorId = vendorSecurityService.resolveVendorId(callerExternalId);
+        vendorSecurityService.assertOwnership(callerVendorId, subscription.getVendorId(),
+                "subscription " + subscriptionUuid);
 
         if (subscription.getStatus() == SubStatus.CANCELLED) {
             throw new BusinessRuleException("Subscription is already cancelled.");
@@ -109,15 +101,5 @@ public class RevokeSubscriptionService implements RevokeSubscriptionUseCase {
                 subscription.getUuid(), client.getUuid());
         notificationLogPort.record("ACCESS_REVOKED", client.getEmail(), payload,
                 "subscription", subscription.getId(), "revoked");
-    }
-
-    private Long resolveVendorId(String callerExternalId) {
-        var user = userRepositoryPort.findByExternalId(callerExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found for externalId: " + callerExternalId));
-        return vendorRepositoryPort.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor not found for userId: " + user.getId()))
-                .getId();
     }
 }

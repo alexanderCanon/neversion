@@ -28,9 +28,11 @@ import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.model.enums.UserRole;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
+
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ListSubscriptionsService — US-043 unit tests")
@@ -55,8 +57,8 @@ class ListSubscriptionsServiceUT {
         listSubscriptionsService = new ListSubscriptionsService(
                 subscriptionRepositoryPort,
                 vendorRepositoryPort,
-                userRepositoryPort,
-                serviceRepositoryPort);
+                serviceRepositoryPort,
+                new VendorSecurityService(userRepositoryPort, vendorRepositoryPort));
     }
 
     private User buildUser() {

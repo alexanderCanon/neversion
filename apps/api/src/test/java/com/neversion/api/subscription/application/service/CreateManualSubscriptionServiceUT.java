@@ -36,6 +36,7 @@ import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
@@ -82,9 +83,8 @@ class CreateManualSubscriptionServiceUT {
                 profileRepositoryPort,
                 accountRepositoryPort,
                 serviceRepositoryPort,
-                userRepositoryPort,
-                vendorRepositoryPort,
                 deliverAccessUseCase,
+                new VendorSecurityService(userRepositoryPort, vendorRepositoryPort),
                 FIXED_CLOCK);
     }
 

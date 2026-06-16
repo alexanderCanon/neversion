@@ -168,6 +168,7 @@ public class ClientService implements ClientUseCase {
         if (normalizedPhone.isBlank()) {
             throw new IllegalArgumentException("Phone is required");
         }
+        validatePhone(normalizedPhone);
 
         clientRepositoryPort.findByVendorIdAndPhone(vendorId, normalizedPhone).ifPresent(existing -> {
             throw new IllegalArgumentException(
@@ -225,9 +226,15 @@ public class ClientService implements ClientUseCase {
                     + " does not belong to your vendor");
         }
 
+        String normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+        validatePhone(normalizedPhone);
+
         // BR-US032-01 — email is NOT updated
         existing.setName(name);
-        existing.setPhone(normalizePhone(phone));
+        existing.setPhone(normalizedPhone);
         existing.setNotes(notes);
 
         return clientRepositoryPort.save(existing);
@@ -315,8 +322,13 @@ public class ClientService implements ClientUseCase {
     @Transactional
     public Client updateMyProfile(String name, String phone, String callerExternalId) {
         Client client = resolveClient(callerExternalId);
+        String normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+        validatePhone(normalizedPhone);
         client.setName(name);
-        client.setPhone(normalizePhone(phone));
+        client.setPhone(normalizedPhone);
         return clientRepositoryPort.save(client);
     }
 
@@ -414,7 +426,21 @@ public class ClientService implements ClientUseCase {
     }
 
     private String normalizePhone(String phone) {
-        return phone == null ? "" : phone.replaceAll("\\D", "");
+        if (phone == null) return "";
+        String digits = phone.replaceAll("\\D", "");
+        if (digits.startsWith("502") && digits.length() == 11) {
+            return digits;
+        } else if (digits.length() == 8) {
+            return "502" + digits;
+        }
+        return digits;
+    }
+
+    private void validatePhone(String normalizedPhone) {
+        if (!normalizedPhone.matches("^502[23457]\\d{7}$")) {
+            throw new IllegalArgumentException(
+                    "El número de teléfono debe ser de Guatemala (8 dígitos locales comenzando con 2, 3, 4, 5 o 7).");
+        }
     }
 
     /**
