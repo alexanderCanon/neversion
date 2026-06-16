@@ -58,4 +58,3 @@ neversion:
   notification-service:
     host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:localhost}
     port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
-
