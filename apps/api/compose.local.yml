@@ -1,37 +1,12 @@
-# ══════════════════════════════════════════════════════════════════
-# Docker Compose — API + DB (Isolated Stack)
-# Purpose: Local development of the backend only.
-# Use this when you want to run Panel and Store separately.
-# ══════════════════════════════════════════════════════════════════
-
 services:
-  # ── Local PostgreSQL ────────────────────────────────────────────
-  db:
-    image: postgres:17
-    container_name: neversion-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-neversiondb}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-neversiondb}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # ── API — Spring Boot ────────────────────────────────────────────
   api:
-    build: .
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
     container_name: neversion-api
     restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
+      - db:service_healthy
     deploy:
       resources:
         limits:
@@ -44,43 +19,12 @@ services:
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-your-dev-jwt-secret}
       AUTH_API_URL: ${AUTH_API_URL:-http://gotrue:8081}
       AUTH_ADMIN_KEY: ${AUTH_ADMIN_KEY:-your-dev-service-role-key}
-      # CORS: Defaults for Panel (4200) and Store (4000)
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4000}
-      RESEND_API_KEY: ${RESEND_API_KEY:-re_placeholder}
-      NEVERSION_EMAIL_FROM: ${NEVERSION_EMAIL_FROM:-Neversion <noreply@neversion.com>}
       NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:-2}
       NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:-true}
-      NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:-false}
-      NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:-30000}
-      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-false}
+      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-true}
     ports:
       - "8080:8080"
-
-  # ── GoTrue — Supabase Auth Local ────────────────────────────────
-  gotrue:
-    image: supabase/gotrue:v2.158.0
-    container_name: neversion-gotrue
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "9999:8081"
-    environment:
-      API_EXTERNAL_URL: http://localhost:9999
-      GOTRUE_API_HOST: 0.0.0.0
-      GOTRUE_PORT: 8081
-      GOTRUE_API_EXTERNAL_URL: http://localhost:9999
-      GOTRUE_DB_DRIVER: postgres
-      GOTRUE_DB_DATABASE_URL: postgres://postgres:mysecretpassword@db:5432/neversiondb?sslmode=disable
-      GOTRUE_JWT_SECRET: ${AUTH_JWT_SECRET:-your-dev-jwt-secret}
-      GOTRUE_JWT_EXP: 3600
-      GOTRUE_JWT_AUD: authenticated
-      GOTRUE_SITE_URL: http://localhost:4200
-      GOTRUE_DISABLE_SIGNUP: "false"
-      GOTRUE_MAILER_AUTOCONFIRM: "true"
-      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
-      GOTRUE_SMTP_ADMIN_EMAIL: noreply@neversion.com
 
 volumes:
   pgdata:

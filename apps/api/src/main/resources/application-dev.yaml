@@ -54,7 +54,7 @@ neversion:
     subscription-expiry:
       enabled: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:true}
     renewal-reminders:
-      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:false}
+      enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}
   notification-service:
     host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:localhost}
     port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
