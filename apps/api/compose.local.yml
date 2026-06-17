@@ -1,8 +1,6 @@
 services:
   api:
-    build:
-      context: ../apps/api
-      dockerfile: Dockerfile
+    build: .
     container_name: neversion-api
     restart: unless-stopped
     deploy:
