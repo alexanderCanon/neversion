@@ -17,6 +17,6 @@ export class PhonePipe implements PipeTransform {
     }
     
     // Default fallback to +502 for Guatemalan numbers
-    return `+502 ${cleanStr}`;
+    return `${cleanStr}`;
   }
 }

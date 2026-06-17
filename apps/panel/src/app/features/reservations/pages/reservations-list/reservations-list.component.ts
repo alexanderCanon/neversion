@@ -88,14 +88,25 @@ export class ReservationsListComponent implements OnInit {
     }
   }
 
+  getStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      PENDING: 'Pendiente',
+      UPLOADED: 'Subido',
+      VALIDATED: 'Validado',
+      EXPIRED: 'Expirado',
+      CANCELLED: 'Cancelado'
+    };
+    return labels[status] ?? status;
+  }
+
   getStatusBadgeClass(status: ReservationStatus): string {
     switch (status) {
-      case 'PENDING': return 'bg-warning text-dark';
-      case 'UPLOADED': return 'bg-info text-dark';
-      case 'VALIDATED': return 'bg-success';
-      case 'EXPIRED': return 'bg-secondary';
-      case 'CANCELLED': return 'bg-danger';
-      default: return 'bg-light text-dark';
+      case 'PENDING': return 'badge-status pending';
+      case 'UPLOADED': return 'badge-status uploaded';
+      case 'VALIDATED': return 'badge-status validated';
+      case 'EXPIRED': return 'badge-status expired';
+      case 'CANCELLED': return 'badge-status cancelled';
+      default: return 'badge-status default';
     }
   }
 }

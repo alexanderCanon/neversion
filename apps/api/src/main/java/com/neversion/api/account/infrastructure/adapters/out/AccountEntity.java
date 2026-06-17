@@ -104,6 +104,11 @@ public class AccountEntity {
     @Builder.Default
     private AccountStatus status = AccountStatus.AVAILABLE;
 
+    /** Maximum number of profiles this account can hold. Copied from service on creation. */
+    @Column(name = "max_profiles", nullable = false)
+    @Builder.Default
+    private Integer maxProfiles = 1;
+
     /** FK to vendors.id — multi-tenancy (ADR-02, US-006). DB FK by V12. */
     @Column(name = "vendor_id")
     private Long vendorId;

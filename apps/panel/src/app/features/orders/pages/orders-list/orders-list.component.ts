@@ -89,13 +89,27 @@ export class OrdersListComponent implements OnInit {
     }
   }
 
-  getStatusBadgeClass(status: OrderStatus): string {
+  getStatusLabel(status: OrderStatus | undefined): string {
+    if (!status) return '';
+    const labels: Record<OrderStatus, string> = {
+      PENDING: 'Pendiente',
+      VALIDATED: 'Validada',
+      COMPLETED: 'Completada',
+      REJECTED: 'Rechazada',
+      CANCELLED: 'Cancelada'
+    };
+    return labels[status] ?? status;
+  }
+
+  getStatusBadgeClass(status: OrderStatus | undefined): string {
+    if (!status) return 'badge-status default';
     switch (status) {
-      case 'PENDING': return 'bg-warning text-dark';
-      case 'COMPLETED': return 'bg-success';
-      case 'REJECTED': return 'bg-danger';
-      case 'CANCELLED': return 'bg-secondary';
-      default: return 'bg-light text-dark';
+      case 'PENDING': return 'badge-status pending';
+      case 'VALIDATED': return 'badge-status validated';
+      case 'COMPLETED': return 'badge-status completed';
+      case 'REJECTED': return 'badge-status rejected';
+      case 'CANCELLED': return 'badge-status cancelled';
+      default: return 'badge-status default';
     }
   }
 }

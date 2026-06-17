@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.neversion.api.account.infrastructure.adapters.out.AccountEntity;
 import com.neversion.api.profile.infrastructure.adapters.out.ProfileEntity;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 
@@ -25,11 +26,14 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
 
     private final SpringDataSubscriptionRepository subscriptionRepo;
     private final SubscriptionPersistenceMapper subscriptionMapper;
+    private final SubscriptionQueryRepository subscriptionQueryRepository;
 
     public JpaSubscriptionAdapter(SpringDataSubscriptionRepository subscriptionRepo,
-            SubscriptionPersistenceMapper subscriptionMapper) {
+            SubscriptionPersistenceMapper subscriptionMapper,
+            SubscriptionQueryRepository subscriptionQueryRepository) {
         this.subscriptionRepo = subscriptionRepo;
         this.subscriptionMapper = subscriptionMapper;
+        this.subscriptionQueryRepository = subscriptionQueryRepository;
     }
 
     @Override
@@ -83,6 +87,12 @@ public class JpaSubscriptionAdapter implements SubscriptionRepositoryPort {
                 .stream()
                 .map(subscriptionMapper::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<SubscriptionListView> findVendorSubscriptionViews(
+            Long vendorId, Long serviceId, SubStatus status) {
+        return subscriptionQueryRepository.findVendorSubscriptionViews(vendorId, serviceId, status);
     }
 
     private Specification<SubscriptionEntity> subscriptionFilter(

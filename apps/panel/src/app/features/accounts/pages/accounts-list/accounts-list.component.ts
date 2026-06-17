@@ -2,14 +2,15 @@ import { Component, OnInit, inject, signal, computed, ViewChild, effect } from '
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountsService } from '../../services/accounts.service';
-import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus } from '@neversion/models';
+import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ServicesDataService } from '../../../services/services/services-data.service';
 
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface AccountServiceGroup {
   key: string;
@@ -33,8 +34,13 @@ export class AccountsListComponent implements OnInit {
   private readonly accountsService = inject(AccountsService);
   private readonly toastService = inject(ToastService);
   private readonly authService = inject(AuthService);
+  private readonly servicesDataService = inject(ServicesDataService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private lastLoadedVendorUuid: string | null = null;
+
+  readonly serviceUuidParam = signal<string | null>(null);
+  readonly currentService = signal<ServiceResponse | null>(null);
 
   readonly accounts = this.accountsService.accounts;
   readonly isLoading = this.accountsService.isLoading;
@@ -120,6 +126,16 @@ export class AccountsListComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      const serviceUuid = params['serviceUuid'];
+      if (serviceUuid) {
+        this.serviceUuidParam.set(serviceUuid);
+        this.servicesDataService.getServiceById(serviceUuid).subscribe({
+          next: (service) => this.currentService.set(service)
+        });
+      }
+    });
+
     this.route.queryParams.subscribe(params => {
         if (params['filter']) {
             this.filterType.set(params['filter'] as AccountStatus);
@@ -136,11 +152,19 @@ export class AccountsListComponent implements OnInit {
     this.hasRequestedAccounts.set(true);
     this.loadError.set(false);
 
-    this.accountsService.getAccounts().subscribe({
+    const filter = this.serviceUuidParam()
+      ? { serviceId: this.serviceUuidParam()! }
+      : undefined;
+
+    this.accountsService.getAccounts(filter).subscribe({
       error: () => {
         this.loadError.set(true);
       },
     });
+  }
+
+  goBackToSelector(): void {
+    this.router.navigate(['/accounts']);
   }
 
   toggleAccount(accountId: string): void {
@@ -175,7 +199,8 @@ export class AccountsListComponent implements OnInit {
 
   onProfilesChanged(accountId: string): void {
       this.detailedData.update((current) => {
-        const { [accountId]: _removed, ...remainingDetails } = current;
+        const remainingDetails = { ...current };
+        delete remainingDetails[accountId];
         return remainingDetails;
       });
       this.loadAccountDetail(accountId);
@@ -186,8 +211,8 @@ export class AccountsListComponent implements OnInit {
     this.loadAccounts();
   }
 
-  deactivateAccount(account: AccountResponse): void {
-    if (confirm(`¿Seguro que deseas desactivar la cuenta: ${account.email}?`)) {
+  deleteAccount(account: AccountResponse): void {
+    if (confirm('¿Estás seguro? Se eliminará la cuenta y todos sus perfiles de forma permanente.')) {
       this.accountsService.deactivateAccount(account.id).subscribe({
         next: () => {
           this.toastService.success(`Cuenta ${account.email} desactivada`);
@@ -209,12 +234,22 @@ export class AccountsListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status?.toUpperCase()) {
-      case 'AVAILABLE': return 'bg-success';
-      case 'PARTIAL':   return 'bg-warning text-dark';
-      case 'FULL':      return 'bg-danger';
-      case 'EXPIRED':   return 'bg-secondary';
-      default: return 'bg-info';
+      case 'AVAILABLE': return 'status-available';
+      case 'PARTIAL':   return 'status-partial';
+      case 'FULL':      return 'status-full';
+      case 'EXPIRED':   return 'status-expired';
+      default: return 'status-default';
     }
+  }
+
+  getAccountStatusLabel(status: string): string {
+    const labels: Record<string, string> = {
+      AVAILABLE: 'Disponible',
+      PARTIAL: 'Parcial',
+      FULL: 'Llena',
+      EXPIRED: 'Vencida'
+    };
+    return labels[status?.toUpperCase()] || status;
   }
 
   getProfilesForAccount(id: string): ProfileResponse[] {

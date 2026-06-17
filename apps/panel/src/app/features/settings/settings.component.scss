@@ -1,0 +1,91 @@
+// Settings Sidebar Options
+.list-group-item {
+    color: var(--color-text-secondary);
+    background-color: transparent;
+    border: none;
+    transition: all 0.2s ease-in-out;
+    
+    i {
+        opacity: 0.7;
+        transition: transform 0.25s ease;
+    }
+
+    &:hover {
+        background-color: var(--color-surface);
+        color: var(--color-primary);
+        
+        i {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+    }
+
+    &.active-item {
+        background-color: var(--color-brand-accent-light) !important;
+        color: var(--color-primary) !important;
+        border-right: 4px solid var(--color-primary) !important;
+        border-radius: 8px !important;
+        
+        i {
+            opacity: 1;
+        }
+    }
+}
+
+// Info boxes styling
+.bg-light {
+    background-color: var(--color-surface) !important;
+    border-color: var(--color-border) !important;
+}
+
+// Info alert customization
+.bg-light-blue {
+    background-color: #eff6ff;
+}
+
+.text-dark-blue {
+    color: #1e3a8a;
+    
+    i {
+        color: #3b82f6;
+    }
+}
+
+
+
+// Form adjustments
+.max-width-600 {
+    max-width: 600px;
+}
+
+.form-control {
+    &:focus {
+        border-color: var(--color-brand-accent-muted);
+        box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.15);
+    }
+}
+
+.py-custom-y {
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
+}
+
+.fs-7 {
+    font-size: 0.8rem;
+}
+
+.x-small {
+    font-size: 0.72rem;
+}
+
+.tracking-wider {
+    letter-spacing: 0.08em;
+}
+
+.transition-all {
+    transition: all 0.25s ease;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

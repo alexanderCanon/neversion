@@ -1,102 +1,65 @@
-# ══════════════════════════════════════════════════════════════════
-# compose.prod.yml — Referencia de produccion
-#
-# IMPORTANTE: El deploy real de cada app se gestiona INDIVIDUALMENTE
-# en Dokploy. Este archivo es solo de referencia/documentacion.
-#
-# ──────────────────────────────────────────────────────────────────
-# COMO DESPLEGAR CADA APP EN DOKPLOY:
-#
-#   1. Abre tu panel de Dokploy
-#   2. Crea una nueva "Application" por cada app:
-#
-#      API (Spring Boot):
-#        - Source: GitHub → neversion (repo)
-#        - Branch: main
-#        - Build type: Dockerfile
-#        - Dockerfile path: apps/api/Dockerfile
-#        - Env vars: ver seccion API abajo
-#
-#      Panel (Angular static):
-#        - Source: GitHub → neversion (repo)
-#        - Branch: main
-#        - Build type: Dockerfile
-#        - Dockerfile path: apps/panel/Dockerfile
-#        - Puerto: 80
-#        - Env vars: PANEL_API_URL, PANEL_SUPABASE_URL, PANEL_SUPABASE_KEY
-#
-#      Store (Angular SSR):
-#        - Source: GitHub → neversion (repo)
-#        - Branch: main
-#        - Build type: Dockerfile
-#        - Dockerfile path: apps/store/Dockerfile
-#        - Puerto: 4000
-#        - Env vars: NODE_ENV=production, STORE_API_URL, STORE_SUPABASE_URL,
-#                    STORE_SUPABASE_KEY, STORE_VENDOR_UUID
-#
-#   3. Dokploy detecta automaticamente los merges a main y redespliega
-#      cada app de forma independiente.
-#
-# ──────────────────────────────────────────────────────────────────
-# PARA LEVANTAR TODO LOCALMENTE:
-#   docker compose --env-file infra/.env -f infra/compose.local.yml up --build
-# ══════════════════════════════════════════════════════════════════
-
 services:
-  # ── API — Spring Boot ────────────────────────────────────────────
-  # Env vars requeridas en Dokploy:
   api:
     build:
       context: ../apps/api
       dockerfile: Dockerfile
+    restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      # Base de datos (Supabase PostgreSQL)
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      # Supabase Auth
-      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET}
-      # CORS — dominios permitidos separados por coma
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      AUTH_API_URL: ${AUTH_API_URL}
+      AUTH_ADMIN_KEY: ${AUTH_ADMIN_KEY}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      NEVERSION_EMAIL_FROM: ${NEVERSION_EMAIL_FROM}
       NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS}
       NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED}
-      NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED}
-      NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS}
       NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED}
-      SERVER_PORT: 8080
+      NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
+      NEVERSION_NOTIFICATION_SERVICE_HOST: ${NEVERSION_NOTIFICATION_SERVICE_HOST}
+      NEVERSION_NOTIFICATION_SERVICE_PORT: ${NEVERSION_NOTIFICATION_SERVICE_PORT}
+    ports:
+      - "8080:8080"
     deploy:
       resources:
         limits:
-          memory: 512m
-    ports:
-      - "8080:8080"
+          memory: 768m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - neversion-network
+      - dokploy-network
 
-  # ── Panel — Angular 17 static (Nginx) ───────────────────────────
-  panel:
+  notification-service:
     build:
       context: ..
-      dockerfile: apps/panel/Dockerfile
+      dockerfile: apps/notification-service/Dockerfile
+    restart: unless-stopped
     environment:
-      PANEL_API_URL: ${PANEL_API_URL}
-      PANEL_SUPABASE_URL: ${PANEL_SUPABASE_URL}
-      PANEL_SUPABASE_KEY: ${PANEL_SUPABASE_KEY}
+      PORT: ${NOTIFICATION_SERVICE_PORT}
+      DATABASE_PATH: ${NOTIFICATION_SERVICE_DATABASE_PATH}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      FROM_EMAIL: ${NEVERSION_EMAIL_FROM}
     ports:
-      - "80:80"
+      - "50051:50051"
+    volumes:
+      - notification_data:/workspace/apps/notification-service/data
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    networks:
+      - neversion-network
 
-  # ── Store — Angular 16 SSR (Node) ───────────────────────────────
-  store:
-    build:
-      context: ..
-      dockerfile: apps/store/Dockerfile
-    environment:
-      NODE_ENV: production
-      PORT: 4000
-      STORE_API_URL: ${STORE_API_URL}
-      STORE_SUPABASE_URL: ${STORE_SUPABASE_URL}
-      STORE_SUPABASE_KEY: ${STORE_SUPABASE_KEY}
-      STORE_VENDOR_UUID: ${STORE_VENDOR_UUID}
-    ports:
-      - "4000:4000"
+volumes:
+  notification_data:
+
+networks:
+  neversion-network:
+  dokploy-network:
+    external: true

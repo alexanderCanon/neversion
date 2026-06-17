@@ -78,6 +78,10 @@ public class Account {
     @Builder.Default
     private AccountStatus status = AccountStatus.AVAILABLE;
 
+    /** Maximum number of profiles this account can hold. Defaults from service template. */
+    @Builder.Default
+    private Integer maxProfiles = 1;
+
     /** FK to vendors.id — multi-tenancy (ADR-02, US-006). */
     private Long vendorId;
 
@@ -86,7 +90,7 @@ public class Account {
     public Account(Long id, UUID uuid, Long serviceId, UUID serviceUuid, String email, String password,
             LocalDate renewalDate, String plan, SaleMode saleMode, String notes,
             java.math.BigDecimal cost, String source, LocalDate purchasedAt,
-            AccountStatus status, Long vendorId, LocalDateTime createdAt) {
+            AccountStatus status, Integer maxProfiles, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.serviceId = serviceId;
@@ -101,6 +105,7 @@ public class Account {
         this.source = source;
         this.purchasedAt = purchasedAt;
         this.status = status;
+        this.maxProfiles = maxProfiles != null ? maxProfiles : 1;
         this.vendorId = vendorId;
         this.createdAt = createdAt;
     }

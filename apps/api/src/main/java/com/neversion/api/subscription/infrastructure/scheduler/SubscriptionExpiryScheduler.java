@@ -23,7 +23,7 @@ public class SubscriptionExpiryScheduler {
         this.detectExpiredSubscriptionsUseCase = detectExpiredSubscriptionsUseCase;
     }
 
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "${neversion.cron.subscription-expiry.schedule:0 0 8 * * *}")
     public void detectExpiredSubscriptions() {
         int suspendedCount = detectExpiredSubscriptionsUseCase.detectAndSuspend();
         if (suspendedCount > 0) {

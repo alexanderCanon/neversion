@@ -70,12 +70,12 @@
                 <tr class="client-row">
                   <td class="ps-4 py-3">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="client-avatar shadow-sm">
+                        <div class="client-avatar border shadow-sm">
                             <i class="bi bi-person"></i>
                         </div>
-                        <div class="d-flex flex-column">
-                            <span class="fw-bold text-dark fs-6">{{ client.name }}</span>
-                            <span class="x-small text-muted fw-semibold">ID: {{ client.id.substring(0, 8) }}</span>
+                        <div class="d-flex flex-column gap-1">
+                            <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ client.name }}</span>
+                            <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ client.id.substring(0, 8) }}</span>
                         </div>
                     </div>
                   </td>
@@ -96,12 +96,10 @@
                     </div>
                   </td>
                   <td class="text-center">
-                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill border bg-light">
-                        <i class="bi bi-card-checklist text-primary"></i>
-                        <span class="fw-bold" [ngClass]="client.activeSubscriptionCount > 0 ? 'text-success' : 'text-muted'">
-                            {{ client.activeSubscriptionCount }}
-                        </span>
-                    </div>
+                    <span class="d-inline-flex align-items-center gap-2 px-3 py-1.5 rounded-pill border bg-light small fw-bold" [ngClass]="client.activeSubscriptionCount > 0 ? 'text-success border-success-subtle bg-success-subtle bg-opacity-25' : 'text-muted'">
+                        <i class="bi bi-card-checklist"></i>
+                        {{ client.activeSubscriptionCount }}
+                    </span>
                   </td>
                   <td class="text-end pe-4">
                     <div class="d-flex justify-content-end gap-2">
@@ -122,7 +120,7 @@
                         <button
                           class="btn-action-sm deactivate"
                           (click)="deactivateClient(client)"
-                          title="Eliminar registro"
+                          title="Eliminar cliente"
                         >
                           <i class="bi bi-trash3"></i>
                         </button>
@@ -159,3 +157,89 @@
 </div>
 
 <app-client-form #clientForm (clientCreated)="onClientCreated()"></app-client-form>
+
+<!-- Modal: Confirmación de eliminación con datos reales -->
+@if (pendingDeleteClient()) {
+  <div class="modal-backdrop-custom" (click)="cancelDelete()" tabindex="-1" role="button" (keydown.enter)="cancelDelete()"></div>
+  <div class="modal d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+
+        <div class="modal-header bg-danger text-white py-3 px-4">
+          <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Eliminar Cliente
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="cancelDelete()" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <p class="text-dark mb-1">
+            Estás a punto de eliminar a
+            <strong>{{ pendingDeleteClient()?.name }}</strong>.
+            Esta acción es irreversible.
+          </p>
+
+          @if (isDeletionCheckLoading()) {
+            <div class="text-center py-3">
+              <div class="spinner-border spinner-border-sm text-danger" role="status"></div>
+              <span class="ms-2 small text-muted">Verificando datos relacionados...</span>
+            </div>
+          } @else {
+            @if (deletionCheck(); as check) {
+              @if (check.hasRelatedData) {
+                <div class="alert alert-warning rounded-3 border-0 mt-3 mb-0 p-3">
+                  <p class="fw-semibold small mb-2">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i>
+                    Este cliente tiene datos asociados:
+                  </p>
+                  <ul class="mb-0 small ps-3">
+                    @if ((check.activeSubscriptions ?? 0) > 0) {
+                      <li>
+                        <strong>{{ check.activeSubscriptions }}</strong>
+                        suscripción(es) activa(s)
+                      </li>
+                    }
+                    @if ((check.pendingReservations ?? 0) > 0) {
+                      <li>
+                        <strong>{{ check.pendingReservations }}</strong>
+                        reserva(s) pendiente(s)
+                      </li>
+                    }
+                    @if ((check.totalOrders ?? 0) > 0) {
+                      <li>
+                        <strong>{{ check.totalOrders }}</strong>
+                        orden(es) registrada(s)
+                      </li>
+                    }
+                  </ul>
+                </div>
+              } @else {
+                <div class="alert alert-light border rounded-3 mt-3 mb-0 p-3 small text-muted">
+                  <i class="bi bi-check-circle me-1 text-success"></i>
+                  Este cliente no tiene suscripciones activas ni reservas pendientes.
+                </div>
+              }
+            }
+          }
+        </div>
+
+        <div class="modal-footer bg-white border-top py-3 px-4">
+          <button type="button" class="btn btn-link text-muted text-decoration-none me-auto" (click)="cancelDelete()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger px-4 fw-semibold"
+            (click)="confirmDelete()"
+            [disabled]="isDeletionCheckLoading()"
+          >
+            <i class="bi bi-trash3 me-2"></i>
+            Confirmar eliminación
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+}

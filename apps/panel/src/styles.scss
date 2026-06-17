@@ -1,3 +1,5 @@
+$primary: #1d4ed8;
+
 @import 'bootstrap/scss/bootstrap';
 
 // ─────────────────────────────────────────────
@@ -8,6 +10,8 @@
     --color-brand-dark:    #111B2D;
     --color-brand-light:   #E2E2E2;
     --color-brand-accent:  #1d4ed8; // Deeper, professional Blue
+    --color-brand-accent-light: #eff6ff;
+    --color-brand-accent-muted: #3b82f6;
 
     // Semantic
     --color-primary:       var(--color-brand-accent);
@@ -26,6 +30,9 @@
     --sidebar-width:       260px;
     --header-height:       70px;
 }
+
+
+
 
 // ─────────────────────────────────────────────
 // Global Improvements
@@ -149,8 +156,8 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
-    color: var(--color-text-primary);
 }
+
 
 // ─────────────────────────────────────────────
 // Shared Utilities

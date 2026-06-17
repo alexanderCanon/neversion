@@ -9,6 +9,7 @@ import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 import { AuthService } from '../../../../core/services/auth.service';
 
 import { RouterModule } from '@angular/router';
+import { ClientDeletionCheckResponse } from '@neversion/api-client';
 
 @Component({
   selector: 'app-clients-list',
@@ -27,6 +28,10 @@ export class ClientsListComponent implements OnInit {
   readonly clients = this.clientsService.clients;
   readonly isLoading = this.clientsService.isLoading;
   readonly isSuperAdmin = this.authService.isSuperAdmin;
+
+  pendingDeleteClient = signal<ClientResponse | null>(null);
+  deletionCheck = signal<ClientDeletionCheckResponse | null>(null);
+  isDeletionCheckLoading = signal(false);
 
   searchTerm = signal('');
   currentPage = signal(1);
@@ -66,13 +71,40 @@ export class ClientsListComponent implements OnInit {
   }
 
   deactivateClient(client: ClientResponse): void {
-    if (confirm(`¿Seguro que deseas desactivar al cliente: ${client.name}?`)) {
-      this.clientsService.deleteClient(client.id).subscribe({
-        next: () => {
-          this.toastService.success(`Cliente ${client.name} eliminado`);
-        },
-      });
-    }
+    this.pendingDeleteClient.set(client);
+    this.deletionCheck.set(null);
+    this.isDeletionCheckLoading.set(true);
+    this.clientsService.checkDeletion(client.id).subscribe({
+      next: (check) => {
+        this.deletionCheck.set(check);
+        this.isDeletionCheckLoading.set(false);
+      },
+      error: () => {
+        this.isDeletionCheckLoading.set(false);
+        this.toastService.error('No se pudo verificar la información del cliente.');
+        this.pendingDeleteClient.set(null);
+      }
+    });
+  }
+
+  confirmDelete(): void {
+    const client = this.pendingDeleteClient();
+    if (!client) return;
+    this.clientsService.deleteClient(client.id).subscribe({
+      next: () => {
+        this.toastService.success(`Cliente ${client.name} eliminado correctamente.`);
+        this.pendingDeleteClient.set(null);
+        this.deletionCheck.set(null);
+      },
+      error: () => {
+        this.toastService.error('No se pudo eliminar el cliente.');
+      }
+    });
+  }
+
+  cancelDelete(): void {
+    this.pendingDeleteClient.set(null);
+    this.deletionCheck.set(null);
   }
 
   onSearchChange(term: string): void {

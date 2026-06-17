@@ -1,0 +1,23 @@
+{
+  "name": "@neversion/notification-service",
+  "version": "0.1.0",
+  "description": "gRPC notification service for Neversion utilizing SQLite and Resend (Bun edition)",
+  "module": "src/server.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/server.ts",
+    "start": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.12.2",
+    "@grpc/proto-loader": "^0.7.13",
+    "dotenv": "^16.4.5",
+    "resend": "^4.0.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.0",
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^10.0.0"
+  }
+}

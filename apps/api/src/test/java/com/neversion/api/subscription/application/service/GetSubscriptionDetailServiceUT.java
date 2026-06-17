@@ -33,6 +33,7 @@ import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.subscription.application.port.in.GetSubscriptionDetailUseCase.SubscriptionDetail;
 import com.neversion.api.subscription.domain.model.Subscription;
@@ -78,8 +79,7 @@ class GetSubscriptionDetailServiceUT {
                 accountRepositoryPort,
                 serviceRepositoryPort,
                 orderRepositoryPort,
-                userRepositoryPort,
-                vendorRepositoryPort);
+                new VendorSecurityService(userRepositoryPort, vendorRepositoryPort));
     }
 
     private void mockOwnershipResolution(Long vendorId) {

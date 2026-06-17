@@ -33,7 +33,7 @@ export class ServicesDataService {
     this._isLoading.set(true);
     return this.servicesApi.listByVendor1(
       vendorUuid,
-      filter?.category as 'STREAMING' | 'SOFTWARE' | 'GIFT_CARD' | 'RECHARGE' | 'DIGITAL_SERVICE',
+      filter?.category as any,
       filter?.isActive,
       'body',
       false,
@@ -118,7 +118,7 @@ export class ServicesDataService {
     return {
       id: api.id || '',
       name: api.name || '',
-      category: api.category as any || 'STREAMING',
+      category: api.category as any || 'streaming',
       priceProfile: api.priceProfile || 0,
       priceComplete: api.priceComplete || 0,
       durationDays: api.durationDays || 30,

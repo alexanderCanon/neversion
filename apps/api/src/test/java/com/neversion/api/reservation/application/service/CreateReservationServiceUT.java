@@ -33,6 +33,9 @@ import com.neversion.api.reservation.domain.service.ReservationPricingService;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
+import com.neversion.api.user.domain.model.User;
+import com.neversion.api.user.domain.model.enums.UserRole;
+import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 
 /**
  * Unit tests for CreateReservationService — US-033.
@@ -47,6 +50,7 @@ class CreateReservationServiceUT {
     @Mock private ServiceRepositoryPort serviceRepositoryPort;
     @Mock private ProfileRepositoryPort profileRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
+    @Mock private UserRepositoryPort userRepositoryPort;
 
     private ReservationPricingService reservationPricingService;
     private CreateReservationService createReservationService;
@@ -54,6 +58,7 @@ class CreateReservationServiceUT {
     private static final UUID CLIENT_UUID = UUID.randomUUID();
     private static final Long CLIENT_ID = 10L;
     private static final Long VENDOR_ID = 5L;
+    private static final Long USER_ID = 20L;
     private static final UUID SERVICE_UUID = UUID.randomUUID();
     private static final Long SERVICE_ID = 1L;
     private static final String PAYMENT_METHOD = "transferencia";
@@ -70,13 +75,22 @@ class CreateReservationServiceUT {
                 clientRepositoryPort,
                 serviceRepositoryPort,
                 profileRepositoryPort,
-                vendorRepositoryPort);
+                vendorRepositoryPort,
+                userRepositoryPort);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
     private Client buildClient() {
-        return Client.builder().id(CLIENT_ID).uuid(CLIENT_UUID).vendorId(VENDOR_ID).name("Juan").build();
+        return Client.builder().id(CLIENT_ID).uuid(CLIENT_UUID).userId(USER_ID).vendorId(VENDOR_ID).name("Juan").build();
+    }
+
+    private User buildUser() {
+        return User.builder()
+                .id(USER_ID)
+                .externalId(CLIENT_UUID.toString())
+                .role(UserRole.CLIENT)
+                .build();
     }
 
     private Vendor buildVendor() {
@@ -90,7 +104,8 @@ class CreateReservationServiceUT {
     }
 
     private void mockFullResolution() {
-        when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
+        when(userRepositoryPort.findByExternalId(CLIENT_UUID.toString())).thenReturn(Optional.of(buildUser()));
+        when(clientRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
         when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(buildService()));
         when(profileRepositoryPort.countAvailableByServiceIdAndVendorId(SERVICE_ID, VENDOR_ID))
@@ -191,23 +206,24 @@ class CreateReservationServiceUT {
     }
 
     @Test
-    @DisplayName("create - should throw ResourceNotFoundException when client not found")
-    void create_clientNotFound_shouldThrow404() {
+    @DisplayName("create - should throw ResourceNotFoundException when user not found")
+    void create_userNotFound_shouldThrow404() {
         // Given
-        when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.empty());
+        when(userRepositoryPort.findByExternalId(CLIENT_UUID.toString())).thenReturn(Optional.empty());
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When / Then
         assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessageContaining("Client not found");
+                .hasMessageContaining("User not found");
     }
 
     @Test
     @DisplayName("create - should throw ResourceNotFoundException when service not found")
     void create_serviceNotFound_shouldThrow404() {
         // Given
-        when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
+        when(userRepositoryPort.findByExternalId(CLIENT_UUID.toString())).thenReturn(Optional.of(buildUser()));
+        when(clientRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
         when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.empty());
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
@@ -222,7 +238,8 @@ class CreateReservationServiceUT {
     @DisplayName("create - should throw BusinessRuleException when not enough profiles available")
     void create_insufficientProfiles_shouldThrow400() {
         // Given
-        when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(buildClient()));
+        when(userRepositoryPort.findByExternalId(CLIENT_UUID.toString())).thenReturn(Optional.of(buildUser()));
+        when(clientRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(buildClient()));
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(buildVendor()));
         when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(buildService()));
         when(profileRepositoryPort.countAvailableByServiceIdAndVendorId(SERVICE_ID, VENDOR_ID))

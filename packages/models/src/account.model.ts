@@ -24,6 +24,7 @@ export interface AccountRequest {
   source?: string;
   purchasedAt?: string;
   notes?: string;
+  maxProfiles?: number;
 }
 
 export interface AccountResponse {
@@ -44,6 +45,8 @@ export interface AccountResponse {
   notes?: string;
   createdAt: string;
   
+  maxProfiles?: number;
+
   // Stats
   totalProfiles: number;
   availableProfiles: number;

@@ -35,6 +35,8 @@ export class ProfileListComponent {
   @Input() accountRenewalDate = '';
   @Input() profiles: ProfileResponse[] = [];
   @Input() canGenerateProfiles = true;
+  @Input() maxProfiles = 0;
+  @Input() currentProfileCount = 0;
   @Output() profilesChanged = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
@@ -76,9 +78,25 @@ export class ProfileListComponent {
     return label;
   }
 
+  get isLimitReached(): boolean {
+    return this.maxProfiles > 0 && this.currentProfileCount >= this.maxProfiles;
+  }
+
+  get wouldExceedLimit(): boolean {
+    return this.maxProfiles > 0 && (this.currentProfileCount + this.generateCount) > this.maxProfiles;
+  }
+
   onGenerateProfiles(): void {
       if (!this.canGenerateProfiles) return;
       if (this.generateCount < 1) return;
+
+      if (this.wouldExceedLimit) {
+        this.toastService.error(
+          `No se pueden generar más perfiles: se excedería el límite permitido (${this.maxProfiles}) para este servicio.`
+        );
+        return;
+      }
+
       this.isSubmitting = true;
       this.profileService.generateProfiles(this.accountId, this.generateCount).subscribe({
           next: () => {

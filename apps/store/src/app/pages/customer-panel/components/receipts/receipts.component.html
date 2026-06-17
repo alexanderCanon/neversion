@@ -45,6 +45,12 @@
           <div class="text-md-end">
             <div class="fw-bold">Q{{ reservation.total || 0 | number:'1.2-2' }}</div>
             <div class="text-muted small">{{ reservation.paymentMethod || 'Método no indicado' }}</div>
+            <a *ngIf="reservation.status === 'PENDING'"
+               [routerLink]="['/payment-page']"
+               [queryParams]="{ reservationId: reservation.id }"
+               class="btn btn-sm btn-primary mt-2">
+              <i class="bi bi-upload me-1"></i> Subir Comprobante
+            </a>
             <a *ngIf="reservation.receiptUrl"
                [href]="reservation.receiptUrl"
                target="_blank"

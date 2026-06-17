@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.subscription.application.port.in.UpdateSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
@@ -19,9 +21,13 @@ import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort
 public class UpdateSubscriptionService implements UpdateSubscriptionUseCase {
 
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
+    private final ProfileRepositoryPort profileRepositoryPort;
 
-    public UpdateSubscriptionService(SubscriptionRepositoryPort subscriptionRepositoryPort) {
+    public UpdateSubscriptionService(
+            SubscriptionRepositoryPort subscriptionRepositoryPort,
+            ProfileRepositoryPort profileRepositoryPort) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
+        this.profileRepositoryPort = profileRepositoryPort;
     }
 
     @Override
@@ -35,7 +41,14 @@ public class UpdateSubscriptionService implements UpdateSubscriptionUseCase {
         }
 
         subscription.setStatus(SubStatus.SUSPENDED);
-        return subscriptionRepositoryPort.save(subscription);
+        Subscription saved = subscriptionRepositoryPort.save(subscription);
+
+        profileRepositoryPort.findByInternalId(subscription.getProfileId()).ifPresent(profile -> {
+            profile.setStatus(ProfileStatus.RESERVED);
+            profileRepositoryPort.save(profile);
+        });
+
+        return saved;
     }
 
     @Override

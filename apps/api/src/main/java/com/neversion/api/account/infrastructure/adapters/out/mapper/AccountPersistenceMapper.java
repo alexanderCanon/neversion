@@ -24,6 +24,7 @@ public class AccountPersistenceMapper {
                 .source(entity.getSource())
                 .purchasedAt(entity.getPurchasedAt())
                 .status(entity.getStatus())
+                .maxProfiles(entity.getMaxProfiles())
                 .vendorId(entity.getVendorId())
                 .createdAt(entity.getCreatedAt())
                 .build();
@@ -45,6 +46,7 @@ public class AccountPersistenceMapper {
                 .source(domain.getSource())
                 .purchasedAt(domain.getPurchasedAt())
                 .status(domain.getStatus())
+                .maxProfiles(domain.getMaxProfiles())
                 .vendorId(domain.getVendorId())
                 .createdAt(domain.getCreatedAt())
                 .build();

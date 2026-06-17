@@ -84,6 +84,20 @@ public class ProfileService implements ProfileUseCase {
         return profileRepositoryPort.findAvailableByAccountId(accountId);
     }
 
+    @Override
+    public List<Profile> findByAccountUuid(UUID accountUuid) {
+        var account = accountRepositoryPort.findById(accountUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + accountUuid));
+        return profileRepositoryPort.findByAccountId(account.getId());
+    }
+
+    @Override
+    public List<Profile> findAvailableByAccountUuid(UUID accountUuid) {
+        var account = accountRepositoryPort.findById(accountUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + accountUuid));
+        return profileRepositoryPort.findAvailableByAccountId(account.getId());
+    }
+
     // ─── US-022 / BR-01: auto-generation on account creation ─────────────────
 
     /**
@@ -125,16 +139,12 @@ public class ProfileService implements ProfileUseCase {
                     "Cannot generate profiles for a full-account sale mode account.");
         }
 
-        // Validate maxProfiles (BR-US025-02)
-        var service = serviceRepositoryPort.findByInternalId(account.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Service not found for account: " + accountUuid));
-
-        int maxProfiles = service.getMaxProfiles() != null ? service.getMaxProfiles() : 0;
+        // Validate maxProfiles against account-level limit (BR-US025-02)
+        int maxProfiles = account.getMaxProfiles() != null ? account.getMaxProfiles() : 0;
         int existing = profileRepositoryPort.findByAccountId(account.getId()).size();
-        if (existing + count > maxProfiles) {
+        if (maxProfiles > 0 && existing + count > maxProfiles) {
             throw new BusinessRuleException(
-                    "Cannot generate " + count + " profiles: would exceed maxProfiles (" + maxProfiles + ") for this service. Current: " + existing);
+                    "Cannot generate " + count + " profiles: would exceed maxProfiles (" + maxProfiles + ") for this account. Current: " + existing);
         }
 
         List<Profile> profiles = new ArrayList<>();

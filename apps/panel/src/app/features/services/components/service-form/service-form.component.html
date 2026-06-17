@@ -71,37 +71,53 @@
                 <div class="mb-3">
                   <label for="category" class="form-label small fw-medium text-muted">Categoría <span class="text-danger">*</span></label>
                   <select class="form-select form-select-modern" id="category" formControlName="category">
-                      @for(cat of categories; track cat) {
-                          <option [value]="cat">{{ cat }}</option>
+                      @for(cat of categoryDetails; track cat.value) {
+                          <option [value]="cat.value" [title]="cat.description">{{ cat.label }}</option>
                       }
                   </select>
+                  @if (getSelectedCategoryDescription()) {
+                    <div class="mt-2 text-muted x-small lh-sm bg-light p-2 rounded border">
+                      <i class="bi bi-info-circle-fill text-primary me-1"></i>
+                      {{ getSelectedCategoryDescription() }}
+                    </div>
+                  }
                 </div>
 
                 <div class="row g-3">
-                  <div class="col-6">
-                    <label for="maxProfiles" class="form-label small fw-medium text-muted">Perfiles Máx.</label>
-                    <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1">
-                  </div>
-                  <div class="col-6">
-                    <label for="durationDays" class="form-label small fw-medium text-muted">Duración (Días)</label>
-                    <input type="number" class="form-control form-control-modern" id="durationDays" formControlName="durationDays" min="1">
-                  </div>
+                  @if (serviceForm.get('category')?.value === 'streaming') {
+                    <div class="col-6">
+                      <label for="maxProfiles" class="form-label small fw-medium text-muted">Perfiles Máx.</label>
+                      <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1">
+                    </div>
+                  }
+                  @if (showDurationDays()) {
+                    <div class="col" [class.col-6]="serviceForm.get('category')?.value === 'streaming'">
+                      <label for="durationDays" class="form-label small fw-medium text-muted">Duración (Días)</label>
+                      <input type="number" class="form-control form-control-modern" id="durationDays" formControlName="durationDays" min="1">
+                    </div>
+                  }
                 </div>
               </div>
 
               <div class="form-section p-3 rounded-3 bg-white border shadow-sm">
-                <label class="form-label-custom text-primary mb-3">Precios de Venta (Q)</label>
+                <label class="form-label-custom text-primary mb-3">
+                  {{ serviceForm.get('category')?.value === 'streaming' ? 'Precios de Venta (Q)' : 'Precio de Venta (Q)' }}
+                </label>
                 
-                <div class="mb-3">
-                  <label for="priceProfile" class="form-label small fw-medium text-muted">Precio por Perfil <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <span class="input-group-text border-end-0 bg-light fw-bold text-muted">Q</span>
-                    <input type="number" class="form-control form-control-modern border-start-0" id="priceProfile" formControlName="priceProfile" min="0">
+                @if (serviceForm.get('category')?.value === 'streaming') {
+                  <div class="mb-3">
+                    <label for="priceProfile" class="form-label small fw-medium text-muted">Precio por Perfil <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text border-end-0 bg-light fw-bold text-muted">Q</span>
+                      <input type="number" class="form-control form-control-modern border-start-0" id="priceProfile" formControlName="priceProfile" min="0">
+                    </div>
                   </div>
-                </div>
+                }
 
                 <div class="mb-0">
-                  <label for="priceComplete" class="form-label small fw-medium text-muted">Cuenta Completa <span class="text-danger">*</span></label>
+                  <label for="priceComplete" class="form-label small fw-medium text-muted">
+                    {{ serviceForm.get('category')?.value === 'streaming' ? 'Cuenta Completa' : 'Precio de Venta' }} <span class="text-danger">*</span>
+                  </label>
                   <div class="input-group">
                     <span class="input-group-text border-end-0 bg-light fw-bold text-muted">Q</span>
                     <input type="number" class="form-control form-control-modern border-start-0" id="priceComplete" formControlName="priceComplete" min="0">

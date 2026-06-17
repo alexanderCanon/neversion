@@ -43,28 +43,39 @@
             </div>
 
             <h5 class="card-title mb-3" [class.text-primary]="sub.status === 'ACTIVE'">
-              <i class="bi bi-shield-check me-2"></i> Credenciales de Acceso
+              <i class="bi" [ngClass]="sub.status === 'ACTIVE' ? 'bi-shield-check' : 'bi-shield-lock'"></i>
+              {{ sub.status === 'ACTIVE' ? 'Credenciales de Acceso' : 'Acceso Restringido' }}
             </h5>
 
-            <div class="mb-3" *ngIf="sub.accountEmail">
-              <label class="form-label text-muted small mb-1">Email de la cuenta</label>
-              <div class="input-group input-group-sm">
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                <input type="text" class="form-control font-monospace" [value]="sub.accountEmail" readonly>
+            <!-- Active: show credentials -->
+            <ng-container *ngIf="sub.status !== 'SUSPENDED'">
+              <div class="mb-3" *ngIf="sub.accountEmail">
+                <label class="form-label text-muted small mb-1">Email de la cuenta</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="text" class="form-control font-monospace" [value]="sub.accountEmail" readonly>
+                </div>
               </div>
-            </div>
 
-            <div class="mb-3" *ngIf="sub.accountPassword">
-              <label class="form-label text-muted small mb-1">Contraseña</label>
-              <div class="input-group input-group-sm">
-                <span class="input-group-text"><i class="bi bi-key"></i></span>
-                <input type="text" class="form-control font-monospace" [value]="sub.accountPassword" readonly>
+              <div class="mb-3" *ngIf="sub.accountPassword">
+                <label class="form-label text-muted small mb-1">Contraseña</label>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text"><i class="bi bi-key"></i></span>
+                  <input type="text" class="form-control font-monospace" [value]="sub.accountPassword" readonly>
+                </div>
               </div>
-            </div>
+            </ng-container>
 
-            <div *ngIf="sub.status === 'SUSPENDED'" class="text-muted small mb-3">
-              Las credenciales se mostrarán nuevamente cuando el vendedor apruebe tu renovación.
-            </div>
+            <!-- Suspended: show locked placeholder -->
+            <ng-container *ngIf="sub.status === 'SUSPENDED'">
+              <div class="text-center py-3 mb-3 bg-light rounded-3 border">
+                <i class="bi bi-lock-fill text-warning" style="font-size: 2rem;"></i>
+                <p class="text-muted small mb-0 mt-2">
+                  Las credenciales están ocultas porque tu suscripción venció.<br>
+                  <strong>Renueva tu suscripción</strong> para volver a verlas.
+                </p>
+              </div>
+            </ng-container>
 
             <hr class="my-3 opacity-10">
 
@@ -73,9 +84,13 @@
                 <span class="text-muted small"><i class="bi bi-person-badge me-2"></i>Perfil:</span>
                 <strong class="text-dark">{{ sub.profileName }}</strong>
               </li>
-              <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center" *ngIf="sub.profilePin">
+              <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center" *ngIf="sub.profilePin && sub.status !== 'SUSPENDED'">
                 <span class="text-muted small"><i class="bi bi-p-circle me-2"></i>PIN:</span>
                 <span class="badge bg-success font-monospace">{{ sub.profilePin }}</span>
+              </li>
+              <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center" *ngIf="sub.profilePin && sub.status === 'SUSPENDED'">
+                <span class="text-muted small"><i class="bi bi-p-circle me-2"></i>PIN:</span>
+                <span class="badge bg-secondary font-monospace">••••</span>
               </li>
               <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
                 <span class="text-muted small"><i class="bi bi-calendar-event me-2"></i>Vence:</span>

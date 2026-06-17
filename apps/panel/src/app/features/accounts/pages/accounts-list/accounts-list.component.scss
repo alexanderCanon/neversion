@@ -5,7 +5,7 @@
         .accordion-button {
             background-color: #fff;
             border-radius: 16px !important;
-            padding: 1.25rem 1.5rem;
+            padding: 1.1rem 1.5rem;
             box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
             transition: all 0.2s ease;
 
@@ -41,18 +41,57 @@
 }
 
 .badge-status {
-    padding: 0.4em 0.8em;
-    font-size: 0.7rem;
-    font-weight: 700;
+    padding: 0.3em 0.7em;
+    font-size: 0.65rem;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-radius: 6px;
+    letter-spacing: 0.04em;
+    border-radius: 20px;
+    border: 1px solid transparent;
 
-    &.bg-success-subtle { background-color: #dcfce7; color: #166534; }
-    &.bg-warning-subtle { background-color: #fef3c7; color: #92400e; }
-    &.bg-danger-subtle { background-color: #fee2e2; color: #991b1b; }
-    &.bg-info-subtle { background-color: #e0f2fe; color: #075985; }
-    &.bg-secondary-subtle { background-color: #f1f5f9; color: #475569; }
+    &.status-available {
+        background-color: #f0fdf4;
+        color: #15803d;
+        border-color: #bbf7d0;
+    }
+    &.status-partial {
+        background-color: #fffbeb;
+        color: #a16207;
+        border-color: #fde68a;
+    }
+    &.status-full {
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+    }
+    &.status-expired {
+        background-color: #f8fafc;
+        color: #64748b;
+        border-color: #e2e8f0;
+    }
+    &.status-default {
+        background-color: #f0f9ff;
+        color: #0369a1;
+        border-color: #bae6fd;
+    }
+}
+
+.sale-mode-pill {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2em 0.6em;
+    border-radius: 12px;
+    background-color: #f1f5f9;
+    color: #64748b;
+    margin-top: 0.2rem;
+
+    &.full-account {
+        background-color: #eef2ff;
+        color: #4338ca;
+    }
 }
 
 .info-list {
@@ -110,6 +149,13 @@
 }
 
 .text-indigo { color: #4f46e5; }
+
+.value-container .font-monospace {
+    font-size: 0.85rem;
+    color: var(--color-text-primary);
+    overflow-wrap: anywhere;
+    text-align: right;
+}
 
 .pagination-modern {
     .page-link {

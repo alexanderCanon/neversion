@@ -92,7 +92,7 @@ class ServiceControllerIT extends BaseIntegrationTest {
     private Map<String, Object> validRequestBody() {
         return Map.of(
                 "name", "Netflix Premium",
-                "category", "STREAMING",
+                "category", "streaming",
                 "priceProfile", 45.00,
                 "priceComplete", 150.00,
                 "durationDays", 30,

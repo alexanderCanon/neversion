@@ -25,6 +25,7 @@ export interface AccountResponse {
     purchasedAt?: string;
     notes?: string;
     createdAt?: string;
+    maxProfiles?: number;
     totalProfiles?: number;
     availableProfiles?: number;
     occupiedProfiles?: number;
@@ -44,4 +45,5 @@ export namespace AccountResponse {
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
 }
+
 

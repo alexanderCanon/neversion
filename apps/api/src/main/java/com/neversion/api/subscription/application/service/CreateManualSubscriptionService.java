@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -25,13 +24,12 @@ import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.application.service.VendorSecurityService;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.subscription.application.port.in.CreateManualSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
-import com.neversion.api.user.domain.port.out.UserRepositoryPort;
-import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
 /**
  * US-048: Creates manual subscriptions for external sales or migration.
@@ -46,9 +44,8 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
     private final ServiceRepositoryPort serviceRepositoryPort;
-    private final UserRepositoryPort userRepositoryPort;
-    private final VendorRepositoryPort vendorRepositoryPort;
     private final DeliverAccessUseCase deliverAccessUseCase;
+    private final VendorSecurityService vendorSecurityService;
     private final Clock clock;
 
     public CreateManualSubscriptionService(
@@ -57,40 +54,38 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
             ProfileRepositoryPort profileRepositoryPort,
             AccountRepositoryPort accountRepositoryPort,
             ServiceRepositoryPort serviceRepositoryPort,
-            UserRepositoryPort userRepositoryPort,
-            VendorRepositoryPort vendorRepositoryPort,
             DeliverAccessUseCase deliverAccessUseCase,
+            VendorSecurityService vendorSecurityService,
             Clock clock) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;
         this.serviceRepositoryPort = serviceRepositoryPort;
-        this.userRepositoryPort = userRepositoryPort;
-        this.vendorRepositoryPort = vendorRepositoryPort;
         this.deliverAccessUseCase = deliverAccessUseCase;
+        this.vendorSecurityService = vendorSecurityService;
         this.clock = clock;
     }
 
     @Override
     @Transactional
     public Subscription create(Subscription subscription, boolean sendNotification, String callerExternalId) {
-        Long vendorId = resolveVendorId(callerExternalId);
+        Long vendorId = vendorSecurityService.resolveVendorId(callerExternalId);
 
         Client client = clientRepositoryPort.findById(subscription.getClientUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Client not found: " + subscription.getClientUuid()));
-        ensureOwned(client.getVendorId(), vendorId, "client");
+        vendorSecurityService.assertOwnership(vendorId, client.getVendorId(), "client");
 
         var service = serviceRepositoryPort.findById(subscription.getServiceUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Service not found: " + subscription.getServiceUuid()));
-        ensureOwned(service.getVendorId(), vendorId, "service");
+        vendorSecurityService.assertOwnership(vendorId, service.getVendorId(), "service");
 
         Profile profile = profileRepositoryPort.findById(subscription.getProfileUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Profile not found: " + subscription.getProfileUuid()));
-        ensureOwned(profile.getVendorId(), vendorId, "profile");
+        vendorSecurityService.assertOwnership(vendorId, profile.getVendorId(), "profile");
 
         if (profile.getStatus() != ProfileStatus.AVAILABLE) {
             throw new BusinessRuleException("Selected profile must be AVAILABLE.");
@@ -192,19 +187,4 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
         delivery.run();
     }
 
-    private void ensureOwned(Long resourceVendorId, Long callerVendorId, String resourceName) {
-        if (!Objects.equals(resourceVendorId, callerVendorId)) {
-            throw new AccessDeniedException("You do not have permission to use this " + resourceName + ".");
-        }
-    }
-
-    private Long resolveVendorId(String callerExternalId) {
-        var user = userRepositoryPort.findByExternalId(callerExternalId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found for externalId: " + callerExternalId));
-        return vendorRepositoryPort.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor not found for userId: " + user.getId()))
-                .getId();
-    }
 }

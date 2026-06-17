@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 public interface SpringDataSubscriptionRepository
@@ -37,4 +38,5 @@ public interface SpringDataSubscriptionRepository
 
     /** US-054: Finds active subscriptions due on a specific date for renewal reminders. */
     List<SubscriptionEntity> findByPaymentDueDateAndStatus(LocalDate paymentDueDate, SubStatus status);
+
 }

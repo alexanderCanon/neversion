@@ -1,24 +1,4 @@
-# ══════════════════════════════════════════════════════════════════
-# compose.local.yml — Stack completo para desarrollo local
-#
-# Levanta los 3 apps + base de datos con un solo comando.
-#
-# COMANDOS:
-#   Preparar env:      cp infra/.env.example infra/.env
-#   Todo el stack:     docker compose --env-file infra/.env -f infra/compose.local.yml up --build
-#   Solo API + DB:     docker compose --env-file infra/.env -f infra/compose.local.yml up --build api db
-#   Solo panel:        docker compose --env-file infra/.env -f infra/compose.local.yml up --build panel
-#   Solo store:        docker compose --env-file infra/.env -f infra/compose.local.yml up --build store
-#   Bajar todo:        docker compose --env-file infra/.env -f infra/compose.local.yml down
-#   Limpiar volumes:   docker compose --env-file infra/.env -f infra/compose.local.yml down -v
-#
-# REQUISITOS:
-#   Copiar .env local: cp infra/.env.example infra/.env
-#   y completar Supabase/Resend si se probaran esos flujos.
-# ══════════════════════════════════════════════════════════════════
-
 services:
-  # ── Base de datos local (solo para API) ─────────────────────────
   db:
     image: postgres:17
     container_name: neversion-db
@@ -37,7 +17,32 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── API — Spring Boot ────────────────────────────────────────────
+#  # ── GoTrue — Supabase Auth Local ────────────────────────────────
+#  gotrue:
+#    image: supabase/gotrue:v2.158.0
+#    container_name: neversion-gotrue
+#    restart: unless-stopped
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    ports:
+#      - "9999:8081"
+#    environment:
+#      API_EXTERNAL_URL: http://localhost:9999
+#      GOTRUE_API_HOST: 0.0.0.0
+#      GOTRUE_PORT: 8081
+#      GOTRUE_API_EXTERNAL_URL: http://localhost:9999
+#      GOTRUE_DB_DRIVER: postgres
+#      GOTRUE_DB_DATABASE_URL: postgres://postgres:mysecretpassword@db:5432/neversiondb?sslmode=disable&search_path=auth,public
+#      GOTRUE_JWT_SECRET: ${AUTH_JWT_SECRET:-your-dev-jwt-secret}
+#      GOTRUE_JWT_EXP: 3600
+#      GOTRUE_JWT_AUD: authenticated
+#      GOTRUE_SITE_URL: http://localhost:4200
+#      GOTRUE_DISABLE_SIGNUP: "false"
+#      GOTRUE_MAILER_AUTOCONFIRM: "true"
+#      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+#      GOTRUE_SMTP_ADMIN_EMAIL: noreply@neversion.com
+
   api:
     build:
       context: ../apps/api
@@ -54,56 +59,38 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/neversiondb}
+      GOTRUE_DB_DATABASE_URL: ${GOTRUE_DB_DATABASE_URL:-postgres://postgres:mysecretpassword@db:5432/neversiondb?sslmode=disable&search_path=auth}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-mysecretpassword}
-      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:-your-dev-jwt-secret}
-      SUPABASE_URL: ${SUPABASE_URL:-https://your-project.supabase.co}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-your-service-role-key}
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-your-dev-jwt-secret}
+      AUTH_API_URL: ${AUTH_API_URL:-http://gotrue:8081}
+      AUTH_ADMIN_KEY: ${AUTH_ADMIN_KEY:-your-dev-service-role-key}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4000}
-      RESEND_API_KEY: ${RESEND_API_KEY:-re_placeholder}
-      NEVERSION_EMAIL_FROM: ${NEVERSION_EMAIL_FROM:-Neversion <noreply@neversion.com>}
       NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:-2}
       NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:-true}
-      NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED: ${NEVERSION_CRON_NOTIFICATION_WORKER_ENABLED:-false}
-      NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS: ${NEVERSION_CRON_NOTIFICATION_WORKER_INTERVAL_MS:-30000}
-      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-false}
+      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-true}
+      NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
+      NEVERSION_NOTIFICATION_SERVICE_HOST: notification-service
     ports:
       - "8080:8080"
 
-  # ── Panel — Angular 17 static (Nginx) ───────────────────────────
-  panel:
+  # ── Notification Service — Node.js gRPC ──────────────────────────
+  notification-service:
     build:
       context: ..
-      dockerfile: apps/panel/Dockerfile
-    container_name: neversion-panel
+      dockerfile: apps/notification-service/Dockerfile
+    container_name: neversion-notification-service
     restart: unless-stopped
-    depends_on:
-      - api
-    environment:
-      PANEL_API_URL: ${PANEL_API_URL:-}
-      PANEL_SUPABASE_URL: ${PANEL_SUPABASE_URL:-https://your-project.supabase.co}
-      PANEL_SUPABASE_KEY: ${PANEL_SUPABASE_KEY:-your-anon-key}
     ports:
-      - "4200:80"
-
-  # ── Store — Angular 16 SSR (Node) ───────────────────────────────
-  store:
-    build:
-      context: ..
-      dockerfile: apps/store/Dockerfile
-    container_name: neversion-store
-    restart: unless-stopped
-    depends_on:
-      - api
+      - "50051:50051"
     environment:
-      NODE_ENV: production
-      PORT: 4000
-      STORE_API_URL: ${STORE_API_URL:-http://localhost:8080}
-      STORE_SUPABASE_URL: ${STORE_SUPABASE_URL:-https://your-project.supabase.co}
-      STORE_SUPABASE_KEY: ${STORE_SUPABASE_KEY:-your-anon-key}
-      STORE_VENDOR_UUID: ${STORE_VENDOR_UUID:-00000000-0000-0000-0000-000000000000}
-    ports:
-      - "${STORE_PORT:-4000}:4000"
+      PORT: 50051
+      DATABASE_PATH: /app/data/notifications.db
+      RESEND_API_KEY: ${RESEND_API_KEY:-re_placeholder}
+      FROM_EMAIL: ${NEVERSION_EMAIL_FROM:-Neversion <noreply@mail.neversion.com>}
+    volumes:
+      - notification_data:/app/data
 
 volumes:
   pgdata:
+  notification_data:

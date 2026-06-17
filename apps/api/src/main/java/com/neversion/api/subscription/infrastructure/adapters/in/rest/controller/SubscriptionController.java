@@ -17,11 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.neversion.api.account.domain.model.Account;
-import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
-import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
-import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
-import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.subscription.application.port.in.CreateManualSubscriptionUseCase;
 import com.neversion.api.subscription.application.port.in.DetectExpiredSubscriptionsUseCase;
 import com.neversion.api.subscription.application.port.in.GetSubscriptionDetailUseCase;
@@ -30,13 +25,13 @@ import com.neversion.api.subscription.application.port.in.RevokeSubscriptionUseC
 import com.neversion.api.subscription.application.port.in.RenewSubscriptionUseCase;
 import com.neversion.api.subscription.application.port.in.UpdateSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateManualSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.DetectExpiredSubscriptionsResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDetailResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.mapper.SubscriptionMapper;
-import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -55,10 +50,6 @@ public class SubscriptionController {
     private final RenewSubscriptionUseCase renewSubscriptionUseCase;
     private final RevokeSubscriptionUseCase revokeSubscriptionUseCase;
     private final DetectExpiredSubscriptionsUseCase detectExpiredSubscriptionsUseCase;
-    private final ProfileRepositoryPort profileRepositoryPort;
-    private final ClientRepositoryPort clientRepositoryPort;
-    private final AccountRepositoryPort accountRepositoryPort;
-    private final ServiceRepositoryPort serviceRepositoryPort;
     private final SubscriptionMapper subscriptionMapper;
 
     public SubscriptionController(CreateManualSubscriptionUseCase createManualSubscriptionUseCase,
@@ -68,10 +59,6 @@ public class SubscriptionController {
             RenewSubscriptionUseCase renewSubscriptionUseCase,
             RevokeSubscriptionUseCase revokeSubscriptionUseCase,
             DetectExpiredSubscriptionsUseCase detectExpiredSubscriptionsUseCase,
-            ProfileRepositoryPort profileRepositoryPort,
-            ClientRepositoryPort clientRepositoryPort,
-            AccountRepositoryPort accountRepositoryPort,
-            ServiceRepositoryPort serviceRepositoryPort,
             SubscriptionMapper subscriptionMapper) {
         this.createManualSubscriptionUseCase = createManualSubscriptionUseCase;
         this.updateSubscriptionUseCase = updateSubscriptionUseCase;
@@ -80,10 +67,6 @@ public class SubscriptionController {
         this.renewSubscriptionUseCase = renewSubscriptionUseCase;
         this.revokeSubscriptionUseCase = revokeSubscriptionUseCase;
         this.detectExpiredSubscriptionsUseCase = detectExpiredSubscriptionsUseCase;
-        this.profileRepositoryPort = profileRepositoryPort;
-        this.clientRepositoryPort = clientRepositoryPort;
-        this.accountRepositoryPort = accountRepositoryPort;
-        this.serviceRepositoryPort = serviceRepositoryPort;
         this.subscriptionMapper = subscriptionMapper;
     }
 
@@ -120,10 +103,10 @@ public class SubscriptionController {
             @RequestParam(required = false) SubStatus status,
             JwtAuthenticationToken token) {
 
-        List<Subscription> subs = listSubscriptionsUseCase.listByVendor(
+        List<SubscriptionListView> views = listSubscriptionsUseCase.listViewsByVendor(
                 vendorUuid, serviceId, status, extractExternalId(token));
 
-        return ResponseEntity.ok(subs.stream().map(this::toListResponse).toList());
+        return ResponseEntity.ok(views.stream().map(subscriptionMapper::toListResponse).toList());
     }
 
     @GetMapping("/{id}")
@@ -183,23 +166,6 @@ public class SubscriptionController {
     public ResponseEntity<DetectExpiredSubscriptionsResponse> detectExpired() {
         int suspendedCount = detectExpiredSubscriptionsUseCase.detectAndSuspend();
         return ResponseEntity.ok(new DetectExpiredSubscriptionsResponse(suspendedCount));
-    }
-
-    private SubscriptionResponse toListResponse(Subscription subscription) {
-        var profile = profileRepositoryPort.findByInternalId(subscription.getProfileId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Profile not found for subscription: " + subscription.getUuid()));
-        var client = clientRepositoryPort.findByInternalId(subscription.getClientId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Client not found for subscription: " + subscription.getUuid()));
-        Account account = accountRepositoryPort.findByInternalId(profile.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Account not found for profile: " + profile.getUuid()));
-        var service = serviceRepositoryPort.findByInternalId(account.getServiceId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Service not found for account: " + account.getUuid()));
-
-        return subscriptionMapper.toResponse(subscription, profile, client, account, service);
     }
 
     /** Extracts the Supabase externalId (sub claim) from the JWT. */

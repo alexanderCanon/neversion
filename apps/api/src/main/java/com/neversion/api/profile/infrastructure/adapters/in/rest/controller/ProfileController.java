@@ -76,12 +76,12 @@ public class ProfileController {
             description = "Returns all profiles for a given account. Use ?available=true for unassigned only.")
     @ApiResponse(responseCode = "200", description = "Profile list")
     public ResponseEntity<List<ProfileResponse>> listByAccount(
-            @RequestParam Long accountId,
+            @RequestParam UUID accountId,
             @RequestParam(required = false, defaultValue = "false") boolean available) {
 
         List<Profile> profiles = available
-                ? profileUseCase.findAvailableByAccountId(accountId)
-                : profileUseCase.findByAccountId(accountId);
+                ? profileUseCase.findAvailableByAccountUuid(accountId)
+                : profileUseCase.findByAccountUuid(accountId);
 
         return ResponseEntity.ok(profiles.stream().map(profileMapper::toResponse).toList());
     }

@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { ReservationsService } from '../../services/reservations.service';
 import { ReservationResponse } from '@neversion/models';
 import { ToastService } from '../../../../core/services/toast.service';
+import { ReceiptImageService } from '../../../../core/services/receipt-image.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 
 @Component({
@@ -20,6 +21,7 @@ export class ReservationDetailComponent implements OnInit {
   private readonly reservationsService = inject(ReservationsService);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
+  readonly receiptImageService = inject(ReceiptImageService);
 
   reservation = signal<ReservationResponse | null>(null);
   isLoading = signal(true);
@@ -29,6 +31,12 @@ export class ReservationDetailComponent implements OnInit {
   // For client attachment
   clients = this.clientsService.clients;
   selectedClientId = signal('');
+
+  assignedClient = computed(() => {
+    const res = this.reservation();
+    if (!res || !res.clientId) return null;
+    return this.clients().find(c => c.id === res.clientId) || null;
+  });
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -96,5 +104,29 @@ export class ReservationDetailComponent implements OnInit {
         this.loadReservation(res.id);
       }
     });
+  }
+
+  getStatusLabel(status?: string): string {
+    if (!status) return '';
+    const labels: Record<string, string> = {
+      PENDING: 'Pendiente',
+      UPLOADED: 'Subido',
+      VALIDATED: 'Validado',
+      EXPIRED: 'Expirado',
+      CANCELLED: 'Cancelado'
+    };
+    return labels[status] ?? status;
+  }
+
+  getStatusBadgeClass(status?: string): string {
+    if (!status) return 'badge-status default';
+    switch (status) {
+      case 'PENDING': return 'badge-status pending';
+      case 'UPLOADED': return 'badge-status uploaded';
+      case 'VALIDATED': return 'badge-status validated';
+      case 'EXPIRED': return 'badge-status expired';
+      case 'CANCELLED': return 'badge-status cancelled';
+      default: return 'badge-status default';
+    }
   }
 }

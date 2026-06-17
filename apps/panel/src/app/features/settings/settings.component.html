@@ -1,0 +1,132 @@
+<div class="container-fluid py-4 px-3 px-lg-4">
+    <!-- Header Page -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1 text-dark">Configuración del Sistema</h3>
+        <p class="text-secondary small mb-0">Gestiona tu información de cuenta y seguridad del panel.</p>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div class="row g-4">
+        <!-- Sidebar Options -->
+        <div class="col-md-4 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="list-group list-group-flush p-2 gap-1 bg-white">
+                    <button 
+                        class="list-group-item list-group-item-action border-0 rounded-3 py-3 px-4 d-flex align-items-center gap-3 transition-all" 
+                        [class.active-item]="activeSection() === 'profile'"
+                        (click)="selectSection('profile')">
+                        <i class="bi bi-person-circle fs-5"></i>
+                        <span class="fw-bold">Mi Perfil</span>
+                    </button>
+                    <button 
+                        class="list-group-item list-group-item-action border-0 rounded-3 py-3 px-4 d-flex align-items-center gap-3 transition-all" 
+                        [class.active-item]="activeSection() === 'security'"
+                        (click)="selectSection('security')">
+                        <i class="bi bi-shield-lock fs-5"></i>
+                        <span class="fw-bold">Seguridad</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Workspace Content -->
+        <div class="col-md-8 col-lg-9">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-body p-4 p-md-5 bg-white">
+
+                    <!-- SECTION: PROFILE -->
+                    @if (activeSection() === 'profile') {
+                        <div class="section-header mb-4">
+                            <h4 class="fw-bold mb-2">Mi Perfil de Cuenta</h4>
+                            <p class="text-secondary small">Información de identificación de tu cuenta de distribuidor en Neversion.</p>
+                        </div>
+                        <hr class="mb-4 opacity-10">
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <span class="text-label text-uppercase text-secondary d-block mb-1">Nombre de la Tienda</span>
+                                    <span class="fs-5 fw-bold text-dark">{{ storeName() }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <span class="text-label text-uppercase text-secondary d-block mb-1">Rol de Acceso</span>
+                                    <span class="fs-5 fw-bold text-dark">{{ userRole() }}</span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <span class="text-label text-uppercase text-secondary d-block mb-1">Correo Electrónico de Notificaciones</span>
+                                    <span class="fs-5 fw-bold text-dark font-monospace">{{ userEmail() }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info border-0 rounded-4 p-4 mt-4 bg-light-blue text-dark-blue">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-info-circle-fill fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">¿Necesitas modificar estos datos?</h6>
+                                    <p class="mb-0 small opacity-90">
+                                        Por motivos de seguridad y auditoría en la plataforma multi-tenant, el cambio del nombre de la tienda o del correo del vendedor debe solicitarse directamente al administrador principal del sistema. Puedes hacerlo a través de la sección de Ayuda.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- SECTION: SECURITY -->
+                    @if (activeSection() === 'security') {
+                        <div class="section-header mb-4">
+                            <h4 class="fw-bold mb-2">Seguridad de la Cuenta</h4>
+                            <p class="text-secondary small">Mantén tu cuenta protegida actualizando tu contraseña periódicamente.</p>
+                        </div>
+                        <hr class="mb-4 opacity-10">
+
+                        <form [formGroup]="passwordForm" (ngSubmit)="onUpdatePassword()" class="max-width-600">
+                            <div class="mb-3">
+                                <label for="newPassword" class="form-label fw-semibold text-secondary small">Nueva Contraseña <span class="text-danger">*</span></label>
+                                <input 
+                                    type="password" 
+                                    class="form-control py-custom-y rounded-3 border-secondary-subtle font-monospace" 
+                                    id="newPassword" 
+                                    formControlName="newPassword" 
+                                    placeholder="Mínimo 6 caracteres"
+                                />
+                                @if (passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched) {
+                                    <div class="text-danger x-small mt-1">La contraseña debe tener al menos 6 caracteres.</div>
+                                }
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="form-label fw-semibold text-secondary small">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
+                                <input 
+                                    type="password" 
+                                    class="form-control py-custom-y rounded-3 border-secondary-subtle font-monospace" 
+                                    id="confirmPassword" 
+                                    formControlName="confirmPassword" 
+                                    placeholder="Repite la nueva contraseña"
+                                />
+                                @if (passwordForm.get('confirmPassword')?.touched && passwordForm.errors?.['mismatch']) {
+                                    <div class="text-danger x-small mt-1">Las contraseñas no coinciden.</div>
+                                }
+                            </div>
+
+                            <button 
+                                type="submit" 
+                                class="btn btn-primary px-5 py-3 rounded-3" 
+                                [disabled]="passwordForm.invalid || isSubmitting()">
+                                @if (isSubmitting()) {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                Guardar Cambios
+                            </button>
+                        </form>
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

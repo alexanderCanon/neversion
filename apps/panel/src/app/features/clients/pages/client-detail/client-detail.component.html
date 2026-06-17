@@ -35,9 +35,9 @@
                     <i class="bi bi-calendar-check me-2 text-primary"></i>
                     Desde: {{ clientDetail()?.client?.createdAt | date:'longDate' }}
                 </span>
-                <span class="badge bg-indigo-subtle text-indigo border border-indigo-subtle px-3 py-2 rounded-3">
-                    <i class="bi bi-fingerprint me-2"></i>
-                    ID: {{ clientDetail()?.client?.id?.substring(0, 8) }}
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-3">
+                    <i class="bi bi-fingerprint me-2 text-primary"></i>
+                    ID: <span class="font-monospace fw-bold">#{{ clientDetail()?.client?.id?.substring(0, 8) }}</span>
                 </span>
             </div>
           </div>
@@ -125,7 +125,7 @@
                             <i class="bi bi-journal-text text-primary"></i>
                             <h5 class="fw-bold mb-0">Observaciones</h5>
                         </div>
-                        <div class="p-3 bg-indigo-subtle-light rounded-4 border border-indigo-subtle h-100">
+                        <div class="p-3 bg-indigo-subtle-light rounded-4 border border-indigo-subtle">
                             @if (clientDetail()?.client?.notes) {
                                 <p class="mb-0 text-dark small lh-base">{{ clientDetail()?.client?.notes }}</p>
                             } @else {
@@ -166,8 +166,8 @@
                     @for (sub of clientDetail()?.activeSubscriptions; track sub.id) {
                       <tr class="detail-row">
                         <td class="ps-4 py-3">
-                          <div class="fw-bold text-dark">{{ sub.serviceName }}</div>
-                          <span class="x-small text-muted fw-semibold">ID: {{ sub.id.substring(0, 8) }}</span>
+                          <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ sub.serviceName }}</div>
+                          <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ sub.id.substring(0, 8) }}</span>
                         </td>
                         <td>
                           <div class="d-flex align-items-center gap-2">
@@ -176,23 +176,28 @@
                           </div>
                         </td>
                         <td>
-                          <div class="d-flex flex-column">
-                              <span class="fw-bold small" [class.text-danger]="sub.status === 'SUSPENDED'">
-                                {{ sub.paymentDueDate | date:'dd MMM yyyy' }}
+                          <div class="d-flex flex-column gap-1">
+                              <span class="text-dark fw-semibold" style="font-size: 0.85rem;" [class.text-danger]="$any(sub.status) === 'SUSPENDED' || $any(sub.status) === 'EXPIRED'">
+                                  <i class="bi bi-calendar-check me-1 text-muted"></i>{{ sub.paymentDueDate | date:'dd/MM/yyyy' }}
                               </span>
                               @if (sub.status === 'ACTIVE') {
-                                  <span class="x-small text-success fw-bold text-uppercase" style="font-size: 0.6rem;">Vigente</span>
+                                  <span class="text-success fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                      <i class="bi bi-check-circle-fill me-1"></i>Vigente
+                                  </span>
+                              } @else if (sub.status === 'SUSPENDED') {
+                                  <span class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                      <i class="bi bi-exclamation-triangle-fill me-1"></i>Suspendida
+                                  </span>
+                              } @else if ($any(sub.status) === 'EXPIRED') {
+                                  <span class="text-danger fw-bold text-uppercase" style="font-size: 0.7rem;">
+                                      <i class="bi bi-exclamation-octagon-fill me-1"></i>Vencida
+                                  </span>
                               }
                           </div>
                         </td>
                         <td>
-                          <span class="badge" [ngClass]="{
-                            'bg-success-subtle text-success': sub.status === 'ACTIVE',
-                            'bg-warning-subtle text-warning': sub.status === 'PENDING',
-                            'bg-danger-subtle text-danger': sub.status === 'SUSPENDED',
-                            'bg-secondary-subtle text-secondary': sub.status === 'CANCELLED'
-                          }">
-                            {{ sub.status }}
+                          <span [class]="getStatusClass(sub.status!)">
+                            {{ getStatusLabel(sub.status!) }}
                           </span>
                         </td>
                       </tr>
@@ -235,26 +240,25 @@
                     @for (order of clientDetail()?.orderHistory; track order.id) {
                       <tr class="detail-row">
                         <td class="ps-4 py-3">
-                          <code class="text-primary fw-bold small">{{ order.id.substring(0, 8) }}</code>
+                          <span class="font-monospace text-dark fw-bold" style="font-size: 0.9rem;">#{{ order.id.substring(0, 8) }}</span>
                         </td>
                         <td>
-                          <div class="d-flex flex-column">
-                              <span class="small fw-medium">{{ order.createdAt | date:'dd/MM/yyyy' }}</span>
-                              <span class="x-small text-muted">{{ order.createdAt | date:'HH:mm' }}</span>
+                          <div class="d-flex flex-column gap-1">
+                              <span class="text-dark fw-medium" style="font-size: 0.85rem;">
+                                  <i class="bi bi-calendar-event me-1 text-muted"></i>{{ order.createdAt | date:'dd/MM/yyyy' }}
+                              </span>
+                              <span class="text-muted" style="font-size: 0.8rem;">
+                                  <i class="bi bi-clock me-1 text-muted"></i>{{ order.createdAt | date:'HH:mm' }}
+                              </span>
                           </div>
                         </td>
                         <td>
-                          <span class="badge" [ngClass]="{
-                            'bg-success-subtle text-success': order.status === 'COMPLETED',
-                            'bg-info-subtle text-info': order.status === 'VALIDATED',
-                            'bg-warning-subtle text-warning': order.status === 'PENDING',
-                            'bg-danger-subtle text-danger': order.status === 'REJECTED' || order.status === 'CANCELLED'
-                          }">
-                            {{ order.status }}
+                          <span [class]="getOrderStatusClass(order.status)">
+                            {{ getOrderStatusLabel(order.status) }}
                           </span>
                         </td>
                         <td class="text-end pe-4">
-                            <a class="btn-action-sm view" [routerLink]="['/orders', order.id]" title="Ver Factura">
+                            <a class="btn-action-sm view" [routerLink]="['/orders', order.id]" title="Ver Detalle">
                                 <i class="bi bi-eye"></i>
                             </a>
                         </td>

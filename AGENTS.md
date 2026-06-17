@@ -1,36 +1,4 @@
-# AGENTS.md — Global Agent Protocol
-
-This file is the universal entry point for every AI agent operating in this repository — Codex, Jules, Antigravity, OpenCode, and any other tool that reads `AGENTS.md`. Read it entirely before taking any action.
-
----
-
-## Step 0 — Establish Identity (Mandatory)
-
-Before anything else, read these two files:
-
-```
-/.agents/USER.md     → Who is the human you are collaborating with
-/.agents/IDENTITY.md → Who you are on this project
-```
-
-- The human is **Alex** (Alexander), a Guatemalan developer. He communicates in both **Spanish and English** — respond in whichever language he uses in a given message.
-- Your project identity is defined in `IDENTITY.md`. Adopt it.
-
----
-
-## Step 1 — Read Your Specific Protocol
-
-Detailed protocols live in `docs/agents/`. After reading the two identity files, read the protocol that matches your task:
-
-| Task scope | Protocol file |
-|------------|--------------|
-| Global governance (any agent) | `docs/agents/AGENTS.md` |
-| Backend — `apps/api` (Spring Boot) | `docs/agents/CLAUDE.md` |
-| Frontend — `apps/panel` / `apps/store` (Angular) | `docs/agents/GEMINI.md` |
-
-Do not start reading unrelated documentation. Read only the protocol for your scope.
-
----
+# AGENTS.md
 
 ## Project Overview
 
@@ -190,32 +158,3 @@ cd apps/store && pnpm run build:ssr      # SSR production build
 ---
 
 *Keep this file current as conventions evolve. Stale instructions cost sessions.*
-
-
-<claude-mem-context>
-# Memory Context
-
-# [neversion] recent context, 2026-05-11 12:01pm CST
-
-Legend: 🎯session 🔴bugfix 🟣feature 🔄refactor ✅change 🔵discovery ⚖️decision 🚨security_alert 🔐security_note
-Format: ID TIME TYPE TITLE
-Fetch details: get_observations([IDs]) | Search: mem-search skill
-
-Stats: 2 obs (1,783t read) | 11,775t work | 85% savings
-
-### Apr 28, 2026
-1 2:25p 🔵 Spring Boot Backend Domain Architecture Mapped Across Five Modules
-2 5:34p 🔵 Flyway Migration Schema State and Event-Driven Notification Architecture
-S1 Plan implementation approach for EPIC-06 "Asignación y Entrega de Accesos" backend module covering order-to-subscription workflow (Apr 28, 5:34 PM)
-S2 Complete planning for EPIC-06 backend implementation and prepare to begin execution phase starting with V24 Flyway migration (Apr 28, 5:45 PM)
-**Investigated**: Primary session performed exhaustive codebase exploration reading 60+ files including Service.java (durationDays field verification), Vendor.java (email field check), existing subscription services, profile management patterns, order status handling, notification infrastructure, and migration history. Verified current state: V23 latest migration, all EPICs 00-05 complete, hexagonal architecture patterns established.
-
-**Learned**: Service.durationDays (Integer, nullable) exists since V11 - will drive endDate calculation using .plusDays(). Vendor model lacks email field - NO_INVENTORY_ALERT notifications must include vendorId in JSON payload for external agent email resolution. ProfileStatus enum already defines ACTIVE/RESERVED states with manual-setting guards in ProfileService. NotificationLogPort implements fire-and-forget pattern with status='pending' insertion. OrderStatus.VALIDATED is source state for assignment suggestion flow. Existing SubscriptionService provides manual assignment reference pattern with anti-overbooking via existsActiveByProfileId check.
-
-**Completed**: Comprehensive 12-phase EPIC-06 implementation plan written to both ~/.claude/plans/vamos-a-trabajar-en-sprightly-cerf.md and project root EPIC-06-plan.md. Plan covers: (1) V24 migration adding order_id/end_date columns with indexes, (2) Domain enrichment across 11 existing files, (3) New assignment/ module with 4 services (SuggestAssignmentService, ConfirmAssignmentService, DeliverAccessService, ManualAssignmentService), (4) REST layer with 3 endpoints, (5) Complete test strategy with unit and integration tests. Total scope: 26 new files + 11 modified files. Architectural decisions documented: use durationDays not months, DeliverAccessService uses @Transactional(REQUIRES_NEW) for failure isolation, ConfirmAssignmentService bypasses ChangeOrderStatusUseCase for atomic transaction control.
-
-**Next Steps**: Awaiting user approval to exit plan mode and begin implementation. Once confirmed, will start with Phase 1 step [1]: creating V24 Flyway migration file at apps/api/src/main/resources/db/migration/V24__enrich_subscriptions_for_epic06.sql to add order_id and end_date columns to subscriptions table with foreign key constraints and indexes. Implementation will proceed sequentially through 12 phases with manual testing checkpoints between each phase.
-
-
-Access 12k tokens of past work via get_observations([IDs]) or mem-search skill.
-</claude-mem-context>

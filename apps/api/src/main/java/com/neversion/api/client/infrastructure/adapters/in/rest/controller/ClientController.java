@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.client.application.port.in.ClientUseCase;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
-import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientDeletionCheckResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientDetailResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderHistoryResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientReservationStatusResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientRequest;
@@ -97,10 +98,11 @@ public class ClientController {
     @ApiResponse(responseCode = "200", description = "Client detail")
     @ApiResponse(responseCode = "403", description = "Caller does not own this client")
     @ApiResponse(responseCode = "404", description = "Client not found")
-    public ResponseEntity<ClientDetail> getDetail(
+    public ResponseEntity<ClientDetailResponse> getDetail(
             @PathVariable UUID id,
             JwtAuthenticationToken token) {
-        return ResponseEntity.ok(clientUseCase.getDetail(id, extractExternalId(token)));
+        return ResponseEntity.ok(clientMapper.toDetailResponse(
+                clientUseCase.getDetail(id, extractExternalId(token))));
     }
 
     @GetMapping("/me/accesses")
@@ -229,12 +231,36 @@ public class ClientController {
         return ResponseEntity.ok(clientMapper.toResponse(clientUseCase.getById(id)));
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a client")
-    @ApiResponse(responseCode = "204", description = "Client deleted")
+    @GetMapping("/{id}/deletion-check")
+    @Operation(summary = "Check related data before deleting a client",
+            description = "Returns counts of active subscriptions, pending reservations and total orders "
+                    + "linked to the client so the vendor can review before confirming deletion. "
+                    + "403 if the caller does not own the client.")
+    @ApiResponse(responseCode = "200", description = "Deletion check result")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this client")
     @ApiResponse(responseCode = "404", description = "Client not found")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        clientUseCase.delete(id);
+    public ResponseEntity<ClientDeletionCheckResponse> checkDeletion(
+            @PathVariable UUID id,
+            JwtAuthenticationToken token) {
+        ClientUseCase.DeletionCheck check = clientUseCase.checkDeletion(id, extractExternalId(token));
+        return ResponseEntity.ok(new ClientDeletionCheckResponse(
+                check.activeSubscriptions(),
+                check.pendingReservations(),
+                check.totalOrders(),
+                check.hasRelatedData()));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Soft-delete a client",
+            description = "Sets deleted_at on the client record (logical deletion). "
+                    + "403 if the caller does not own the client.")
+    @ApiResponse(responseCode = "204", description = "Client deleted")
+    @ApiResponse(responseCode = "403", description = "Caller does not own this client")
+    @ApiResponse(responseCode = "404", description = "Client not found")
+    public ResponseEntity<Void> delete(
+            @PathVariable UUID id,
+            JwtAuthenticationToken token) {
+        clientUseCase.delete(id, extractExternalId(token));
         return ResponseEntity.noContent().build();
     }
 

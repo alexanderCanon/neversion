@@ -68,25 +68,8 @@ header {
     background-color: #fff !important;
 }
 
-.search-wrapper {
-    .input-group-text {
-        border-right: none;
-        background-color: var(--color-surface);
-        border-color: var(--color-border);
-    }
 
-    .form-control {
-        background-color: var(--color-surface);
-        border-color: var(--color-border);
-        font-size: 0.875rem;
 
-        &:focus {
-            background-color: #fff;
-            border-color: var(--color-brand-accent);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-        }
-    }
-}
 
 .avatar {
     width: 40px;

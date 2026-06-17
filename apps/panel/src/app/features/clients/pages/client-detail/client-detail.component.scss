@@ -110,3 +110,72 @@ thead th {
 }
 
 .italic { font-style: italic; }
+
+tbody td {
+    padding: 1rem 1.5rem !important;
+}
+
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+  line-height: 1;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  // Subscriptions & Orders statuses
+  &.active, &.completed {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+    &::before { background: #10b981; }
+  }
+
+  &.validated {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+    &::before { background: #3b82f6; }
+  }
+
+  &.expired, &.rejected {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+    &::before { background: #ef4444; }
+  }
+
+  &.pending, &.suspended {
+    background: #fffbeb;
+    color: #b45309;
+    border-color: #fde68a;
+    &::before { background: #f59e0b; }
+  }
+
+  &.cancelled {
+    background: #f8fafc;
+    color: #64748b;
+    border-color: #e2e8f0;
+    &::before { background: #94a3b8; }
+  }
+
+  &.default {
+    background: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+    &::before { background: #64748b; }
+  }
+}

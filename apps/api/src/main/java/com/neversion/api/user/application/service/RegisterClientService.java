@@ -4,7 +4,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.shared.port.out.NotificationLogPort;
-import com.neversion.api.user.application.port.out.SupabaseAuthPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.application.port.in.RegisterClientUseCase;
 import com.neversion.api.user.domain.model.RegisterClientCommand;
 import com.neversion.api.user.domain.model.RegisterClientResult;
@@ -23,11 +23,12 @@ import org.springframework.transaction.annotation.Transactional;
  * <ol>
  *   <li>Resolves the vendor by UUID (multi-tenancy: ADR-02).</li>
  *   <li>Links an existing manual client when the vendor-scoped phone matches.</li>
- *   <li>Service creates the Supabase Auth account directly with the CLIENT role.</li>
- *   <li>Receives the Supabase UUID as {@code externalId}.</li>
+ *   <li>Service creates the Auth account directly with the CLIENT role.</li>
+ *   <li>Receives the Auth UUID as {@code externalId}.</li>
  *   <li>This service persists the internal User and Client records using that externalId.</li>
  *   <li>Records a CLIENT_REGISTRATION event in notification_log for Agent Notifications.</li>
- * </ol>
+ *   </ol>
+ * </p>
  */
 @Service
 public class RegisterClientService implements RegisterClientUseCase {
@@ -36,19 +37,19 @@ public class RegisterClientService implements RegisterClientUseCase {
     private final ClientRepositoryPort clientRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final NotificationLogPort notificationLogPort;
-    private final SupabaseAuthPort supabaseAuthPort;
+    private final AuthServicePort authServicePort;
 
     public RegisterClientService(
             UserRepositoryPort userRepositoryPort,
             ClientRepositoryPort clientRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
             NotificationLogPort notificationLogPort,
-            SupabaseAuthPort supabaseAuthPort) {
+            AuthServicePort authServicePort) {
         this.userRepositoryPort = userRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.notificationLogPort = notificationLogPort;
-        this.supabaseAuthPort = supabaseAuthPort;
+        this.authServicePort = authServicePort;
     }
 
     @Override
@@ -81,8 +82,8 @@ public class RegisterClientService implements RegisterClientUseCase {
             });
         }
 
-        // Step 2 — Create Supabase Auth user securely and get the externalId
-        String externalId = supabaseAuthPort.createUser(normalizedEmail, command.password(), UserRole.CLIENT);
+        // Step 2 — Create Auth user securely and get the externalId
+        String externalId = authServicePort.createUser(normalizedEmail, command.password(), UserRole.CLIENT);
 
         // Step 3 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(

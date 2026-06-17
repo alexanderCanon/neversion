@@ -2,11 +2,14 @@ services:
   alloy:
     image: grafana/alloy:v1.6.1
     restart: unless-stopped
+    user: root
     environment:
       NEVERSION_API_TARGET: ${NEVERSION_API_TARGET:-neversion-api:8080}
       NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
       GRAFANA_CLOUD_REMOTE_WRITE_URL: ${GRAFANA_CLOUD_REMOTE_WRITE_URL}
       GRAFANA_CLOUD_PROMETHEUS_USERNAME: ${GRAFANA_CLOUD_PROMETHEUS_USERNAME}
+      GRAFANA_CLOUD_LOKI_URL: ${GRAFANA_CLOUD_LOKI_URL}
+      GRAFANA_CLOUD_LOKI_USERNAME: ${GRAFANA_CLOUD_LOKI_USERNAME}
       GRAFANA_CLOUD_API_KEY: ${GRAFANA_CLOUD_API_KEY}
     entrypoint:
       - /bin/sh
@@ -20,6 +23,7 @@ services:
           format = "logfmt"
         }
 
+        // --- Metrics Scraping ---
         prometheus.scrape "neversion_api" {
           targets = [{
             __address__ = sys.env("NEVERSION_API_TARGET"),
@@ -49,6 +53,42 @@ services:
             }
           }
         }
+
+        // --- Logs Scraping ---
+        discovery.docker "containers" {
+          host = "unix:///var/run/docker.sock"
+        }
+
+        discovery.relabel "filter_neversion" {
+          targets = discovery.docker.containers.targets
+
+          rule {
+            source_labels = ["__meta_docker_container_name"]
+            regex         = "/neversion.*"
+            action        = "keep"
+          }
+
+          rule {
+            source_labels = ["__meta_docker_container_name"]
+            target_label  = "container"
+          }
+        }
+
+        loki.source.docker "neversion_logs" {
+          targets    = discovery.relabel.filter_neversion.output
+          forward_to = [loki.write.grafana_cloud.receiver]
+        }
+
+        loki.write "grafana_cloud" {
+          endpoint {
+            url = sys.env("GRAFANA_CLOUD_LOKI_URL")
+
+            basic_auth {
+              username = sys.env("GRAFANA_CLOUD_LOKI_USERNAME")
+              password = sys.env("GRAFANA_CLOUD_API_KEY")
+            }
+          }
+        }
         EOF
 
         exec /bin/alloy run \
@@ -57,6 +97,7 @@ services:
           /tmp/config.alloy
     volumes:
       - alloy_data:/var/lib/alloy/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
       - "12345"
     networks:
@@ -64,7 +105,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 192m
+          memory: 256m
 
 volumes:
   alloy_data:

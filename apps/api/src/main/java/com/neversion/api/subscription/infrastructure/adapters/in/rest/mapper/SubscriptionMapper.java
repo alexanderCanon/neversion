@@ -9,6 +9,7 @@ import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.subscription.application.port.in.GetSubscriptionDetailUseCase.SubscriptionDetail;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateManualSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDetailResponse;
@@ -65,23 +66,22 @@ public class SubscriptionMapper {
                 .build() : null;
     }
 
-    public SubscriptionResponse toResponse(Subscription subscription, Profile profile,
-            Client client, Account account, Service service) {
-        return subscription != null ? SubscriptionResponse.builder()
-                .id(subscription.getUuid())
-                .profileId(profile != null ? profile.getUuid() : subscription.getProfileUuid())
-                .clientId(client != null ? client.getUuid() : subscription.getClientUuid())
-                .accountId(account != null ? account.getUuid() : subscription.getAccountUuid())
-                .serviceName(service != null ? service.getName() : null)
-                .clientName(client != null ? client.getName() : null)
-                .profileName(profile != null ? profile.getName() : null)
-                .status(subscription.getStatus())
-                .startDate(subscription.getStartDate())
-                .endDate(subscription.getEndDate())
-                .paymentDueDate(subscription.getPaymentDueDate())
-                .monthsPaid(subscription.getMonthsPaid())
-                .notes(subscription.getNotes())
-                .createdAt(subscription.getCreatedAt())
+    public SubscriptionResponse toListResponse(SubscriptionListView view) {
+        return view != null ? SubscriptionResponse.builder()
+                .id(view.subscriptionUuid())
+                .profileId(view.profileUuid())
+                .clientId(view.clientUuid())
+                .accountId(view.accountUuid())
+                .serviceName(view.serviceName())
+                .clientName(view.clientName())
+                .profileName(view.profileName())
+                .status(view.status())
+                .startDate(view.startDate())
+                .endDate(view.endDate())
+                .paymentDueDate(view.paymentDueDate())
+                .monthsPaid(view.monthsPaid())
+                .notes(view.notes())
+                .createdAt(view.createdAt())
                 .build() : null;
     }
 

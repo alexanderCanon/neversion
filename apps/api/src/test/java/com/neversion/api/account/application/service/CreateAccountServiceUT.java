@@ -102,6 +102,7 @@ class CreateAccountServiceUT {
             Account saved   = buildAccount(SaleMode.BY_PROFILE);
             saved.setId(10L);
             saved.setVendorId(VENDOR_ID);
+            saved.setMaxProfiles(5);
 
             Service service = buildService(5);
 

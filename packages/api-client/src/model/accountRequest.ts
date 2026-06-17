@@ -20,6 +20,7 @@ export interface AccountRequest {
     source?: string;
     purchasedAt?: string;
     notes?: string;
+    maxProfiles?: number;
 }
 export namespace AccountRequest {
     export const SaleModeEnum = {

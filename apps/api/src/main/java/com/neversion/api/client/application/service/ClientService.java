@@ -22,6 +22,7 @@ import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
+import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
@@ -167,6 +168,7 @@ public class ClientService implements ClientUseCase {
         if (normalizedPhone.isBlank()) {
             throw new IllegalArgumentException("Phone is required");
         }
+        validatePhone(normalizedPhone);
 
         clientRepositoryPort.findByVendorIdAndPhone(vendorId, normalizedPhone).ifPresent(existing -> {
             throw new IllegalArgumentException(
@@ -224,9 +226,15 @@ public class ClientService implements ClientUseCase {
                     + " does not belong to your vendor");
         }
 
+        String normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+        validatePhone(normalizedPhone);
+
         // BR-US032-01 — email is NOT updated
         existing.setName(name);
-        existing.setPhone(normalizePhone(phone));
+        existing.setPhone(normalizedPhone);
         existing.setNotes(notes);
 
         return clientRepositoryPort.save(existing);
@@ -314,8 +322,13 @@ public class ClientService implements ClientUseCase {
     @Transactional
     public Client updateMyProfile(String name, String phone, String callerExternalId) {
         Client client = resolveClient(callerExternalId);
+        String normalizedPhone = normalizePhone(phone);
+        if (normalizedPhone.isBlank()) {
+            throw new IllegalArgumentException("Phone is required");
+        }
+        validatePhone(normalizedPhone);
         client.setName(name);
-        client.setPhone(normalizePhone(phone));
+        client.setPhone(normalizedPhone);
         return clientRepositoryPort.save(client);
     }
 
@@ -342,12 +355,57 @@ public class ClientService implements ClientUseCase {
         return clientRepositoryPort.findAll();
     }
 
+    // ── Deletion check ───────────────────────────────────────────────────
+
+    /**
+     * Returns counts of related data so the vendor can review before deleting.
+     * Ownership check: 403 if caller's vendorId != client.vendorId.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public DeletionCheck checkDeletion(UUID clientUuid, String callerExternalId) {
+        Client client = clientRepositoryPort.findById(clientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + clientUuid));
+
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (!callerVendorId.equals(client.getVendorId())) {
+            throw new AccessDeniedException("Access denied: client " + clientUuid
+                    + " does not belong to your vendor");
+        }
+
+        long activeSubscriptions = subscriptionRepositoryPort.findByClientId(client.getId())
+                .stream()
+                .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                .count();
+
+        long pendingReservations = reservationRepositoryPort.findByClientId(client.getId())
+                .stream()
+                .filter(r -> r.getStatus() == ReservationStatus.PENDING
+                        || r.getStatus() == ReservationStatus.UPLOADED)
+                .count();
+
+        long totalOrders = orderRepositoryPort.findByClientId(client.getId()).size();
+
+        return new DeletionCheck(activeSubscriptions, pendingReservations, totalOrders);
+    }
+
+    /**
+     * Soft-deletes the client (sets deleted_at via @SQLDelete).
+     * Ownership check: 403 if caller's vendorId != client.vendorId.
+     */
     @Override
     @Transactional
-    public void delete(UUID uuid) {
-        clientRepositoryPort.findById(uuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + uuid));
-        clientRepositoryPort.deleteById(uuid);
+    public void delete(UUID clientUuid, String callerExternalId) {
+        Client client = clientRepositoryPort.findById(clientUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found: " + clientUuid));
+
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (!callerVendorId.equals(client.getVendorId())) {
+            throw new AccessDeniedException("Access denied: client " + clientUuid
+                    + " does not belong to your vendor");
+        }
+
+        clientRepositoryPort.deleteById(clientUuid);
     }
 
     // ── Helper — ownership resolution ─────────────────────────────────────
@@ -368,7 +426,21 @@ public class ClientService implements ClientUseCase {
     }
 
     private String normalizePhone(String phone) {
-        return phone == null ? "" : phone.replaceAll("\\D", "");
+        if (phone == null) return "";
+        String digits = phone.replaceAll("\\D", "");
+        if (digits.startsWith("502") && digits.length() == 11) {
+            return digits;
+        } else if (digits.length() == 8) {
+            return "502" + digits;
+        }
+        return digits;
+    }
+
+    private void validatePhone(String normalizedPhone) {
+        if (!normalizedPhone.matches("^502[23457]\\d{7}$")) {
+            throw new IllegalArgumentException(
+                    "El número de teléfono debe ser de Guatemala (8 dígitos locales comenzando con 2, 3, 4, 5 o 7).");
+        }
     }
 
     /**

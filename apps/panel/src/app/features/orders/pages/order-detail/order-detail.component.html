@@ -10,13 +10,12 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
             <div>
                 <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-                    Orden: <code class="text-primary">{{ order()?.id?.substring(0, 8) }}</code>
+                    Orden: <span class="font-monospace text-dark">#{{ order()?.id?.substring(0, 8) }}</span>
                 </h3>
                 <p class="text-muted small mb-0">Seguimiento de entrega y asignación de credenciales.</p>
             </div>
-            <span class="badge fs-6 py-2 px-3 rounded-3 shadow-sm" [ngClass]="getStatusBadgeClass(order()?.status)">
-                <i class="bi bi-info-circle me-2"></i>
-                {{ order()?.status }}
+            <span [class]="getStatusBadgeClass(order()?.status)">
+                {{ getStatusLabel(order()?.status) }}
             </span>
         </div>
     </div>
@@ -173,12 +172,14 @@
                                         @if (!last) { <div class="timeline-line"></div> }
                                     </div>
                                     <div class="timeline-content pb-4">
-                                        <div class="d-flex align-items-center gap-2 mb-1">
-                                            <span class="badge-status-sm" [ngClass]="getStatusBadgeClass(history.newStatus)">{{ history.newStatus }}</span>
-                                            @if (history.changedBy) {
-                                                <span class="text-muted x-small fw-semibold">• Por: {{ history.changedBy }}</span>
-                                            }
-                                        </div>
+                                         <div class="d-flex align-items-center gap-2 mb-1">
+                                             <span [class]="getStatusBadgeClass(history.newStatus) + ' py-1 px-2'" style="font-size: 0.7rem;">
+                                                 {{ getStatusLabel(history.newStatus) }}
+                                             </span>
+                                             @if (history.changedBy) {
+                                                 <span class="text-muted x-small fw-semibold">• Por: {{ history.changedBy }}</span>
+                                             }
+                                         </div>
                                         <p class="text-secondary small mb-0">{{ history.notes || 'Cambio de estado automático por el sistema.' }}</p>
                                     </div>
                                 </div>
@@ -198,10 +199,10 @@
                                 <span class="text-muted small">Método de Pago:</span>
                                 <span class="text-dark fw-bold small">{{ order()!.paymentMethod }}</span>
                             </div>
-                            <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
-                                <span class="text-muted small">Referencia Reserva:</span>
-                                <code class="text-primary small">{{ order()!.reservationId?.substring(0, 8) }}</code>
-                            </div>
+                             <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
+                                 <span class="text-muted small">Referencia Reserva:</span>
+                                 <span class="font-monospace text-dark fw-bold small">#{{ order()!.reservationId?.substring(0, 8) }}</span>
+                             </div>
                             <div class="info-row d-flex justify-content-between py-2 border-bottom border-light">
                                 <span class="text-muted small">Generada:</span>
                                 <span class="text-dark small">{{ order()!.createdAt | date:'short' }}</span>
@@ -224,9 +225,9 @@
                         </div>
                         <div class="card-body text-center bg-light p-4">
                             <div class="receipt-preview-container shadow-sm border rounded-4 bg-white p-2 mb-3">
-                                <img [src]="order()!.receiptUrl" class="img-fluid rounded-3" style="max-height: 400px;" alt="Comprobante">
+                                <img [src]="receiptImageService.resolveReceiptUrl(order()!.receiptUrl)" class="img-fluid rounded-3" style="max-height: 400px;" alt="Comprobante">
                             </div>
-                            <a [href]="order()!.receiptUrl" target="_blank" rel="noopener noreferrer" class="btn btn-white border shadow-sm w-100 fw-bold">
+                            <a [href]="receiptImageService.resolveReceiptUrl(order()!.receiptUrl)" target="_blank" rel="noopener noreferrer" class="btn btn-white border shadow-sm w-100 fw-bold">
                                 <i class="bi bi-zoom-in me-2"></i> Ver Comprobante
                             </a>
                         </div>

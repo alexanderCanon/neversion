@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from './supabase.service';
-import { from, Observable, map, throwError } from 'rxjs';
+import { from, Observable, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,24 @@ export class StorageService {
           .getPublicUrl(data.path);
           
         return publicUrl;
+      })
+    );
+  }
+
+  /**
+   * Deletes a file from Supabase Storage.
+   * @param path The path/filename in the bucket (e.g. "1717283921_logo.png")
+   * @returns Observable that completes when the deletion is finished
+   */
+  deleteServiceImage(path: string): Observable<void> {
+    const deletePromise = this.supabase.storage
+      .from(this.BUCKET_SERVICES)
+      .remove([path]);
+
+    return from(deletePromise).pipe(
+      map(({ error }) => {
+        if (error) throw error;
+        return;
       })
     );
   }

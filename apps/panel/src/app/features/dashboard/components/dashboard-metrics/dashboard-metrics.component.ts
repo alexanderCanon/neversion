@@ -10,7 +10,7 @@ import { VendorKpiMetrics } from '../../services/master-dashboard.service';
   template: `
     <div class="row mb-4 g-3">
       <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm">
+        <div class="card metric-card h-100 border-0 shadow-sm pointer" [routerLink]="['/clients']">
           <div class="card-body p-4">
             <div class="d-flex align-items-center gap-3">
               <div class="icon-box bg-primary-subtle text-primary">

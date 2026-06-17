@@ -2,7 +2,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, finalize, map, of } from 'rxjs';
 import {
   ClientsApiService,
-  ClientDetail as ApiClientDetail,
+  ClientDetailResponse as ApiClientDetailResponse,
+  ClientDeletionCheckResponse,
   ClientRequest as ApiClientRequest,
   ClientResponse as ApiClientResponse,
   UpdateClientRequest as ApiUpdateClientRequest
@@ -85,6 +86,10 @@ export class ClientsService {
     );
   }
 
+  checkDeletion(id: string): Observable<ClientDeletionCheckResponse> {
+    return this.clientsApi.checkDeletion(id);
+  }
+
   deleteClient(id: string): Observable<void> {
     return this.clientsApi.delete2(id).pipe(
       tap(() => {
@@ -99,7 +104,7 @@ export class ClientsService {
 
   private mapToModel(api: ApiClientResponse): ClientResponse {
     return {
-      id: api.id || (api as unknown as Record<string, string>)['uuid'] || '', // Handle potential fallback if 'uuid' was used in some backend responses
+      id: api.id || '',
       name: api.name || '',
       email: api.email || '',
       phone: api.phone || '',
@@ -109,9 +114,9 @@ export class ClientsService {
     };
   }
 
-  private mapDetailToModel(api: ApiClientDetail): ClientDetail {
+  private mapDetailToModel(api: ApiClientDetailResponse): ClientDetail {
     return {
-      client: api.client ? this.mapToModel(api.client as unknown as ApiClientResponse) : {} as ClientResponse,
+      client: api.client ? this.mapToModel(api.client) : {} as ClientResponse,
       activeSubscriptions: (api.activeSubscriptions ?? []).map(s => ({
         id: s.id || '',
         serviceName: s.serviceName || '',

@@ -6,43 +6,141 @@
                     <h5 class="mb-0 fw-bold">Instrucciones de Pago</h5>
                 </div>
                 <div class="card-body p-4">
-                    <div class="alert alert-info border-0 rounded-3 mb-4">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        Tu {{ flow === 'renewal' ? 'renovación' : 'reservación' }} <strong>#{{ reservationId }}</strong> ha sido creada. Tienes 1 hora para subir tu comprobante antes de que expire.
-                    </div>
-
-                    <h6 class="fw-bold mb-3">Datos de Transferencia:</h6>
-                    <div class="bg-light p-3 rounded-3 mb-4">
-                        <p class="mb-1"><strong>Banco:</strong> Banco Industrial</p>
-                        <p class="mb-1"><strong>Cuenta:</strong> 123-456789-0 (Monetaria)</p>
-                        <p class="mb-0"><strong>Nombre:</strong> Neversion Digital</p>
-                    </div>
-
-                    <h6 class="fw-bold mb-3">Sube tu Comprobante:</h6>
-                    <div class="mb-4">
-                        <label for="receiptFile" class="form-label small text-muted">Imagen o captura de pantalla (JPG, PNG)</label>
-                        <input class="form-control" type="file" id="receiptFile" 
-                               (change)="onFileSelected($event)"
-                               accept="image/*">
-                    </div>
-
-                    <div *ngIf="selectedFile" class="mb-4 text-center">
-                        <div class="p-2 border rounded-3 bg-light d-inline-block">
-                            <i class="bi bi-file-earmark-image fs-4 text-primary"></i>
-                            <span class="ms-2 small">{{ selectedFile.name }}</span>
+                    <!-- 1. Cargando la Reserva -->
+                    <div *ngIf="isLoadingReservation" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
                         </div>
+                        <p class="mt-3 text-muted mb-0">Cargando detalles de tu reservación...</p>
                     </div>
 
-                    <button (click)="uploadReceipt()" 
-                            [disabled]="!selectedFile || isUploading"
-                            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
-                        <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
-                        {{ isUploading ? 'Subiendo...' : 'Confirmar Pago' }}
-                    </button>
+                    <!-- 2. Reservación Expirada o Cancelada -->
+                    <div *ngIf="!isLoadingReservation && (isExpired || reservation?.status === 'EXPIRED' || reservation?.status === 'CANCELLED')" class="text-center py-4">
+                        <div class="rounded-circle bg-danger-subtle text-danger p-3 d-inline-block mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-exclamation-octagon-fill fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Reservación Expirada</h4>
+                        <p class="text-muted small mx-auto mb-4" style="max-width: 380px;">
+                            El tiempo límite de 1 hora para subir el comprobante de esta reservación ha vencido, o bien ha sido cancelada. Por favor, crea una nueva reserva.
+                        </p>
+                        <button [routerLink]="['/platforms']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                            Ver Plataformas y Reservar
+                        </button>
+                    </div>
 
-                    <button [routerLink]="flow === 'renewal' ? '/customer-panel' : '/platforms'" class="btn btn-link w-100 mt-3 text-muted small">
-                        Pagar más tarde
-                    </button>
+                    <!-- 3. Comprobante Ya Subido -->
+                    <div *ngIf="!isLoadingReservation && (reservation?.status === 'UPLOADED' || reservation?.status === 'VALIDATED')" class="text-center py-4">
+                        <div class="rounded-circle bg-success-subtle text-success p-3 d-inline-block mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-check-circle-fill fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-2">Comprobante Recibido</h4>
+                        <p class="text-muted small mx-auto mb-4" style="max-width: 380px;">
+                            El comprobante de pago para esta reservación ya fue enviado y está siendo verificado. Te notificaremos una vez sea validado.
+                        </p>
+                        <button [routerLink]="['/customer-panel']" class="btn btn-outline-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                            Ir a mis Accesos y Reservas
+                        </button>
+                    </div>
+
+                    <!-- 4. Flujo de Pago Normal y Pendiente -->
+                    <div *ngIf="!isLoadingReservation && reservation?.status === 'PENDING' && !isExpired">
+                        <div class="alert alert-info border-0 rounded-3 mb-4 d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill text-primary"></i>
+                            <div>
+                                Tu {{ flow === 'renewal' ? 'renovación' : 'reservación' }} 
+                                <strong class="font-monospace text-dark bg-white px-2 py-0.5 rounded border align-middle d-inline-flex align-items-center" 
+                                        style="cursor: pointer; font-size: 0.9em; gap: 4px;" 
+                                        (click)="copyReservationId()" 
+                                        title="Copiar ID completo">
+                                    #{{ getShortId(reservationId) }}
+                                    <i class="bi bi-copy text-primary" style="font-size: 0.8rem;"></i>
+                                </strong> 
+                                ha sido creada.
+                            </div>
+                        </div>
+
+                        <!-- Temporizador dinámico -->
+                        <div class="card border-danger border-opacity-10 bg-danger bg-opacity-10 text-danger rounded-3 p-3 mb-4 text-center">
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+                                <span class="small fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">Tiempo restante para subir comprobante:</span>
+                            </div>
+                            <div class="fs-2 fw-black font-monospace mt-1" style="letter-spacing: 2px; font-weight: 800;">{{ timeRemainingStr }}</div>
+                        </div>
+
+                        <h6 class="fw-bold mb-3">Datos de Transferencia:</h6>
+                        <div class="bg-light p-3 rounded-3 mb-3">
+                            <div class="mb-3 border-bottom pb-2">
+                                <span class="small text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Beneficiario:</span>
+                                <div class="fw-bold text-dark">Edgar Alexander Canón Martínez</div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #00A859;">Banrural <span class="badge bg-light text-muted fw-normal ms-1">Ahorro</span></div>
+                                        <div class="font-monospace fw-bold mt-1">4426313592</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #0054A6;">Industrial <span class="badge bg-light text-muted fw-normal ms-1">Ahorro</span></div>
+                                        <div class="font-monospace fw-bold mt-1">4391949</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #EC1C24;">GyT Continental <span class="badge bg-light text-muted fw-normal ms-1">Monetaria</span></div>
+                                        <div class="font-monospace fw-bold mt-1">01600056041</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #E31219;">BAC Credomatic <span class="badge bg-light text-muted fw-normal ms-1">Ahorro</span></div>
+                                        <div class="font-monospace fw-bold mt-1">967195124</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #2D2D2D;">BAM <span class="badge bg-light text-muted fw-normal ms-1">Monetaria</span></div>
+                                        <div class="font-monospace fw-bold mt-1">3550103001</div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="p-2 border rounded bg-white text-center">
+                                        <div class="small fw-bold" style="color: #E4007C;">Fri <i class="bi bi-phone-vibrate ms-1"></i></div>
+                                        <a href="https://wa.me/message/WEOAAOMZ5XU3I1" target="_blank" class="small text-decoration-none mt-1 d-block">Solicitar Número</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-3">Sube tu Comprobante:</h6>
+                        <div class="mb-4">
+                            <label for="receiptFile" class="form-label small text-muted">Imagen o captura de pantalla (JPG, PNG)</label>
+                            <input class="form-control" type="file" id="receiptFile" 
+                                   (change)="onFileSelected($event)"
+                                   accept="image/*">
+                        </div>
+
+                        <div *ngIf="selectedFile" class="mb-4 text-center">
+                            <div class="p-2 border rounded-3 bg-light d-inline-block">
+                                <i class="bi bi-file-earmark-image fs-4 text-primary"></i>
+                                <span class="ms-2 small">{{ selectedFile.name }}</span>
+                            </div>
+                        </div>
+
+                        <button (click)="uploadReceipt()" 
+                                [disabled]="!selectedFile || isUploading"
+                                class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                            <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isUploading ? 'Subiendo...' : 'Confirmar Pago' }}
+                        </button>
+
+                        <button [routerLink]="flow === 'renewal' ? '/customer-panel' : '/platforms'" class="btn btn-link w-100 mt-3 text-muted small">
+                            Pagar más tarde
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

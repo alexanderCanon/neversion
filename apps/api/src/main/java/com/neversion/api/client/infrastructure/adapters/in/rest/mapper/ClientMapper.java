@@ -4,10 +4,12 @@ import org.springframework.stereotype.Component;
 
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientAccessDetail;
+import com.neversion.api.client.application.port.in.ClientUseCase.ClientDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderHistoryDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientOrderServiceDetail;
 import com.neversion.api.client.application.port.in.ClientUseCase.ClientReservationStatusDetail;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientAccessResponse;
+import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientDetailResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderHistoryResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientOrderServiceResponse;
 import com.neversion.api.client.infrastructure.adapters.in.rest.dto.ClientReservationStatusResponse;
@@ -51,6 +53,24 @@ public class ClientMapper {
      */
     public ClientResponse toResponse(Client client) {
         return toResponse(client, 0L);
+    }
+
+    /** Maps domain ClientDetail to REST ClientDetailResponse (US-030). */
+    public ClientDetailResponse toDetailResponse(ClientDetail detail) {
+        if (detail == null) return null;
+        return new ClientDetailResponse(
+                toResponse(detail.client()),
+                detail.activeSubscriptions() == null ? java.util.List.of()
+                        : detail.activeSubscriptions().stream()
+                                .map(s -> new ClientDetailResponse.ActiveSubscriptionSummaryDto(
+                                        s.id(), s.serviceName(), s.profileName(),
+                                        s.paymentDueDate(), s.status()))
+                                .toList(),
+                detail.orderHistory() == null ? java.util.List.of()
+                        : detail.orderHistory().stream()
+                                .map(o -> new ClientDetailResponse.OrderSummaryDto(
+                                        o.id(), o.status(), o.createdAt()))
+                                .toList());
     }
 
     /** Maps domain access details to REST ClientAccessResponse (US-041). */

@@ -49,11 +49,8 @@ export interface ServiceRequest {
 }
 export namespace ServiceRequest {
     export const CategoryEnum = {
-        Streaming: 'STREAMING',
-        Software: 'SOFTWARE',
-        GiftCard: 'GIFT_CARD',
-        Recharge: 'RECHARGE',
-        DigitalService: 'DIGITAL_SERVICE'
+        Streaming: 'streaming',
+        DigitalService: 'digital_service'
     } as const;
     export type CategoryEnum = typeof CategoryEnum[keyof typeof CategoryEnum];
 }

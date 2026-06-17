@@ -22,6 +22,8 @@ export class ToolbarComponent {
     map(items => items.reduce((acc, item) => acc + item.quantity, 0))
   );
 
+  searchQuery = '';
+
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/login']);
@@ -34,5 +36,12 @@ export class ToolbarComponent {
 
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.service.id!, item.type);
+  }
+
+  onSearch(): void {
+    const query = this.searchQuery.trim();
+    if (query) {
+      this.router.navigate(['/platforms'], { queryParams: { q: query } });
+    }
   }
 }

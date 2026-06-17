@@ -6,7 +6,7 @@ module.exports = [
   {
     files: ["**/*.ts"],
     rules: {
-      // En Angular 16 todavía usamos módulos, así que desactivamos standalone obligatorio
+      // The Store keeps NgModules while modernizing its build infrastructure.
       "@angular-eslint/prefer-standalone": "off"
     },
   },

@@ -63,4 +63,26 @@ export class CartService {
   getItems(): CartItem[] {
     return this.itemsSubject.value;
   }
+
+  /**
+   * Returns the combo discount percentage based on BR-13 tiers.
+   * 2-3 items → 5%, 4+ items → 10%, otherwise 0%.
+   * These tiers match the backend's discount_cfg for the vendor.
+   */
+  getComboDiscountPercent(): number {
+    const totalItems = this.getCartCount();
+    if (totalItems >= 4) return 10;
+    if (totalItems >= 2) return 5;
+    return 0;
+  }
+
+  getComboDiscountAmount(): number {
+    const percent = this.getComboDiscountPercent();
+    if (percent === 0) return 0;
+    return Math.round(this.getTotal() * percent) / 100;
+  }
+
+  getDiscountedTotal(): number {
+    return this.getTotal() - this.getComboDiscountAmount();
+  }
 }

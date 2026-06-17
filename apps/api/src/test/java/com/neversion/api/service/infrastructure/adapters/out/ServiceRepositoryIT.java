@@ -142,7 +142,7 @@ class ServiceRepositoryIT extends BaseIntegrationTest {
         Service active = serviceRepositoryPort.save(
                 buildService("Active Service " + vendorId, vendorId, CategoryType.STREAMING, true));
         serviceRepositoryPort.save(
-                buildService("Inactive Service " + vendorId, vendorId, CategoryType.SOFTWARE, false));
+                buildService("Inactive Service " + vendorId, vendorId, CategoryType.DIGITAL_SERVICE, false));
 
         List<Service> result = serviceRepositoryPort.findByVendorIdAndFilters(vendorId, null, true);
 
@@ -158,7 +158,7 @@ class ServiceRepositoryIT extends BaseIntegrationTest {
         Service first = serviceRepositoryPort.save(
                 buildService("Vendor Service A " + vendorId, vendorId, CategoryType.STREAMING, true));
         Service second = serviceRepositoryPort.save(
-                buildService("Vendor Service B " + vendorId, vendorId, CategoryType.SOFTWARE, false));
+                buildService("Vendor Service B " + vendorId, vendorId, CategoryType.DIGITAL_SERVICE, false));
 
         List<Service> result = serviceRepositoryPort.findByVendorIdAndFilters(vendorId, null, null);
 
