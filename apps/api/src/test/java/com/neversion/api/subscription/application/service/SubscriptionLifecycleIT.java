@@ -263,6 +263,22 @@ class SubscriptionLifecycleIT extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("revoke (BY_PROFILE) twice on the same profile - should allow multiple cancelled subscriptions (V30 fix)")
+    void revoke_byProfile_twiceOnSameProfile_shouldSucceed() {
+        // First assignment and revocation
+        Subscription firstActive = subscriptionRepositoryPort.save(
+                buildSubscription(parentProfile.getId(), SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+        Subscription firstResult = revokeSubscriptionUseCase.revoke(firstActive.getUuid(), vendorExternalId);
+        assertThat(firstResult.getStatus()).isEqualTo(SubStatus.CANCELLED);
+
+        // Second assignment and revocation on the SAME profile
+        Subscription secondActive = subscriptionRepositoryPort.save(
+                buildSubscription(parentProfile.getId(), SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
+        Subscription secondResult = revokeSubscriptionUseCase.revoke(secondActive.getUuid(), vendorExternalId);
+        assertThat(secondResult.getStatus()).isEqualTo(SubStatus.CANCELLED);
+    }
+
+    @Test
     @DisplayName("findByAccountId - sanity check that profiles are linked to their account")
     void findByAccountId_shouldReturnProfilesOfAccount() {
         List<Profile> profiles = profileRepositoryPort.findByAccountId(parentAccount.getId());
