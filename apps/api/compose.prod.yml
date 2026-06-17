@@ -34,7 +34,7 @@ services:
     networks:
       - neversion-network
       - dokploy-network
-
+#newline
   notification-service:
     build:
       context: ..
