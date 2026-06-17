@@ -117,9 +117,13 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
     }
 
     private Subscription buildSubscription(SubStatus status, LocalDate paymentDueDate) {
+        return buildSubscription(status, paymentDueDate, parentProfile.getId());
+    }
+
+    private Subscription buildSubscription(SubStatus status, LocalDate paymentDueDate, Long profileId) {
         return Subscription.builder()
                 .clientId(parentClient.getId())
-                .profileId(parentProfile.getId())
+                .profileId(profileId)
                 .serviceId(parentService.getId())
                 .startDate(LocalDate.now())
                 .paymentDueDate(paymentDueDate)
@@ -128,6 +132,17 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
                 .notes("Test subscription")
                 .vendorId(parentVendor.getId())
                 .build();
+    }
+
+    private Profile createAnotherProfile() {
+        return profileRepositoryPort.save(
+                Profile.builder()
+                        .accountId(parentProfile.getAccountId())
+                        .vendorId(parentVendor.getId())
+                        .name("Profile " + System.nanoTime())
+                        .pin("1234")
+                        .isOwner(false)
+                        .build());
     }
 
     @Test
@@ -177,8 +192,9 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
     @DisplayName("findByStatus - should return only matching status")
     void findByStatus_shouldReturnOnlyMatchingStatus() {
         // Given
+        Profile anotherProfile = createAnotherProfile();
         subscriptionRepositoryPort.save(buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
-        subscriptionRepositoryPort.save(buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10)));
+        subscriptionRepositoryPort.save(buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10), anotherProfile.getId()));
 
         // When
         List<Subscription> activeList = subscriptionRepositoryPort.findByStatus(SubStatus.ACTIVE);
@@ -206,10 +222,11 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
     @Test
     @DisplayName("findByVendorIdFiltered - should filter by status when provided")
     void findByVendorIdFiltered_statusFilter_shouldReturnMatchingSubscriptions() {
+        Profile anotherProfile = createAnotherProfile();
         Subscription active = subscriptionRepositoryPort.save(
                 buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
         subscriptionRepositoryPort.save(
-                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10)));
+                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10), anotherProfile.getId()));
 
         List<Subscription> result = subscriptionRepositoryPort.findByVendorIdFiltered(
                 parentVendor.getId(), null, SubStatus.ACTIVE);
@@ -259,10 +276,11 @@ class SubscriptionRepositoryIT extends BaseIntegrationTest {
     @Test
     @DisplayName("findVendorSubscriptionViews - should filter by status")
     void findVendorSubscriptionViews_statusFilter_shouldReturnMatching() {
+        Profile anotherProfile = createAnotherProfile();
         Subscription active = subscriptionRepositoryPort.save(
                 buildSubscription(SubStatus.ACTIVE, LocalDate.now().plusDays(30)));
         subscriptionRepositoryPort.save(
-                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10)));
+                buildSubscription(SubStatus.SUSPENDED, LocalDate.now().plusDays(10), anotherProfile.getId()));
 
         List<SubscriptionListView> views = subscriptionRepositoryPort.findVendorSubscriptionViews(
                 parentVendor.getId(), null, SubStatus.ACTIVE);
