@@ -16,6 +16,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - neversion-network
 
 #  # ── GoTrue — Supabase Auth Local ────────────────────────────────
 #  gotrue:
@@ -42,55 +44,13 @@ services:
 #      GOTRUE_MAILER_AUTOCONFIRM: "true"
 #      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
 #      GOTRUE_SMTP_ADMIN_EMAIL: noreply@neversion.com
-
-  api:
-    build:
-      context: ../apps/api
-      dockerfile: Dockerfile
-    container_name: neversion-api
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
-      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://db:5432/neversiondb}
-      GOTRUE_DB_DATABASE_URL: ${GOTRUE_DB_DATABASE_URL:-postgres://postgres:mysecretpassword@db:5432/neversiondb?sslmode=disable&search_path=auth}
-      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-mysecretpassword}
-      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET:-your-dev-jwt-secret}
-      AUTH_API_URL: ${AUTH_API_URL:-http://gotrue:8081}
-      AUTH_ADMIN_KEY: ${AUTH_ADMIN_KEY:-your-dev-service-role-key}
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:4200,http://localhost:4000}
-      NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:-2}
-      NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:-true}
-      NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-true}
-      NEVERSION_MONITORING_SCRAPE_TOKEN: ${NEVERSION_MONITORING_SCRAPE_TOKEN}
-      NEVERSION_NOTIFICATION_SERVICE_HOST: notification-service
-    ports:
-      - "8080:8080"
-
-  # ── Notification Service — Node.js gRPC ──────────────────────────
-  notification-service:
-    build:
-      context: ..
-      dockerfile: apps/notification-service/Dockerfile
-    container_name: neversion-notification-service
-    restart: unless-stopped
-    ports:
-      - "50051:50051"
-    environment:
-      PORT: 50051
-      DATABASE_PATH: /app/data/notifications.db
-      RESEND_API_KEY: ${RESEND_API_KEY:-re_placeholder}
-      FROM_EMAIL: ${NEVERSION_EMAIL_FROM:-Neversion <noreply@mail.neversion.com>}
-    volumes:
-      - notification_data:/app/data
-
+#      GOTRUE_SMTP_HOST: smtp.example.com
+#      GOTRUE_SMTP_PORT: 587
+#      GOTRUE_SMTP_USER: smtp_user
+#      GOTRUE_SMTP_PASS: smtp_password
 volumes:
   pgdata:
-  notification_data:
+
+networks:
+  neversion-network:
+    external: true

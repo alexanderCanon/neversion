@@ -2,6 +2,7 @@
   "name": "neversion",
   "private": true,
   "scripts": {
+    "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'pnpm-lock.yaml' -type f -delete",
     "build": "pnpm -r build",
     "api:sync": "openapi-generator-cli generate -i ${API_URL:-http://localhost:8080/v3/api-docs} -g typescript-angular -o packages/api-client/src --additional-properties=providedInRoot=true,serviceSuffix=ApiService,apiModulePrefix=Neversion",
     "lint": "eslint .",

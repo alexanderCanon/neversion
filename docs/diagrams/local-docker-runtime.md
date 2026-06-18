@@ -14,7 +14,7 @@ flowchart LR
 
             Panel["neversion-panel<br/>Angular static + Nginx<br/>localhost:4200"]
 
-            Store["neversion-store<br/>Angular SSR + Node/Express<br/>localhost:4000"]
+            Store["neversion-store<br/>Angular SPA<br/>localhost:4000"]
         end
     end
 
@@ -50,7 +50,7 @@ flowchart LR
 - `db`, `api`, `panel` y `store` corren dentro de la misma red Docker Compose.
 - La API usa `SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/neversiondb` para conectarse al PostgreSQL local.
 - El panel es estatico y Nginx sirve los assets; tambien proxya `/api/*` hacia `http://api:8080`.
-- El store es SSR y corre con el servidor Node/Express generado por Angular Universal.
+- El store es una SPA simple basada en Angular 17.
 - Los frontends usan `runtime-config.js`, generado al arrancar el contenedor, para leer URLs y keys desde variables de entorno.
 - Supabase Auth se usa para autenticacion; la API valida tokens con `SUPABASE_JWT_SECRET`.
 - En produccion la topologia cambia: API, panel y store se despliegan por separado en Dokploy, y la base de datos real se configura con `SPRING_DATASOURCE_*`.
