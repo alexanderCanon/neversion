@@ -32,7 +32,17 @@ $primary: #1d4ed8;
 }
 
 
-
+// ─────────────────────────────────────────────
+// Dark Mode Styles and Token Overrides
+// ─────────────────────────────────────────────
+[data-bs-theme="dark"] {
+    --color-brand-accent-light: #1e293b;
+    --color-brand-accent-muted: #60a5fa;
+    --color-surface:       #0b0f19;
+    --color-border:        #1e293b;
+    --color-text-primary:  #f8fafc;
+    --color-text-secondary:#94a3b8;
+    --color-text-placeholder: #64748b;
 
 // ─────────────────────────────────────────────
 // Global Improvements

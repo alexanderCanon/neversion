@@ -74,7 +74,8 @@
                       @for(cat of categoryDetails; track cat.value) {
                           <option [value]="cat.value" [title]="cat.description">{{ cat.label }}</option>
                       }
-                  </select>
+                  </select>/div>
+                   
                   @if (getSelectedCategoryDescription()) {
                     <div class="mt-2 text-muted x-small lh-sm bg-light p-2 rounded border">
                       <i class="bi bi-info-circle-fill text-primary me-1"></i>
