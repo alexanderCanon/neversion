@@ -20,7 +20,7 @@ services:
       NEVERSION_NOTIFICATION_SERVICE_HOST: ${NEVERSION_NOTIFICATION_SERVICE_HOST}
       NEVERSION_NOTIFICATION_SERVICE_PORT: ${NEVERSION_NOTIFICATION_SERVICE_PORT}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"  # Only reachable from Traefik on the same host — not from the public internet
     deploy:
       resources:
         limits:
@@ -34,6 +34,41 @@ services:
     networks:
       - neversion-network
       - dokploy-network
+    labels:
+      - "traefik.enable=true"
+
+      # ── Rate Limiting ───────────────────────────────────────────────────────
+      # Max 100 requests/second average per IP, burst up to 50 extra requests.
+      # Adjust values if legitimate clients need higher throughput.
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-ratelimit.ratelimit.burst=50"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-ratelimit.ratelimit.period=1s"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-ratelimit.ratelimit.sourcecriterion.ipstrategy.depth=1"
+
+      # ── Security Headers ────────────────────────────────────────────────────
+      # Injected at the Traefik edge so they apply to every response.
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.stsPreload=true"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.customResponseHeaders.X-Frame-Options=DENY"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.customResponseHeaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.customResponseHeaders.Referrer-Policy=strict-origin-when-cross-origin"
+      - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.customResponseHeaders.X-XSS-Protection=0"
+
+      # ── HTTP Traffic Routing ─────────────────────────────────────────────────
+      - "traefik.http.routers.${API_SERVICE_NAME}-http.rule=Host(`${API_DOMAIN`)"
+      - "traefik.http.routers.${API_SERVICE_NAME}-http.entrypoints=web"
+
+      # ── HTTPS Traffic Routing ────────────────────────────────────────────────
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.rule=Host(`${API_DOMAIN`)"
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.entrypoints=websecure"
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.tls=true"
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.tls.certresolver=letsencrypt"
+      # Apply rate-limit + security-headers middlewares on HTTPS
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.middlewares=${API_SERVICE_NAME}-ratelimit,${API_SERVICE_NAME}-headers"
+
+      # ── Load Balancer ────────────────────────────────────────────────────────
+      - "traefik.http.services.${API_SERVICE_NAME}-service.loadbalancer.server.port=${API_INTERNAL_PORT:-8080}"
 
 networks:
   neversion-network:
