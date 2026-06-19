@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -92,6 +94,24 @@ public class SecurityConfig {
                 .jwt(jwt -> jwt
                         .decoder(jwtDecoder())
                         .jwtAuthenticationConverter(authJwtRoleConverter)));
+
+        // -- HTTP Security Headers (second line of defense after Traefik) --
+        http.headers(headers -> headers
+                // Prevent MIME-type sniffing
+                .contentTypeOptions(Customizer.withDefaults())
+                // Deny embedding in iframes (clickjacking protection)
+                .frameOptions(frame -> frame.deny())
+                // HSTS: force HTTPS for 1 year including subdomains
+                .httpStrictTransportSecurity(hsts -> hsts
+                        .includeSubDomains(true)
+                        .maxAgeInSeconds(31_536_000))
+                // Referrer-Policy: only send origin on cross-origin requests
+                .referrerPolicy(referrer -> referrer.policy(
+                        ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                // X-XSS-Protection deliberately set to 0 — modern browsers handle XSS
+                // natively; the legacy header can introduce vulnerabilities in old IE.
+                .addHeaderWriter((request, response) ->
+                        response.setHeader("X-XSS-Protection", "0")));
 
         return http.build();
     }
