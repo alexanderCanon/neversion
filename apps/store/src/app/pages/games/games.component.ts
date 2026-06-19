@@ -23,7 +23,7 @@ export class GamesComponent implements OnInit {
   ngOnInit(): void {
     this.games$ = this.platformService.getPlatforms().pipe(
       map(services => services.filter(s => 
-        s.category === 'GIFT_CARD' || s.category === 'SOFTWARE'
+        s.category === 'digital_service'
       ))
     );
   }

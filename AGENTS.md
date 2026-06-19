@@ -8,7 +8,7 @@
 apps/
   api/        # Spring Boot 3 / Java 17 — Hexagonal + DDD
   panel/      # Angular 17 — Admin UI (standalone components + Signals)
-  store/      # Angular 16 — Client storefront (SSR via NgUniversal)
+  store/      # Angular 17 — Client storefront (SPA)
 packages/
   api-client/ # Generated TypeScript Angular services (OpenAPI)
   models/     # Shared TypeScript interfaces
@@ -152,7 +152,7 @@ make -C apps/panel test                  # All Karma tests
 
 # Store (apps/store)
 cd apps/store && pnpm start              # Dev server
-cd apps/store && pnpm run build:ssr      # SSR production build
+cd apps/store && pnpm build              # SPA production build
 ```
 
 ---

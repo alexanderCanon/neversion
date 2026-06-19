@@ -9,7 +9,6 @@ spring:
       hibernate:
         format_sql: false
 
-
   flyway:
     enabled: true
     execute-in-transaction: false
@@ -49,10 +48,6 @@ neversion:
     inventory-reconciliation:
       enabled: ${NEVERSION_CRON_INVENTORY_RECONCILIATION_ENABLED:false}
       schedule: ${NEVERSION_CRON_INVENTORY_RECONCILIATION_SCHEDULE:0 30 3 * * *}
-  email:
-    resend:
-      api-key: ${RESEND_API_KEY:re_placeholder}
-    from: ${NEVERSION_EMAIL_FROM:Neversion <noreply@neversion.com>}
 
 management:
   endpoints:

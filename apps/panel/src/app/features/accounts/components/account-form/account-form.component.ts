@@ -140,13 +140,6 @@ export class AccountFormComponent implements OnInit {
     }
   }
 
-  onServiceChange(serviceId: string): void {
-    const service = this.serviceOptions().find(s => s.id === serviceId);
-    if (service && this.accountForm.get('saleMode')?.value === SaleMode.BY_PROFILE) {
-      this.accountForm.patchValue({ maxProfiles: service.maxProfiles });
-    }
-  }
-
   openModal(): void {
     if (this.isBrowser) {
       const modalEl = this.modalElement?.nativeElement;

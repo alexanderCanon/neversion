@@ -1,6 +1,6 @@
 # Store VPS Deployment
 
-This deployment runs the Angular SSR store on a lightweight VPS without
+This deployment runs the Angular SPA store on a lightweight VPS without
 Dokploy. GitHub Actions builds the Docker image, pushes it to GHCR, copies this
 folder to the VPS, writes `.env`, and runs Docker Compose.
 

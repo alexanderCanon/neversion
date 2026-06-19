@@ -5,7 +5,7 @@ Este diagrama describe la interacción entre los componentes del monorepo y los 
 ```mermaid
 graph TD
     subgraph Client_Layer [Capa de Cliente]
-        Store[Store App - Angular 16]
+        Store[Store App - Angular 17]
         Panel[Panel App - Angular 17]
     end
 
