@@ -56,11 +56,11 @@ services:
       - "traefik.http.middlewares.${API_SERVICE_NAME}-headers.headers.customResponseHeaders.X-XSS-Protection=0"
 
       # ── HTTP Traffic Routing ─────────────────────────────────────────────────
-      - "traefik.http.routers.${API_SERVICE_NAME}-http.rule=Host(`${API_DOMAIN`)"
+      - "traefik.http.routers.${API_SERVICE_NAME}-http.rule=Host(`${API_DOMAIN}`)"
       - "traefik.http.routers.${API_SERVICE_NAME}-http.entrypoints=web"
 
       # ── HTTPS Traffic Routing ────────────────────────────────────────────────
-      - "traefik.http.routers.${API_SERVICE_NAME}-https.rule=Host(`${API_DOMAIN`)"
+      - "traefik.http.routers.${API_SERVICE_NAME}-https.rule=Host(`${API_DOMAIN}`)"
       - "traefik.http.routers.${API_SERVICE_NAME}-https.entrypoints=websecure"
       - "traefik.http.routers.${API_SERVICE_NAME}-https.tls=true"
       - "traefik.http.routers.${API_SERVICE_NAME}-https.tls.certresolver=letsencrypt"
