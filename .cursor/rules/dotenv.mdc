@@ -1,5 +1,0 @@
----
-alwaysApply: true
----
-
-forbidden read .env files

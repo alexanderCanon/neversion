@@ -1,0 +1,28 @@
+services:
+  notification-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: ${NOTIFICATION_SERVICE_PORT}
+      DATABASE_PATH: ${NOTIFICATION_SERVICE_DATABASE_PATH}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      FROM_EMAIL: ${NEVERSION_EMAIL_FROM}
+    ports:
+      - "50051:50051"
+    volumes:
+      - notification_data:/workspace/apps/notification-service/data
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    networks:
+      - neversion-network
+
+volumes:
+  notification_data:
+
+networks:
+  neversion-network:
+    external: true

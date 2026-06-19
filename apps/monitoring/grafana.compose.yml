@@ -14,11 +14,11 @@ services:
     expose:
       - "3000"
     networks:
-      - neversion-internal
+      - neversion-network
 
 volumes:
   grafana_data:
 
 networks:
-  neversion-internal:
+  neversion-network:
     external: true

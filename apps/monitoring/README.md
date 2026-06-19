@@ -73,7 +73,7 @@ GRAFANA_CLOUD_API_KEY=<cloud-access-policy-token-with-metrics-and-logs-write>
 ```
 
 Use the same `NEVERSION_MONITORING_SCRAPE_TOKEN` configured in the API app.
-Alloy connects to the shared `neversion-internal` Docker network and scrapes:
+Alloy connects to the shared `neversion-network` Docker network and scrapes:
 
 ```text
 http://NEVERSION_API_TARGET/actuator/prometheus

@@ -38,8 +38,7 @@ root/
 ├── docs/          # Knowledge Base (Read-Only)
 └── agents/        # Agent Specs
     ├── AGENTS.md  # Global Entry Point (This File)
-    ├── CLAUDE.md  # Backend Agent Protocol
-    └── GEMINI.md  # Frontend Agent Protocol
+    └── CLAUDE.md  # Backend Agent Protocol
 ```
 
 ---
@@ -49,8 +48,6 @@ root/
 | Agent Role | Primary Tool | Target Path | Active Branch | Protocol File |
 | :--- | :--- | :--- | :--- | :--- |
 | **Backend Architect** | Claude Code | `/apps/api` | `feature/backend` | `agents/CLAUDE.md` |
-| **Admin UI Expert** | Gemini / Any | `/apps/panel` | `feature/panel` | `agents/GEMINI.md` |
-| **Client UI Expert** | Gemini / Any | `/apps/store` | `feature/store` | `agents/GEMINI.md` |
 
 ---
 

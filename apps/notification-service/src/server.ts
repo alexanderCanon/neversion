@@ -9,7 +9,7 @@ import { Resend } from 'resend';
 
 dotenv.config();
 
-const PROTO_PATH = path.resolve(__dirname, '../../../proto/notification.proto');
+const PROTO_PATH = path.resolve(__dirname, '../proto/notification.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,

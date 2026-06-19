@@ -101,7 +101,7 @@ services:
     expose:
       - "12345"
     networks:
-      - neversion-internal
+      - neversion-network
     deploy:
       resources:
         limits:
@@ -111,5 +111,5 @@ volumes:
   alloy_data:
 
 networks:
-  neversion-internal:
+  neversion-network:
     external: true

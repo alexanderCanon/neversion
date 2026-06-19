@@ -32,35 +32,27 @@ docs/
 pnpm install          # Install all workspace dependencies
 pnpm -r build         # Build all packages
 pnpm api:sync         # Regenerate api-client from running backend (port 8080)
-make help             # Show all root Make targets
-make up-local         # Start full local stack (API + DB + Panel)
-make down-local       # Stop local stack
 ```
 
 ### Backend (`apps/api`)
 ```bash
-make -C apps/api run          # Run with Spring Boot dev tools (hot reload)
-make -C apps/api dev-up       # Start PostgreSQL + API via Docker Compose
-make -C apps/api test         # Run all unit tests
-make -C apps/api verify       # Run unit + integration tests (Testcontainers)
-
-# Via Maven wrapper (from apps/api/)
+# From apps/api/
+./mvnw spring-boot:run                                 # Run with Spring Boot dev tools (hot reload)
 ./mvnw test                                            # All unit tests
 ./mvnw test -Dtest=CreateAccountServiceUT              # Single test class
 ./mvnw test -Dtest=CreateAccountServiceUT#methodName   # Single test method
-./mvnw verify                                          # Unit + integration tests
+./mvnw verify                                          # Unit + integration tests (Testcontainers)
 ```
 
 > **Critical:** `./mvnw compile` only validates `src/main` — it does NOT compile or run `src/test`. A green compile does not mean tests pass. Always run `./mvnw test` to verify.
 
 ### Panel (`apps/panel`)
 ```bash
-make -C apps/panel start      # Dev server at http://localhost:4200
-make -C apps/panel test       # Run all Karma tests
-make -C apps/panel build      # Production build
-
-# Single spec file
-make -C apps/panel test-file SPEC=auth.service.spec.ts
+# From apps/panel/
+pnpm start                                             # Dev server at http://localhost:4200
+pnpm test                                              # Run all Karma tests
+pnpm build                                             # Production build
+pnpm exec ng test --include="**/auth.service.spec.ts" # Run a single spec file
 ```
 
 ### Store (`apps/store`)
@@ -160,6 +152,5 @@ Treat bitácoras as read-only historical reference. Do not update implementation
 Full per-agent protocols live in `docs/agents/`:
 - `docs/agents/AGENTS.md` — global rules for all agents
 - `docs/agents/CLAUDE.md` — backend agent protocol (scope: `apps/api` only)
-- `docs/agents/GEMINI.md` — frontend agent protocol (scope: `apps/panel`, `apps/store`)
 
 **Isolation rule:** Backend agent never modifies frontend; frontend agent never touches backend or the database directly.

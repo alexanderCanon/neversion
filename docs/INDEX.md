@@ -33,7 +33,6 @@ Resumen ejecutivo, visión del producto, alcance del MVP y objetivos estratégic
 ### 6. Agents
 *   [**AGENTS.md**](./agents/AGENTS.md): Entry point for any AI agent working on this project.
 *   [**CLAUDE.md**](./agents/CLAUDE.md): Backend agent instructions.
-*   [**GEMINI.md**](./agents/GEMINI.md): Frontend agent instructions (panel and store).
 
 ---
 *Última actualización: Abril 2026*
