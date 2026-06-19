@@ -11,7 +11,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
-      - ./postgres/wal-archive:/var/lib/postgresql/archive
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]

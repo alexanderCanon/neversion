@@ -138,21 +138,20 @@ Merges to `develop` and `main` are **Alex's responsibility**, not the agent's.
 pnpm install            # Install all workspace dependencies
 pnpm -r build           # Build all packages
 pnpm api:sync           # Regenerate api-client from running backend
-make help               # All root Make targets
 
 # Backend (apps/api)
-./mvnw test                              # All unit tests
-./mvnw test -Dtest=ClassName             # Single test class
-./mvnw verify                            # Unit + integration tests (Testcontainers)
-make -C apps/api run                     # Run with hot reload
+cd apps/api && ./mvnw spring-boot:run        # Run with hot reload
+cd apps/api && ./mvnw test                   # All unit tests
+cd apps/api && ./mvnw test -Dtest=ClassName  # Single test class
+cd apps/api && ./mvnw verify                 # Unit + integration tests (Testcontainers)
 
 # Panel (apps/panel)
-make -C apps/panel start                 # Dev server → http://localhost:4200
-make -C apps/panel test                  # All Karma tests
+cd apps/panel && pnpm start                  # Dev server → http://localhost:4200
+cd apps/panel && pnpm test                   # All Karma tests
 
 # Store (apps/store)
-cd apps/store && pnpm start              # Dev server
-cd apps/store && pnpm build              # SPA production build
+cd apps/store && pnpm start                  # Dev server
+cd apps/store && pnpm build                  # SPA production build
 ```
 
 ---

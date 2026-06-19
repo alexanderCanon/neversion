@@ -37,7 +37,7 @@ services:
     expose:
       - "9090"
     networks:
-      neversion-internal:
+      neversion-network:
         aliases:
           - prometheus
 
@@ -45,5 +45,5 @@ volumes:
   prometheus_data:
 
 networks:
-  neversion-internal:
+  neversion-network:
     external: true
