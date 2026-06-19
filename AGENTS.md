@@ -153,7 +153,6 @@ cd apps/panel && pnpm test                   # All Karma tests
 cd apps/store && pnpm start                  # Dev server
 cd apps/store && pnpm build                  # SPA production build
 ```
-
 ---
 
 *Keep this file current as conventions evolve. Stale instructions cost sessions.*
