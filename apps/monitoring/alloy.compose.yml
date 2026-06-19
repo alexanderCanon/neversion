@@ -75,6 +75,7 @@ services:
         }
 
         loki.source.docker "neversion_logs" {
+          host       = "unix:///var/run/docker.sock"
           targets    = discovery.relabel.filter_neversion.output
           forward_to = [loki.write.grafana_cloud.receiver]
         }
