@@ -1,10 +1,10 @@
 :root {
-  --primary-color: oklch(0.2261 0.0377 241.61);
-  --darkest-primary-color: oklch(0.1658 0.0227 235.92);
+  --primary-color: oklch(0.19 0.03 240);
+  --darkest-primary-color: oklch(0.13 0.03 240);
   --light-text-color: oklch(1.0000 0.0000 0.00);
-  --dark-text-color: oklch(0.0658 0.0227 235.92);
-  --secondary-color: oklch(0.5464 0.1313 242.68);
-  --tertiary-color: oklch(56.311% 0.11957 235.066);
+  --dark-text-color: oklch(0.25 0.02 240);
+  --secondary-color: oklch(0.70 0.17 220);
+  --tertiary-color: oklch(0.52 0.20 250);
   --site-background: var(--light-text-color);
   --primary-variant-color: var(--secondary-color);
 }
