@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
 import { AuthResponse, User as SupabaseUser } from '@supabase/supabase-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
@@ -137,11 +137,17 @@ export class AuthService {
     };
 
     return this.authApiService.registerClient(apiRequest).pipe(
-      map(() => {
-        // Profile created — re-check /me to fully establish the local session.
-        this.checkBackendUser(pending.supabaseUid, pending.email, pending.name);
-        return { success: true, user: null, error: null };
-      }),
+      // switchMap lets us wait for the async token refresh before proceeding.
+      switchMap(() =>
+        from(this.supabaseService.client.auth.refreshSession()).pipe(
+          map(() => {
+            // Token refreshed — the new JWT now carries app_metadata.role = "client".
+            // Re-check /me to fully establish the local session.
+            this.checkBackendUser(pending.supabaseUid, pending.email, pending.name);
+            return { success: true, user: null, error: null } as AuthResult;
+          })
+        )
+      ),
       catchError(err => {
         this.isLoadingSubject.next(false);
         return this.handleError(err);
