@@ -281,8 +281,10 @@ class RegisterClientServiceUT {
         assertThat(result.userUuid()).isEqualTo(USER_UUID);
         assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
 
-        // Verify Supabase Auth is NOT called
-        verifyNoInteractions(authServicePort);
+        // OAuth path: createUser() must NOT be called (Supabase already owns the account),
+        // but updateAppMetadata() MUST be called to stamp role=CLIENT on the existing auth record.
+        verify(authServicePort, never()).createUser(anyString(), anyString(), any(UserRole.class));
+        verify(authServicePort).updateAppMetadata(eq(externalId), eq(UserRole.CLIENT));
         verify(userRepositoryPort).save(any(User.class));
         verify(clientRepositoryPort).save(any(Client.class));
     }
