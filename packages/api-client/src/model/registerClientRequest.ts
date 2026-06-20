@@ -30,5 +30,9 @@ export interface RegisterClientRequest {
      * UUID of the vendor (store) to register with
      */
     vendorUuid: string;
+    /**
+     * Optional external auth user ID from Supabase (required for OAuth flows)
+     */
+    externalId?: string;
 }
 

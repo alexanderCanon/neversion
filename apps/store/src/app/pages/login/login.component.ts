@@ -1,22 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, RegisterFormData } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { AuthService, RegisterFormData, PendingOAuthUser } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   isLoginMode: boolean = true;
   showPassword: boolean = false;
   loginForm!: FormGroup;
   registerForm!: FormGroup;
-  
+  onboardingForm!: FormGroup;
+
   isLoading$ = this.authService.isLoading$;
+  needsOnboarding$ = this.authService.needsOnboarding$;
+  pendingOAuthUser$ = this.authService.pendingOAuthUser$;
+
   errorMessage: string | null = null;
   successMessage: string | null = null;
+
+  private subs = new Subscription();
 
   constructor(
     private fb: FormBuilder,
@@ -26,6 +33,19 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
+
+    // Redirect immediately if a full session is already active.
+    this.subs.add(
+      this.authService.currentUser$.subscribe(user => {
+        if (user) {
+          this.handleRedirect(user.role);
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
   }
 
   private initForms(): void {
@@ -43,11 +63,58 @@ export class LoginComponent implements OnInit {
       checkNewsletter: [false],
       checkCookies: [false, Validators.requiredTrue]
     });
+
+    // Onboarding form: only captures the missing WhatsApp phone number.
+    this.onboardingForm = this.fb.group({
+      phone: ['', [Validators.required, Validators.pattern(/^[23457]\d{7}$/)]],
+      checkCookies: [false, Validators.requiredTrue]
+    });
   }
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
+
+  /** Returns the pending Google user snapshot (read-only helper for the template). */
+  get pendingUser(): PendingOAuthUser | null {
+    return this.authService.pendingOAuthUserValue;
+  }
+
+  // ── Social Login ──────────────────────────────────────────────────────────
+
+  onSocialLogin(): void {
+    this.errorMessage = null;
+    this.successMessage = null;
+    this.authService.loginWithGoogle();
+  }
+
+  // ── Onboarding ────────────────────────────────────────────────────────────
+
+  onOnboardingSubmit(): void {
+    if (this.onboardingForm.invalid) return;
+
+    this.errorMessage = null;
+    const { phone } = this.onboardingForm.value;
+
+    this.authService.completeOnboarding(`+502${phone}`).subscribe({
+      next: (result) => {
+        if (!result.success) {
+          this.errorMessage = result.error || 'Error al completar el registro.';
+        }
+        // On success, the currentUser$ subscription above handles the redirect.
+      }
+    });
+  }
+
+  onCancelOnboarding(): void {
+    this.authService.logout().subscribe(() => {
+      this.errorMessage = null;
+      this.successMessage = null;
+      this.onboardingForm.reset();
+    });
+  }
+
+  // ── Standard Login / Register ─────────────────────────────────────────────
 
   onLoginSubmit(): void {
     if (this.loginForm.invalid) return;
@@ -55,7 +122,7 @@ export class LoginComponent implements OnInit {
     this.errorMessage = null;
     this.successMessage = null;
     const { email, password } = this.loginForm.value;
-    
+
     this.authService.login(email, password).subscribe({
       next: (result) => {
         if (result.success && result.user) {
@@ -76,7 +143,7 @@ export class LoginComponent implements OnInit {
       next: (result) => {
         if (result.success) {
           this.successMessage = '¡Registro exitoso! Por favor inicia sesión con tus nuevos accesos.';
-          this.isLoginMode = true; // Redirect to login
+          this.isLoginMode = true;
           this.registerForm.reset();
         } else {
           this.errorMessage = result.error || 'Error al registrarse.';
@@ -95,10 +162,5 @@ export class LoginComponent implements OnInit {
       alert('Bienvenido. Redirigiendo al Panel de Administración...');
       window.location.href = '/panel';
     }
-  }
-
-  onSocialLoginPlaceholder(): void {
-    this.successMessage = null;
-    this.errorMessage = 'El inicio de sesión con Google estará disponible próximamente.';
   }
 }

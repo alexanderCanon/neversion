@@ -23,9 +23,7 @@ public record RegisterClientRequest(
         @Schema(description = "Client's email address", example = "cliente@correo.com")
         String email,
 
-        @NotBlank(message = "Password is required")
-        @Size(min = 6, message = "Password must be at least 6 characters")
-        @Schema(description = "Client's chosen password", example = "Secret123!")
+        @Schema(description = "Client's chosen password (required for standard registration)", example = "Secret123!")
         String password,
 
         @NotBlank(message = "Name is required")
@@ -44,6 +42,10 @@ public record RegisterClientRequest(
         @NotNull(message = "Vendor UUID is required")
         @Schema(description = "UUID of the vendor (store) to register with",
                 example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
-        UUID vendorUuid
+        UUID vendorUuid,
+
+        @Schema(description = "Optional external auth user ID from Supabase (required for OAuth)",
+                example = "supabase-uuid-abc-123")
+        String externalId
 ) {
 }

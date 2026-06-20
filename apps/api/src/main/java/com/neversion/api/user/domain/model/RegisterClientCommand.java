@@ -18,6 +18,7 @@ public record RegisterClientCommand(
         String password,
         String name,
         String phone,
-        UUID vendorUuid
+        UUID vendorUuid,
+        String externalId
 ) {
 }

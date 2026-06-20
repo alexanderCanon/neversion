@@ -55,6 +55,22 @@ public class RegisterClientService implements RegisterClientUseCase {
     @Override
     @Transactional
     public RegisterClientResult register(RegisterClientCommand command) {
+        // Idempotency: check if user already exists locally by externalId
+        if (hasText(command.externalId())) {
+            var existingUser = userRepositoryPort.findByExternalId(command.externalId());
+            if (existingUser.isPresent()) {
+                Client client = clientRepositoryPort.findByUserId(existingUser.get().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Client record missing for authenticated user: " + command.externalId()));
+
+                return new RegisterClientResult(
+                        existingUser.get().getUuid(),
+                        client.getUuid(),
+                        client.getName(),
+                        client.getEmail());
+            }
+        }
+
         // Step 1 — Resolve the vendor by public UUID (ADR-02 multi-tenancy)
         Vendor vendor = vendorRepositoryPort.findByUuid(command.vendorUuid())
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -83,7 +99,13 @@ public class RegisterClientService implements RegisterClientUseCase {
         }
 
         // Step 2 — Create Auth user securely and get the externalId
-        String externalId = authServicePort.createUser(normalizedEmail, command.password(), UserRole.CLIENT);
+        String externalId = command.externalId();
+        if (!hasText(externalId)) {
+            if (!hasText(command.password())) {
+                throw new IllegalArgumentException("Password is required for standard registration");
+            }
+            externalId = authServicePort.createUser(normalizedEmail, command.password(), UserRole.CLIENT);
+        }
 
         // Step 3 — Persist the internal platform user with the Supabase-provided externalId
         User user = userRepositoryPort.save(
