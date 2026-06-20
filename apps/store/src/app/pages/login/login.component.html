@@ -22,7 +22,7 @@
                         <!-- Login Mode -->
                         <div *ngIf="isLoginMode">
                             <div class="text-center mb-5">
-                                <img src="/assets/logo_neversion.svg" alt="Neversion Logo" class="mb-4 opacity-75" style="height: 60px; filter: invert(1);">
+                                <img src="/assets/neversion-digital-logo.png" alt="Neversion Logo" class="mb-4" style="height: 80px; width: auto; object-fit: contain; border-radius: 12px;">
                                 <h2 class="h3 text-dark fw-bold mb-1">Bienvenido</h2>
                                 <p class="text-muted small">Ingresa tus credenciales para acceder</p>
                             </div>
@@ -67,8 +67,7 @@
                                 <!-- Main Action Button -->
                                 <div class="d-grid gap-2 mb-4">
                                     <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow transition-all hover-grow" 
-                                            [disabled]="loginForm.invalid || (isLoading$ | async)"
-                                            style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%); border: none;">
+                                            [disabled]="loginForm.invalid || (isLoading$ | async)">
                                         <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                         {{ (isLoading$ | async) ? 'Iniciando...' : 'Acceder ahora' }}
                                     </button>
@@ -83,9 +82,9 @@
 
                                 <!-- Google Button -->
                                 <div class="d-grid gap-2 mb-5">
-                                    <button type="button"
+                                    <button type="button" (click)="onSocialLoginPlaceholder()"
                                         class="btn btn-outline-dark btn-lg rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-bold transition-all hover-grow">
-                                        <i class="bi bi-google text-danger"></i>
+                                        <i class="bi bi-google"></i>
                                         Google
                                     </button>
                                 </div>
@@ -183,8 +182,7 @@
                                 <!-- Submit Button -->
                                 <div class="d-grid gap-2 mb-4">
                                     <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow transition-all hover-grow" 
-                                            [disabled]="registerForm.invalid || (isLoading$ | async)"
-                                            style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%); border: none;">
+                                            [disabled]="registerForm.invalid || (isLoading$ | async)">
                                         <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                         {{ (isLoading$ | async) ? 'Creando...' : 'Crear mi cuenta' }}
                                     </button>

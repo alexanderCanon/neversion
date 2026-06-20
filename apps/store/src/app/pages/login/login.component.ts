@@ -96,4 +96,9 @@ export class LoginComponent implements OnInit {
       window.location.href = '/panel';
     }
   }
+
+  onSocialLoginPlaceholder(): void {
+    this.successMessage = null;
+    this.errorMessage = 'El inicio de sesión con Google estará disponible próximamente.';
+  }
 }
