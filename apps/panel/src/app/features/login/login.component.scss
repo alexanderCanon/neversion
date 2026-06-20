@@ -115,7 +115,11 @@
     }
 
     .brand-panel {
-        min-height: auto;
+        display: none;
+    }
+
+    .login-panel {
+        min-height: 100vh;
     }
 }
 

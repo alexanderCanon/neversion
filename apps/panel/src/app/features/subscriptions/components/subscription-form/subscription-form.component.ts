@@ -89,6 +89,21 @@ export class SubscriptionFormComponent implements OnInit {
         this.subscriptionForm.patchValue({ accountId: '', profileId: '' });
       }
     });
+
+    this.subscriptionForm.get('clientId')?.valueChanges.subscribe(clientId => {
+      const control = this.subscriptionForm.get('sendNotification');
+      if (clientId) {
+        const client = this.clients.find(c => c.id === clientId);
+        if (client && !client.email) {
+          control?.setValue(false);
+          control?.disable();
+        } else {
+          control?.enable();
+        }
+      } else {
+        control?.enable();
+      }
+    });
   }
 
   private filterClients(searchTerm: string): void {
@@ -229,7 +244,7 @@ export class SubscriptionFormComponent implements OnInit {
   onSubmit(): void {
     if (this.subscriptionForm.valid) {
       this.isSubmitting = true;
-      const formValue = this.subscriptionForm.value;
+      const formValue = this.subscriptionForm.getRawValue();
 
       const request: CreateManualSubscriptionRequest = {
         clientId: formValue.clientId,
@@ -272,5 +287,12 @@ export class SubscriptionFormComponent implements OnInit {
 
   get minDate(): string {
     return new Date().toISOString().split('T')[0];
+  }
+
+  get selectedClientHasEmail(): boolean {
+    const clientId = this.subscriptionForm.get('clientId')?.value;
+    if (!clientId) return true;
+    const client = this.clients.find(c => c.id === clientId);
+    return !!client?.email;
   }
 }
