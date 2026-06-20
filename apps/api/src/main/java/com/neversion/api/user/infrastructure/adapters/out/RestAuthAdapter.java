@@ -99,11 +99,38 @@ public class RestAuthAdapter implements AuthServicePort {
         }
     }
 
+    @Override
+    public void updateAppMetadata(String externalId, UserRole role) {
+        String url = authApiUrl + "/auth/v1/admin/users/" + externalId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("apikey", adminKey);
+        headers.setBearerAuth(adminKey);
+
+        UpdateAppMetadataRequest requestBody = new UpdateAppMetadataRequest(
+                Map.of("role", role.name().toLowerCase())
+        );
+
+        HttpEntity<UpdateAppMetadataRequest> request = new HttpEntity<>(requestBody, headers);
+
+        try {
+            restTemplate.exchange(url, HttpMethod.PUT, request, Void.class);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Error updating app_metadata for user " + externalId + ": " + e.getMessage(), e);
+        }
+    }
+
     // Records for JSON mapping
     private record CreateUserRequest(
             String email,
             String password,
             @JsonProperty("email_confirm") boolean emailConfirm,
+            @JsonProperty("app_metadata") Map<String, Object> appMetadata
+    ) {}
+
+    private record UpdateAppMetadataRequest(
             @JsonProperty("app_metadata") Map<String, Object> appMetadata
     ) {}
 

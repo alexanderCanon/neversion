@@ -24,4 +24,15 @@ public interface AuthServicePort {
      * @return email address when user is found
      */
     Optional<String> findEmailByExternalId(String externalId);
+
+    /**
+     * Writes the platform role into the {@code app_metadata} of an existing auth user.
+     * Used when the auth record was created externally (e.g., Google OAuth) and the
+     * backend needs to stamp the role after the fact.
+     *
+     * @param externalId Auth user UUID to update
+     * @param role       Role to persist in app_metadata
+     * @throws RuntimeException if the update fails
+     */
+    void updateAppMetadata(String externalId, UserRole role);
 }

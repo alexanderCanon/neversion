@@ -99,8 +99,9 @@ public class RegisterClientService implements RegisterClientUseCase {
         }
 
         // Step 2 — Create Auth user securely and get the externalId
+        boolean oauthUser = hasText(command.externalId());
         String externalId = command.externalId();
-        if (!hasText(externalId)) {
+        if (!oauthUser) {
             if (!hasText(command.password())) {
                 throw new IllegalArgumentException("Password is required for standard registration");
             }
@@ -113,6 +114,12 @@ public class RegisterClientService implements RegisterClientUseCase {
                         .externalId(externalId)
                         .role(UserRole.CLIENT)
                         .build());
+
+        // Step 4 — For OAuth users, stamp role=CLIENT in Supabase app_metadata.
+        // Standard users already have the role set during createUser().
+        if (oauthUser) {
+            authServicePort.updateAppMetadata(externalId, UserRole.CLIENT);
+        }
 
         Client client;
         if (existingClient != null) {
