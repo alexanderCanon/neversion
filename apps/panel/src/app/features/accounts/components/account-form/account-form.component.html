@@ -36,10 +36,10 @@
               }
             </div>
             <div class="col-md-6">
-              <label for="password" class="form-label small fw-semibold text-muted">Contraseña <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-modern" id="password" formControlName="password" placeholder="••••••••" data-bwignore>
+              <label for="password" class="form-label small fw-semibold text-muted">Contraseña de la cuenta <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-modern" id="password" formControlName="password" placeholder="Contraseña de acceso" data-bwignore>
               @if (accountForm.get('password')?.invalid && accountForm.get('password')?.touched) {
-                <div class="text-danger x-small mt-1">Contraseña requerida</div>
+                <div class="text-danger x-small mt-1">Contraseña de la cuenta requerida</div>
               }
             </div>
 

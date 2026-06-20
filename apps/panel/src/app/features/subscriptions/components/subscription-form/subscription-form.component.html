@@ -124,14 +124,20 @@
                 </div>
 
                 <div class="form-section mb-0">
-                    <div class="alert alert-indigo-subtle rounded-4 p-3 mb-0">
+                    <div class="alert rounded-4 p-3 mb-0" [ngClass]="selectedClientHasEmail ? 'alert-indigo-subtle' : 'alert-warning'">
                         <div class="form-check form-switch d-flex align-items-center gap-3">
                             <input class="form-check-input ms-0" style="width: 2.5rem; height: 1.25rem;" type="checkbox" role="switch" id="notifyClient" formControlName="sendNotification">
                             <label class="form-check-label fw-bold small mb-0" for="notifyClient">
                                 Notificar por correo
                             </label>
                         </div>
-                        <p class="x-small text-muted mt-2 mb-0 ps-5 ms-1">Envía automáticamente las credenciales y el perfil asignado al cliente.</p>
+                        @if (selectedClientHasEmail) {
+                            <p class="x-small text-muted mt-2 mb-0 ps-5 ms-1">Envía automáticamente las credenciales y el perfil asignado al cliente.</p>
+                        } @else {
+                            <p class="x-small text-danger fw-medium mt-2 mb-0 ps-5 ms-1">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> El cliente seleccionado no tiene correo registrado.
+                            </p>
+                        }
                     </div>
                 </div>
             </div>
