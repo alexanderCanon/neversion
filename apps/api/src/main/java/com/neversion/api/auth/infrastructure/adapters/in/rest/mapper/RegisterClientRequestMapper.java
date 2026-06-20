@@ -24,7 +24,8 @@ public final class RegisterClientRequestMapper {
                 request.password(),
                 request.name(),
                 request.phone(),
-                request.vendorUuid());
+                request.vendorUuid(),
+                request.externalId());
     }
 
     /**

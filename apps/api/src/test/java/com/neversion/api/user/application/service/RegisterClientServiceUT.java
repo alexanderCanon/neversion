@@ -220,6 +220,93 @@ class RegisterClientServiceUT {
         verifyNoInteractions(notificationLogPort);
     }
 
+    @Test
+    @DisplayName("register - should return existing client directly when externalId already exists (idempotency)")
+    void register_shouldReturnExistingClient_whenExternalIdExists() {
+        // Arrange
+        String externalId = "supabase-oauth-uuid";
+        RegisterClientCommand command = new RegisterClientCommand(
+                "cliente@correo.com", null, "Juan Pérez", "+502 5555-1234", VENDOR_UUID, externalId);
+
+        User existingUser = User.builder()
+                .id(USER_ID).uuid(USER_UUID).externalId(externalId).role(UserRole.CLIENT).build();
+        Client existingClient = Client.builder()
+                .id(1L).uuid(CLIENT_UUID).userId(USER_ID).vendorId(VENDOR_ID)
+                .name("Juan Pérez").email("cliente@correo.com").phone("50255551234").build();
+
+        when(userRepositoryPort.findByExternalId(externalId)).thenReturn(Optional.of(existingUser));
+        when(clientRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(existingClient));
+
+        // Act
+        RegisterClientResult result = sut.register(command);
+
+        // Assert
+        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
+        assertThat(result.name()).isEqualTo("Juan Pérez");
+        assertThat(result.email()).isEqualTo("cliente@correo.com");
+
+        // Verify no other ports are called (idempotency)
+        verifyNoInteractions(vendorRepositoryPort);
+        verifyNoInteractions(authServicePort);
+        verify(clientRepositoryPort, never()).save(any(Client.class));
+    }
+
+    @Test
+    @DisplayName("register - should register without calling Supabase Auth when externalId is provided (Google OAuth)")
+    void register_shouldSaveDirectly_whenExternalIdProvided() {
+        // Arrange
+        String externalId = "supabase-oauth-uuid";
+        RegisterClientCommand command = new RegisterClientCommand(
+                "cliente@correo.com", null, "Juan Pérez", "+502 5555-1234", VENDOR_UUID, externalId);
+
+        Vendor vendor = Vendor.builder()
+                .id(VENDOR_ID).uuid(VENDOR_UUID).userId(99L).storeName("Mi Tienda").build();
+        when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+        when(userRepositoryPort.findByExternalId(externalId)).thenReturn(Optional.empty());
+
+        User savedUser = User.builder()
+                .id(USER_ID).uuid(USER_UUID).externalId(externalId).role(UserRole.CLIENT).build();
+        when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
+
+        Client savedClient = Client.builder()
+                .id(1L).uuid(CLIENT_UUID).userId(USER_ID).vendorId(VENDOR_ID)
+                .name("Juan Pérez").email("cliente@correo.com").phone("50255551234").build();
+        when(clientRepositoryPort.save(any(Client.class))).thenReturn(savedClient);
+
+        // Act
+        RegisterClientResult result = sut.register(command);
+
+        // Assert
+        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
+
+        // Verify Supabase Auth is NOT called
+        verifyNoInteractions(authServicePort);
+        verify(userRepositoryPort).save(any(User.class));
+        verify(clientRepositoryPort).save(any(Client.class));
+    }
+
+    @Test
+    @DisplayName("register - should throw IllegalArgumentException when password is empty and no externalId")
+    void register_shouldThrow_whenPasswordEmptyAndNoExternalId() {
+        // Arrange
+        RegisterClientCommand command = new RegisterClientCommand(
+                "cliente@correo.com", "", "Juan Pérez", "+502 5555-1234", VENDOR_UUID, null);
+
+        Vendor vendor = Vendor.builder()
+                .id(VENDOR_ID).uuid(VENDOR_UUID).userId(99L).storeName("Mi Tienda").build();
+        when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+
+        // Act & Assert
+        assertThatThrownBy(() -> sut.register(command))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Password is required for standard registration");
+
+        verifyNoInteractions(authServicePort);
+        verifyNoInteractions(userRepositoryPort);
+    }
+
     // ─── helpers ─────────────────────────────────────────────────────────────
 
     private RegisterClientCommand buildCommand() {
@@ -228,7 +315,8 @@ class RegisterClientServiceUT {
                 "secret123",
                 "Juan Pérez",
                 "+502 5555-1234",
-                VENDOR_UUID);
+                VENDOR_UUID,
+                null);
     }
 
     private void stubHappyPath() {
