@@ -1,39 +1,23 @@
-<div class="card h-100 shadow-sm custom-card" [routerLink]="['/platforms', platforms?.id]">
-    <!-- Image Wrapper: Inner frame for image, separated from card borders -->
-    <div class="p-3">
-        <div class="card-img-wrapper position-relative overflow-hidden rounded-3">
-            <img [src]="imageUrl" class="card-img-top service-img" [alt]="platforms?.name">
-            <div class="overlay d-flex align-items-center justify-content-center">
-                <span class="btn btn-light rounded-pill px-4 fw-bold shadow-sm">Ver detalles</span>
-            </div>
-        </div>
+<div class="svc-card" [routerLink]="['/platforms', platforms?.id]">
+  <div class="svc-card__img-wrapper">
+    <img [src]="imageUrl" class="svc-card__img" [alt]="platforms?.name">
+    <div class="svc-card__overlay">
+      <span class="svc-card__cta">Ver detalles</span>
     </div>
+  </div>
 
-    <div class="card-body pt-0 pb-3 px-3 d-flex flex-column justify-content-between">
-        <div>
-            <div class="d-flex align-items-center justify-content-between mb-2">
-                <!-- Name aligned left -->
-                <h5 class="card-title fw-bold m-0 text-dark text-start">{{platforms?.name}}</h5>
-                <!-- 5 Stars aligned right -->
-                <div class="text-warning small text-nowrap">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                </div>
-            </div>
-            
-            <div class="pricing-info mb-3">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="small text-muted">Precio Perfil:</span>
-                    <span class="fw-bold text-primary">Q{{platforms?.priceProfile}}</span>
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="small text-muted">Cuenta Completa:</span>
-                    <span class="fw-bold text-dark">Q{{platforms?.priceComplete}}</span>
-                </div>
-            </div>
-        </div>
+  <div class="svc-card__body">
+    <h5 class="svc-card__name">{{ platforms?.name }}</h5>
+
+    <div class="svc-card__pricing">
+      <div class="svc-card__price-row">
+        <span class="svc-card__price-label">Perfil</span>
+        <span class="svc-card__price svc-card__price--profile">Q{{ platforms?.priceProfile }}</span>
+      </div>
+      <div class="svc-card__price-row">
+        <span class="svc-card__price-label">Cuenta completa</span>
+        <span class="svc-card__price svc-card__price--complete">Q{{ platforms?.priceComplete }}</span>
+      </div>
     </div>
+  </div>
 </div>

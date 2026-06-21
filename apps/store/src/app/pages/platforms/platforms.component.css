@@ -1,0 +1,40 @@
+/* =============================================
+   PLATFORMS PAGE — Neversion Store
+   ============================================= */
+
+.platforms-page {
+  min-height: 100vh;
+  background-color: var(--color-surface-50);
+  padding-bottom: 5rem;
+}
+
+.platforms-hero {
+  background-color: var(--color-brand-800);
+  padding: 3rem 0 3rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.platforms-hero__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.platforms-hero__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-text-inverse);
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.platforms-hero__subtitle {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+/* Grid container */
+.container {
+  max-width: 1200px;
+}
