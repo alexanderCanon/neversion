@@ -11,22 +11,21 @@ El dolor principal: **no perder fechas de renovación** de cuentas y pagos de cl
 | Capa | Tecnología | Rol |
 |---|---|---|
 | Base de datos | Supabase (PostgreSQL) | Única fuente de verdad |
-| Automatizaciones | n8n (Dokploy) | Notificaciones, jobs, eventos asíncronos |
-| Backend (futuro) | NestJS / FastAPI | Lógica de negocio, auth, API |
-| Frontend (futuro) | Next.js | Panel admin, tienda |
+| Automatizaciones | notification-service | Notificaciones, jobs, eventos asíncronos |
+| Backend | Spring Boot 3 / Java 17 | Lógica de negocio, auth, API |
+| Frontend | Angular 17 | Panel admin, tienda |
 
 ---
 
 ## Fases
 
 ### ✅ Fase 0 — Completada
-- Workflow de notificaciones creado en n8n (ID: `uzRMsMJAngKHaBL1`)
-- Lógica base: hitos 7d / 3d / 1d / due / overdue con log de auditoría
-- Arquitectura validada y escalable
+- Lógica base de notificaciones: hitos 7d / 3d / 1d / due / overdue con log de auditoría
+- Arquitectura de microservicio de notificaciones validada
 
 ---
 
-### 🔧 Fase 1 — Supabase + Fix Workflow (AHORA)
+### 🔧 Fase 1 — Supabase + Notificaciones (AHORA)
 
 #### Paso 1: Crear proyecto en Supabase
 1. Ir a [supabase.com](https://supabase.com) → New project
@@ -44,13 +43,10 @@ Migrar manualmente (o via CSV import en Supabase) los datos actuales de `neversi
 - Crear los clientes
 - Crear las suscripciones con sus fechas de pago
 
-#### Paso 4: Reajustar workflow n8n
-Ver sección **Ajustes al Workflow** más abajo.
-
 ---
 
-### 🔲 Fase 2 — Panel Admin (cuando el negocio lo requiera)
-- Backend API (NestJS o FastAPI) sobre Supabase
+### 🔲 Fase 2 — Panel Admin
+- Backend API (Spring Boot) sobre Supabase
 - Panel web para gestionar: clientes, cuentas, perfiles, suscripciones
 - Cambio de status manual (activo → suspendido)
 - Vista de "tablero" con renovaciones próximas
@@ -60,7 +56,7 @@ Ver sección **Ajustes al Workflow** más abajo.
 ### 🔲 Fase 3 — Tienda + Pagos
 - Tienda donde clientes ven servicios disponibles y compran su acceso
 - Integración de pagos (Stripe, o pasarela local)
-- Flujo: cliente paga → suscripción se activa automáticamente → n8n envía credenciales
+- Flujo: cliente paga → suscripción se activa automáticamente → se envían credenciales
 - Renovación automática o recordatorio previo al vencimiento
 
 ---
@@ -129,7 +125,7 @@ CREATE TABLE subscriptions (
     DEFERRABLE INITIALLY DEFERRED
 );
 
--- Vista útil: renovaciones próximas (base para el workflow de n8n)
+-- Vista útil: renovaciones próximas
 CREATE VIEW upcoming_renewals AS
 SELECT
   s.id              AS subscription_id,
@@ -161,7 +157,7 @@ FROM accounts a
 JOIN services sv ON sv.id = a.service_id
 WHERE a.renewal_date >= CURRENT_DATE - INTERVAL '7 days';
 
--- Log de notificaciones enviadas (equivalente al notif_log del sheet)
+-- Log de notificaciones enviadas
 CREATE TABLE notification_log (
   id         SERIAL PRIMARY KEY,
   entity_type VARCHAR(20) NOT NULL, -- 'subscription' | 'account'
@@ -192,76 +188,8 @@ INSERT INTO services (name, max_profiles) VALUES
 
 ---
 
-## Ajustes al Workflow n8n
-
-El workflow actual (`uzRMsMJAngKHaBL1`) usa Google Sheets con parsing complejo.
-Con Supabase, se simplifica drásticamente.
-
-### Nodos a eliminar
-- `Define Sheets`
-- `Read Service Sheet`
-- `Parse Row`
-- `Read Log Sheet`
-- `Tag Log Entries`
-- `Merge Renewals + Log`
-
-### Nodos a reemplazar con
-
-**1. Postgres / Supabase Node — "Query Upcoming"**
-```sql
-SELECT
-  'subscription' AS entity_type,
-  subscription_id AS entity_id,
-  client_name AS entity,
-  service_name AS service,
-  payment_due_date AS due_date,
-  days_until_due,
-  client_phone AS phone
-FROM upcoming_renewals
-WHERE days_until_due IN (7, 3, 1, 0) OR days_until_due < 0
-
-UNION ALL
-
-SELECT
-  'account' AS entity_type,
-  id AS entity_id,
-  'CUENTA - ' || email AS entity,
-  service_name AS service,
-  renewal_date AS due_date,
-  days_until_due,
-  '' AS phone
-FROM upcoming_account_renewals
-WHERE days_until_due IN (7, 3, 1, 0) OR days_until_due < 0;
-```
-
-**2. Postgres Node — "Query Log"**
-```sql
-SELECT entity_type, entity_id, stage
-FROM notification_log
-WHERE sent_at >= NOW() - INTERVAL '8 days';
-```
-
-**3. Code — "Compute Pending"** (lógica igual, pero los datos ya llegan limpios)
-
-**4. Postgres Node — "Append To Log"** (reemplaza Google Sheets Append)
-```sql
-INSERT INTO notification_log (entity_type, entity_id, stage)
-VALUES ('{{ $json.entity_type }}', {{ $json.entity_id }}, '{{ $json.stage }}')
-ON CONFLICT DO NOTHING;
-```
-
-### Credenciales a configurar en n8n
-- Crear credencial **PostgreSQL** apuntando a la DB de Supabase
-  - Host: `db.<project-ref>.supabase.co`
-  - Port: `5432`
-  - Database: `postgres`
-  - User: `postgres`
-  - Password: la del proyecto
-
----
-
 ## Próxima sesión
 1. Confirmar schema creado en Supabase
 2. Migrar datos del sheet a Supabase (manual o CSV)
-3. Reemplazar nodos del workflow con las queries de arriba
+3. Test end-to-end del microservicio de notificaciones con datos reales
 4. Test end-to-end del workflow con datos reales

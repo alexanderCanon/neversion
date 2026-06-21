@@ -23,7 +23,7 @@ const protoDescriptor = grpc.loadPackageDefinition(packageDefinition) as any;
 const notificationProto = protoDescriptor.neversion.notification;
 
 const resendApiKey = process.env.RESEND_API_KEY || 're_placeholder';
-const fromEmail = process.env.FROM_EMAIL || 'Neversion <noreply@neversion.com>';
+const fromEmail = process.env.FROM_EMAIL || 'Neversion <noreply@mail.neversion.com>';
 const resend = new Resend(resendApiKey);
 
 // Internal-only notification types that should NOT trigger an email

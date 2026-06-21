@@ -25,7 +25,6 @@ graph TD
 
     subgraph Notifications [Notificaciones]
         Resend[Resend - Email API]
-        n8n[n8n / WhatsApp]
     end
 
     Store -->|Consume| Client_Lib
@@ -39,8 +38,6 @@ graph TD
     Panel -.->|Auth| Supabase
     
     Worker -.->|Send| Resend
-    API -.->|Events| n8n
-    n8n -.->|WhatsApp| Store
 ```
 
 ## Componentes
@@ -51,5 +48,4 @@ graph TD
 5.  **Notification Worker:** Proceso interno que consume `notification_log` (PENDING) y envía correos vía Resend (EPIC-08).
 6.  **Resend:** Servicio externo de envío de correos transaccionales.
 7.  **API Client:** Paquete compartido que garantiza contratos tipados entre el backend y los frontends.
-8.  **n8n:** Orquestador de notificaciones externas (WhatsApp).
 

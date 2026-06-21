@@ -21,12 +21,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.neversion.api.client.domain.model.Client;
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
+import com.neversion.api.user.application.port.out.AuthServicePort;
 import com.neversion.api.user.domain.model.User;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
@@ -40,6 +43,8 @@ class UploadReceiptServiceUT {
     @Mock private NotificationLogPort notificationLogPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private UserRepositoryPort userRepositoryPort;
+    @Mock private ClientRepositoryPort clientRepositoryPort;
+    @Mock private AuthServicePort authServicePort;
 
     private UploadReceiptService uploadReceiptService;
 
@@ -54,7 +59,9 @@ class UploadReceiptServiceUT {
                 reservationRepositoryPort,
                 notificationLogPort,
                 vendorRepositoryPort,
-                userRepositoryPort);
+                userRepositoryPort,
+                clientRepositoryPort,
+                authServicePort);
     }
 
     private Reservation buildReservation(ReservationStatus status) {
@@ -88,13 +95,23 @@ class UploadReceiptServiceUT {
                 .build();
     }
 
+    private Client buildClient() {
+        return Client.builder()
+                .id(1L)
+                .uuid(UUID.randomUUID())
+                .name("Client Name")
+                .email("client@example.com")
+                .build();
+    }
+
     @Test
-    @DisplayName("uploadReceipt - should transition to UPLOADED and notify vendor (US-034)")
+    @DisplayName("uploadReceipt - should transition to UPLOADED and notify client and vendor (US-034)")
     void uploadReceipt_validRequest_shouldTransitionAndNotify() {
         // Given
         Reservation reservation = buildReservation(ReservationStatus.PENDING);
         Vendor vendor = buildVendor();
         User user = buildUser();
+        Client client = buildClient();
 
         when(reservationRepositoryPort.findByUuid(RESERVATION_UUID)).thenReturn(Optional.of(reservation));
         when(reservationRepositoryPort.existsByReceiptUrl(RECEIPT_URL)).thenReturn(false);
@@ -103,6 +120,8 @@ class UploadReceiptServiceUT {
         
         when(vendorRepositoryPort.findByInternalId(VENDOR_ID)).thenReturn(Optional.of(vendor));
         when(userRepositoryPort.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(clientRepositoryPort.findByInternalId(1L)).thenReturn(Optional.of(client));
+        when(authServicePort.findEmailByExternalId("supabase-id-123")).thenReturn(Optional.of("vendor@example.com"));
 
         // When
         Reservation result = uploadReceiptService.uploadReceipt(RESERVATION_UUID, RECEIPT_URL);
@@ -111,9 +130,17 @@ class UploadReceiptServiceUT {
         assertThat(result.getStatus()).isEqualTo(ReservationStatus.UPLOADED);
         assertThat(result.getReceiptUrl()).isEqualTo(RECEIPT_URL);
         
+        // Verify client notification
         verify(notificationLogPort, times(1)).record(
                 eq("RECEIPT_UPLOADED"), 
-                eq("notify-vendor@neversion.local"), 
+                eq("client@example.com"), 
+                any(String.class),
+                eq("order"), any(), eq("receipt_uploaded"));
+
+        // Verify vendor notification
+        verify(notificationLogPort, times(1)).record(
+                eq("VENDOR_RECEIPT_UPLOADED"), 
+                eq("vendor@example.com"), 
                 any(String.class),
                 eq("order"), any(), eq("receipt_uploaded"));
     }
