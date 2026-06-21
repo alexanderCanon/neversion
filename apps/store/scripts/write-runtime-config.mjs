@@ -1,5 +1,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const outputPath = resolve('src/assets/runtime-config.js');
 
