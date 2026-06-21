@@ -1,89 +1,126 @@
 :root {
-  --primary-color: oklch(0.19 0.03 240);
-  --darkest-primary-color: oklch(0.13 0.03 240);
-  --light-text-color: oklch(1.0000 0.0000 0.00);
-  --dark-text-color: oklch(0.25 0.02 240);
-  --secondary-color: oklch(0.70 0.17 220);
-  --tertiary-color: oklch(0.52 0.20 250);
-  --site-background: var(--light-text-color);
-  --primary-variant-color: var(--secondary-color);
+  /* === BRAND COLORS === */
+  --color-brand-900: #0f0e1a;   /* Fondo más oscuro (uso: hero oscuro si se necesita) */
+  --color-brand-800: #1a1830;   /* Navbar background */
+  --color-brand-700: #252347;   /* Hover states oscuros */
+  --color-brand-600: #312f5e;   /* Bordes sobre fondos oscuros */
+  --color-brand-500: #6c63ff;   /* PRIMARY — color de acción principal (violeta) */
+  --color-brand-400: #8b83ff;   /* Hover sobre primary */
+  --color-brand-300: #b5b0ff;   /* Disabled / subtle accent */
+  --color-brand-100: #f0efff;   /* Fondo tinted suave (badges, chips) */
+
+  /* === SURFACE COLORS (fondo del sitio) === */
+  --color-surface-0:   #ffffff;   /* Blanco puro — cards */
+  --color-surface-50:  #f8f7ff;   /* Offwhite con tinte violeta — page background */
+  --color-surface-100: #f0effe;   /* Secciones alternadas */
+  --color-surface-200: #e4e2f8;   /* Bordes suaves entre secciones */
+
+  /* === TEXT COLORS === */
+  --color-text-primary:   #12101f;  /* Títulos — casi negro con tinte indigo */
+  --color-text-secondary: #4a4870;  /* Cuerpo de texto */
+  --color-text-muted:     #8f8db0;  /* Labels, placeholders, meta-info */
+  --color-text-inverse:   #ffffff;  /* Texto sobre fondo oscuro */
+
+  /* === SEMANTIC COLORS === */
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error:   #ef4444;
+
+  /* === PRECIO ACCENT (para destacar precios) === */
+  --color-price-profile:  #6c63ff;   /* Precio perfil — mismo brand primary */
+  --color-price-complete: #12101f;   /* Precio cuenta completa — texto oscuro */
+
+  /* === LEGACY ALIASES (para no romper Bootstrap overrides existentes) === */
+  --primary-color:          var(--color-brand-800);
+  --darkest-primary-color:  var(--color-brand-900);
+  --secondary-color:        var(--color-brand-500);
+  --light-text-color:       var(--color-text-inverse);
+  --dark-text-color:        var(--color-text-primary);
+  --site-background:        var(--color-surface-50);
+
+  /* === SHAPES AND BORDERS === */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+  --radius-pill: 999px;
+
+  --shadow-card: 0 1px 3px rgba(15,14,26,0.06), 0 4px 16px rgba(108,99,255,0.08);
+  --shadow-card-hover: 0 4px 8px rgba(15,14,26,0.08), 0 12px 32px rgba(108,99,255,0.15);
+  --shadow-navbar: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(15,14,26,0.3);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:    700;
+  --font-weight-extrabold: 800;
 }
 
 body {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  background-color: var(--color-surface-50);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  background-color: var(--site-background);
-  color: var(--dark-text-color);
 }
 
+/* Links */
 a {
-  color: var(--primary-color);
+  color: var(--color-brand-500);
   text-decoration: none;
 }
-
 a:hover {
-  color: var(--primary-variant-color);
+  color: var(--color-brand-400);
 }
 
-.insta-gradient-box {
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-  border-radius: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-.insta-svg-icon {
-  color: white;
-  width: 80px;
-  height: 80px;
-}
-
-/* Button Overrides */
+/* Bootstrap btn-primary override */
 .btn-primary {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: var(--light-text-color) !important;
+  background-color: var(--color-brand-500) !important;
+  border-color: var(--color-brand-500) !important;
+  color: #ffffff !important;
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-pill) !important;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
-
 .btn-primary:hover {
-  background-color: var(--darkest-primary-color) !important;
-  border-color: var(--darkest-primary-color) !important;
+  background-color: var(--color-brand-400) !important;
+  border-color: var(--color-brand-400) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108,99,255,0.35) !important;
+}
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-outline-primary {
-  color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
+  color: var(--color-brand-500) !important;
+  border-color: var(--color-brand-500) !important;
+  border-radius: var(--radius-pill) !important;
+  font-weight: var(--font-weight-semibold);
+  transition: all 0.2s;
 }
-
 .btn-outline-primary:hover {
-  background-color: var(--primary-color) !important;
-  color: var(--light-text-color) !important;
-  border-color: var(--primary-color) !important;
+  background-color: var(--color-brand-500) !important;
+  color: #ffffff !important;
 }
 
-/* Button Overrides */
-.btn-primary {
-  background-color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
-  color: var(--light-text-color) !important;
+/* Spinner color */
+.spinner-border.text-primary {
+  color: var(--color-brand-500) !important;
 }
 
-.btn-primary:hover {
-  background-color: var(--darkest-primary-color) !important;
-  border-color: var(--darkest-primary-color) !important;
+/* Badge primary */
+.bg-primary {
+  background-color: var(--color-brand-500) !important;
 }
 
-.btn-outline-primary {
-  color: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
+/* Text primary */
+.text-primary {
+  color: var(--color-brand-500) !important;
 }
 
-.btn-outline-primary:hover {
-  background-color: var(--primary-color) !important;
-  color: var(--light-text-color) !important;
-  border-color: var(--primary-color) !important;
-}
+/* Utility: eliminar el insta box (ya no se usa en diseño nuevo) */
+.insta-gradient-box { display: none; }

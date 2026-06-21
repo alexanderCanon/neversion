@@ -1,95 +1,127 @@
-/* Base Footer Styling */
-.custom-footer {
-  background-color: var(--primary-color) !important;
-  color: var(--light-text-color);
+/* =============================================
+   FOOTER — Neversion Store
+   ============================================= */
+
+.site-footer {
+  background-color: var(--color-brand-900);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 3.5rem 0 1.5rem;
 }
 
-.footer-logo {
-  height: 50px;
+.site-footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.site-footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 2.5rem 3rem;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .site-footer__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .site-footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-footer__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Brand */
+.site-footer__logo {
+  height: 36px;
   width: auto;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1rem;
 }
 
-.footer-text {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.95rem;
-  line-height: 1.6;
+.site-footer__tagline {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.65;
+  margin: 0;
+  max-width: 280px;
 }
 
-.footer-title {
-  color: var(--secondary-color);
-  font-weight: 700;
+/* Headings */
+.site-footer__heading {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  color: rgba(255,255,255,0.35);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  margin: 0 0 1rem;
 }
 
-/* Elegant Links */
-.footer-link {
-  color: var(--light-text-color);
+/* Links */
+.site-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.site-footer__link {
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  display: inline-block;
-  padding: 4px 0;
-  transition: all 0.3s ease;
-  position: relative;
+  transition: color 0.2s;
+}
+.site-footer__link:hover {
+  color: rgba(255,255,255,0.95);
 }
 
-.footer-link:hover {
-  color: var(--secondary-color);
-  transform: translateX(5px);
+/* Social */
+.site-footer__social {
+  display: flex;
+  gap: 0.75rem;
 }
 
-/* Social Buttons */
-.social-btn {
+.site-footer__social-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 45px;
-  height: 45px;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.site-footer__social-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.2);
 }
 
-.social-img {
-  width: 24px;
-  height: 24px;
-  /* Look neutral manteniendo la forma del logo */
-  filter: grayscale(100%) brightness(1.2);
+.site-footer__social-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
   opacity: 0.7;
-  transition: all 0.3s ease;
 }
-
-.social-btn:hover {
-  transform: translateY(-5px);
-  background-color: var(--secondary-color);
-  border-color: var(--secondary-color);
-  box-shadow: 0 5px 15px rgba(51, 196, 255, 0.4);
-}
-
-.social-btn:hover .social-img {
-  filter: grayscale(0%) brightness(1);
+.site-footer__social-btn:hover .site-footer__social-img {
   opacity: 1;
-  transform: scale(1.1);
 }
 
-/* Footer Bottom */
-.footer-bottom {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.text-secondary-custom {
-  color: var(--secondary-color) !important;
-}
-
-/* Responsive Overrides */
-@media (max-width: 991.98px) {
-  .footer-link:hover {
-    transform: none;
-  }
-
-  .social-icons {
-    justify-content: flex-start !important;
-  }
+/* Bottom bar */
+.site-footer__bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 1.5rem;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.3);
+  text-align: center;
 }

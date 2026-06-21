@@ -15,8 +15,7 @@
            title="Carrito de compras" style="cursor: pointer; width: 38px; height: 38px;">
           <img src="/assets/cart.svg" alt="Cart" class="cart-icon" style="width: 22px;">
           <span *ngIf="cartItemCount$ | async as count" 
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-primary"
-                style="font-size: 0.6rem; padding: 0.25em 0.4em;">
+                class="badge rounded-pill cart-badge position-absolute top-0 start-100 translate-middle">
             {{ count }}
           </span>
         </a>
@@ -24,11 +23,11 @@
         <!-- Cart Preview Menu -->
         <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-0 rounded-4 overflow-hidden" 
              aria-labelledby="cartDropdown" style="width: 300px; max-width: 90vw;">
-          <div class="bg-primary text-white p-3">
+          <div class="cart-panel-header">
             <h6 class="mb-0 fw-bold small"><i class="bi bi-cart3 me-2"></i>Tu Carrito</h6>
           </div>
           
-          <div class="cart-items-container scrollbar-hidden" style="max-height: 250px; overflow-y: auto;">
+          <div class="cart-panel-body scrollbar-hidden" style="max-height: 240px; overflow-y: auto;">
             <div *ngIf="(cartItems$ | async)?.length === 0" class="p-4 text-center">
               <i class="bi bi-cart-x text-muted fs-1"></i>
               <p class="text-muted mt-2 small mb-0">Tu carrito está vacío</p>
@@ -51,10 +50,10 @@
             </div>
           </div>
 
-          <div *ngIf="(cartItems$ | async)?.length" class="p-3 bg-light">
+          <div *ngIf="(cartItems$ | async)?.length" class="cart-panel-footer">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="fw-bold text-muted small text-uppercase" style="font-size: 0.6rem;">Total estimado</span>
-              <span class="fw-bold text-dark mb-0">Q{{ getTotal() }}</span>
+              <span class="fw-bold text-white mb-0">Q{{ getTotal() }}</span>
             </div>
             <div class="d-grid gap-2">
               <button routerLink="/checkout" class="btn btn-primary rounded-pill btn-sm fw-bold shadow-sm">
@@ -67,9 +66,8 @@
 
       <ng-container *ngIf="currentUser$ | async as user; else loginBtn">
         <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle rounded-pill px-2 px-sm-3 fw-bold shadow-sm d-flex align-items-center" 
-                  type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
-                  style="color: var(--primary-color); height: 38px;">
+          <button class="btn dropdown-toggle user-btn d-flex align-items-center" 
+                  type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle fs-5 me-sm-2"></i>
             <span class="d-none d-sm-inline small">{{ user.name }}</span>
           </button>

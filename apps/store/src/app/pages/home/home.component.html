@@ -1,33 +1,61 @@
-<section class="hero-section position-relative py-5 shadow-lg" 
-         style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--darkest-primary-color) 100%);">
-  <div class="container px-4 py-5 my-5 text-center text-white">
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <h1 class="display-3 fw-bold mb-4">Bienvenido a Neversion</h1>
-        <h2 class="h3 fw-light mb-4 opacity-90">La mejor experiencia de compra digital en un solo lugar</h2>
-        <p class="lead mb-5 opacity-75 fs-4">
-          Accede a las mejores plataformas de streaming, juegos y servicios con precios imbatibles y activación inmediata.
-        </p>
-        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
-          <a routerLink="/platforms" class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg transition-all hover-grow" 
-             style="color: var(--primary-color);">
-            Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
-          </a>
-          <a routerLink="/offers" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold transition-all hover-grow">
-            Ver Ofertas
-          </a>
+<!-- HERO -->
+<section class="home-hero">
+  <div class="home-hero__container">
+    <div class="home-hero__content">
+      <span class="home-hero__eyebrow">Guatemala · Servicios digitales</span>
+      <h1 class="home-hero__title">
+        Accede a las mejores<br>plataformas digitales
+      </h1>
+      <p class="home-hero__subtitle">
+        Streaming, juegos y más — con activación inmediata y precios accesibles para Guatemala.
+      </p>
+      <div class="home-hero__actions">
+        <a routerLink="/platforms" class="btn btn-primary home-hero__btn-primary">
+          Ver catálogo
+        </a>
+        <a routerLink="/how-to-buy" class="home-hero__link-secondary">
+          ¿Cómo funciona? <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+
+    <div class="home-hero__visual" aria-hidden="true">
+      <div class="home-hero__glow"></div>
+      <div class="home-hero__badge-cluster">
+        <div class="home-hero__badge">
+          <i class="bi bi-shield-check"></i>
+          <span>Activación inmediata</span>
+        </div>
+        <div class="home-hero__badge">
+          <i class="bi bi-whatsapp"></i>
+          <span>Soporte por WhatsApp</span>
+        </div>
+        <div class="home-hero__badge">
+          <i class="bi bi-credit-card-2-front"></i>
+          <span>Múltiples métodos de pago</span>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="container py-5 mt-4">
-  <div class="d-flex align-items-center justify-content-between mb-5">
-    <h2 class="fw-bold mb-0">Servicios Populares</h2>
-    <a routerLink="/platforms" class="text-primary text-decoration-none fw-bold">Ver todos <i class="bi bi-chevron-right small"></i></a>
+<!-- SERVICIOS POPULARES -->
+<section class="home-catalog">
+  <div class="home-catalog__container">
+    <div class="home-catalog__header">
+      <div>
+        <h2 class="home-catalog__title">Servicios populares</h2>
+        <p class="home-catalog__subtitle">Los más elegidos por nuestros clientes</p>
+      </div>
+      <a routerLink="/platforms" class="home-catalog__see-all">
+        Ver todos <i class="bi bi-chevron-right"></i>
+      </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+      <div class="col" *ngFor="let item of platforms$ | async">
+        <app-service-card [platforms]="item"></app-service-card>
+      </div>
+    </div>
   </div>
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
-    <app-service-card *ngFor="let item of platforms$ | async" [platforms]="item"></app-service-card>
-  </div>
-</div>
+</section>

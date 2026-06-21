@@ -1,133 +1,223 @@
-/* Base Toolbar Styling */
+/* =============================================
+   NAVBAR — Neversion Store
+   Estilo: Dark translúcido con glassmorphism
+   ============================================= */
+
 .custom-toolbar {
-  background-color: var(--primary-color) !important;
-  border-bottom: 2px solid var(--secondary-color);
-  transition: all 0.3s ease;
+  background-color: var(--color-brand-800);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  box-shadow: var(--shadow-navbar);
+  transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
 }
 
+/* Estado scrolled: añadir clase .scrolled desde el componente TS si existe,
+   si no existe la lógica, ignorar esta regla */
+.custom-toolbar.scrolled {
+  background-color: rgba(26, 24, 48, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Logo */
 .logo-img {
-  height: 45px;
+  height: 38px;
   width: auto;
-  transition: transform 0.3s ease;
+  transition: opacity 0.2s ease;
 }
-
 .logo-img:hover {
-  transform: scale(1.05);
+  opacity: 0.85;
 }
 
-/* Elegant Navigation Links */
+/* Nav links */
 .nav-link {
-  color: var(--light-text-color) !important;
-  font-weight: 500;
+  color: rgba(255,255,255,0.75) !important;
+  font-weight: var(--font-weight-medium);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.75rem !important;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s, background-color 0.2s;
   position: relative;
-  transition: color 0.3s ease;
-  padding: 0.5rem 0.8rem !important;
 }
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 5px;
-  left: 50%;
-  background-color: var(--secondary-color);
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 70%;
-}
-
 .nav-link:hover {
-  color: var(--secondary-color) !important;
+  color: rgba(255,255,255,1) !important;
+  background-color: rgba(255,255,255,0.07);
+}
+.nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(108,99,255,0.2);
 }
 
-/* Modern Search Input */
+/* Quitar el pseudo-elemento ::after que existía antes */
+.nav-link::after {
+  display: none;
+}
+
+/* Search input */
 .search-input {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  background-color: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: var(--radius-pill) !important;
   color: white !important;
-  padding-left: 1.2rem;
-  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  padding: 0.4rem 1rem !important;
+  transition: background-color 0.2s, border-color 0.2s, width 0.3s;
+  width: 160px;
 }
-
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255,255,255,0.4);
 }
-
 .search-input:focus {
-  background-color: white;
-  color: var(--dark-text-color) !important;
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 10px rgba(51, 196, 255, 0.3);
-  width: 200px;
-  /* Expansión suave al enfocar */
+  background-color: rgba(255,255,255,0.12);
+  border-color: var(--color-brand-500) !important;
+  box-shadow: 0 0 0 3px rgba(108,99,255,0.2) !important;
+  color: white !important;
+  outline: none;
+  width: 220px;
 }
 
-/* Action Icons & Buttons */
+/* Cart icon */
 .cart-icon {
-  width: 26px;
-  height: 26px;
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* Use filter to colorize the SVG if needed */
+  width: 22px;
+  height: 22px;
   filter: invert(100%);
+  transition: transform 0.2s ease, filter 0.2s ease;
 }
-
+.cart-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.cart-link:hover {
+  background-color: rgba(255,255,255,0.08);
+}
 .cart-link:hover .cart-icon {
-  transform: scale(1.2) rotate(-5deg);
-  filter: invert(74%) sepia(26%) saturate(666%) hue-rotate(166deg) brightness(101%) contrast(101%);
+  transform: scale(1.1);
 }
 
+/* Cart badge */
+.cart-badge {
+  font-size: 0.6rem;
+  padding: 0.2em 0.45em;
+  background-color: var(--color-brand-500) !important;
+  border: 2px solid var(--color-brand-800) !important;
+}
+
+/* Login button */
 .login-btn {
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.3s ease !important;
+  font-weight: var(--font-weight-semibold);
+  font-size: 0.875rem;
+  height: 36px;
+  padding: 0 1rem;
+  /* hereda estilos de .btn-primary global */
 }
 
-.login-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+/* User dropdown trigger */
+.user-btn {
+  background-color: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: white !important;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  height: 36px;
+  padding: 0 0.875rem;
+  border-radius: var(--radius-pill);
+  transition: background-color 0.2s;
+}
+.user-btn:hover {
+  background-color: rgba(255,255,255,0.14);
 }
 
-/* Hover trigger for Cart Dropdown */
+/* Dropdown menu */
+.dropdown-menu {
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  box-shadow: 0 8px 32px rgba(15,14,26,0.35) !important;
+  border-radius: var(--radius-lg) !important;
+  padding: 0.5rem !important;
+  background-color: var(--color-brand-800) !important;
+}
+.dropdown-item {
+  color: rgba(255,255,255,0.8) !important;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  transition: background-color 0.15s;
+}
+.dropdown-item:hover {
+  background-color: rgba(255,255,255,0.08) !important;
+  color: white !important;
+}
+.dropdown-item.text-danger {
+  color: #fca5a5 !important;
+}
+.dropdown-item.text-danger:hover {
+  background-color: rgba(239,68,68,0.15) !important;
+  color: #fca5a5 !important;
+}
+.dropdown-divider {
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Cart dropdown panel */
+.cart-panel-header {
+  background-color: var(--color-brand-700);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: white;
+}
+.cart-panel-body {
+  background-color: var(--color-brand-800);
+}
+.cart-panel-item {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.cart-panel-footer {
+  background-color: var(--color-brand-900);
+  padding: 0.875rem 1rem;
+}
+
+/* Mobile hamburger */
+.navbar-toggler {
+  border: none !important;
+  color: white;
+  padding: 0.25rem;
+}
+.navbar-toggler:focus {
+  box-shadow: none !important;
+}
+
+/* Cart hover dropdown */
 .cart-dropdown:hover .dropdown-menu {
   display: block;
-  margin-top: 0;
 }
 .cart-dropdown .dropdown-menu {
   top: 100%;
   right: 0;
-  left: auto; /* Reset bootstrap default left positioning */
-  margin-top: 10px;
-  transform: translateX(15px); /* Small adjustment to align better without overflow */
+  left: auto;
+  margin-top: 8px;
+  width: 300px;
+  max-width: 90vw;
 }
-
-/* Container overflow protection */
 @media (max-width: 400px) {
   .cart-dropdown .dropdown-menu {
     width: calc(100vw - 40px);
-    right: -20px;
+    right: -12px;
   }
 }
-
 .cart-dropdown::after {
   content: "";
   position: absolute;
   top: 100%;
-  right: -20px;
-  width: calc(100% + 40px);
-  height: 20px;
+  right: -16px;
+  width: calc(100% + 32px);
+  height: 16px;
 }
 
-/* Custom scrollbar for preview */
-.scrollbar-hidden::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hidden {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* Hidden scrollbar */
+.scrollbar-hidden::-webkit-scrollbar { display: none; }
+.scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }

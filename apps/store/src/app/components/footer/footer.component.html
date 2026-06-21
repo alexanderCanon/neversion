@@ -1,50 +1,58 @@
-<footer class="custom-footer pt-5 pb-3 border-top border-secondary-subtle">
-  <div class="container px-4">
-    <div class="row gy-4">
+<footer class="site-footer">
+  <div class="site-footer__inner">
 
-      <!-- Brand & Description Section -->
-      <div class="col-lg-4 col-md-6">
-        <div class="footer-brand mb-3">
-          <img src="/assets/neversion-digital-logo.png" alt="Neversion Logo" class="footer-logo mb-3" style="border-radius: 8px; object-fit: contain;">
-          <p class="footer-text pe-lg-4">Tu tienda digital de confianza para juegos, plataformas y recargas. Siempre con
-            el mejor servicio y rapidez.</p>
-        </div>
+    <div class="site-footer__grid">
+
+      <!-- Marca -->
+      <div class="site-footer__brand">
+        <img src="/assets/neversion-digital-logo.png" alt="Neversion" class="site-footer__logo">
+        <p class="site-footer__tagline">
+          Tu tienda digital de confianza. Streaming, juegos y recargas con atención real.
+        </p>
       </div>
 
-      <!-- Quick Links Section -->
-      <div class="col-lg-4 col-md-6">
-        <h5 class="footer-title mb-3">Opciones</h5>
-        <ul class="list-unstyled footer-links">
-          <li><a href="https://www.neversion.com" target="_blank" rel="noopener noreferrer" class="footer-link">Sobre nosotros</a></li>
-          <li><a routerLink="contact" routerLinkActive="active" class="footer-link">Contáctanos</a></li>
-          <li><a routerLink="how-to-buy" routerLinkActive="active" class="footer-link">¿Cómo comprar?</a></li>
-          <li><a routerLink="support" routerLinkActive="active" class="footer-link">Soporte y Tickets</a></li>
+      <!-- Links -->
+      <div>
+        <h6 class="site-footer__heading">Explorar</h6>
+        <ul class="site-footer__links">
+          <li><a routerLink="platforms" class="site-footer__link">Plataformas</a></li>
+          <li><a routerLink="offers" class="site-footer__link">Ofertas</a></li>
+          <li><a routerLink="games" class="site-footer__link">Juegos</a></li>
+          <li><a routerLink="combo" class="site-footer__link">Combos</a></li>
         </ul>
       </div>
 
-      <!-- Social Media Section -->
-      <div class="col-lg-4 col-md-12 text-lg-end text-md-start">
-        <h5 class="footer-title mb-3">Síguenos</h5>
-        <div class="social-icons d-flex gap-3 justify-content-lg-end">
-          <a href="https://www.facebook.com/neversio/" target="_blank" rel="noopener noreferrer" class="social-btn facebook" title="Facebook">
-            <img src="/assets/facebook_logo.svg" alt="Facebook" class="social-img">
+      <!-- Ayuda -->
+      <div>
+        <h6 class="site-footer__heading">Ayuda</h6>
+        <ul class="site-footer__links">
+          <li><a routerLink="how-to-buy" class="site-footer__link">¿Cómo comprar?</a></li>
+          <li><a routerLink="payment-methods" class="site-footer__link">Métodos de pago</a></li>
+          <li><a routerLink="contact" class="site-footer__link">Contacto</a></li>
+          <li><a routerLink="support" class="site-footer__link">Soporte</a></li>
+        </ul>
+      </div>
+
+      <!-- Social -->
+      <div>
+        <h6 class="site-footer__heading">Síguenos</h6>
+        <div class="site-footer__social">
+          <a href="https://www.facebook.com/neversio/" target="_blank" rel="noopener noreferrer"
+             class="site-footer__social-btn" title="Facebook">
+            <img src="/assets/facebook_logo.svg" alt="Facebook" class="site-footer__social-img">
           </a>
-          <a href="https://www.instagram.com/neversiondigital" target="_blank" rel="noopener noreferrer" class="social-btn instagram"
-            title="Instagram">
-            <img src="/assets/instagram_logo.svg" alt="Instagram" class="social-img">
+          <a href="https://www.instagram.com/neversiondigital" target="_blank" rel="noopener noreferrer"
+             class="site-footer__social-btn" title="Instagram">
+            <img src="/assets/instagram_logo.svg" alt="Instagram" class="site-footer__social-img">
           </a>
         </div>
       </div>
 
     </div>
 
-    <!-- Bottom Section -->
-    <div class="mt-5 pt-4 border-top border-secondary-subtle text-center footer-bottom">
-      <p class="mb-0">
-        Copyright &copy; 2026 |
-        <span class="text-secondary-custom fw-bold">Neversion</span>
-        &middot; Todos los derechos reservados
-      </p>
+    <div class="site-footer__bottom">
+      <span>© 2026 Neversion · Todos los derechos reservados</span>
     </div>
+
   </div>
 </footer>
