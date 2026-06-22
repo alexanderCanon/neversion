@@ -37,6 +37,7 @@ export class ProfileListComponent {
   @Input() canGenerateProfiles = true;
   @Input() maxProfiles = 0;
   @Input() currentProfileCount = 0;
+  @Input() isSpotify = false;
   @Output() profilesChanged = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
@@ -45,7 +46,7 @@ export class ProfileListComponent {
 
   readonly profileForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
-    pin: ['', [Validators.maxLength(10)]],
+    pin: ['', [Validators.maxLength(20)]],
     notes: [''],
     isOwner: [false]
   });
@@ -85,6 +86,10 @@ export class ProfileListComponent {
 
   get wouldExceedLimit(): boolean {
     return this.maxProfiles > 0 && (this.currentProfileCount + this.generateCount) > this.maxProfiles;
+  }
+
+  get hasOtherOwner(): boolean {
+    return this.profiles.some(p => p.isOwner && p.id !== this.selectedProfileId);
   }
 
   onGenerateProfiles(): void {

@@ -180,7 +180,7 @@ class ProfileServiceFullUT {
         void update_notFound_shouldThrow404() {
             when(profileRepositoryPort.findById(PROFILE_UUID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> profileService.update(PROFILE_UUID, "New", null, null, EXTERNAL_ID))
+            assertThatThrownBy(() -> profileService.update(PROFILE_UUID, "New", null, null, null, EXTERNAL_ID))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining(PROFILE_UUID.toString());
         }
@@ -204,7 +204,7 @@ class ProfileServiceFullUT {
             when(vendorRepositoryPort.findByUserId(USER_ID)).thenReturn(Optional.of(vendor));
             when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(foreignAccount));
 
-            assertThatThrownBy(() -> profileService.update(PROFILE_UUID, "New", null, null, EXTERNAL_ID))
+            assertThatThrownBy(() -> profileService.update(PROFILE_UUID, "New", null, null, null, EXTERNAL_ID))
                     .isInstanceOf(AccessDeniedException.class);
         }
 
@@ -215,7 +215,7 @@ class ProfileServiceFullUT {
             stubProfileOwnership(p);
             when(profileRepositoryPort.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-            Profile result = profileService.update(PROFILE_UUID, "Nuevo Nombre", null, null, EXTERNAL_ID);
+            Profile result = profileService.update(PROFILE_UUID, "Nuevo Nombre", null, null, null, EXTERNAL_ID);
 
             assertThat(result.getName()).isEqualTo("Nuevo Nombre");
             assertThat(result.getPin()).isNull();
@@ -228,9 +228,22 @@ class ProfileServiceFullUT {
             stubProfileOwnership(p);
             when(profileRepositoryPort.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-            Profile result = profileService.update(PROFILE_UUID, null, "9876", null, EXTERNAL_ID);
+            Profile result = profileService.update(PROFILE_UUID, null, "9876", null, null, EXTERNAL_ID);
 
             assertThat(result.getPin()).isEqualTo("9876");
+            assertThat(result.getName()).isEqualTo("Perfil 1"); // unchanged
+        }
+
+        @Test
+        @DisplayName("update_validNotes_shouldPatchOnlyNotes")
+        void update_validNotes_shouldPatchOnlyNotes() {
+            Profile p = profile();
+            stubProfileOwnership(p);
+            when(profileRepositoryPort.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            Profile result = profileService.update(PROFILE_UUID, null, null, "Link Spotify", null, EXTERNAL_ID);
+
+            assertThat(result.getNotes()).isEqualTo("Link Spotify");
             assertThat(result.getName()).isEqualTo("Perfil 1"); // unchanged
         }
     }

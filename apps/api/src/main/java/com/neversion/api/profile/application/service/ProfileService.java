@@ -166,7 +166,7 @@ public class ProfileService implements ProfileUseCase {
 
     @Override
     @Transactional
-    public Profile update(UUID profileUuid, String name, String pin, Boolean isOwner,
+    public Profile update(UUID profileUuid, String name, String pin, String notes, Boolean isOwner,
             String callerExternalId) {
         Profile profile = profileRepositoryPort.findById(profileUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found: " + profileUuid));
@@ -176,6 +176,7 @@ public class ProfileService implements ProfileUseCase {
         // Apply only non-null values (BR-US026-01)
         if (name != null) profile.setName(name);
         if (pin != null) profile.setPin(pin);
+        if (notes != null) profile.setNotes(notes);
         if (isOwner != null) profile.setIsOwner(isOwner);
 
         return profileRepositoryPort.save(profile);

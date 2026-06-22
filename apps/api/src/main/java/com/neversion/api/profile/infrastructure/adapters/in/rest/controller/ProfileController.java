@@ -99,7 +99,7 @@ public class ProfileController {
             @Valid @RequestBody ProfileRequest request,
             JwtAuthenticationToken token) {
         Profile updated = profileUseCase.update(
-                id, request.name(), request.pin(), request.isOwner(),
+                id, request.name(), request.pin(), request.notes(), request.isOwner(),
                 token.getToken().getSubject());
         return ResponseEntity.ok(profileMapper.toResponse(updated));
     }
