@@ -11,6 +11,8 @@ export interface ProfileRequest {
   accountId: string; // UUID
   name?: string;
   pin?: string;
+  /** Invitation link or personal email for Spotify Family slots. */
+  notes?: string;
   isOwner?: boolean;
 }
 
@@ -19,6 +21,8 @@ export interface ProfileResponse {
   accountId: string;
   name: string;
   pin?: string;
+  /** Invitation link or personal email for Spotify Family slots. */
+  notes?: string;
   isOwner: boolean;
   status: ProfileStatus;
   createdAt: string;

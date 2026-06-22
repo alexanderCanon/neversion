@@ -27,6 +27,8 @@ import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
 import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.model.ProfileAssignmentHistory;
+import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.subscription.domain.model.Subscription;
@@ -48,6 +50,7 @@ public class ConfirmAssignmentService implements ConfirmAssignmentUseCase {
     private final SubscriptionRepositoryPort subscriptionRepositoryPort;
     private final DeliverAccessUseCase deliverAccessUseCase;
     private final AssignmentContextResolver contextResolver;
+    private final ProfileAssignmentHistoryRepositoryPort historyRepositoryPort;
 
     public ConfirmAssignmentService(
             OrderRepositoryPort orderRepositoryPort,
@@ -58,7 +61,8 @@ public class ConfirmAssignmentService implements ConfirmAssignmentUseCase {
             ClientRepositoryPort clientRepositoryPort,
             SubscriptionRepositoryPort subscriptionRepositoryPort,
             DeliverAccessUseCase deliverAccessUseCase,
-            AssignmentContextResolver contextResolver) {
+            AssignmentContextResolver contextResolver,
+            ProfileAssignmentHistoryRepositoryPort historyRepositoryPort) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.orderStatusHistoryPort = orderStatusHistoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
@@ -68,6 +72,7 @@ public class ConfirmAssignmentService implements ConfirmAssignmentUseCase {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.deliverAccessUseCase = deliverAccessUseCase;
         this.contextResolver = contextResolver;
+        this.historyRepositoryPort = historyRepositoryPort;
     }
 
     @Override
@@ -160,6 +165,17 @@ public class ConfirmAssignmentService implements ConfirmAssignmentUseCase {
                 .build());
 
         queueAccessDelivery(savedSubscription);
+
+        historyRepositoryPort.save(ProfileAssignmentHistory.builder()
+                .profileId(profile.getId())
+                .subscriptionId(savedSubscription.getId())
+                .accountEmail(account.getEmail())
+                .accountPassword(account.getPassword())
+                .profileName(profile.getName())
+                .profilePin(profile.getPin())
+                .profileNotes(profile.getNotes())
+                .vendorId(vendor.getId())
+                .build());
 
         return new AssignmentResult(
                 savedSubscription.getUuid(),

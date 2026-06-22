@@ -50,6 +50,8 @@ public record SubscriptionDetailResponse(
             UUID id,
             String name,
             String pin,
+            /** Operational notes: invitation link or personal email for Spotify Family slots. */
+            String notes,
             Boolean isOwner,
             ProfileStatus status) {
     }

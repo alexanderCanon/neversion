@@ -10,10 +10,13 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Request body for creating a reservation (US-033).
  * EPIC-05: Added paymentMethod (selected by client at checkout).
+ * Spotify: Added notes for account preference (cuenta nueva / cuenta propia).
  */
 public record ReservationRequest(
 
         @NotNull UUID clientId,
         @NotNull @NotEmpty List<@Valid ReservationItemRequest> items,
-        String paymentMethod) {
+        String paymentMethod,
+        /** Client notes, e.g. Spotify account preference captured at checkout. */
+        String notes) {
 }

@@ -38,6 +38,7 @@ import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
@@ -60,6 +61,7 @@ class ConfirmAssignmentServiceUT {
     @Mock private SubscriptionRepositoryPort subscriptionRepositoryPort;
     @Mock private DeliverAccessUseCase deliverAccessUseCase;
     @Mock private AssignmentContextResolver contextResolver;
+    @Mock private ProfileAssignmentHistoryRepositoryPort historyRepositoryPort;
 
     private ConfirmAssignmentService service;
     private UUID orderUuid;
@@ -78,7 +80,8 @@ class ConfirmAssignmentServiceUT {
                 clientRepositoryPort,
                 subscriptionRepositoryPort,
                 deliverAccessUseCase,
-                contextResolver);
+                contextResolver,
+                historyRepositoryPort);
 
         orderUuid = UUID.randomUUID();
         profileUuid = UUID.randomUUID();

@@ -7,8 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.assignment.application.port.in.DeliverAccessUseCase;
+import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
@@ -18,6 +19,8 @@ import com.neversion.api.subscription.domain.model.Subscription;
 
 @Service
 public class DeliverAccessService implements DeliverAccessUseCase {
+
+    private static final String SPOTIFY_SERVICE_NAME = "Spotify";
 
     private final ProfileRepositoryPort profileRepositoryPort;
     private final AccountRepositoryPort accountRepositoryPort;
@@ -56,12 +59,29 @@ public class DeliverAccessService implements DeliverAccessUseCase {
         var client = clientRepositoryPort.findByInternalId(subscription.getClientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found for subscription."));
 
+        /*
+         * Spotify Family (BY_PROFILE): each client uses their own personal account or
+         * an invitation link stored in profile.notes. The master account credentials
+         * (email + password) must NEVER be sent to the client — exposing them would
+         * compromise the vendor's anchor account for all family slots.
+         *
+         * For every other service the master credentials are included as usual.
+         */
+        boolean isSpotifyByProfile = SPOTIFY_SERVICE_NAME.equalsIgnoreCase(service.getName())
+                && account.getSaleMode() == SaleMode.BY_PROFILE;
+
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("subscriptionId", subscription.getUuid());
         payload.put("serviceName", service.getName());
-        payload.put("accountEmail", account.getEmail());
-        payload.put("accountPassword", account.getPassword());
-        payload.put("profileName", profile.getName());
+
+        if (!isSpotifyByProfile) {
+            payload.put("accountEmail", account.getEmail());
+            payload.put("accountPassword", account.getPassword());
+        }
+
+        // profileName holds the invitation link or personal email for Spotify slots.
+        payload.put("profileName", profile.getNotes() != null ? profile.getNotes() : profile.getName());
+
         if (profile.getPin() != null) {
             payload.put("pin", profile.getPin());
         }

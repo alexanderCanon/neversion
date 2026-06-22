@@ -153,6 +153,24 @@
             />
           </div>
 
+          <div class="mb-4">
+            <label for="profileNotes" class="form-label text-secondary fw-semibold small">
+              Notas Operativas
+              <span class="badge bg-light border text-muted fw-normal ms-1" style="font-size: 0.65rem;">Opcional</span>
+            </label>
+            <textarea
+              class="form-control"
+              id="profileNotes"
+              formControlName="notes"
+              rows="3"
+              placeholder="Ej. https://spotify.com/invite/abc123 · correo personal del cliente · cualquier anotación de soporte"
+            ></textarea>
+            <div class="form-text text-muted d-flex align-items-center gap-1 mt-1">
+              <span style="color: #1DB954; font-size: 0.75rem;">&#9679;</span>
+              <span>Para Spotify Family: escribe aquí el enlace de invitación o el correo personal del cliente.</span>
+            </div>
+          </div>
+
           <div class="form-check form-switch p-3 bg-light rounded-3">
             <input class="form-check-input ms-0 me-3" type="checkbox" id="isOwnerSwitch" formControlName="isOwner">
             <label class="form-check-label fw-semibold" for="isOwnerSwitch">

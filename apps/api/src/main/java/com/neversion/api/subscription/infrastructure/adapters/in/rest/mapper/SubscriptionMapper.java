@@ -3,6 +3,7 @@ package com.neversion.api.subscription.infrastructure.adapters.in.rest.mapper;
 import org.springframework.stereotype.Component;
 
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.profile.domain.model.Profile;
@@ -119,6 +120,7 @@ public class SubscriptionMapper {
                         profile.getUuid(),
                         profile.getName(),
                         profile.getPin(),
+                        profile.getNotes(),
                         profile.getIsOwner(),
                         profile.getStatus()))
                 .account(new SubscriptionDetailResponse.AccountSummary(
@@ -127,12 +129,7 @@ public class SubscriptionMapper {
                         account.getPlan(),
                         account.getSaleMode(),
                         account.getStatus()))
-                .access(new SubscriptionDetailResponse.AccessSummary(
-                        account.getEmail(),
-                        account.getPassword(),
-                        profile.getName(),
-                        profile.getPin(),
-                        account.getSaleMode()))
+                .access(buildAccessSummary(service, account, profile))
                 .order(toOrderSummary(order))
                 .build();
     }
@@ -149,5 +146,30 @@ public class SubscriptionMapper {
                 order.getReceiptUrl(),
                 order.getApprovedAt(),
                 order.getCreatedAt());
+    }
+
+    /**
+     * Builds the AccessSummary for a subscription detail response.
+     *
+     * Spotify Family (BY_PROFILE): each client uses their own personal account or
+     * an invitation link. Exposing the master account credentials would compromise
+     * the vendor's anchor account. accountEmail and accountPassword are set to null.
+     */
+    private SubscriptionDetailResponse.AccessSummary buildAccessSummary(
+            com.neversion.api.service.domain.model.Service service,
+            Account account,
+            com.neversion.api.profile.domain.model.Profile profile) {
+
+        boolean isSpotifyByProfile = service != null
+                && "Spotify".equalsIgnoreCase(service.getName())
+                && account.getSaleMode() == SaleMode.BY_PROFILE;
+
+        return new SubscriptionDetailResponse.AccessSummary(
+                isSpotifyByProfile ? null : account.getEmail(),
+                isSpotifyByProfile ? null : account.getPassword(),
+                // For Spotify slots, profileName carries the invitation link / personal email.
+                profile.getNotes() != null ? profile.getNotes() : profile.getName(),
+                profile.getPin(),
+                account.getSaleMode());
     }
 }

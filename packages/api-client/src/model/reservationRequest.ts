@@ -14,5 +14,6 @@ export interface ReservationRequest {
     clientId: string;
     items: Array<ReservationItemRequest>;
     paymentMethod?: string;
+    notes?: string;
 }
 

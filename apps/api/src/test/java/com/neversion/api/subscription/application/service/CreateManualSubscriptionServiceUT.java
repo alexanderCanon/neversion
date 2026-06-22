@@ -33,6 +33,7 @@ import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
@@ -59,6 +60,7 @@ class CreateManualSubscriptionServiceUT {
     @Mock private UserRepositoryPort userRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private DeliverAccessUseCase deliverAccessUseCase;
+    @Mock private ProfileAssignmentHistoryRepositoryPort historyRepositoryPort;
 
     private CreateManualSubscriptionService createManualSubscriptionService;
 
@@ -85,6 +87,7 @@ class CreateManualSubscriptionServiceUT {
                 serviceRepositoryPort,
                 deliverAccessUseCase,
                 new VendorSecurityService(userRepositoryPort, vendorRepositoryPort),
+                historyRepositoryPort,
                 FIXED_CLOCK);
     }
 

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.order.application.port.in.GetOrderUseCase;
 import com.neversion.api.order.application.port.in.ListOrdersUseCase;
@@ -48,6 +49,7 @@ public class OrderGetController {
     private final OrderStatusHistoryPort orderStatusHistoryPort;
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
+    private final ClientRepositoryPort clientRepositoryPort;
 
     public OrderGetController(GetOrderUseCase getOrderUseCase,
             ListOrdersUseCase listOrdersUseCase,
@@ -56,7 +58,8 @@ public class OrderGetController {
             ReservationRestMapper reservationRestMapper,
             OrderStatusHistoryPort orderStatusHistoryPort,
             UserRepositoryPort userRepositoryPort,
-            VendorRepositoryPort vendorRepositoryPort) {
+            VendorRepositoryPort vendorRepositoryPort,
+            ClientRepositoryPort clientRepositoryPort) {
         this.getOrderUseCase = getOrderUseCase;
         this.listOrdersUseCase = listOrdersUseCase;
         this.orderRestMapper = orderRestMapper;
@@ -65,6 +68,7 @@ public class OrderGetController {
         this.orderStatusHistoryPort = orderStatusHistoryPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
+        this.clientRepositoryPort = clientRepositoryPort;
     }
 
     // ── US-038: Order Detail ────────────────────────────────────────────────
@@ -90,6 +94,18 @@ public class OrderGetController {
             reservation = reservationRepositoryPort.findById(order.getReservationId()).orElse(null);
         }
 
+        // Resolve client identity for vendor visibility
+        String clientName = null;
+        String clientEmail = null;
+        if (reservation != null && reservation.getClientId() != null) {
+            var clientOpt = clientRepositoryPort.findByInternalId(reservation.getClientId());
+            if (clientOpt.isPresent()) {
+                var client = clientOpt.get();
+                clientName = client.getName();
+                clientEmail = client.getEmail();
+            }
+        }
+
         // Load status history (US-038 CA3)
         List<StatusChangeResponse> history = orderStatusHistoryPort.findByOrderId(order.getId())
                 .stream()
@@ -107,7 +123,7 @@ public class OrderGetController {
                 .receiptUrl(order.getReceiptUrl())
                 .approvedAt(order.getApprovedAt())
                 .createdAt(order.getCreatedAt())
-                .reservation(reservation != null ? reservationRestMapper.toResponse(reservation) : null)
+                .reservation(reservation != null ? reservationRestMapper.toResponse(reservation, clientName, clientEmail) : null)
                 .statusHistory(history)
                 .build();
 

@@ -14,6 +14,7 @@ export interface ProfileResponse {
     accountId?: number;
     name?: string;
     pin?: string;
+    notes?: string;
     isOwner?: boolean;
     status?: ProfileResponse.StatusEnum;
     createdAt?: string;

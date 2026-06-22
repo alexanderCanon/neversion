@@ -46,6 +46,7 @@ export class ProfileListComponent {
   readonly profileForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
     pin: ['', [Validators.maxLength(10)]],
+    notes: [''],
     isOwner: [false]
   });
 
@@ -139,6 +140,7 @@ export class ProfileListComponent {
     this.profileForm.patchValue({
       name: profile.name,
       pin: profile.pin,
+      notes: profile.notes ?? '',
       isOwner: profile.isOwner
     });
 

@@ -184,7 +184,14 @@ export const resolveTemplate = (eventType: string, payloadStr: string): Template
       subject = 'Tus accesos están listos';
       title = 'Tus Accesos';
       headerTitle = '¡Tus accesos están listos!';
-      bodyContent = `
+      {
+        // Spotify Family (BY_PROFILE): each client receives their own personal
+        // account or invitation link. Labels are adapted accordingly.
+        const isSpotify = serviceName.toLowerCase() === 'spotify';
+        const profileLabel = isSpotify ? 'Correo / Enlace de Invitación:' : 'Perfil:';
+        const pinLabel = isSpotify ? 'Contraseña:' : 'PIN:';
+
+        bodyContent = `
         <p style="margin:0 0 16px;color:#374151;font-size:16px;line-height:1.6;">
             Hola <strong>${clientName}</strong>,
         </p>
@@ -196,8 +203,8 @@ export const resolveTemplate = (eventType: string, payloadStr: string): Template
                 ${serviceName ? `<tr><td style="color:#6b7280;font-size:13px;width:120px;">Servicio:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${serviceName}</td></tr>` : ''}
                 ${accountEmail ? `<tr><td style="color:#6b7280;font-size:13px;">Correo:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${accountEmail}</td></tr>` : ''}
                 ${accountPassword ? `<tr><td style="color:#6b7280;font-size:13px;">Contraseña:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${accountPassword}</td></tr>` : ''}
-                ${profileName ? `<tr><td style="color:#6b7280;font-size:13px;">Perfil:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${profileName}</td></tr>` : ''}
-                ${profilePin ? `<tr><td style="color:#6b7280;font-size:13px;">PIN:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${profilePin}</td></tr>` : ''}
+                ${profileName ? `<tr><td style="color:#6b7280;font-size:13px;">${profileLabel}</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${profileName}</td></tr>` : ''}
+                ${profilePin ? `<tr><td style="color:#6b7280;font-size:13px;">${pinLabel}</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${profilePin}</td></tr>` : ''}
                 ${paymentDueDate ? `<tr><td style="color:#6b7280;font-size:13px;">Vence:</td><td style="color:#1f2937;font-size:14px;font-weight:600;">${paymentDueDate}</td></tr>` : ''}
             </table>
         </div>
@@ -205,6 +212,7 @@ export const resolveTemplate = (eventType: string, payloadStr: string): Template
             ⚠️ No compartas estos datos con terceros. Son exclusivos para tu uso personal.
         </p>
       `;
+      }
       break;
 
     case 'ACCESS_REVOKED':
