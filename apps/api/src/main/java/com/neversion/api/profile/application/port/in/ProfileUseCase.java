@@ -36,14 +36,15 @@ public interface ProfileUseCase {
     List<Profile> generate(UUID accountUuid, int count, String callerExternalId);
 
     /**
-     * US-026: Edits a profile's mutable fields (name, pin, isOwner) with ownership check.
+     * US-026: Edits a profile's mutable fields (name, pin, notes, isOwner) with ownership check.
      * @param profileUuid  external UUID of the profile
      * @param name         new name (null = no change)
      * @param pin          new pin  (null = no change)
+     * @param notes        new notes (null = no change)
      * @param isOwner      new isOwner flag (null = no change)
      * @param callerExternalId  Supabase externalId from JWT
      */
-    Profile update(UUID profileUuid, String name, String pin, Boolean isOwner, String callerExternalId);
+    Profile update(UUID profileUuid, String name, String pin, String notes, Boolean isOwner, String callerExternalId);
 
     /**
      * US-027: Changes profile status manually. Only AVAILABLE ↔ BLOCKED allowed.

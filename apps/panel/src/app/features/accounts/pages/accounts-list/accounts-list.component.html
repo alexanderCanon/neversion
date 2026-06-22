@@ -154,6 +154,7 @@
                       [canGenerateProfiles]="account.saleMode === 'BY_PROFILE'"
                       [maxProfiles]="account.maxProfiles || currentService()?.maxProfiles || 0"
                       [currentProfileCount]="account.totalProfiles"
+                      [isSpotify]="account.serviceName?.toLowerCase() === 'spotify'"
                       (profilesChanged)="onProfilesChanged(account.id)">
                     </app-profile-list>
                   </div>
