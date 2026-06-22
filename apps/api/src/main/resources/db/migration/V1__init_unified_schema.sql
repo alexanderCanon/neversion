@@ -92,7 +92,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_clients_uuid ON clients (uuid);
 -- ---------------------------------------------------------------
 -- 5. subscriptions
 --    Active link between a Client and a specific Profile.
---    payment_due_date is polled by background automations (n8n).
+--    payment_due_date is used to track when payment is due.
 --    status values: active | suspended | cancelled
 -- ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS subscriptions (

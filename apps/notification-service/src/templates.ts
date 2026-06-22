@@ -155,6 +155,24 @@ export const resolveTemplate = (eventType: string, payloadStr: string): Template
       `;
       break;
 
+    case 'VENDOR_RECEIPT_UPLOADED':
+      subject = 'Nuevo comprobante de pago recibido';
+      title = 'Comprobante Recibido';
+      headerTitle = 'Nuevo Comprobante';
+      gradient = 'linear-gradient(135deg,#2563eb,#3b82f6)'; // Blue
+      bodyContent = `
+        <p style="margin:0 0 16px;color:#374151;font-size:16px;line-height:1.6;">
+            Hola <strong>${storeName}</strong>,
+        </p>
+        <p style="margin:0 0 16px;color:#374151;font-size:16px;line-height:1.6;">
+            Un cliente ha subido un comprobante de pago para la reserva con ID <strong>${payload.reservationId || ''}</strong> por un total de <strong>Q${total || '0'}</strong>.
+        </p>
+        <p style="margin:0 0 16px;color:#374151;font-size:16px;line-height:1.6;">
+            Por favor, ingresa a tu panel de administración para validar y procesar este pago.
+        </p>
+      `;
+      break;
+
     case 'RECEIPT_REJECTED':
       subject = 'Comprobante rechazado';
       title = 'Comprobante Rechazado';

@@ -31,7 +31,7 @@ import lombok.Setter;
  *
  * 'id' (Long) is the internal PK used for DB relations.
  * 'uuid' (UUID) is the external identifier exposed to the frontend.
- * 'paymentDueDate' is the critical field monitored by n8n background automations.
+ * 'paymentDueDate' is the critical field used to track when payment is due.
  */
 @Entity
 @Table(name = "subscriptions")
@@ -79,7 +79,6 @@ public class SubscriptionEntity {
 
     /**
      * The date by which the client must pay to keep access.
-     * Polled by n8n at 7-day, 3-day and overdue intervals.
      */
     @Column(name = "payment_due_date", nullable = false)
     private LocalDate paymentDueDate;

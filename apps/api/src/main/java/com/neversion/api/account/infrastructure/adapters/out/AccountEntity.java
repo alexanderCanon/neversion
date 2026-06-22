@@ -65,7 +65,6 @@ public class AccountEntity {
 
     /**
      * The date Neversion must pay the wholesaler to keep this account alive.
-     * Polled by background automations (n8n).
      */
     @Column(name = "renewal_date", nullable = false)
     private LocalDate renewalDate;

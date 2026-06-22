@@ -31,7 +31,6 @@ public interface SpringDataSubscriptionRepository
 
     /**
      * Returns all subscriptions whose payment_due_date is on or before the given date.
-     * Used by n8n to detect and process overdue payments (BR-10).
      */
     @Query("SELECT s FROM SubscriptionEntity s WHERE s.paymentDueDate <= :asOf AND s.status = :status")
     List<SubscriptionEntity> findOverdue(@Param("asOf") LocalDate asOf, @Param("status") SubStatus status);

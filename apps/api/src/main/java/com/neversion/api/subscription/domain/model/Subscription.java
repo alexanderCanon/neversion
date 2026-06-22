@@ -19,7 +19,7 @@ import lombok.Setter;
  *
  * 'id' (Long)  – internal identifier, used only for DB relations. Never exposed externally.
  * 'uuid' (UUID) – external identifier exposed in all REST responses and frontend routes.
- * 'paymentDueDate' is the critical field polled by n8n at 7-day, 3-day and overdue intervals.
+ * 'paymentDueDate' is the critical field used to track when payment is due.
  *
  * UUID transient fields (profileUuid, clientUuid, accountUuid) are populated from the REST
  * request and resolved to Long IDs inside the application service before persistence.
@@ -73,7 +73,6 @@ public class Subscription {
 
     /**
      * The date by which the client must pay to retain access.
-     * Automations (n8n) use this field to trigger reminder sequences.
      */
     private LocalDate paymentDueDate;
 

@@ -14,7 +14,7 @@ import lombok.Setter;
  * externally.
  * 'uuid' (UUID) – external identifier exposed in all REST responses and
  * frontend routes.
- * 'phone' is the primary contact channel used by n8n for WhatsApp payment
+ * 'phone' is the primary contact channel used for WhatsApp payment
  * reminders.
  */
 @Getter

@@ -49,7 +49,6 @@ public class Account {
 
     /**
      * The date Neversion must renew payment to the wholesaler.
-     * Tracked by n8n automations to prevent service interruption.
      */
     private LocalDate renewalDate;
 
