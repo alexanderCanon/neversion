@@ -15,6 +15,10 @@ import java.util.UUID;
 public record ReservationResponse(
         UUID id,
         UUID clientId,
+        /** Display name of the client — populated from Client domain for vendor visibility. */
+        String clientName,
+        /** Email of the client — populated from Client domain for vendor visibility. */
+        String clientEmail,
         ReservationStatus status,
         BigDecimal discount,
         BigDecimal total,

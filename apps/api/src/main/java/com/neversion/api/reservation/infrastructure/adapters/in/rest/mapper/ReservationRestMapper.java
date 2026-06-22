@@ -26,6 +26,10 @@ public class ReservationRestMapper {
     }
 
     public ReservationResponse toResponse(Reservation reservation) {
+        return toResponse(reservation, null, null);
+    }
+
+    public ReservationResponse toResponse(Reservation reservation, String clientName, String clientEmail) {
         List<ReservationDetailResponse> detailResponses = reservation.getDetails() == null
                 ? Collections.emptyList()
                 : reservation.getDetails().stream()
@@ -35,6 +39,8 @@ public class ReservationRestMapper {
         return new ReservationResponse(
                 reservation.getUuid(),
                 reservation.getClientUuid(),
+                clientName,
+                clientEmail,
                 reservation.getStatus(),
                 reservation.getDiscount(),
                 reservation.getTotal(),

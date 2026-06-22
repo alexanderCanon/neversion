@@ -171,47 +171,86 @@
                                 </span>
                             </div>
 
-                            <div class="p-3 bg-light rounded-4 border">
-                                <div class="mb-3">
-                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Correo de la Cuenta</label>
-                                    <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <span class="font-monospace text-dark fw-semibold small text-truncate">{{ subscription()!.access!.accountEmail || 'No disponible' }}</span>
-                                        @if (subscription()!.access!.accountEmail) {
-                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountEmail, 'Correo')" title="Copiar Correo">
-                                                <i class="bi bi-copy"></i>
-                                            </button>
-                                        }
+                            <!-- Spotify Family: slot privado, sin credenciales maestras -->
+                            @if (isSpotifyByProfile()) {
+                                <div class="spotify-family-slot rounded-4 p-3 mt-2">
+                                    <div class="d-flex align-items-center gap-2 mb-3">
+                                        <div class="spotify-dot"></div>
+                                        <span class="fw-semibold small" style="color: #1DB954;">Plan Familiar · Ranura Privada</span>
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Contraseña</label>
-                                    <div class="d-flex align-items-center justify-content-between gap-2">
-                                        <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.accountPassword || 'No disponible' }}</span>
-                                        @if (subscription()!.access!.accountPassword) {
-                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountPassword, 'Contraseña')" title="Copiar Contraseña">
-                                                <i class="bi bi-copy"></i>
-                                            </button>
-                                        }
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Perfil Asignado</label>
-                                    <strong class="text-dark small">{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
-                                </div>
-                                <div>
-                                    <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">PIN</label>
-                                    @if (subscription()!.access!.profilePin) {
-                                        <div class="d-flex align-items-center justify-content-between gap-2">
-                                            <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.profilePin }}</span>
-                                            <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.profilePin, 'PIN')" title="Copiar PIN">
-                                                <i class="bi bi-copy"></i>
-                                            </button>
+                                    <p class="text-muted small mb-3 lh-base">
+                                        Esta ranura opera bajo <strong>cuenta personal del cliente</strong>.
+                                        Las credenciales maestras no se exponen por seguridad.
+                                    </p>
+                                    @if (subscription()!.access!.profileName) {
+                                        <div class="mb-2">
+                                            <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Correo / Enlace de Invitación</label>
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <span class="font-monospace fw-semibold small text-truncate" style="color: #1DB954;">{{ subscription()!.access!.profileName }}</span>
+                                                <button class="btn btn-sm btn-white border px-2 py-1"
+                                                        (click)="copyToClipboard(subscription()!.access!.profileName, 'Enlace')" title="Copiar">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                    } @else {
-                                        <span class="text-muted small">Sin PIN</span>
+                                    }
+                                    @if (subscription()!.access!.profilePin) {
+                                        <div>
+                                            <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Contraseña de la Cuenta</label>
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <span class="font-monospace fw-semibold small">{{ subscription()!.access!.profilePin }}</span>
+                                                <button class="btn btn-sm btn-white border px-2 py-1"
+                                                        (click)="copyToClipboard(subscription()!.access!.profilePin, 'Contraseña')" title="Copiar">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            </div>
+                                        </div>
                                     }
                                 </div>
-                            </div>
+                            } @else {
+                                <!-- Flujo estándar: credenciales maestras visibles -->
+                                <div class="p-3 bg-light rounded-4 border">
+                                    <div class="mb-3">
+                                        <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Correo de la Cuenta</label>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <span class="font-monospace text-dark fw-semibold small text-truncate">{{ subscription()!.access!.accountEmail || 'No disponible' }}</span>
+                                            @if (subscription()!.access!.accountEmail) {
+                                                <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountEmail, 'Correo')" title="Copiar Correo">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Contraseña</label>
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.accountPassword || 'No disponible' }}</span>
+                                            @if (subscription()!.access!.accountPassword) {
+                                                <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.accountPassword, 'Contraseña')" title="Copiar Contraseña">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">Perfil Asignado</label>
+                                        <strong class="text-dark small">{{ subscription()!.access!.profileName || 'Predeterminado' }}</strong>
+                                    </div>
+                                    <div>
+                                        <label class="text-muted x-small fw-bold text-uppercase mb-1 d-block">PIN</label>
+                                        @if (subscription()!.access!.profilePin) {
+                                            <div class="d-flex align-items-center justify-content-between gap-2">
+                                                <span class="font-monospace text-dark fw-semibold small">{{ subscription()!.access!.profilePin }}</span>
+                                                <button class="btn btn-sm btn-white border px-2 py-1" (click)="copyToClipboard(subscription()!.access!.profilePin, 'PIN')" title="Copiar PIN">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                            </div>
+                                        } @else {
+                                            <span class="text-muted small">Sin PIN</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         }
                     </div>
                 </div>

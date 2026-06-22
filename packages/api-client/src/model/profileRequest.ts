@@ -13,6 +13,7 @@ export interface ProfileRequest {
     accountId: string;
     name?: string;
     pin?: string;
+    notes?: string;
     isOwner?: boolean;
 }
 

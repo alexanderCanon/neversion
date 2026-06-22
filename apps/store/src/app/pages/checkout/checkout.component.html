@@ -35,6 +35,40 @@
                                 </button>
                             </div>
                         </div>
+
+                        <!-- Spotify Family: selector de tipo de cuenta -->
+                        <div *ngIf="isSpotifyProfile(item)" class="spotify-account-selector mt-3 rounded-3 p-3">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <span class="spotify-badge-dot"></span>
+                                <span class="fw-semibold small" style="color: #1DB954;">Spotify Plan Familiar</span>
+                            </div>
+                            <p class="small mb-3" style="color: rgba(255,255,255,0.6);">
+                                ¿Cómo quieres acceder a tu ranura del plan familiar?
+                            </p>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button
+                                    type="button"
+                                    id="spotify-nueva-{{ item.service.id }}"
+                                    class="spotify-choice-btn"
+                                    [class.selected]="item.spotifyAccountPreference === 'CUENTA_NUEVA'"
+                                    (click)="setSpotifyPreference(item, 'CUENTA_NUEVA')">
+                                    <i class="bi bi-person-plus-fill me-1"></i>
+                                    Crear cuenta nueva
+                                </button>
+                                <button
+                                    type="button"
+                                    id="spotify-propia-{{ item.service.id }}"
+                                    class="spotify-choice-btn"
+                                    [class.selected]="item.spotifyAccountPreference === 'CUENTA_PROPIA'"
+                                    (click)="setSpotifyPreference(item, 'CUENTA_PROPIA')">
+                                    <i class="bi bi-person-check-fill me-1"></i>
+                                    Usar mi cuenta
+                                </button>
+                            </div>
+                            <p *ngIf="!item.spotifyAccountPreference" class="small mt-2 mb-0" style="color: rgba(255,185,0,0.75);">
+                                <i class="bi bi-exclamation-circle me-1"></i>Selecciona una opción para continuar
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

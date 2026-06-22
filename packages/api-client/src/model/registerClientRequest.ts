@@ -15,7 +15,7 @@ export interface RegisterClientRequest {
      */
     email?: string;
     /**
-     * Client\'s chosen password
+     * Client\'s chosen password (required for standard registration)
      */
     password?: string;
     /**
@@ -31,7 +31,7 @@ export interface RegisterClientRequest {
      */
     vendorUuid: string;
     /**
-     * Optional external auth user ID from Supabase (required for OAuth flows)
+     * Optional external auth user ID from Supabase (required for OAuth)
      */
     externalId?: string;
 }

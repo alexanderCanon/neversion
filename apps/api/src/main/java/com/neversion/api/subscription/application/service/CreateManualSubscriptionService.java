@@ -21,7 +21,9 @@ import com.neversion.api.exception.BadRequestException;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
+import com.neversion.api.profile.domain.model.ProfileAssignmentHistory;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.application.service.VendorSecurityService;
@@ -46,6 +48,7 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
     private final ServiceRepositoryPort serviceRepositoryPort;
     private final DeliverAccessUseCase deliverAccessUseCase;
     private final VendorSecurityService vendorSecurityService;
+    private final ProfileAssignmentHistoryRepositoryPort historyRepositoryPort;
     private final Clock clock;
 
     public CreateManualSubscriptionService(
@@ -56,6 +59,7 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
             ServiceRepositoryPort serviceRepositoryPort,
             DeliverAccessUseCase deliverAccessUseCase,
             VendorSecurityService vendorSecurityService,
+            ProfileAssignmentHistoryRepositoryPort historyRepositoryPort,
             Clock clock) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
@@ -64,6 +68,7 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
         this.serviceRepositoryPort = serviceRepositoryPort;
         this.deliverAccessUseCase = deliverAccessUseCase;
         this.vendorSecurityService = vendorSecurityService;
+        this.historyRepositoryPort = historyRepositoryPort;
         this.clock = clock;
     }
 
@@ -132,6 +137,18 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
                 .build();
 
         Subscription saved = subscriptionRepositoryPort.save(toSave);
+
+        historyRepositoryPort.save(ProfileAssignmentHistory.builder()
+                .profileId(profile.getId())
+                .subscriptionId(saved.getId())
+                .accountEmail(account.getEmail())
+                .accountPassword(account.getPassword())
+                .profileName(profile.getName())
+                .profilePin(profile.getPin())
+                .profileNotes(profile.getNotes())
+                .vendorId(vendorId)
+                .build());
+
         if (sendNotification) {
             queueAccessDelivery(saved);
         }

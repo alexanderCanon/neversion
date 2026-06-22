@@ -24,6 +24,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.shared.port.out.NotificationLogPort;
@@ -125,6 +126,99 @@ class DeliverAccessServiceUT {
         verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("ana@example.com"), payloadCaptor.capture(),
                 eq("subscription"), any(), eq("access_delivered"));
         assertThat(payloadCaptor.getValue()).doesNotContain("\"pin\"");
+    }
+
+    @Test
+    @DisplayName("deliver_shouldOmitMasterCredentials_whenSpotifyByProfile")
+    void deliver_shouldOmitMasterCredentials_whenSpotifyByProfile() {
+        DeliverAccessService svc = newService();
+        UUID subscriptionUuid = UUID.randomUUID();
+
+        when(profileRepositoryPort.findByInternalId(10L)).thenReturn(Optional.of(Profile.builder()
+                .id(10L)
+                .accountId(20L)
+                .name("Perfil 1")
+                .pin(null)
+                .build()));
+        when(accountRepositoryPort.findByInternalId(20L)).thenReturn(Optional.of(Account.builder()
+                .id(20L)
+                .serviceId(30L)
+                .email("master@spotify.com")
+                .password("masterSecret")
+                .saleMode(SaleMode.BY_PROFILE)
+                .build()));
+        when(serviceRepositoryPort.findByInternalId(30L)).thenReturn(Optional.of(Service.builder()
+                .id(30L)
+                .name("Spotify")
+                .build()));
+        when(clientRepositoryPort.findByInternalId(40L)).thenReturn(Optional.of(Client.builder()
+                .id(40L)
+                .name("Carlos")
+                .email("carlos@example.com")
+                .build()));
+
+        svc.deliver(Subscription.builder()
+                .uuid(subscriptionUuid)
+                .profileId(10L)
+                .clientId(40L)
+                .endDate(LocalDate.of(2026, 12, 31))
+                .build());
+
+        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("carlos@example.com"),
+                payloadCaptor.capture(), eq("subscription"), any(), eq("access_delivered"));
+
+        String payload = payloadCaptor.getValue();
+        assertThat(payload)
+                .contains("\"serviceName\":\"Spotify\"")
+                .contains("\"subscriptionId\":\"" + subscriptionUuid + "\"")
+                .doesNotContain("\"accountEmail\"")
+                .doesNotContain("\"accountPassword\"");
+    }
+
+    @Test
+    @DisplayName("deliver_shouldUseProfileNotes_asProfileName_whenSpotifyByProfileAndNotesPresent")
+    void deliver_shouldUseProfileNotes_asProfileName_whenSpotifyByProfileAndNotesPresent() {
+        DeliverAccessService svc = newService();
+
+        when(profileRepositoryPort.findByInternalId(10L)).thenReturn(Optional.of(Profile.builder()
+                .id(10L)
+                .accountId(20L)
+                .name("Perfil 1")
+                .notes("https://spotify.com/invite/abc123")
+                .build()));
+        when(accountRepositoryPort.findByInternalId(20L)).thenReturn(Optional.of(Account.builder()
+                .id(20L)
+                .serviceId(30L)
+                .email("master@spotify.com")
+                .password("masterSecret")
+                .saleMode(SaleMode.BY_PROFILE)
+                .build()));
+        when(serviceRepositoryPort.findByInternalId(30L)).thenReturn(Optional.of(Service.builder()
+                .id(30L)
+                .name("Spotify")
+                .build()));
+        when(clientRepositoryPort.findByInternalId(40L)).thenReturn(Optional.of(Client.builder()
+                .id(40L)
+                .name("Laura")
+                .email("laura@example.com")
+                .build()));
+
+        svc.deliver(Subscription.builder()
+                .uuid(UUID.randomUUID())
+                .profileId(10L)
+                .clientId(40L)
+                .endDate(LocalDate.of(2026, 12, 31))
+                .build());
+
+        ArgumentCaptor<String> payloadCaptor = ArgumentCaptor.forClass(String.class);
+        verify(notificationLogPort).record(eq("ACCESS_DELIVERED"), eq("laura@example.com"),
+                payloadCaptor.capture(), eq("subscription"), any(), eq("access_delivered"));
+
+        assertThat(payloadCaptor.getValue())
+                .contains("\"profileName\":\"https://spotify.com/invite/abc123\"")
+                .doesNotContain("\"accountEmail\"")
+                .doesNotContain("\"accountPassword\"");
     }
 
     private DeliverAccessService newService() {

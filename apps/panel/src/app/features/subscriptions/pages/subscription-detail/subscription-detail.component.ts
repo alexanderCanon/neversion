@@ -124,4 +124,17 @@ export class SubscriptionDetailComponent implements OnInit {
   getSaleModeLabel(saleMode?: string): string {
     return saleMode === 'FULL_ACCOUNT' ? 'Cuenta Completa' : 'Perfil Individual';
   }
+
+  /**
+   * Returns true when the subscription is a Spotify Family (BY_PROFILE) slot.
+   * In this mode the master account credentials are intentionally hidden by the
+   * backend — the client uses their own personal account or an invitation link.
+   */
+  isSpotifyByProfile(): boolean {
+    const sub = this.subscription();
+    return (
+      sub?.financialSnapshot?.serviceName?.toLowerCase() === 'spotify' &&
+      sub?.access?.saleMode === 'BY_PROFILE'
+    );
+  }
 }

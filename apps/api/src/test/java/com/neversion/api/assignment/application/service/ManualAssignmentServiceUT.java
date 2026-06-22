@@ -30,6 +30,7 @@ import com.neversion.api.exception.BadRequestException;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
+import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
@@ -49,6 +50,7 @@ class ManualAssignmentServiceUT {
     @Mock private SubscriptionRepositoryPort subscriptionRepositoryPort;
     @Mock private DeliverAccessUseCase deliverAccessUseCase;
     @Mock private AssignmentContextResolver contextResolver;
+    @Mock private ProfileAssignmentHistoryRepositoryPort historyRepositoryPort;
 
     private ManualAssignmentService service;
     private UUID clientUuid;
@@ -64,7 +66,8 @@ class ManualAssignmentServiceUT {
                 serviceRepositoryPort,
                 subscriptionRepositoryPort,
                 deliverAccessUseCase,
-                contextResolver);
+                contextResolver,
+                historyRepositoryPort);
         clientUuid = UUID.randomUUID();
         serviceUuid = UUID.randomUUID();
         profileUuid = UUID.randomUUID();
