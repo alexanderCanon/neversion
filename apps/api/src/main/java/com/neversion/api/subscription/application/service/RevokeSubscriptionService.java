@@ -17,7 +17,6 @@ import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.model.Profile;
-import com.neversion.api.profile.domain.model.ProfileAssignmentHistory;
 import com.neversion.api.profile.domain.port.out.ProfileAssignmentHistoryRepositoryPort;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;

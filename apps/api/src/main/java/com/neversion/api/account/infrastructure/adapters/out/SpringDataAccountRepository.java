@@ -8,8 +8,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.neversion.api.shared.domain.model.enums.AccountStatus;
-
 public interface SpringDataAccountRepository
         extends JpaRepository<AccountEntity, Long>, JpaSpecificationExecutor<AccountEntity> {
 
