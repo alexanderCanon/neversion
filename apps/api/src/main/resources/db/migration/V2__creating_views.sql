@@ -1,4 +1,4 @@
--- Vista útil: renovaciones próximas (base para el workflow de notificaciones)
+-- Vista útil: renovaciones próximas (base para el workflow de n8n)
 CREATE VIEW upcoming_renewals AS
 SELECT
   s.id              AS subscription_id,
