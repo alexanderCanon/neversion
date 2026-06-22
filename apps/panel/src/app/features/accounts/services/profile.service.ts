@@ -52,6 +52,7 @@ export class ProfileService {
       accountId: profile.accountId,
       name: profile.name,
       pin: profile.pin,
+      notes: profile.notes,
       isOwner: profile.isOwner
     };
 
@@ -88,6 +89,7 @@ export class ProfileService {
       accountId: String(api.accountId || ''),
       name: api.name || '',
       pin: api.pin || '',
+      notes: api.notes,
       isOwner: api.isOwner || false,
       status: api.status as unknown as ProfileStatus,
       createdAt: api.createdAt || ''

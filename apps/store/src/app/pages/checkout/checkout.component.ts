@@ -1,8 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { CartService, CartItem } from '../../services/cart.service';
 import { ReservationsApiService, ReservationRequest, ReservationItemRequest } from '@neversion/api-client';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
@@ -16,6 +18,7 @@ export class CheckoutComponent implements OnInit {
   private readonly reservationsApi = inject(ReservationsApiService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
 
   cartItems$: Observable<CartItem[]> = this.cartService.items$;
   total$: Observable<number> = this.cartItems$.pipe(
@@ -93,9 +96,37 @@ export class CheckoutComponent implements OnInit {
         this.cartService.clearCart();
         this.router.navigate(['/payment-page'], { queryParams: { reservationId: response.id } });
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         console.error('Error creating reservation:', err);
-        alert('Error al crear la reservación. Por favor intente de nuevo.');
+        
+        let title = 'Error';
+        let friendlyMessage = 'Error al crear la reservación. Por favor intente de nuevo.';
+        
+        if (err.status === 409) {
+          const message = err.error?.message || '';
+          if (message.includes('Not enough available profiles for service')) {
+            const match = /Not enough available profiles for service '([^']+)'\. Available: (\d+), requested: (\d+)/.exec(message);
+            if (match) {
+              const serviceName = match[1];
+              const available = parseInt(match[2], 10);
+              const requested = parseInt(match[3], 10);
+              title = 'Sin Disponibilidad';
+              if (available === 0) {
+                friendlyMessage = `El servicio '${serviceName}' no tiene disponibilidad en este momento. Por favor remuévalo del carrito.`;
+              } else {
+                friendlyMessage = `Solo quedan ${available} perfiles disponibles para '${serviceName}' (solicitó ${requested}). Por favor reduzca la cantidad.`;
+              }
+            } else {
+              title = 'Sin Disponibilidad';
+              friendlyMessage = 'No hay suficientes perfiles disponibles para uno de los servicios solicitados.';
+            }
+          } else if (message.includes('Client is not linked to any vendor')) {
+            title = 'Error de Cuenta';
+            friendlyMessage = 'Su cuenta de cliente no está vinculada a ningún vendedor. Por favor contáctenos.';
+          }
+        }
+        
+        this.toastService.show(friendlyMessage, 'danger', title);
         this.isSubmitting = false;
       }
     });
