@@ -6,6 +6,8 @@ export interface CartItem {
   service: ServiceResponse;
   quantity: number;
   type: 'PROFILE' | 'COMPLETE';
+  /** Only relevant for Spotify BY_PROFILE items. Captured at checkout. */
+  spotifyAccountPreference?: 'CUENTA_NUEVA' | 'CUENTA_PROPIA';
 }
 
 @Injectable({
@@ -43,6 +45,19 @@ export class CartService {
   removeFromCart(serviceId: string, type: 'PROFILE' | 'COMPLETE'): void {
     const currentItems = this.itemsSubject.value;
     this.itemsSubject.next(currentItems.filter(item => !(item.service.id === serviceId && item.type === type)));
+  }
+
+  /**
+   * Stores the Spotify account preference for a specific cart item.
+   * Only meaningful when the item is a Spotify BY_PROFILE slot.
+   */
+  setSpotifyPreference(serviceId: string, preference: 'CUENTA_NUEVA' | 'CUENTA_PROPIA'): void {
+    const currentItems = this.itemsSubject.value;
+    const item = currentItems.find(i => i.service.id === serviceId && i.type === 'PROFILE');
+    if (item) {
+      item.spotifyAccountPreference = preference;
+      this.itemsSubject.next([...currentItems]);
+    }
   }
 
   clearCart(): void {

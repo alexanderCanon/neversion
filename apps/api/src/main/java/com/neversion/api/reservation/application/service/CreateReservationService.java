@@ -70,7 +70,7 @@ public class CreateReservationService implements CreateReservationUseCase {
     @Override
     @Transactional
     public Reservation create(UUID clientUuid, List<ReservationItemCommand> items,
-                               String paymentMethod) {
+                               String paymentMethod, String notes) {
 
         // 1. Resolve client and vendor for multi-tenancy
         var user = userRepositoryPort.findByExternalId(clientUuid.toString())
@@ -145,6 +145,7 @@ public class CreateReservationService implements CreateReservationUseCase {
                 .discount(discount)
                 .total(finalTotal)
                 .paymentMethod(paymentMethod)
+                .notes(notes)
                 .expirationDate(expirationDate.toInstant())
                 .build();
 

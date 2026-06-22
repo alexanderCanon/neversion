@@ -61,6 +61,13 @@ public class ProfileEntity {
     private String pin;
 
     /**
+     * Operational notes for this profile slot (Spotify Family: invitation link or
+     * personal email of the assigned client). Reset to null on slot release.
+     */
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
+
+    /**
      * True if this profile holds admin/owner privileges within the streaming account.
      * Only one profile per account should have isOwner = true.
      */

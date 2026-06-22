@@ -71,3 +71,46 @@
 .bg-indigo-subtle-light {
     background-color: #f5f7ff;
 }
+
+// Spotify Family slot — ranura privada
+.spotify-family-slot {
+    background: linear-gradient(135deg, #0a1a0f 0%, #0d2818 60%, #0f3320 100%);
+    border: 1px solid rgba(29, 185, 84, 0.25);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at top right, rgba(29, 185, 84, 0.08) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    label {
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.55) !important;
+    }
+
+    strong {
+        color: rgba(255, 255, 255, 0.8) !important;
+    }
+}
+
+.spotify-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #1DB954;
+    box-shadow: 0 0 6px rgba(29, 185, 84, 0.7);
+    flex-shrink: 0;
+    animation: spotify-pulse 2s ease-in-out infinite;
+}
+
+@keyframes spotify-pulse {
+    0%, 100% { box-shadow: 0 0 6px rgba(29, 185, 84, 0.7); }
+    50%       { box-shadow: 0 0 12px rgba(29, 185, 84, 1); }
+}

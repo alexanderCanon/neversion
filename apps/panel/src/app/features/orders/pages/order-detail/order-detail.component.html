@@ -189,8 +189,41 @@
                 </div>
             </div>
 
-            <!-- Right Column: Summary & Receipt -->
+            <!-- Right Column: Client, Summary & Receipt -->
             <div class="col-lg-4">
+
+                <!-- Client Card (from reservation) -->
+                @if (order()!.reservation?.clientName || order()!.reservation?.clientId) {
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                        <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center gap-2">
+                            <i class="bi bi-person-fill text-primary"></i>
+                            <h5 class="card-title mb-0 fw-bold">Cliente</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="client-avatar-order shadow-sm">
+                                    {{ order()!.reservation!.clientName?.charAt(0)?.toUpperCase() || '?' }}
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-dark">
+                                        {{ order()!.reservation!.clientName || 'Cliente desconocido' }}
+                                    </h6>
+                                    @if (order()!.reservation?.clientEmail) {
+                                        <span class="text-muted small">{{ order()!.reservation!.clientEmail }}</span>
+                                    }
+                                </div>
+                            </div>
+                            @if (order()!.reservation?.clientId) {
+                                <a [routerLink]="['/clients']"
+                                   [queryParams]="{ search: order()!.reservation!.clientEmail }"
+                                   class="btn btn-sm btn-white border shadow-sm w-100 fw-semibold py-2">
+                                    <i class="bi bi-folder2-open me-1"></i>Ver Expediente
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
                     <div class="card-body p-4">
                         <h6 class="text-muted x-small fw-bold text-uppercase mb-4 letter-spacing-1">Resumen de Transacción</h6>

@@ -13,6 +13,8 @@ public record ProfileResponse(
         Long accountId,
         String name,
         String pin,
+        /** Operational notes: invitation link or personal email for Spotify Family. */
+        String notes,
         Boolean isOwner,
         ProfileStatus status,
         LocalDateTime createdAt) {

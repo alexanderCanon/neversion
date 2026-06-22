@@ -141,7 +141,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null);
 
         // Then
         assertThat(result).isNotNull();
@@ -164,7 +164,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 2));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null);
 
         // Then — 2 items × 50 = 100, discount = 5% of 100 = 5.00, total = 95.00
         assertThat(result.getDiscount()).isEqualByComparingTo(new BigDecimal("5.00"));
@@ -180,7 +180,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 4));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null);
 
         // Then — 4 items × 50 = 200, discount = 10% of 200 = 20.00, total = 180.00
         assertThat(result.getDiscount()).isEqualByComparingTo(new BigDecimal("20.00"));
@@ -197,7 +197,7 @@ class CreateReservationServiceUT {
 
         // When
         Instant before = Instant.now().plus(59, ChronoUnit.MINUTES);
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null);
         Instant after = Instant.now().plus(61, ChronoUnit.MINUTES);
 
         // Then
@@ -213,7 +213,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
@@ -229,7 +229,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Service not found");
     }
@@ -247,7 +247,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 3));
 
         // When / Then — BR-US033-01
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Not enough available profiles");
     }
@@ -261,7 +261,7 @@ class CreateReservationServiceUT {
         List<ReservationItemCommand> items = List.of(new ReservationItemCommand(SERVICE_UUID, 1));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null);
 
         // Then
         assertThat(result.getDetails()).hasSize(1);

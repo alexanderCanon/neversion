@@ -38,6 +38,15 @@ export class CheckoutComponent implements OnInit {
   selectedPaymentMethod = 'TRANSFERENCIA';
   isSubmitting = false;
 
+  /** Returns true when a cart item is a Spotify Family (BY_PROFILE) slot. */
+  isSpotifyProfile(item: CartItem): boolean {
+    return item.type === 'PROFILE' && item.service.name?.toLowerCase() === 'spotify';
+  }
+
+  setSpotifyPreference(item: CartItem, preference: 'CUENTA_NUEVA' | 'CUENTA_PROPIA'): void {
+    this.cartService.setSpotifyPreference(item.service.id!, preference);
+  }
+
   ngOnInit(): void {
     // If cart is empty, redirect to platforms after a short delay or just show empty state
   }
@@ -52,7 +61,7 @@ export class CheckoutComponent implements OnInit {
 
   async placeOrder(): Promise<void> {
     const user = await this.authService.currentUser$.pipe(take(1)).toPromise();
-    
+
     if (!user) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/checkout' } });
       return;
@@ -63,14 +72,21 @@ export class CheckoutComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    const reservationRequest: ReservationRequest = {
+    // Build optional order notes from Spotify preferences.
+    const spotifyNotes = items
+      .filter(i => this.isSpotifyProfile(i) && i.spotifyAccountPreference)
+      .map(i => `${i.service.name}: ${i.spotifyAccountPreference === 'CUENTA_NUEVA' ? 'Cuenta nueva' : 'Cuenta propia'}`)
+      .join('; ');
+
+    const reservationRequest = {
       clientId: user.id,
       items: items.map(item => ({
         serviceUuid: item.service.id!,
         qty: item.quantity
       } as ReservationItemRequest)),
-      paymentMethod: this.selectedPaymentMethod
-    };
+      paymentMethod: this.selectedPaymentMethod,
+      ...(spotifyNotes ? { notes: spotifyNotes } : {})
+    } as ReservationRequest;
 
     this.reservationsApi.createReservation(reservationRequest).subscribe({
       next: (response) => {

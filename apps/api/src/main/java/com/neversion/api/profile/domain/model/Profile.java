@@ -47,6 +47,13 @@ public class Profile {
     private String pin;
 
     /**
+     * Operational notes for this profile slot.
+     * Used in Spotify Family (BY_PROFILE) to store invitation links or the
+     * client's personal email. Reset to null when the slot is released.
+     */
+    private String notes;
+
+    /**
      * Indicates if this profile holds admin/owner rights within the account.
      * Only one profile per account should have isOwner = true.
      */
@@ -65,13 +72,14 @@ public class Profile {
     private LocalDateTime createdAt;
 
     public Profile(Long id, UUID uuid, Long accountId, UUID accountUuid, String name, String pin,
-            Boolean isOwner, ProfileStatus status, Long vendorId, LocalDateTime createdAt) {
+            String notes, Boolean isOwner, ProfileStatus status, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.accountId = accountId;
         this.accountUuid = accountUuid;
         this.name = name;
         this.pin = pin;
+        this.notes = notes;
         this.isOwner = isOwner;
         this.status = status != null ? status : ProfileStatus.AVAILABLE;
         this.vendorId = vendorId;

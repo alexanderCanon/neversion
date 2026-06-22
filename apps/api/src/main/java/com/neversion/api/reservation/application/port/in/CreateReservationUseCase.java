@@ -17,7 +17,8 @@ public interface CreateReservationUseCase {
      * @param clientUuid     UUID of the client placing the reservation
      * @param items          list of services + quantities
      * @param paymentMethod  payment method selected by the client (BR-06)
+     * @param notes          optional client notes, e.g. Spotify account preference
      * @return the persisted reservation with pricing and details
      */
-    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod);
+    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod, String notes);
 }

@@ -18,5 +18,8 @@ public record ProfileRequest(
 
         @Size(max = 20, message = "Pin must not exceed 20 characters") String pin,
 
+        /** Invitation link or personal email for Spotify Family slots. */
+        String notes,
+
         Boolean isOwner) {
 }

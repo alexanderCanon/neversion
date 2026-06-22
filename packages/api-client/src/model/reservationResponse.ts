@@ -13,6 +13,8 @@ import { ReservationDetailResponse } from './reservationDetailResponse';
 export interface ReservationResponse { 
     id?: string;
     clientId?: string;
+    clientName?: string;
+    clientEmail?: string;
     status?: ReservationResponse.StatusEnum;
     discount?: number;
     total?: number;

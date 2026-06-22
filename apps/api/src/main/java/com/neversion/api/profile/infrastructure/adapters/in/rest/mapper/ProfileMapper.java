@@ -14,6 +14,7 @@ public class ProfileMapper {
                 .accountUuid(request.accountId())   // UUID — resolved to Long by service layer
                 .name(request.name())
                 .pin(request.pin())
+                .notes(request.notes())
                 .isOwner(request.isOwner() != null ? request.isOwner() : false)
                 .build() : null;
     }
@@ -24,6 +25,7 @@ public class ProfileMapper {
                 .accountId(profile.getAccountId())
                 .name(profile.getName())
                 .pin(profile.getPin())
+                .notes(profile.getNotes())
                 .isOwner(profile.getIsOwner())
                 .status(profile.getStatus())
                 .createdAt(profile.getCreatedAt())
