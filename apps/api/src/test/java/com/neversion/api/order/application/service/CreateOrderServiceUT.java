@@ -19,6 +19,7 @@ import com.neversion.api.order.domain.model.OrderStatusChange;
 import com.neversion.api.order.domain.model.enums.OrderStatus;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("CreateOrderService unit tests — US-035")
@@ -56,7 +57,7 @@ class CreateOrderServiceUT {
         java.math.BigDecimal discount = new java.math.BigDecimal("3.00");
         Order result = createOrderService.createFromReservation(
                 reservationId, UUID.randomUUID(), clientId, vendorId, paymentMethod,
-                "http://receipt.url", total, discount, notes);
+                null, "http://receipt.url", total, discount, notes);
 
         // Then
         assertThat(result.getReservationId()).isEqualTo(reservationId);
@@ -64,6 +65,7 @@ class CreateOrderServiceUT {
         assertThat(result.getClientId()).isEqualTo(clientId);
         assertThat(result.getVendorId()).isEqualTo(vendorId);
         assertThat(result.getPaymentMethod()).isEqualTo(paymentMethod);
+        assertThat(result.getAccountPreference()).isNull();
         assertThat(result.getReceiptUrl()).isEqualTo("http://receipt.url");
         assertThat(result.getTotal()).isEqualTo(total);
         assertThat(result.getDiscount()).isEqualTo(discount);

@@ -14,6 +14,15 @@ export interface ReservationRequest {
     clientId: string;
     items: Array<ReservationItemRequest>;
     paymentMethod?: string;
+    accountPreference?: ReservationRequest.AccountPreferenceEnum;
     notes?: string;
 }
+export namespace ReservationRequest {
+    export const AccountPreferenceEnum = {
+        CuentaNueva: 'CUENTA_NUEVA',
+        CuentaPropia: 'CUENTA_PROPIA'
+    } as const;
+    export type AccountPreferenceEnum = typeof AccountPreferenceEnum[keyof typeof AccountPreferenceEnum];
+}
+
 

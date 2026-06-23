@@ -46,6 +46,7 @@ public class ReservationRestMapper {
                 reservation.getTotal(),
                 reservation.getReceiptUrl(),
                 reservation.getPaymentMethod(),
+                reservation.getAccountPreference(),
                 reservation.getExpirationDate(),
                 reservation.getCreatedAt(),
                 reservation.getRenewalSubscriptionUuid(),

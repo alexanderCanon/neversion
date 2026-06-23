@@ -19,16 +19,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
-import com.neversion.api.order.domain.model.Order;
-import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.service.domain.model.Service;
 import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.domain.model.Subscription;
 
@@ -40,7 +40,6 @@ class DeliverAccessServiceUT {
     @Mock private AccountRepositoryPort     accountRepositoryPort;
     @Mock private ServiceRepositoryPort     serviceRepositoryPort;
     @Mock private ClientRepositoryPort      clientRepositoryPort;
-    @Mock private OrderRepositoryPort       orderRepositoryPort;
     @Mock private NotificationLogPort       notificationLogPort;
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -56,12 +55,12 @@ class DeliverAccessServiceUT {
                 .id(40L).name("Ana").email("ana@example.com").build()));
     }
 
-    private void mockSpotifyFixture(String profileName, String pin, String notes) {
+    private void mockSpotifyFixture(String profileName, String pin, ProfileDeliveryType deliveryType) {
         when(profileRepositoryPort.findByInternalId(10L)).thenReturn(Optional.of(Profile.builder()
-                .id(10L).accountId(20L).name(profileName).pin(pin).notes(notes).build()));
+                .id(10L).accountId(20L).name(profileName).pin(pin).build()));
         when(accountRepositoryPort.findByInternalId(20L)).thenReturn(Optional.of(Account.builder()
                 .id(20L).serviceId(30L).email("master@spotify.com").password("masterSecret")
-                .saleMode(SaleMode.BY_PROFILE).build()));
+                .saleMode(SaleMode.BY_PROFILE).profileDeliveryType(deliveryType).build()));
         when(serviceRepositoryPort.findByInternalId(30L)).thenReturn(Optional.of(Service.builder()
                 .id(30L).name("Spotify").build()));
         when(clientRepositoryPort.findByInternalId(40L)).thenReturn(Optional.of(Client.builder()
@@ -74,7 +73,6 @@ class DeliverAccessServiceUT {
                 accountRepositoryPort,
                 serviceRepositoryPort,
                 clientRepositoryPort,
-                orderRepositoryPort,
                 notificationLogPort,
                 new NotificationPayloadWriter(new ObjectMapper().findAndRegisterModules()));
     }
@@ -132,15 +130,14 @@ class DeliverAccessServiceUT {
     // ── Spotify — master credentials always hidden ────────────────────────────
 
     @Test
-    @DisplayName("deliver — Spotify BY_PROFILE — should never expose master credentials")
+    @DisplayName("deliver — Spotify PERSONAL_ACCOUNT — should never expose master credentials")
     void deliver_spotifyByProfile_shouldNeverExposeMasterCredentials() {
-        mockSpotifyFixture("Perfil 1", null, null);
+        mockSpotifyFixture("Perfil 1", null, ProfileDeliveryType.PERSONAL_ACCOUNT);
         UUID subscriptionUuid = UUID.randomUUID();
-        when(orderRepositoryPort.findByInternalId(99L)).thenReturn(Optional.of(
-                Order.builder().id(99L).notes("Spotify: Cuenta nueva").build()));
 
         newService().deliver(Subscription.builder()
-                .uuid(subscriptionUuid).profileId(10L).clientId(40L).orderId(99L)
+                .uuid(subscriptionUuid).profileId(10L).clientId(40L)
+                .accountPreference(AccountPreference.CUENTA_NUEVA)
                 .endDate(LocalDate.of(2026, 12, 31)).build());
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -159,12 +156,11 @@ class DeliverAccessServiceUT {
     @Test
     @DisplayName("deliver — Spotify cuenta nueva — should send profile credentials without followUpViaWhatsapp")
     void deliver_spotifyCuentaNueva_shouldSendProfileCredentials() {
-        mockSpotifyFixture("nuevo@gmail.com", "ClaveSegura1", null);
-        when(orderRepositoryPort.findByInternalId(99L)).thenReturn(Optional.of(
-                Order.builder().id(99L).notes("Spotify: Cuenta nueva").build()));
+        mockSpotifyFixture("nuevo@gmail.com", "ClaveSegura1", ProfileDeliveryType.PERSONAL_ACCOUNT);
 
         newService().deliver(Subscription.builder()
-                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L).orderId(99L)
+                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L)
+                .accountPreference(AccountPreference.CUENTA_NUEVA)
                 .endDate(LocalDate.of(2026, 12, 31)).build());
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -185,12 +181,11 @@ class DeliverAccessServiceUT {
     @Test
     @DisplayName("deliver — Spotify cuenta propia — should set followUpViaWhatsapp=true and omit all credentials")
     void deliver_spotifyCuentaPropia_shouldFlagWhatsappFollowUp_andOmitCredentials() {
-        mockSpotifyFixture("Perfil 1", null, null);
-        when(orderRepositoryPort.findByInternalId(99L)).thenReturn(Optional.of(
-                Order.builder().id(99L).notes("Spotify: CUENTA_PROPIA").build()));
+        mockSpotifyFixture("Perfil 1", null, ProfileDeliveryType.PERSONAL_ACCOUNT);
 
         newService().deliver(Subscription.builder()
-                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L).orderId(99L)
+                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L)
+                .accountPreference(AccountPreference.CUENTA_PROPIA)
                 .endDate(LocalDate.of(2026, 12, 31)).build());
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
@@ -207,13 +202,13 @@ class DeliverAccessServiceUT {
     }
 
     @Test
-    @DisplayName("deliver — Spotify sin orderId — should default to cuenta nueva behaviour")
+    @DisplayName("deliver — Spotify sin preferencia — should default to cuenta nueva behaviour")
     void deliver_spotifyNoOrderId_shouldDefaultToCuentaNuevaBehaviour() {
-        mockSpotifyFixture("Perfil 1", null, null);
+        mockSpotifyFixture("Perfil 1", null, ProfileDeliveryType.PERSONAL_ACCOUNT);
 
-        // No orderId → no order lookup → not cuenta propia → cuenta nueva path
         newService().deliver(Subscription.builder()
-                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L).orderId(null)
+                .uuid(UUID.randomUUID()).profileId(10L).clientId(40L)
+                .accountPreference(null)
                 .endDate(LocalDate.of(2026, 12, 31)).build());
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);

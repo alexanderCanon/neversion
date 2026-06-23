@@ -14,6 +14,7 @@ export interface AccountRequest {
     pass?: string;
     serviceId: string;
     saleMode: AccountRequest.SaleModeEnum;
+    profileDeliveryType?: AccountRequest.ProfileDeliveryTypeEnum;
     renewalDate: string;
     plan?: string;
     cost: number;
@@ -28,6 +29,11 @@ export namespace AccountRequest {
         FullAccount: 'FULL_ACCOUNT'
     } as const;
     export type SaleModeEnum = typeof SaleModeEnum[keyof typeof SaleModeEnum];
+    export const ProfileDeliveryTypeEnum = {
+        ProfileSlot: 'PROFILE_SLOT',
+        PersonalAccount: 'PERSONAL_ACCOUNT'
+    } as const;
+    export type ProfileDeliveryTypeEnum = typeof ProfileDeliveryTypeEnum[keyof typeof ProfileDeliveryTypeEnum];
 }
 
 

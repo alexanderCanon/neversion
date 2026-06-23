@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
 import com.neversion.api.account.domain.model.enums.SaleMode;
+import com.neversion.api.account.infrastructure.adapters.out.converter.ProfileDeliveryTypeConverter;
 import com.neversion.api.account.infrastructure.adapters.out.converter.SaleModeConverter;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 import com.neversion.api.shared.domain.model.enums.AccountStatusConverter;
@@ -80,6 +82,11 @@ public class AccountEntity {
     @Convert(converter = SaleModeConverter.class)
     @Column(name = "sale_mode", nullable = false, length = 20)
     private SaleMode saleMode;
+
+    /** How access is delivered to the client for BY_PROFILE accounts. Null for FULL_ACCOUNT. */
+    @Convert(converter = ProfileDeliveryTypeConverter.class)
+    @Column(name = "profile_delivery_type", length = 30)
+    private ProfileDeliveryType profileDeliveryType;
 
     /** Private admin notes about this account. */
     @Column(name = "notes", columnDefinition = "TEXT")

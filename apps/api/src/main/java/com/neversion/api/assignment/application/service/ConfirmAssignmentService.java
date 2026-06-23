@@ -147,6 +147,7 @@ public class ConfirmAssignmentService implements ConfirmAssignmentUseCase {
                 .priceSold(order.getTotal())
                 .discountApplied(order.getDiscount())
                 .saleMode(account.getSaleMode())
+                .accountPreference(order.getAccountPreference())
                 .status(SubStatus.ACTIVE)
                 .vendorId(vendor.getId())
                 .build());

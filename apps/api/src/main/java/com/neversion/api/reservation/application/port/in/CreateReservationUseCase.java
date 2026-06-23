@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import com.neversion.api.reservation.domain.model.Reservation;
 
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+
 /**
  * UC1: Create Reservation (Checkout) — US-033.
  * Creates a reservation linking a client to selected services in the store.
@@ -17,8 +19,9 @@ public interface CreateReservationUseCase {
      * @param clientUuid     UUID of the client placing the reservation
      * @param items          list of services + quantities
      * @param paymentMethod  payment method selected by the client (BR-06)
+     * @param accountPreference optional client account preference for Spotify Fam
      * @param notes          optional client notes, e.g. Spotify account preference
      * @return the persisted reservation with pricing and details
      */
-    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod, String notes);
+    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod, AccountPreference accountPreference, String notes);
 }

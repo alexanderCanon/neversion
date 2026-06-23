@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
@@ -61,6 +62,9 @@ public class Account {
      */
     private SaleMode saleMode;
 
+    /** How access is delivered to the client for BY_PROFILE accounts. Null for FULL_ACCOUNT. */
+    private ProfileDeliveryType profileDeliveryType;
+
     /** Private admin-only notes for this account. */
     private String notes;
 
@@ -87,8 +91,8 @@ public class Account {
     private LocalDateTime createdAt;
 
     public Account(Long id, UUID uuid, Long serviceId, UUID serviceUuid, String email, String password,
-            LocalDate renewalDate, String plan, SaleMode saleMode, String notes,
-            java.math.BigDecimal cost, String source, LocalDate purchasedAt,
+            LocalDate renewalDate, String plan, SaleMode saleMode, ProfileDeliveryType profileDeliveryType,
+            String notes, java.math.BigDecimal cost, String source, LocalDate purchasedAt,
             AccountStatus status, Integer maxProfiles, Long vendorId, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
@@ -99,6 +103,7 @@ public class Account {
         this.renewalDate = renewalDate;
         this.plan = plan;
         this.saleMode = saleMode;
+        this.profileDeliveryType = profileDeliveryType;
         this.notes = notes;
         this.cost = cost;
         this.source = source;

@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.infrastructure.adapters.out.converter.ReservationStatusConverter;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+import com.neversion.api.shared.domain.model.enums.AccountPreferenceConverter;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -59,6 +61,11 @@ public class ReservationEntity {
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
+
+    /** Client's delivery preference for PERSONAL_ACCOUNT services. Null otherwise. */
+    @Convert(converter = AccountPreferenceConverter.class)
+    @Column(name = "account_preference", length = 20)
+    private AccountPreference accountPreference;
 
     @Column(name = "receipt_url", unique = true)
     private String receiptUrl;

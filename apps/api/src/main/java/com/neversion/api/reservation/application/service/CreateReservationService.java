@@ -26,6 +26,8 @@ import com.neversion.api.service.domain.port.out.ServiceRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+
 /**
  * UC1: Create Reservation (Checkout) — US-033.
  * <p>
@@ -70,7 +72,7 @@ public class CreateReservationService implements CreateReservationUseCase {
     @Override
     @Transactional
     public Reservation create(UUID clientUuid, List<ReservationItemCommand> items,
-                               String paymentMethod, String notes) {
+                               String paymentMethod, AccountPreference accountPreference, String notes) {
 
         // 1. Resolve client and vendor for multi-tenancy
         var user = userRepositoryPort.findByExternalId(clientUuid.toString())
@@ -145,6 +147,7 @@ public class CreateReservationService implements CreateReservationUseCase {
                 .discount(discount)
                 .total(finalTotal)
                 .paymentMethod(paymentMethod)
+                .accountPreference(accountPreference)
                 .notes(notes)
                 .expirationDate(expirationDate.toInstant())
                 .build();

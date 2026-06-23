@@ -20,6 +20,7 @@ export interface ReservationResponse {
     total?: number;
     receiptUrl?: string;
     paymentMethod?: string;
+    accountPreference?: ReservationResponse.AccountPreferenceEnum;
     expirationDate?: string;
     createdAt?: string;
     renewalSubscriptionId?: string;
@@ -35,6 +36,11 @@ export namespace ReservationResponse {
         Cancelled: 'CANCELLED'
     } as const;
     export type StatusEnum = typeof StatusEnum[keyof typeof StatusEnum];
+    export const AccountPreferenceEnum = {
+        CuentaNueva: 'CUENTA_NUEVA',
+        CuentaPropia: 'CUENTA_PROPIA'
+    } as const;
+    export type AccountPreferenceEnum = typeof AccountPreferenceEnum[keyof typeof AccountPreferenceEnum];
 }
 
 

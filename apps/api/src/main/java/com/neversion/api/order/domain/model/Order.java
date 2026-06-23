@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import com.neversion.api.order.domain.model.enums.OrderStatus;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,6 +51,9 @@ public class Order {
 
     /** Payment method provided by the client at checkout (BR-06). */
     private String paymentMethod;
+
+    /** De-normalized from reservation.accountPreference at order creation. */
+    private AccountPreference accountPreference;
 
     private String notes;
 

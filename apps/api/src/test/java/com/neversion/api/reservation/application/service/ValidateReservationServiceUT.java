@@ -34,6 +34,7 @@ import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import com.neversion.api.shared.port.out.NotificationLogPort;
 import com.neversion.api.subscription.application.port.in.RenewSubscriptionUseCase;
 import com.neversion.api.subscription.domain.model.Subscription;
@@ -127,7 +128,7 @@ class ValidateReservationServiceUT {
         // Verify order creation with total and discount
         verify(createOrderUseCase).createFromReservation(
                 eq(1L), eq(RESERVATION_UUID), eq(CLIENT_ID), eq(VENDOR_ID), eq(PAYMENT_METHOD),
-                eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes));
+                eq(null), eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes));
 
         // Verify PAYMENT_APPROVED notification (US-035 CA4)
         verify(notificationLogPort).record(eq("PAYMENT_APPROVED"), eq("juan@test.com"), any(String.class),
@@ -163,7 +164,7 @@ class ValidateReservationServiceUT {
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(createOrderUseCase.createFromReservation(
                 eq(1L), eq(RESERVATION_UUID), eq(CLIENT_ID), eq(VENDOR_ID), eq(PAYMENT_METHOD),
-                eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes)))
+                eq(null), eq(null), eq(new BigDecimal("100.00")), eq(BigDecimal.ZERO), eq(notes)))
                 .thenReturn(createdOrder);
         when(subscriptionRepositoryPort.findByInternalId(subscriptionId)).thenReturn(Optional.of(subscription));
         when(orderRepositoryPort.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));

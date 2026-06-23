@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -43,6 +44,9 @@ public class Reservation {
     @Builder.Default
     private ReservationStatus status = ReservationStatus.PENDING;
 
+    /** Client's delivery preference for PERSONAL_ACCOUNT services. Null otherwise. */
+    private AccountPreference accountPreference;
+
     private Instant expirationDate;
     private Instant createdAt;
     private String notes;
@@ -55,7 +59,7 @@ public class Reservation {
 
     public Reservation(Long id, UUID uuid, Long clientId, UUID clientUuid, Long vendorId,
             BigDecimal discount, BigDecimal total, String receiptUrl, String paymentMethod,
-            ReservationStatus status, Instant expirationDate,
+            ReservationStatus status, AccountPreference accountPreference, Instant expirationDate,
             Instant createdAt, String notes, Long renewalSubscriptionId, UUID renewalSubscriptionUuid,
             List<ReservationDetail> details) {
         this.id = id;
@@ -68,6 +72,7 @@ public class Reservation {
         this.receiptUrl = receiptUrl;
         this.paymentMethod = paymentMethod;
         this.status = status;
+        this.accountPreference = accountPreference;
         this.expirationDate = expirationDate;
         this.createdAt = createdAt;
         this.notes = notes;
