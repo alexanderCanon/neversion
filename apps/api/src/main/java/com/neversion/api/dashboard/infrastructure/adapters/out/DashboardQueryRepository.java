@@ -261,18 +261,32 @@ public class DashboardQueryRepository implements DashboardQueryPort {
         String sql = """
                 SELECT COALESCE(SUM(profit_amount), 0)
                 FROM (
-                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    SELECT 
+                      (COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0)) - 
+                      (CASE 
+                        WHEN a.sale_mode = 'full_account' THEN COALESCE(a.cost, 0)
+                        ELSE COALESCE(a.cost, 0) / COALESCE(NULLIF(a.max_profiles, 0), 1)
+                      END) AS profit_amount
                     FROM subscriptions s
+                    JOIN profiles p ON p.id = s.profile_id
+                    JOIN accounts a ON a.id = p.account_id
                     WHERE s.vendor_id = ?
                       AND s.created_at >= ?
                       AND s.created_at < ?
 
                     UNION ALL
 
-                    SELECT COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0) AS profit_amount
+                    SELECT 
+                      (COALESCE(s.price_sold, 0) - COALESCE(s.discount_applied, 0)) - 
+                      (CASE 
+                        WHEN a.sale_mode = 'full_account' THEN COALESCE(a.cost, 0)
+                        ELSE COALESCE(a.cost, 0) / COALESCE(NULLIF(a.max_profiles, 0), 1)
+                      END) AS profit_amount
                     FROM orders o
                     JOIN reservations r ON r.id = o.reservation_id
                     JOIN subscriptions s ON s.id = r.renewal_subscription_id
+                    JOIN profiles p ON p.id = s.profile_id
+                    JOIN accounts a ON a.id = p.account_id
                     WHERE o.vendor_id = ?
                       AND o.status IN ('COMPLETED', 'completed')
                       AND o.approved_at >= ?

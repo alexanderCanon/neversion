@@ -9,85 +9,31 @@ import { VendorKpiMetrics } from '../../services/master-dashboard.service';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="row mb-4 g-3">
-      <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm pointer" [routerLink]="['/clients']">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="icon-box bg-primary-subtle text-primary">
-                <i class="bi bi-people"></i>
-              </div>
-              <div>
-                <p class="metric-label mb-0">Clientes Activos</p>
-                <h3 class="mb-0 fw-bold">{{ metrics.activeClientsCount }}</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="icon-box bg-success-subtle text-success">
-                <i class="bi bi-graph-up-arrow"></i>
-              </div>
-              <div>
-                <p class="metric-label mb-0">Ganancia Mes</p>
-                <h3 class="mb-0 fw-bold">{{ metrics.grossProfit | currency:metrics.currency:'symbol':'1.2-2' }}</h3>
+      @for (card of cards; track card.label) {
+        <div class="col-12 col-md-6 col-xl">
+          <div class="card metric-card h-100 border-0 shadow-sm"
+               [class.pointer]="!!card.link"
+               [routerLink]="card.link">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="icon-box" [ngClass]="card.colorClass">
+                  <i class="bi" [ngClass]="card.icon"></i>
+                </div>
+                <div>
+                  <p class="metric-label mb-0">{{ card.label }}</p>
+                  <h3 class="mb-0 fw-bold">
+                    @if (card.isCurrency) {
+                      {{ card.value | currency:metrics.currency:'symbol':'1.2-2' }}
+                    } @else {
+                      {{ card.value }}
+                    }
+                  </h3>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="icon-box bg-info-subtle text-info">
-                <i class="bi bi-arrow-repeat"></i>
-              </div>
-              <div>
-                <p class="metric-label mb-0">Renovaciones</p>
-                <h3 class="mb-0 fw-bold">{{ metrics.successfulRenewalsCount }}</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm pointer" [routerLink]="['/subscriptions']">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="icon-box bg-danger-subtle text-danger">
-                <i class="bi bi-calendar2-x"></i>
-              </div>
-              <div>
-                <p class="metric-label mb-0">Vencen Hoy</p>
-                <h3 class="mb-0 fw-bold">{{ metrics.expiringTodayCount }}</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-6 col-xl">
-        <div class="card metric-card h-100 border-0 shadow-sm pointer" [routerLink]="['/accounts']">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="icon-box bg-warning-subtle text-warning">
-                <i class="bi bi-box-seam"></i>
-              </div>
-              <div>
-                <p class="metric-label mb-0">Stock Disponible</p>
-                <h3 class="mb-0 fw-bold">{{ metrics.availableProfiles + metrics.availableFullAccounts }}</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      }
     </div>
   `,
   styles: [`
@@ -143,4 +89,45 @@ export class DashboardMetricsComponent {
     availableFullAccounts: 0,
     occupiedFullAccounts: 0
   };
+
+  get cards() {
+    return [
+      {
+        label: 'Clientes Activos',
+        value: this.metrics.activeClientsCount,
+        icon: 'bi-people',
+        colorClass: 'bg-primary-subtle text-primary',
+        link: ['/clients']
+      },
+      {
+        label: 'Ganancia Mes',
+        value: this.metrics.grossProfit,
+        isCurrency: true,
+        icon: 'bi-graph-up-arrow',
+        colorClass: 'bg-success-subtle text-success',
+        link: null
+      },
+      {
+        label: 'Renovaciones',
+        value: this.metrics.successfulRenewalsCount,
+        icon: 'bi-arrow-repeat',
+        colorClass: 'bg-info-subtle text-info',
+        link: null
+      },
+      {
+        label: 'Vencen Hoy',
+        value: this.metrics.expiringTodayCount,
+        icon: 'bi-calendar2-x',
+        colorClass: 'bg-danger-subtle text-danger',
+        link: ['/subscriptions']
+      },
+      {
+        label: 'Stock Disponible',
+        value: this.metrics.availableProfiles + this.metrics.availableFullAccounts,
+        icon: 'bi-box-seam',
+        colorClass: 'bg-warning-subtle text-warning',
+        link: ['/accounts']
+      }
+    ];
+  }
 }

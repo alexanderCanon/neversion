@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 
 import jakarta.validation.constraints.Email;
@@ -25,6 +26,8 @@ public record AccountRequest(
         @NotNull(message = "Service ID is required") UUID serviceId,
 
         @NotNull(message = "Sale mode is required") SaleMode saleMode,
+
+        ProfileDeliveryType profileDeliveryType,
 
         @NotNull(message = "Renewal date is required") LocalDate renewalDate,
 

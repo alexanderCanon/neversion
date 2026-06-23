@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
 
@@ -24,6 +25,7 @@ public record AccountResponse(
         UUID serviceUuid,
         String serviceName,
         SaleMode saleMode,
+        ProfileDeliveryType profileDeliveryType,
         AccountStatus status,
         LocalDate renewalDate,
         String plan,

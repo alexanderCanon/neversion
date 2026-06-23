@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 import lombok.Builder;
@@ -88,6 +89,9 @@ public class Subscription {
     /** Sale mode snapshot at creation time. */
     private SaleMode saleMode;
 
+    /** Client's delivery preference for PERSONAL_ACCOUNT services. Null otherwise. */
+    private AccountPreference accountPreference;
+
     /**
      * Current access status.
      * ACTIVE    – client has valid access.
@@ -111,7 +115,7 @@ public class Subscription {
             UUID profileUuid, UUID clientUuid, UUID accountUuid, UUID serviceUuid,
             LocalDate startDate, LocalDate endDate, LocalDate paymentDueDate,
             Long monthsPaid, BigDecimal priceSold, BigDecimal discountApplied, SaleMode saleMode,
-            SubStatus status, String notes, Long vendorId,
+            AccountPreference accountPreference, SubStatus status, String notes, Long vendorId,
             LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
@@ -130,6 +134,7 @@ public class Subscription {
         this.priceSold = priceSold;
         this.discountApplied = discountApplied;
         this.saleMode = saleMode;
+        this.accountPreference = accountPreference;
         this.status = status;
         this.notes = notes;
         this.vendorId = vendorId;

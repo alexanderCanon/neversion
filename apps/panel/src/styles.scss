@@ -14,8 +14,8 @@ $primary: #1d4ed8;
     --color-brand-accent-muted: #3b82f6;
 
     // Semantic
-    --color-primary:       var(--color-brand-accent);
-    --color-primary-hover: #1e40af; // Indigo-ish blue
+    --color-primary:       var(--color-brand-dark);
+    --color-primary-hover: #1b263b; // Slightly lighter navy for hover
     --color-danger:        #e11d48;
     --color-success:       #059669;
     --color-warning:       #d97706;
@@ -105,7 +105,7 @@ $primary: #1d4ed8;
             background-color: var(--color-primary-hover);
             border-color: var(--color-primary-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(17, 27, 45, 0.2);
         }
     }
 
@@ -179,4 +179,12 @@ h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-secondary);
+}
+
+.bg-brand-dark {
+    background-color: var(--color-brand-dark) !important;
+
+    .modal-title {
+        color: #fff !important;
+    }
 }

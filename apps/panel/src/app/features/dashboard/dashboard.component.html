@@ -1,12 +1,12 @@
 <div class="container-fluid py-4 bg-surface min-vh-100">
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
     <div>
-      <h2 class="mb-1 fw-bold text-dark">Panel de Control</h2>
-      <p class="text-muted small mb-0">Vista general del rendimiento y vencimientos operativos.</p>
+      <h2 class="mb-1 fw-bold text-dark">Dashboard</h2>
+      <p class="text-muted small mb-0">Vista general del rendimiento y vencimientos de la tienda</p>
     </div>
     <button class="btn btn-white border shadow-sm d-flex align-items-center gap-2 px-3 py-2" (click)="loadDashboard()">
       <i class="bi bi-arrow-clockwise"></i>
-      <span class="fw-medium">Actualizar</span>
+      <span class="fw-medium">Refrescar</span>
     </button>
   </div>
 
@@ -38,56 +38,24 @@
           </div>
 
           <div class="row g-3">
-            <div class="col-12 col-lg-4">
-              <div class="due-column due-today">
-                <div class="due-title">Vencen hoy</div>
-                @if ((kpis()?.expiringToday?.length ?? 0) === 0) {
-                  <p class="empty-state">Sin vencimientos.</p>
-                } @else {
-                  @for (subscription of kpis()?.expiringToday; track trackExpiringSubscription($index, subscription)) {
-                    <div class="due-item">
-                      <strong>{{ subscription.clientName || 'Cliente' }}</strong>
-                      <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
-                      <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
-                    </div>
+            @for (section of expiringSections(); track section.class) {
+              <div class="col-12 col-lg-4">
+                <div class="due-column" [ngClass]="section.class">
+                  <div class="due-title">{{ section.title }}</div>
+                  @if (section.items.length === 0) {
+                    <p class="empty-state">Sin vencimientos.</p>
+                  } @else {
+                    @for (subscription of section.items; track trackExpiringSubscription($index, subscription)) {
+                      <div class="due-item">
+                        <strong>{{ subscription.clientName || 'Cliente' }}</strong>
+                        <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
+                        <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
+                      </div>
+                    }
                   }
-                }
+                </div>
               </div>
-            </div>
-
-            <div class="col-12 col-lg-4">
-              <div class="due-column due-tomorrow">
-                <div class="due-title">Vencen mañana</div>
-                @if ((kpis()?.expiringTomorrow?.length ?? 0) === 0) {
-                  <p class="empty-state">Sin vencimientos.</p>
-                } @else {
-                  @for (subscription of kpis()?.expiringTomorrow; track trackExpiringSubscription($index, subscription)) {
-                    <div class="due-item">
-                      <strong>{{ subscription.clientName || 'Cliente' }}</strong>
-                      <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
-                      <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
-                    </div>
-                  }
-                }
-              </div>
-            </div>
-
-            <div class="col-12 col-lg-4">
-              <div class="due-column due-week">
-                <div class="due-title">Vencen esta semana</div>
-                @if ((kpis()?.expiringThisWeek?.length ?? 0) === 0) {
-                  <p class="empty-state">Sin vencimientos.</p>
-                } @else {
-                  @for (subscription of kpis()?.expiringThisWeek; track trackExpiringSubscription($index, subscription)) {
-                    <div class="due-item">
-                      <strong>{{ subscription.clientName || 'Cliente' }}</strong>
-                      <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
-                      <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
-                    </div>
-                  }
-                }
-              </div>
-            </div>
+            }
           </div>
         </section>
       </div>

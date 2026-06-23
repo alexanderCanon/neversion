@@ -183,6 +183,7 @@ export class SubscriptionFormComponent implements OnInit {
             accountId,
             name: profile.name || '',
             pin: profile.pin,
+            notes: profile.notes,
             isOwner: profile.isOwner ?? false,
             status: profile.status as ProfileResponse['status'],
             createdAt: '',

@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.infrastructure.adapters.out.converter.SaleModeConverter;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+import com.neversion.api.shared.domain.model.enums.AccountPreferenceConverter;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
 import jakarta.persistence.Column;
@@ -99,6 +101,11 @@ public class SubscriptionEntity {
     @Convert(converter = SaleModeConverter.class)
     @Column(name = "sale_mode", length = 20)
     private SaleMode saleMode;
+
+    /** Client's delivery preference for PERSONAL_ACCOUNT services. Null otherwise. */
+    @Convert(converter = AccountPreferenceConverter.class)
+    @Column(name = "account_preference", length = 20)
+    private AccountPreference accountPreference;
 
     /**
      * Current access status.

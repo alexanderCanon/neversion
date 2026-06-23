@@ -13,6 +13,7 @@ export interface ProfileSummaryResponse {
     id?: string;
     name?: string;
     pin?: string;
+    notes?: string;
     isOwner?: boolean;
     status?: ProfileSummaryResponse.StatusEnum;
 }

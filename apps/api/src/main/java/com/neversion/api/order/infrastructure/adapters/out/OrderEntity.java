@@ -4,8 +4,11 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 import com.neversion.api.order.domain.model.enums.OrderStatus;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+import com.neversion.api.shared.domain.model.enums.AccountPreferenceConverter;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -62,6 +65,11 @@ public class OrderEntity {
     /** Payment method provided by the client at checkout (BR-06). */
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
+
+    /** Client's delivery preference for PERSONAL_ACCOUNT services. Null otherwise. */
+    @Convert(converter = AccountPreferenceConverter.class)
+    @Column(name = "account_preference", length = 20)
+    private AccountPreference accountPreference;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;

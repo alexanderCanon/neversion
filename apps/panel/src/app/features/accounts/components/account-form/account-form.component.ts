@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, signal, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AccountRequest, SaleMode, ServiceResponse } from '@neversion/models';
+import { AccountRequest, SaleMode, ServiceResponse, AccountResponse } from '@neversion/models';
 import { AccountsService } from '../../services/accounts.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
@@ -58,6 +58,8 @@ export class AccountFormComponent implements OnInit {
   accountForm!: FormGroup;
   isSubmitting = false;
   isBrowser: boolean;
+  isEditMode = false;
+  accountId: string | null = null;
 
   readonly saleModes = Object.values(SaleMode);
 
@@ -140,8 +142,36 @@ export class AccountFormComponent implements OnInit {
     }
   }
 
-  openModal(): void {
+  openModal(account?: AccountResponse): void {
     if (this.isBrowser) {
+      if (account) {
+        this.isEditMode = true;
+        this.accountId = account.id;
+        
+        this.accountForm.patchValue({
+          email: account.email,
+          password: account.password || '',
+          serviceId: account.serviceUuid,
+          maxProfiles: account.maxProfiles,
+          saleMode: account.saleMode,
+          renewalDate: account.renewalDate ? account.renewalDate.split('T')[0] : '',
+          cost: account.cost,
+          source: account.source || '',
+          purchasedAt: account.purchasedAt ? account.purchasedAt.split('T')[0] : '',
+          notes: account.notes || ''
+        });
+
+        // En modo edición no se puede cambiar el servicio
+        this.accountForm.get('serviceId')?.disable();
+      } else {
+        this.isEditMode = false;
+        this.accountId = null;
+        this.resetForm();
+        if (!this._preselectedService) {
+          this.accountForm.get('serviceId')?.enable();
+        }
+      }
+
       const modalEl = this.modalElement?.nativeElement;
       if (modalEl) {
         if (typeof bootstrap !== 'undefined') {
@@ -196,16 +226,29 @@ export class AccountFormComponent implements OnInit {
         maxProfiles: formValue.saleMode === SaleMode.FULL_ACCOUNT ? 1 : (Number(formValue.maxProfiles) || undefined)
       };
 
-      this.accountsService.createAccount(accountRequest).subscribe({
-        next: () => {
-          this.toastService.success('Cuenta ingresada existosamente.');
-          this.accountCreated.emit(accountRequest);
-          this.closeModal();
-        },
-        error: () => {
-          this.isSubmitting = false;
-        },
-      });
+      if (this.isEditMode) {
+        this.accountsService.updateAccount(this.accountId!, accountRequest).subscribe({
+          next: () => {
+            this.toastService.success('Cuenta actualizada exitosamente.');
+            this.accountCreated.emit(accountRequest);
+            this.closeModal();
+          },
+          error: () => {
+            this.isSubmitting = false;
+          },
+        });
+      } else {
+        this.accountsService.createAccount(accountRequest).subscribe({
+          next: () => {
+            this.toastService.success('Cuenta ingresada existosamente.');
+            this.accountCreated.emit(accountRequest);
+            this.closeModal();
+          },
+          error: () => {
+            this.isSubmitting = false;
+          },
+        });
+      }
     } else {
       Object.keys(this.accountForm.controls).forEach((key) => {
         this.accountForm.get(key)?.markAsTouched();

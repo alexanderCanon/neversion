@@ -107,3 +107,13 @@ thead th {
     text-transform: uppercase;
     letter-spacing: 0.025em;
 }
+
+.form-label-custom {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-brand-accent);
+    margin-bottom: 1rem;
+}

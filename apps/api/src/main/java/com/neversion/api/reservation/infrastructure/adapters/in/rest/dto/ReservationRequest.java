@@ -3,6 +3,7 @@ package com.neversion.api.reservation.infrastructure.adapters.in.rest.dto;
 import java.util.List;
 import java.util.UUID;
 
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ public record ReservationRequest(
         @NotNull UUID clientId,
         @NotNull @NotEmpty List<@Valid ReservationItemRequest> items,
         String paymentMethod,
+        AccountPreference accountPreference,
         /** Client notes, e.g. Spotify account preference captured at checkout. */
         String notes) {
 }

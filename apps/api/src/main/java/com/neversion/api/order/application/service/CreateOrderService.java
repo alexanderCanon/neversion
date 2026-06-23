@@ -14,6 +14,8 @@ import com.neversion.api.order.domain.model.enums.OrderStatus;
 import com.neversion.api.order.domain.port.out.OrderRepositoryPort;
 import com.neversion.api.order.domain.port.out.OrderStatusHistoryPort;
 
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+
 @Service
 public class CreateOrderService implements CreateOrderUseCase {
 
@@ -29,7 +31,7 @@ public class CreateOrderService implements CreateOrderUseCase {
     @Override
     @Transactional
     public Order createFromReservation(Long reservationId, UUID reservationUuid, Long clientId,
-            Long vendorId, String paymentMethod, String receiptUrl,
+            Long vendorId, String paymentMethod, AccountPreference accountPreference, String receiptUrl,
             BigDecimal total, BigDecimal discount, String notes) {
 
         Order order = Order.builder()
@@ -39,6 +41,7 @@ public class CreateOrderService implements CreateOrderUseCase {
                 .vendorId(vendorId)
                 .status(OrderStatus.VALIDATED)
                 .paymentMethod(paymentMethod)
+                .accountPreference(accountPreference)
                 .receiptUrl(receiptUrl)
                 .total(total)
                 .discount(discount)

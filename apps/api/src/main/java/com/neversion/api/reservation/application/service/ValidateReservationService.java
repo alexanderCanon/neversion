@@ -112,6 +112,7 @@ public class ValidateReservationService implements ValidateReservationUseCase {
                 updated.getClientId(),
                 updated.getVendorId(),
                 updated.getPaymentMethod(),
+                updated.getAccountPreference(),
                 updated.getReceiptUrl(),
                 updated.getTotal(),
                 updated.getDiscount(),

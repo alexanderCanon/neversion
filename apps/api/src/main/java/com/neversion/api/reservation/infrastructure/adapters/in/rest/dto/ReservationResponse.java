@@ -7,6 +7,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
+
 /**
  * Response body for reservation operations.
  * 'id' maps to the reservation's public UUID — internal BIGINT IDs are never exposed (NFR-01).
@@ -24,6 +26,7 @@ public record ReservationResponse(
         BigDecimal total,
         String receiptUrl,
         String paymentMethod,
+        AccountPreference accountPreference,
         Instant expirationDate,
         Instant createdAt,
         UUID renewalSubscriptionId,

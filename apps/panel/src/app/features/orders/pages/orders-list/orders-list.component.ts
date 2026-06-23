@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { OrderResponse, OrderStatus } from '@neversion/models';
+import { getOrderStatusLabel, getOrderStatusClass } from '@neversion/utils';
 
 @Component({
   selector: 'app-orders-list',
@@ -90,26 +91,10 @@ export class OrdersListComponent implements OnInit {
   }
 
   getStatusLabel(status: OrderStatus | undefined): string {
-    if (!status) return '';
-    const labels: Record<OrderStatus, string> = {
-      PENDING: 'Pendiente',
-      VALIDATED: 'Validada',
-      COMPLETED: 'Completada',
-      REJECTED: 'Rechazada',
-      CANCELLED: 'Cancelada'
-    };
-    return labels[status] ?? status;
+    return getOrderStatusLabel(status);
   }
 
   getStatusBadgeClass(status: OrderStatus | undefined): string {
-    if (!status) return 'badge-status default';
-    switch (status) {
-      case 'PENDING': return 'badge-status pending';
-      case 'VALIDATED': return 'badge-status validated';
-      case 'COMPLETED': return 'badge-status completed';
-      case 'REJECTED': return 'badge-status rejected';
-      case 'CANCELLED': return 'badge-status cancelled';
-      default: return 'badge-status default';
-    }
+    return getOrderStatusClass(status);
   }
 }

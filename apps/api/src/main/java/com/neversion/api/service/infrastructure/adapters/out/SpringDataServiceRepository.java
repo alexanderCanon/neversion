@@ -1,6 +1,5 @@
 package com.neversion.api.service.infrastructure.adapters.out;
 
-import com.neversion.api.shared.domain.model.enums.CategoryType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

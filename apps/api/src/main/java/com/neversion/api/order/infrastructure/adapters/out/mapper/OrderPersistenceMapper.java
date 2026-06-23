@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.infrastructure.adapters.out.OrderEntity;
+import com.neversion.api.shared.domain.model.enums.AccountPreference;
 
 /**
  * Explicit mapper — US-008: PK is now Long, uuid is separate column.
@@ -23,6 +24,7 @@ public class OrderPersistenceMapper {
                 .vendorId(entity.getVendorId())
                 .status(entity.getStatus())
                 .paymentMethod(entity.getPaymentMethod())
+                .accountPreference(entity.getAccountPreference())
                 .notes(entity.getNotes())
                 .receiptUrl(entity.getReceiptUrl())
                 .total(entity.getTotal())
@@ -41,6 +43,7 @@ public class OrderPersistenceMapper {
                 .vendorId(domain.getVendorId())
                 .status(domain.getStatus())
                 .paymentMethod(domain.getPaymentMethod())
+                .accountPreference(domain.getAccountPreference())
                 .notes(domain.getNotes())
                 .receiptUrl(domain.getReceiptUrl())
                 .total(domain.getTotal())

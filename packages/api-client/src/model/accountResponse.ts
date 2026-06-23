@@ -17,6 +17,7 @@ export interface AccountResponse {
     serviceUuid?: string;
     serviceName?: string;
     saleMode?: AccountResponse.SaleModeEnum;
+    profileDeliveryType?: AccountResponse.ProfileDeliveryTypeEnum;
     status?: AccountResponse.StatusEnum;
     renewalDate?: string;
     plan?: string;
@@ -37,6 +38,11 @@ export namespace AccountResponse {
         FullAccount: 'FULL_ACCOUNT'
     } as const;
     export type SaleModeEnum = typeof SaleModeEnum[keyof typeof SaleModeEnum];
+    export const ProfileDeliveryTypeEnum = {
+        ProfileSlot: 'PROFILE_SLOT',
+        PersonalAccount: 'PERSONAL_ACCOUNT'
+    } as const;
+    export type ProfileDeliveryTypeEnum = typeof ProfileDeliveryTypeEnum[keyof typeof ProfileDeliveryTypeEnum];
     export const StatusEnum = {
         Available: 'AVAILABLE',
         Partial: 'PARTIAL',

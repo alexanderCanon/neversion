@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.neversion.api.account.domain.model.Account;
+import com.neversion.api.account.domain.model.enums.ProfileDeliveryType;
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountResponse;
 import com.neversion.api.profile.domain.model.Profile;
@@ -27,6 +29,7 @@ public class AccountMapper {
                 .password(request.pass())
                 .serviceUuid(request.serviceId())   // UUID — resolved to Long by service layer
                 .saleMode(request.saleMode())
+                .profileDeliveryType(request.profileDeliveryType())
                 .renewalDate(request.renewalDate())
                 .plan(request.plan())
                 .cost(request.cost())
@@ -71,6 +74,7 @@ public class AccountMapper {
                 .serviceUuid(service != null ? service.getUuid() : account.getServiceUuid())
                 .serviceName(service != null ? service.getName() : null)
                 .saleMode(account.getSaleMode())
+                .profileDeliveryType(account.getProfileDeliveryType())
                 .status(account.getStatus())
                 .renewalDate(account.getRenewalDate())
                 .plan(account.getPlan())

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AccountsService } from '../../services/accounts.service';
 import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
+import { copyToClipboard } from '@neversion/utils';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -227,7 +228,7 @@ export class AccountsListComponent implements OnInit {
       return;
     }
 
-    this.copyToClipboard(value)
+    copyToClipboard(value)
       .then(() => this.toastService.success(`${label} copiado`))
       .catch(() => this.toastService.error(`No se pudo copiar ${label.toLowerCase()}`));
   }
@@ -259,6 +260,7 @@ export class AccountsListComponent implements OnInit {
         accountId: id,
         name: profile.name || '',
         pin: profile.pin,
+        notes: profile.notes,
         isOwner: Boolean(profile.isOwner),
         status: (profile.status as unknown as ProfileStatus) || ProfileStatus.AVAILABLE,
         createdAt: '',
@@ -290,21 +292,5 @@ export class AccountsListComponent implements OnInit {
     return account.serviceId ? `Servicio no resuelto #${account.serviceId}` : 'Servicio no resuelto';
   }
 
-  private copyToClipboard(value: string): Promise<void> {
-    if (navigator.clipboard?.writeText) {
-      return navigator.clipboard.writeText(value);
-    }
 
-    const textarea = document.createElement('textarea');
-    textarea.value = value;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    const copied = document.execCommand('copy');
-    document.body.removeChild(textarea);
-
-    return copied ? Promise.resolve() : Promise.reject();
-  }
 }
