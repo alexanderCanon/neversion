@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { SubscriptionDetailResponse } from '@neversion/api-client';
 import { ToastService } from '../../../../core/services/toast.service';
+import { copyToClipboard, getSubscriptionStatusLabel, getSubscriptionStatusClass } from '@neversion/utils';
 
 @Component({
   selector: 'app-subscription-detail',
@@ -94,7 +95,7 @@ export class SubscriptionDetailComponent implements OnInit {
 
   copyToClipboard(text: string | undefined, label: string): void {
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
+    copyToClipboard(text).then(() => {
       this.toastService.success(`${label} copiado al portapapeles`);
     }).catch(() => {
       this.toastService.error(`No se pudo copiar el ${label.toLowerCase()}`);
@@ -102,23 +103,11 @@ export class SubscriptionDetailComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'ACTIVE':    return 'badge-status active';
-      case 'EXPIRED':   return 'badge-status expired';
-      case 'CANCELLED': return 'badge-status cancelled';
-      case 'SUSPENDED': return 'badge-status suspended';
-      default:          return 'badge-status default';
-    }
+    return getSubscriptionStatusClass(status);
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      ACTIVE:    'Activo',
-      EXPIRED:   'Vencido',
-      CANCELLED: 'Cancelado',
-      SUSPENDED: 'Suspendido',
-    };
-    return labels[status?.toUpperCase()] ?? status;
+    return getSubscriptionStatusLabel(status);
   }
 
   getSaleModeLabel(saleMode?: string): string {

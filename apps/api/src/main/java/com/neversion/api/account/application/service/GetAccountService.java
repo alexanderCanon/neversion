@@ -99,6 +99,7 @@ public class GetAccountService implements GetAccountUseCase {
                         .id(p.getUuid())
                         .name(p.getName())
                         .pin(p.getPin())
+                        .notes(p.getNotes())
                         .isOwner(p.getIsOwner())
                         .status(p.getStatus())
                         .build())

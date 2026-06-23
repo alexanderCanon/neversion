@@ -38,6 +38,27 @@ export class DashboardComponent implements OnInit {
     };
   });
 
+  expiringSections = computed(() => {
+    const data = this.kpis();
+    return [
+      {
+        title: 'Vencen hoy',
+        class: 'due-today',
+        items: data?.expiringToday ?? []
+      },
+      {
+        title: 'Vencen mañana',
+        class: 'due-tomorrow',
+        items: data?.expiringTomorrow ?? []
+      },
+      {
+        title: 'Vencen esta semana',
+        class: 'due-week',
+        items: data?.expiringThisWeek ?? []
+      }
+    ];
+  });
+
   ngOnInit(): void {
     this.loadDashboard();
   }

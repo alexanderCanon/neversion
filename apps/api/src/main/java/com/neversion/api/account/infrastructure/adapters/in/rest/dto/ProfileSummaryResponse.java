@@ -15,6 +15,7 @@ public record ProfileSummaryResponse(
         UUID id,
         String name,
         String pin,
+        String notes,
         Boolean isOwner,
         ProfileStatus status) {
 }

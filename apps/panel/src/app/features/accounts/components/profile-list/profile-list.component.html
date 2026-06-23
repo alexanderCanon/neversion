@@ -118,7 +118,7 @@
 
 <!-- Modal para Editar Perfil (US-026) -->
 <div class="modal fade" tabindex="-1" aria-hidden="true" #editProfileModal>
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
       <div class="modal-header bg-brand-dark text-white py-3 px-4">
         <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold">
@@ -130,32 +130,39 @@
 
       <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
         <div class="modal-body p-4 bg-surface">
-          <div class="row g-3">
+          <div class="row g-4">
             
+            <!-- Sección: Datos del Acceso -->
             <div class="col-12">
-              <label for="profileName" class="form-label small fw-semibold text-muted">{{ isSpotify ? 'Correo / Link de Invitación' : 'Nombre del Perfil' }} <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control form-control-modern"
-                id="profileName"
-                formControlName="name"
-                [class.is-invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
-                [placeholder]="isSpotify ? 'Ej. cliente@email.com o link de invitación' : 'Ej. Juan Pérez'"
-              />
+              <span class="form-label-custom">Información del Perfil</span>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="profileName" class="form-label small fw-semibold text-muted">{{ isSpotify ? 'Correo / Link de Invitación' : 'Nombre del Perfil' }} <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control form-control-modern"
+                    id="profileName"
+                    formControlName="name"
+                    [class.is-invalid]="profileForm.get('name')?.invalid && profileForm.get('name')?.touched"
+                    [placeholder]="isSpotify ? 'Ej. cliente@email.com o link de invitación' : 'Ej. Juan Pérez'"
+                  />
+                </div>
+
+                <div class="col-md-6">
+                  <label for="profilePin" class="form-label small fw-semibold text-muted">{{ isSpotify ? 'Contraseña' : 'PIN (Opcional)' }}</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-modern font-monospace"
+                    id="profilePin"
+                    formControlName="pin"
+                    [placeholder]="isSpotify ? 'Ej. Clave123' : 'Ej. 1234'"
+                    maxlength="20"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div class="col-12">
-              <label for="profilePin" class="form-label small fw-semibold text-muted">{{ isSpotify ? 'Contraseña' : 'PIN (Opcional)' }}</label>
-              <input
-                type="text"
-                class="form-control form-control-modern font-monospace"
-                id="profilePin"
-                formControlName="pin"
-                [placeholder]="isSpotify ? 'Ej. Clave123' : 'Ej. 1234'"
-                maxlength="20"
-              />
-            </div>
-
+            <!-- Sección: Notas y Observaciones -->
             <div class="col-12">
               <label for="profileNotes" class="form-label small fw-semibold text-muted">
                 OBSERVACIONES INTERNAS / NOTAS
@@ -165,18 +172,22 @@
                 id="profileNotes"
                 formControlName="notes"
                 rows="3"
-                placeholder="Ej. Dirección de Spotify, detalles de contacto del cliente o notas operativas."
+                [placeholder]="isSpotify ? 'Ej. Enlace de invitación o correo del cliente.' : 'Ej. Detalles de contacto del cliente o notas operativas.'"
               ></textarea>
-              <div class="form-text text-muted d-flex align-items-start gap-1 mt-1 x-small">
-                <i class="bi bi-info-circle-fill text-info fs-6"></i>
-                <span>Para Spotify Family: escribe aquí el enlace de invitación o el correo personal del cliente.</span>
-              </div>
+              @if (isSpotify) {
+                <div class="form-text text-muted d-flex align-items-start gap-1 mt-1 x-small">
+                  <i class="bi bi-info-circle-fill text-info fs-6"></i>
+                  <span>Para Spotify Family: escribe aquí el enlace de invitación o el correo personal del cliente.</span>
+                </div>
+              }
             </div>
 
             @if (!hasOtherOwner) {
-              <div class="col-12 mt-3">
+              <!-- Sección: Configuración de Cuenta -->
+              <div class="col-12 mt-2">
+                <span class="form-label-custom">Ajustes de Cuenta</span>
                 <div class="form-check form-switch p-3 bg-light rounded-3">
-                  <input class="form-check-input ms-0 me-3" type="checkbox" id="isOwnerSwitch" formControlName="isOwner">
+                  <input class="ms-0 me-3 form-check-input" type="checkbox" id="isOwnerSwitch" formControlName="isOwner">
                   <label class="form-check-label fw-semibold" for="isOwnerSwitch">
                     Es Propietario de la Cuenta
                   </label>

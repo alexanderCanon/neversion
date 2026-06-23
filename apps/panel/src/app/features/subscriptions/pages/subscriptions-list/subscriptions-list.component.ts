@@ -9,6 +9,7 @@ import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { ManualAssignmentModalComponent } from '../../../assignments/components/manual-assignment-modal/manual-assignment-modal.component';
 import { ToastService } from '../../../../core/services/toast.service';
+import { getSubscriptionStatusClass, getSubscriptionStatusLabel } from '@neversion/utils';
 
 @Component({
   selector: 'app-subscriptions-list',
@@ -165,23 +166,11 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    switch (status?.toUpperCase()) {
-      case 'ACTIVE':    return 'badge-status active';
-      case 'EXPIRED':   return 'badge-status expired';
-      case 'CANCELLED': return 'badge-status cancelled';
-      case 'SUSPENDED': return 'badge-status suspended';
-      default:          return 'badge-status default';
-    }
+    return getSubscriptionStatusClass(status);
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      ACTIVE:    'Activo',
-      EXPIRED:   'Vencido',
-      CANCELLED: 'Cancelado',
-      SUSPENDED: 'Suspendido',
-    };
-    return labels[status?.toUpperCase()] ?? status;
+    return getSubscriptionStatusLabel(status);
   }
 
   trackBySubscriptionId(index: number, subscription: SubscriptionResponse): string {

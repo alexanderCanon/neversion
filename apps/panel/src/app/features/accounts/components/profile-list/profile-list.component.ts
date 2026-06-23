@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileRequest, ProfileResponse, ProfileStatus } from '@neversion/models';
+import { copyToClipboard } from '@neversion/utils';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -135,7 +136,7 @@ export class ProfileListComponent {
       '⚠️ No hacer cambios en la cuenta, cualquier duda e inconveniente contactar con el vendedor.'
     ].join('\n');
 
-    this.copyToClipboard(access)
+    copyToClipboard(access)
       .then(() => this.toastService.success('Accesos copiados'))
       .catch(() => this.toastService.error('No se pudieron copiar los accesos'));
   }
@@ -166,10 +167,21 @@ export class ProfileListComponent {
 
   closeEditModal(): void {
     const modalEl = this.editProfileModal?.nativeElement;
+    const resetFormState = () => {
+      this.selectedProfileId = null;
+      this.profileForm.reset();
+    };
+
     if (modalEl) {
       if (typeof bootstrap !== 'undefined') {
         const modal = bootstrap.Modal.getInstance(modalEl);
-        if (modal) modal.hide();
+        if (modal) {
+          modalEl.addEventListener('hidden.bs.modal', () => {
+            resetFormState();
+          }, { once: true });
+          modal.hide();
+          return;
+        }
       } else {
         modalEl.classList.remove('show');
         modalEl.style.display = 'none';
@@ -178,8 +190,7 @@ export class ProfileListComponent {
         if (backdrop) backdrop.remove();
       }
     }
-    this.selectedProfileId = null;
-    this.profileForm.reset();
+    resetFormState();
   }
 
   saveProfile(): void {
@@ -219,21 +230,5 @@ export class ProfileListComponent {
     }).format(date);
   }
 
-  private copyToClipboard(value: string): Promise<void> {
-    if (navigator.clipboard?.writeText) {
-      return navigator.clipboard.writeText(value);
-    }
 
-    const textarea = document.createElement('textarea');
-    textarea.value = value;
-    textarea.setAttribute('readonly', '');
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.select();
-    const copied = document.execCommand('copy');
-    document.body.removeChild(textarea);
-
-    return copied ? Promise.resolve() : Promise.reject();
-  }
 }
