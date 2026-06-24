@@ -10,7 +10,9 @@ import {
 import {
   DashboardApiService,
   ExpiringSubscriptionResult,
-  InventoryAvailabilityResult
+  ExpiringAccountResult,
+  ExpiringAccountsKpiResult,
+  NotificationsApiService
 } from '@neversion/api-client';
 
 export interface VendorKpiMetrics {
@@ -21,10 +23,6 @@ export interface VendorKpiMetrics {
   expiringTodayCount: number;
   expiringTomorrowCount: number;
   expiringThisWeekCount: number;
-  availableProfiles: number;
-  occupiedProfiles: number;
-  availableFullAccounts: number;
-  occupiedFullAccounts: number;
 }
 
 export interface VendorDashboardKpis {
@@ -32,12 +30,13 @@ export interface VendorDashboardKpis {
   expiringToday: ExpiringSubscriptionResult[];
   expiringTomorrow: ExpiringSubscriptionResult[];
   expiringThisWeek: ExpiringSubscriptionResult[];
-  inventoryAvailability: InventoryAvailabilityResult[];
+  expiringAccounts: ExpiringAccountsKpiResult;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MasterDashboardService {
   private readonly dashboardApi = inject(DashboardApiService);
+  private readonly notificationsApi = inject(NotificationsApiService);
 
   getProductsSummary(category = 'streaming'): Observable<ProductSummary[]> {
     return this.dashboardApi.getProductsSummary(
@@ -107,16 +106,15 @@ export class MasterDashboardService {
   getVendorKpis(): Observable<VendorDashboardKpis> {
     return forkJoin({
       expiring: this.dashboardApi.getExpiringSubscriptions(),
-      inventory: this.dashboardApi.getInventoryAvailability(),
+      expiringAccounts: this.dashboardApi.getExpiringAccounts(),
       activeClients: this.dashboardApi.getActiveClients(),
       successfulRenewals: this.dashboardApi.getSuccessfulRenewals(),
       grossProfit: this.dashboardApi.getGrossProfit()
     }).pipe(
-      map(({ expiring, inventory, activeClients, successfulRenewals, grossProfit }) => {
+      map(({ expiring, expiringAccounts, activeClients, successfulRenewals, grossProfit }) => {
         const expiringToday = expiring.today ?? [];
         const expiringTomorrow = expiring.tomorrow ?? [];
         const expiringThisWeek = expiring.thisWeek ?? [];
-        const inventoryAvailability = inventory ?? [];
 
         return {
           metrics: {
@@ -126,25 +124,20 @@ export class MasterDashboardService {
             currency: grossProfit.currency ?? 'GTQ',
             expiringTodayCount: expiringToday.length,
             expiringTomorrowCount: expiringTomorrow.length,
-            expiringThisWeekCount: expiringThisWeek.length,
-            availableProfiles: this.sumInventory(inventoryAvailability, 'availableProfiles'),
-            occupiedProfiles: this.sumInventory(inventoryAvailability, 'occupiedProfiles'),
-            availableFullAccounts: this.sumInventory(inventoryAvailability, 'availableFullAccounts'),
-            occupiedFullAccounts: this.sumInventory(inventoryAvailability, 'occupiedFullAccounts')
+            expiringThisWeekCount: expiringThisWeek.length
           },
           expiringToday,
           expiringTomorrow,
           expiringThisWeek,
-          inventoryAvailability
+          expiringAccounts
         };
       })
     );
   }
 
-  private sumInventory(
-    rows: InventoryAvailabilityResult[],
-    key: 'availableProfiles' | 'occupiedProfiles' | 'availableFullAccounts' | 'occupiedFullAccounts'
-  ): number {
-    return rows.reduce((total, row) => total + (row[key] ?? 0), 0);
+  sendManualReminder(subscriptionId: string): Observable<void> {
+    return this.notificationsApi.sendManualReminder(subscriptionId, 'body', false).pipe(
+      map(() => void 0)
+    );
   }
 }

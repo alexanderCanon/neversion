@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.neversion.api.dashboard.application.result.ExpiringAccountResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
@@ -39,6 +40,14 @@ public interface DashboardQueryPort {
      * US-063: Vendor-scoped subscriptions due in the requested date window.
      */
     List<ExpiringSubscriptionResult> findExpiringSubscriptions(
+            Long vendorId,
+            LocalDate from,
+            LocalDate to);
+
+    /**
+     * Vendor-scoped master accounts due for renewal in the requested date window.
+     */
+    List<ExpiringAccountResult> findExpiringAccounts(
             Long vendorId,
             LocalDate from,
             LocalDate to);

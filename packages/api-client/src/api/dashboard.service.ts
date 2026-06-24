@@ -21,6 +21,8 @@ import { AccountGroupResult } from '../model/accountGroupResult';
 // @ts-ignore
 import { ActiveClientsKpiResult } from '../model/activeClientsKpiResult';
 // @ts-ignore
+import { ExpiringAccountsKpiResult } from '../model/expiringAccountsKpiResult';
+// @ts-ignore
 import { ExpiringSubscriptionsKpiResult } from '../model/expiringSubscriptionsKpiResult';
 // @ts-ignore
 import { GrossProfitKpiResult } from '../model/grossProfitKpiResult';
@@ -153,6 +155,62 @@ export class DashboardApiService extends BaseService {
         let localVarPath = `/api/v1/dashboard/kpis/active-clients`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<ActiveClientsKpiResult>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Get expiring accounts KPI
+     * Returns the authenticated vendor\&#39;s master accounts due for renewal grouped by today, tomorrow and later this week.
+     * @endpoint get /api/v1/dashboard/kpis/expiring-accounts
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getExpiringAccounts(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ExpiringAccountsKpiResult>;
+    public getExpiringAccounts(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ExpiringAccountsKpiResult>>;
+    public getExpiringAccounts(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ExpiringAccountsKpiResult>>;
+    public getExpiringAccounts(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/dashboard/kpis/expiring-accounts`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<ExpiringAccountsKpiResult>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,

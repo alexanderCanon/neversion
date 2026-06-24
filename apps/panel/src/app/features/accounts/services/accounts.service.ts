@@ -4,7 +4,9 @@ import {
     AccountsApiService, 
     AccountRequest as ApiAccountRequest, 
     AccountResponse as ApiAccountResponse,
-    AccountDetailResponse as ApiAccountDetailResponse
+    AccountDetailResponse as ApiAccountDetailResponse,
+    AccountWithSubscriptionRequest,
+    CreateAccountWithSubscriptionResult
 } from '@neversion/api-client';
 import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -125,6 +127,10 @@ export class AccountsService {
 
   refreshAccounts(): Observable<AccountResponse[]> {
     return this.getAccounts();
+  }
+
+  createAccountWithSubscription(request: AccountWithSubscriptionRequest): Observable<CreateAccountWithSubscriptionResult> {
+    return this.accountsApi.createWithSubscription(request, 'body', false);
   }
 
   private normalizeAccountsResponse(response: ApiAccountResponse[] | ApiAccountsPageResponse): ApiAccountResponse[] {

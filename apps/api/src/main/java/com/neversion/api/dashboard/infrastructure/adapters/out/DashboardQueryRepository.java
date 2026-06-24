@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.neversion.api.dashboard.application.port.out.DashboardQueryPort;
+import com.neversion.api.dashboard.application.result.ExpiringAccountResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
@@ -165,6 +166,7 @@ public class DashboardQueryRepository implements DashboardQueryPort {
         String sql = """
                 SELECT s.uuid AS subscription_id,
                        c.name AS client_name,
+                       c.phone AS client_phone,
                        COALESCE(snapshot_svc.name, account_svc.name) AS service_name,
                        p.name AS profile_name,
                        s.payment_due_date AS payment_due_date,
@@ -183,9 +185,35 @@ public class DashboardQueryRepository implements DashboardQueryPort {
         return jdbcTemplate.query(sql, (rs, rowNum) -> new ExpiringSubscriptionResult(
                 rs.getObject("subscription_id", UUID.class),
                 rs.getString("client_name"),
+                rs.getString("client_phone"),
                 rs.getString("service_name"),
                 rs.getString("profile_name"),
                 rs.getObject("payment_due_date", LocalDate.class),
+                rs.getString("status")), vendorId, from, to);
+    }
+
+    @Override
+    public List<ExpiringAccountResult> findExpiringAccounts(
+            Long vendorId,
+            LocalDate from,
+            LocalDate to) {
+        String sql = """
+                SELECT a.uuid AS account_id,
+                       svc.name AS service_name,
+                       a.email AS account_email,
+                       a.renewal_date AS renewal_date,
+                       a.status AS status
+                FROM accounts a
+                JOIN services svc ON svc.id = a.service_id
+                WHERE a.vendor_id = ?
+                  AND a.renewal_date BETWEEN ? AND ?
+                ORDER BY a.renewal_date ASC, svc.name ASC
+                """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new ExpiringAccountResult(
+                rs.getObject("account_id", UUID.class),
+                rs.getString("service_name"),
+                rs.getString("account_email"),
+                rs.getObject("renewal_date", LocalDate.class),
                 rs.getString("status")), vendorId, from, to);
     }
 

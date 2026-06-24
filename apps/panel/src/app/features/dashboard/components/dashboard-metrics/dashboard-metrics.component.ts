@@ -83,11 +83,7 @@ export class DashboardMetricsComponent {
     currency: 'GTQ',
     expiringTodayCount: 0,
     expiringTomorrowCount: 0,
-    expiringThisWeekCount: 0,
-    availableProfiles: 0,
-    occupiedProfiles: 0,
-    availableFullAccounts: 0,
-    occupiedFullAccounts: 0
+    expiringThisWeekCount: 0
   };
 
   get cards() {
@@ -120,13 +116,6 @@ export class DashboardMetricsComponent {
         icon: 'bi-calendar2-x',
         colorClass: 'bg-danger-subtle text-danger',
         link: ['/subscriptions']
-      },
-      {
-        label: 'Stock Disponible',
-        value: this.metrics.availableProfiles + this.metrics.availableFullAccounts,
-        icon: 'bi-box-seam',
-        colorClass: 'bg-warning-subtle text-warning',
-        link: ['/accounts']
       }
     ];
   }

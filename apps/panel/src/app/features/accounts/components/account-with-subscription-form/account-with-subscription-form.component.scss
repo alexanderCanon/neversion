@@ -1,0 +1,17 @@
+.sale-mode-option {
+  flex: 1;
+
+  &.active label {
+    border-color: var(--color-brand-accent);
+    background-color: var(--color-brand-subtle, #e7f1ff);
+  }
+}
+
+.form-label-custom {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.75rem;
+}

@@ -9,6 +9,7 @@ import java.util.UUID;
 public record ExpiringSubscriptionResult(
         UUID subscriptionId,
         String clientName,
+        String clientPhone,
         String serviceName,
         String profileName,
         LocalDate paymentDueDate,

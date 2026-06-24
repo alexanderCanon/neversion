@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.account.application.port.in.CreateAccountUseCase;
+import com.neversion.api.account.application.port.in.CreateAccountWithSubscriptionCommand;
+import com.neversion.api.account.application.port.in.CreateAccountWithSubscriptionResult;
+import com.neversion.api.account.application.port.in.CreateAccountWithSubscriptionUseCase;
 import com.neversion.api.account.application.port.in.DeleteAccountUseCase;
 import com.neversion.api.account.application.port.in.GetAccountUseCase;
 import com.neversion.api.account.application.port.in.ListAccountsUseCase;
@@ -27,6 +30,7 @@ import com.neversion.api.account.domain.model.Account;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountDetailResponse;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountRequest;
 import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountResponse;
+import com.neversion.api.account.infrastructure.adapters.in.rest.dto.AccountWithSubscriptionRequest;
 import com.neversion.api.account.infrastructure.adapters.in.rest.mapper.AccountMapper;
 import com.neversion.api.profile.application.port.in.ProfileUseCase;
 import com.neversion.api.shared.domain.model.enums.AccountStatus;
@@ -43,6 +47,7 @@ import jakarta.validation.constraints.Min;
 public class AccountController {
 
     private final CreateAccountUseCase createAccountUseCase;
+    private final CreateAccountWithSubscriptionUseCase createAccountWithSubscriptionUseCase;
     private final UpdateAccountUseCase updateAccountUseCase;
     private final GetAccountUseCase getAccountUseCase;
     private final ListAccountsUseCase listAccountsUseCase;
@@ -51,6 +56,7 @@ public class AccountController {
     private final AccountMapper accountMapper;
 
     public AccountController(CreateAccountUseCase createAccountUseCase,
+            CreateAccountWithSubscriptionUseCase createAccountWithSubscriptionUseCase,
             UpdateAccountUseCase updateAccountUseCase,
             GetAccountUseCase getAccountUseCase,
             ListAccountsUseCase listAccountsUseCase,
@@ -58,6 +64,7 @@ public class AccountController {
             ProfileUseCase profileUseCase,
             AccountMapper accountMapper) {
         this.createAccountUseCase = createAccountUseCase;
+        this.createAccountWithSubscriptionUseCase = createAccountWithSubscriptionUseCase;
         this.updateAccountUseCase = updateAccountUseCase;
         this.getAccountUseCase = getAccountUseCase;
         this.listAccountsUseCase = listAccountsUseCase;
@@ -80,6 +87,41 @@ public class AccountController {
         Account account = accountMapper.toDomain(request);
         Account created = createAccountUseCase.create(account, extractExternalId(token));
         return ResponseEntity.status(HttpStatus.CREATED).body(accountMapper.toResponse(created));
+    }
+
+    // ─── Unified: Create account + subscription ───────────────────────────────
+
+    @PostMapping("/with-subscription")
+    @Operation(summary = "Create account with subscription",
+            description = "Creates a master account, auto-generates profiles, and immediately assigns "
+                    + "a subscription to an existing client in a single transaction.")
+    @ApiResponse(responseCode = "201", description = "Account and subscription created")
+    @ApiResponse(responseCode = "400", description = "Validation or business rule error")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    public ResponseEntity<CreateAccountWithSubscriptionResult> createWithSubscription(
+            @Valid @RequestBody AccountWithSubscriptionRequest request,
+            JwtAuthenticationToken token) {
+        CreateAccountWithSubscriptionCommand command = new CreateAccountWithSubscriptionCommand(
+                request.email(),
+                request.password(),
+                request.serviceUuid(),
+                request.saleMode(),
+                request.renewalDate(),
+                request.plan(),
+                request.cost(),
+                request.source(),
+                request.purchasedAt(),
+                request.accountNotes(),
+                request.maxProfiles(),
+                request.clientUuid(),
+                request.paymentDueDate(),
+                request.priceSold(),
+                request.discountApplied(),
+                request.subscriptionNotes(),
+                request.sendNotification());
+        CreateAccountWithSubscriptionResult result =
+                createAccountWithSubscriptionUseCase.create(command, extractExternalId(token));
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     // ─── US-023: Update ───────────────────────────────────────────────────────

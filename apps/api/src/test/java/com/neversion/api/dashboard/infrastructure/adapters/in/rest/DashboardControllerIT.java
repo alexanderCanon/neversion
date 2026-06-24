@@ -31,6 +31,7 @@ import com.neversion.api.BaseIntegrationTest;
 import com.neversion.api.dashboard.application.port.in.GetActiveClientsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetAccountsByProductUseCase;
 import com.neversion.api.dashboard.application.port.in.GetExpiringSubscriptionsKpiUseCase;
+import com.neversion.api.dashboard.application.port.in.GetExpiringAccountsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetGrossProfitKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetInventoryAvailabilityKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetProductsSummaryUseCase;
@@ -62,6 +63,9 @@ class DashboardControllerIT extends BaseIntegrationTest {
 
     @MockitoBean
     private GetExpiringSubscriptionsKpiUseCase getExpiringSubscriptionsKpiUseCase;
+
+    @MockitoBean
+    private GetExpiringAccountsKpiUseCase getExpiringAccountsKpiUseCase;
 
     @MockitoBean
     private GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase;
@@ -102,6 +106,7 @@ class DashboardControllerIT extends BaseIntegrationTest {
                         List.of(new ExpiringSubscriptionResult(
                                 subscriptionId,
                                 "Cliente Uno",
+                                "12345678",
                                 "Netflix",
                                 "Perfil 1",
                                 LocalDate.of(2026, 4, 30),

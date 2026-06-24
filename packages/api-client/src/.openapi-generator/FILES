@@ -8,6 +8,7 @@ api/assignments.service.ts
 api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
+api/notifications.service.ts
 api/orders.service.ts
 api/profiles.service.ts
 api/reservations.service.ts
@@ -26,6 +27,7 @@ model/accountRequest.ts
 model/accountResponse.ts
 model/accountSummary.ts
 model/accountSummaryResponse.ts
+model/accountWithSubscriptionRequest.ts
 model/activeClientsKpiResult.ts
 model/activeSubscriptionSummaryDto.ts
 model/changeProfileStatusRequest.ts
@@ -40,10 +42,13 @@ model/clientResponse.ts
 model/clientSummary.ts
 model/confirmAssignmentRequest.ts
 model/confirmAssignmentResponse.ts
+model/createAccountWithSubscriptionResult.ts
 model/createManualSubscriptionRequest.ts
 model/createRenewalReservationRequest.ts
 model/currentUserResponse.ts
 model/detectExpiredSubscriptionsResponse.ts
+model/expiringAccountResult.ts
+model/expiringAccountsKpiResult.ts
 model/expiringSubscriptionResult.ts
 model/expiringSubscriptionsKpiResult.ts
 model/financialSnapshot.ts

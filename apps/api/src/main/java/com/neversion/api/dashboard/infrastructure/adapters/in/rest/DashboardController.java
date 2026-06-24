@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.dashboard.application.port.in.GetActiveClientsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetAccountsByProductUseCase;
+import com.neversion.api.dashboard.application.port.in.GetExpiringAccountsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetExpiringSubscriptionsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetGrossProfitKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetInventoryAvailabilityKpiUseCase;
@@ -22,6 +23,7 @@ import com.neversion.api.dashboard.application.port.in.GetProfilesByAccountUseCa
 import com.neversion.api.dashboard.application.port.in.GetSuccessfulRenewalsKpiUseCase;
 import com.neversion.api.dashboard.application.result.ActiveClientsKpiResult;
 import com.neversion.api.dashboard.application.result.AccountGroupResult;
+import com.neversion.api.dashboard.application.result.ExpiringAccountsKpiResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionsKpiResult;
 import com.neversion.api.dashboard.application.result.GrossProfitKpiResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
@@ -44,6 +46,7 @@ public class DashboardController {
     private final GetAccountsByProductUseCase getAccountsByProductUseCase;
     private final GetProfilesByAccountUseCase getProfilesByAccountUseCase;
     private final GetExpiringSubscriptionsKpiUseCase getExpiringSubscriptionsKpiUseCase;
+    private final GetExpiringAccountsKpiUseCase getExpiringAccountsKpiUseCase;
     private final GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase;
     private final GetActiveClientsKpiUseCase getActiveClientsKpiUseCase;
     private final GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase;
@@ -53,6 +56,7 @@ public class DashboardController {
             GetAccountsByProductUseCase getAccountsByProductUseCase,
             GetProfilesByAccountUseCase getProfilesByAccountUseCase,
             GetExpiringSubscriptionsKpiUseCase getExpiringSubscriptionsKpiUseCase,
+            GetExpiringAccountsKpiUseCase getExpiringAccountsKpiUseCase,
             GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase,
             GetActiveClientsKpiUseCase getActiveClientsKpiUseCase,
             GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase,
@@ -61,6 +65,7 @@ public class DashboardController {
         this.getAccountsByProductUseCase = getAccountsByProductUseCase;
         this.getProfilesByAccountUseCase = getProfilesByAccountUseCase;
         this.getExpiringSubscriptionsKpiUseCase = getExpiringSubscriptionsKpiUseCase;
+        this.getExpiringAccountsKpiUseCase = getExpiringAccountsKpiUseCase;
         this.getInventoryAvailabilityKpiUseCase = getInventoryAvailabilityKpiUseCase;
         this.getActiveClientsKpiUseCase = getActiveClientsKpiUseCase;
         this.getSuccessfulRenewalsKpiUseCase = getSuccessfulRenewalsKpiUseCase;
@@ -76,6 +81,18 @@ public class DashboardController {
     public ResponseEntity<ExpiringSubscriptionsKpiResult> getExpiringSubscriptions(
             JwtAuthenticationToken token) {
         return ResponseEntity.ok(getExpiringSubscriptionsKpiUseCase
+                .getForAuthenticatedVendor(extractExternalId(token)));
+    }
+
+    @GetMapping("/kpis/expiring-accounts")
+    @Operation(summary = "Get expiring accounts KPI",
+            description = "Returns the authenticated vendor's master accounts due for renewal grouped by "
+                    + "today, tomorrow and later this week.")
+    @ApiResponse(responseCode = "200", description = "Expiring accounts KPI retrieved")
+    @ApiResponse(responseCode = "403", description = "Only vendors can access this KPI")
+    public ResponseEntity<ExpiringAccountsKpiResult> getExpiringAccounts(
+            JwtAuthenticationToken token) {
+        return ResponseEntity.ok(getExpiringAccountsKpiUseCase
                 .getForAuthenticatedVendor(extractExternalId(token)));
     }
 
