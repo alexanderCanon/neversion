@@ -105,6 +105,7 @@ export class AccountFormComponent implements OnInit {
       cost: [0, [Validators.required, Validators.min(0)]],
       source: [''],
       purchasedAt: [today],
+      plan: [''],
       notes: ['']
     });
 
@@ -158,6 +159,7 @@ export class AccountFormComponent implements OnInit {
           cost: account.cost,
           source: account.source || '',
           purchasedAt: account.purchasedAt ? account.purchasedAt.split('T')[0] : '',
+          plan: account.plan || '',
           notes: account.notes || ''
         });
 
@@ -222,6 +224,7 @@ export class AccountFormComponent implements OnInit {
         cost: Number(formValue.cost),
         source: formValue.source || undefined,
         purchasedAt: formValue.purchasedAt || undefined,
+        plan: formValue.plan || undefined,
         notes: formValue.notes || undefined,
         maxProfiles: formValue.saleMode === SaleMode.FULL_ACCOUNT ? 1 : (Number(formValue.maxProfiles) || undefined)
       };

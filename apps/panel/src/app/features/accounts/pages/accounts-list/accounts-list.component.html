@@ -7,12 +7,12 @@
         </button>
         <div>
             <h3 class="mb-1 fw-bold text-dark">{{ currentService()?.name || 'Cuentas' }}</h3>
-            <p class="text-muted small mb-0">Administra las cuentas maestras, perfiles y stock disponible.</p>
+            <p class="text-muted small mb-0">Administra las cuentas, perfiles y stock disponible.</p>
         </div>
     </div>
     @if (!isSuperAdmin()) {
     <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="accountForm.openModal()">
-        <i class="bi bi-plus-lg me-2"></i> Nueva Cuenta Maestra
+        <i class="bi bi-plus-lg me-2"></i> Nueva Cuenta
     </button>
     }
   </div>
@@ -103,33 +103,62 @@
                 [class.collapsed]="!isExpanded(account.id)"
                 (click)="toggleAccount(account.id)"
               >
-                <div class="d-flex w-100 justify-content-between align-items-center pe-3">
-                  <div class="d-flex align-items-center gap-4">
-                    <div class="d-flex flex-column">
-                      <div class="fw-bold text-dark fs-6">{{ account.email }}</div>
-                      <div class="text-muted x-small text-uppercase fw-semibold">{{ account.plan || 'Plan Estándar' }}</div>
+                <div class="d-flex flex-wrap w-100 align-items-center gap-4 justify-content-between pe-3">
+                  
+                  <!-- 1. Credenciales (Email + Password) - Resaltadas -->
+                  <div class="d-flex align-items-center">
+                    <div class="bg-light px-3 py-2 rounded-3 border d-flex flex-column gap-1 shadow-sm" style="min-width: 220px;">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-envelope text-primary small"></i>
+                        <span class="fw-bold text-dark small">{{ account.email }}</span>
+                      </div>
+                      @if (account.password) {
+                        <div class="d-flex align-items-center gap-2">
+                          <i class="bi bi-key-fill text-muted small"></i>
+                          <span class="font-monospace text-muted x-small">{{ account.password }}</span>
+                        </div>
+                      }
                     </div>
-                    
+                  </div>                   <!-- 2. Plan -->
+                  <div class="d-flex flex-column">
+                    <span class="x-small text-uppercase text-muted fw-bold" style="letter-spacing: 0.5px; font-size: 0.65rem;">Plan</span>
+                    <span class="fw-bold text-dark">{{ account.plan || 'Estándar' }}</span>
+                  </div>
+
+                  <!-- 3. Estado -->
+                  <div class="d-flex flex-column">
+                    <span class="x-small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Estado</span>
                     <span class="badge-status" [ngClass]="getStatusClass(account.status)">
                       {{ getAccountStatusLabel(account.status) }}
                     </span>
-                    
-                    <div class="d-none d-lg-flex align-items-center gap-2 text-muted small bg-light px-3 py-1 rounded-pill border">
+                  </div>
+
+                  <!-- 4. Perfiles Disponibles -->
+                  <div class="d-flex flex-column">
+                    <span class="x-small text-uppercase text-muted fw-bold mb-1" style="letter-spacing: 0.5px; font-size: 0.65rem;">Perfiles</span>
+                    <div class="d-flex align-items-center gap-2 text-dark">
                       <i class="bi bi-people-fill text-primary"></i>
-                      <span class="fw-bold text-dark">{{ account.occupiedProfiles }}</span>
-                      <span class="opacity-50">/</span>
-                      <span>{{ account.totalProfiles }} perfiles</span>
+                      <span class="fw-bold text-dark">{{ account.occupiedProfiles }}/{{ account.totalProfiles }}</span>
                     </div>
                   </div>
 
-                  <div class="text-end d-none d-md-block">
-                    <div class="small text-muted mb-0">
-                      Vence: <span class="text-dark fw-semibold">{{ account.renewalDate | date:'dd MMM yyyy' }}</span>
+                  <!-- 5. Fecha de Vencimiento - Resaltada -->
+                  <div class="d-flex align-items-center">
+                    <div class="bg-brand-light px-3 py-2 rounded-3 border border-brand-accent-subtle text-end">
+                      <div class="x-small text-uppercase text-muted fw-bold" style="letter-spacing: 0.5px; font-size: 0.65rem;">Vencimiento</div>
+                      <div class="fw-bold text-danger mt-0.5">
+                        {{ account.renewalDate | date:'dd MMM yyyy' }}
+                      </div>
                     </div>
+                  </div>
+
+                  <!-- 6. Modo de Venta -->
+                  <div class="d-flex align-items-center">
                     <span class="sale-mode-pill" [class.full-account]="account.saleMode === 'FULL_ACCOUNT'">
-                      {{ account.saleMode === 'FULL_ACCOUNT' ? 'Completa' : 'Perfiles' }}
+                      {{ account.saleMode === 'FULL_ACCOUNT' ? 'Completa' : 'Individual' }}
                     </span>
                   </div>
+
                 </div>
               </button>
             </h2>
@@ -155,6 +184,7 @@
                       [maxProfiles]="account.maxProfiles || currentService()?.maxProfiles || 0"
                       [currentProfileCount]="account.totalProfiles"
                       [isSpotify]="account.serviceName?.toLowerCase() === 'spotify'"
+                      [serviceName]="account.serviceName || ''"
                       (profilesChanged)="onProfilesChanged(account.id)">
                     </app-profile-list>
                   </div>
@@ -207,7 +237,7 @@
                         <div class="p-3 bg-light border-top d-grid gap-2">
                            <button class="btn btn-sm btn-white border rounded-3 d-flex align-items-center justify-content-center gap-2 py-2" (click)="accountForm.openModal(account)">
                              <i class="bi bi-pencil-square"></i>
-                             <span>Editar cuenta maestra</span>
+                             <span>Editar cuenta principal</span>
                            </button>
                            <button class="btn btn-sm btn-outline-danger border-0 rounded-3 d-flex flex-column align-items-center justify-content-center gap-1 py-2" (click)="deleteAccount(account)">
                               <div class="d-flex align-items-center gap-2">
