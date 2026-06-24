@@ -3,7 +3,7 @@
 
     <!-- Logo Section -->
     <a class="navbar-brand d-flex align-items-center" routerLink="/">
-      <img src="/assets/neversion-digital-logo.png" alt="Neversion Logo" class="logo-img" style="height: 42px; width: auto; object-fit: contain; border-radius: 8px;">
+      <img src="/assets/neversion-logo-transparent.svg" alt="Neversion Logo" class="logo-img" style="height: 52px; width: auto; object-fit: contain; border-radius: 8px;">
     </a>
 
     <!-- Right Section: Mobile Toggle, Cart and Login -->
@@ -29,8 +29,8 @@
           
           <div class="cart-panel-body scrollbar-hidden" style="max-height: 240px; overflow-y: auto;">
             <div *ngIf="(cartItems$ | async)?.length === 0" class="p-4 text-center">
-              <i class="bi bi-cart-x text-muted fs-1"></i>
-              <p class="text-muted mt-2 small mb-0">Tu carrito está vacío</p>
+              <i class="bi bi-cart-x text-white-50 fs-1"></i>
+              <p class="text-white-50 mt-2 small mb-0">Tu carrito está vacío</p>
             </div>
 
             <div *ngFor="let item of cartItems$ | async" class="p-3 border-bottom d-flex align-items-center gap-3">
@@ -56,7 +56,7 @@
               <span class="fw-bold text-white mb-0">Q{{ getTotal() }}</span>
             </div>
             <div class="d-grid gap-2">
-              <button routerLink="/checkout" class="btn btn-primary rounded-pill btn-sm fw-bold shadow-sm">
+              <button routerLink="/checkout" class="btn btn-primary btn-sm fw-bold shadow-sm">
                 Finalizar Compra
               </button>
             </div>
@@ -89,7 +89,7 @@
 
       <ng-template #loginBtn>
         <button routerLink="login" routerLinkActive="active" type="button"
-          class="btn btn-primary rounded-pill px-3 px-sm-4 login-btn btn-sm fw-bold">
+          class="btn btn-primary px-3 px-sm-4 login-btn btn-sm fw-bold">
           <span class="d-none d-sm-inline">Iniciar Sesión</span>
           <i class="bi bi-box-arrow-in-right d-sm-none fs-5"></i>
         </button>
@@ -110,17 +110,14 @@
         <li class="nav-item"><a class="nav-link text-center" routerLink="platforms" routerLinkActive="active">Plataformas</a></li>
         <li class="nav-item"><a class="nav-link text-center" routerLink="games" routerLinkActive="active">Juegos</a></li>
         <li class="nav-item"><a class="nav-link text-center" routerLink="wholesalers" routerLinkActive="active">Mayoristas</a></li>
-        <li class="nav-item"><a class="nav-link text-center" routerLink="payment-methods" routerLinkActive="active">Pagos</a></li>
       </ul>
 
       <!-- Search Bar (Desktop only or visible in collapse) -->
-      <form class="ms-lg-4 d-flex px-3 px-lg-0 mt-2 mt-lg-0" role="search" (ngSubmit)="onSearch()">
-        <div class="input-group">
-          <span class="input-group-text search-input border-end-0 opacity-50"><i class="bi bi-search"></i></span>
-          <input class="form-control search-input border-start-0" type="search"
-                 placeholder="Buscar servicio..." aria-label="Buscar"
-                 [(ngModel)]="searchQuery" name="searchQuery">
-        </div>
+      <form class="ms-lg-4 d-flex px-3 px-lg-0 mt-2 mt-lg-0 position-relative" role="search" (ngSubmit)="onSearch()">
+        <i class="bi bi-search position-absolute top-50 translate-middle-y text-white opacity-50" style="left: 14px; font-size: 0.9rem;"></i>
+        <input class="form-control search-input" type="search"
+               placeholder="Buscar servicio..." aria-label="Buscar"
+               [(ngModel)]="searchQuery" name="searchQuery">
       </form>
     </div>
 

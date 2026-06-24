@@ -1,12 +1,4 @@
 <div class="container py-5 mt-5">
-    <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a routerLink="/">Inicio</a></li>
-            <li class="breadcrumb-item"><a routerLink="/platforms">Plataformas</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ platform?.name }}</li>
-        </ol>
-    </nav>
 
     <!-- Loading State -->
     <div *ngIf="loading" class="text-center py-5">
@@ -43,8 +35,8 @@
             <div class="service-description">
                 <h1 class="fw-bold mb-3">{{ platform.name }}</h1>
                 <div class="d-flex gap-2 mb-4">
-                    <span class="badge bg-primary px-3 py-2 rounded-pill">{{ platform.category }}</span>
-                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-3">{{ platform.category }}</span>
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-3">
                         <i class="bi bi-clock me-1"></i> {{ platform.durationDays }} días de servicio
                     </span>
                 </div>
@@ -59,13 +51,13 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="bg-success-subtle text-success p-2 rounded-circle me-3">
+                                <div class="bg-success-subtle text-success d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
                                     <i class="bi bi-check-lg"></i>
                                 </div>
                                 <span>Activación inmediata</span>
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <div class="bg-success-subtle text-success p-2 rounded-circle me-3">
+                                <div class="bg-success-subtle text-success d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
                                     <i class="bi bi-check-lg"></i>
                                 </div>
                                 <span>Garantía total por {{ platform.durationDays }} días</span>
@@ -73,13 +65,13 @@
                         </div>
                         <div class="col-md-6">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="bg-success-subtle text-success p-2 rounded-circle me-3">
+                                <div class="bg-success-subtle text-success d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
                                     <i class="bi bi-check-lg"></i>
                                 </div>
                                 <span>Soporte vía WhatsApp 24/7</span>
                             </div>
                             <div class="d-flex align-items-center mb-3">
-                                <div class="bg-success-subtle text-success p-2 rounded-circle me-3">
+                                <div class="bg-success-subtle text-success d-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 32px; height: 32px; min-width: 32px;">
                                     <i class="bi bi-check-lg"></i>
                                 </div>
                                 <span>Cuentas 100% legales</span>
@@ -109,8 +101,8 @@
                                     <span class="fs-4 fw-bold text-primary">Q{{ platform.priceProfile }}</span>
                                 </div>
                             </div>
-                            <button class="btn btn-outline-primary w-100 mt-3 rounded-pill fw-bold">
-                                Agregar Perfil
+                            <button class="btn btn-primary w-100 mt-3 fw-bold shadow-sm">
+                                Comprar Perfil
                             </button>
                         </div>
 
@@ -123,10 +115,10 @@
                                     <p class="small text-muted mb-0">Hasta {{ platform.maxProfiles }} perfiles privados</p>
                                 </div>
                                 <div class="text-end">
-                                    <span class="fs-4 fw-bold text-dark">Q{{ platform.priceComplete }}</span>
+                                    <span class="fs-4 fw-bold text-primary">Q{{ platform.priceComplete }}</span>
                                 </div>
                             </div>
-                            <button class="btn btn-primary w-100 mt-3 rounded-pill fw-bold shadow-sm">
+                            <button class="btn btn-primary w-100 mt-3 fw-bold shadow-sm">
                                 Comprar Cuenta Completa
                             </button>
                         </div>

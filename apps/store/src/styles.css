@@ -1,36 +1,36 @@
 :root {
-  /* === BRAND COLORS === */
-  --color-brand-900: #0f0e1a;   /* Fondo más oscuro (uso: hero oscuro si se necesita) */
-  --color-brand-800: #1a1830;   /* Navbar background */
-  --color-brand-700: #252347;   /* Hover states oscuros */
-  --color-brand-600: #312f5e;   /* Bordes sobre fondos oscuros */
-  --color-brand-500: #6c63ff;   /* PRIMARY — color de acción principal (violeta) */
-  --color-brand-400: #8b83ff;   /* Hover sobre primary */
-  --color-brand-300: #b5b0ff;   /* Disabled / subtle accent */
-  --color-brand-100: #f0efff;   /* Fondo tinted suave (badges, chips) */
+  /* === BRAND COLORS (Logo Gold & Silver) === */
+  --color-brand-900: #131312;   /* Fondo oscuro del Navbar */
+  --color-brand-800: #1e1e1c;   /* Fondo oscuro del Footer */
+  --color-brand-700: #292926;   /* Estados hover oscuros */
+  --color-brand-600: #3b3b37;   /* Bordes oscuros */
+  --color-brand-500: #e79503;   /* PRIMARY — Dorado vibrante */
+  --color-brand-400: #ffa61b;   /* Hover sobre el primary */
+  --color-brand-300: #ffc46b;   /* Dorado deshabilitado / sutil */
+  --color-brand-100: #fef4e5;   /* Fondo badge / chip (dorado suave) */
 
-  /* === SURFACE COLORS (fondo del sitio) === */
-  --color-surface-0:   #ffffff;   /* Blanco puro — cards */
-  --color-surface-50:  #f8f7ff;   /* Offwhite con tinte violeta — page background */
-  --color-surface-100: #f0effe;   /* Secciones alternadas */
-  --color-surface-200: #e4e2f8;   /* Bordes suaves entre secciones */
+  /* === SURFACE COLORS (Fondo del sitio) === */
+  --color-surface-0:   #ffffff;   /* Blanco puro para tarjetas */
+  --color-surface-50:  #f6f6f5;   /* Fondo general de la página (cálido limpio) */
+  --color-surface-100: #eeeeed;   /* Secciones secundarias */
+  --color-surface-200: #c3c4bc;   /* Bordes finos (Gris plata del logo) */
 
   /* === TEXT COLORS === */
-  --color-text-primary:   #12101f;  /* Títulos — casi negro con tinte indigo */
-  --color-text-secondary: #4a4870;  /* Cuerpo de texto */
-  --color-text-muted:     #8f8db0;  /* Labels, placeholders, meta-info */
-  --color-text-inverse:   #ffffff;  /* Texto sobre fondo oscuro */
+  --color-text-primary:   #1e1e1c;  /* Títulos principales */
+  --color-text-secondary: #575753;  /* Párrafos y descripciones */
+  --color-text-muted:     #8a8a83;  /* Textos muy pequeños o deshabilitados */
+  --color-text-inverse:   #ffffff;  /* Texto sobre fondos oscuros */
 
   /* === SEMANTIC COLORS === */
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error:   #ef4444;
 
-  /* === PRECIO ACCENT (para destacar precios) === */
-  --color-price-profile:  #6c63ff;   /* Precio perfil — mismo brand primary */
-  --color-price-complete: #12101f;   /* Precio cuenta completa — texto oscuro */
+  /* === PRECIO ACCENT === */
+  --color-price-profile:  #e79503;   /* Precio destacado con dorado */
+  --color-price-complete: var(--color-price-profile);   /* Precio cuenta completa dorado */
 
-  /* === LEGACY ALIASES (para no romper Bootstrap overrides existentes) === */
+  /* === LEGACY ALIASES === */
   --primary-color:          var(--color-brand-800);
   --darkest-primary-color:  var(--color-brand-900);
   --secondary-color:        var(--color-brand-500);
@@ -45,9 +45,9 @@
   --radius-xl:  24px;
   --radius-pill: 999px;
 
-  --shadow-card: 0 1px 3px rgba(15,14,26,0.06), 0 4px 16px rgba(108,99,255,0.08);
-  --shadow-card-hover: 0 4px 8px rgba(15,14,26,0.08), 0 12px 32px rgba(108,99,255,0.15);
-  --shadow-navbar: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(15,14,26,0.3);
+  --shadow-card: 0 1px 3px rgba(15,15,15,0.06), 0 4px 16px rgba(231,149,3,0.08);
+  --shadow-card-hover: 0 4px 8px rgba(15,15,15,0.08), 0 12px 32px rgba(231,149,3,0.15);
+  --shadow-navbar: 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(15,15,15,0.3);
 
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-weight-regular: 400;
@@ -76,20 +76,24 @@ a:hover {
   color: var(--color-brand-400);
 }
 
+/* General button border-radius override to reduce pill roundness to premium modern corners */
+.btn {
+  border-radius: var(--radius-sm) !important;
+}
+
 /* Bootstrap btn-primary override */
 .btn-primary {
   background-color: var(--color-brand-500) !important;
   border-color: var(--color-brand-500) !important;
   color: #ffffff !important;
   font-weight: var(--font-weight-semibold);
-  border-radius: var(--radius-pill) !important;
   transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 .btn-primary:hover {
   background-color: var(--color-brand-400) !important;
   border-color: var(--color-brand-400) !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(108,99,255,0.35) !important;
+  box-shadow: 0 4px 12px rgba(231,149,3,0.35) !important;
 }
 .btn-primary:active {
   transform: translateY(0);
@@ -98,7 +102,6 @@ a:hover {
 .btn-outline-primary {
   color: var(--color-brand-500) !important;
   border-color: var(--color-brand-500) !important;
-  border-radius: var(--radius-pill) !important;
   font-weight: var(--font-weight-semibold);
   transition: all 0.2s;
 }

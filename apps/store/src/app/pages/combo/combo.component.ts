@@ -14,16 +14,14 @@ export class ComboComponent {
     { 
       qty: '2 - 3', 
       discount: '5%', 
-      title: 'Combo Bronce', 
-      description: 'Ideal para parejas o familias pequeñas.',
-      icon: 'bi-gem'
+      title: 'Descuento del 5%', 
+      description: 'Aplica de forma automática al comprar 2 o 3 servicios en el mismo pedido. Ideal para tus plataformas indispensables.'
     },
     { 
       qty: '4+', 
       discount: '10%', 
-      title: 'Combo Oro', 
-      description: 'El máximo ahorro para los verdaderos fans del streaming.',
-      icon: 'bi-trophy-fill'
+      title: 'Descuento del 10%', 
+      description: 'Obtén el máximo beneficio al adquirir 4 o más servicios. Disfruta de cobertura total para todo tu entretenimiento.'
     }
   ];
 

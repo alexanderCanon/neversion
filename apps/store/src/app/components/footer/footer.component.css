@@ -39,7 +39,7 @@
 
 /* Brand */
 .site-footer__logo {
-  height: 36px;
+  height: 44px;
   width: auto;
   object-fit: contain;
   border-radius: var(--radius-sm);
@@ -103,18 +103,19 @@
 }
 .site-footer__social-btn:hover {
   background: rgba(255,255,255,0.12);
-  border-color: rgba(255,255,255,0.2);
+  border-color: var(--color-brand-500);
 }
 
-.site-footer__social-img {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.7;
+.site-footer__social-icon {
+  font-size: 1.15rem;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.site-footer__social-btn:hover .site-footer__social-img {
-  opacity: 1;
+.site-footer__social-btn:hover .site-footer__social-icon {
+  color: var(--color-brand-500);
 }
 
 /* Bottom bar */
