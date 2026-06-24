@@ -107,6 +107,7 @@ class GetExpiringSubscriptionsKpiServiceUT {
         return new ExpiringSubscriptionResult(
                 UUID.randomUUID(),
                 "Cliente",
+                "12345678",
                 "Netflix",
                 "Perfil 1",
                 dueDate,

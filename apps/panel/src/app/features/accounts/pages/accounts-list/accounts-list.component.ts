@@ -5,6 +5,7 @@ import { AccountsService } from '../../services/accounts.service';
 import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
 import { copyToClipboard } from '@neversion/utils';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
+import { AccountWithSubscriptionFormComponent } from '../../components/account-with-subscription-form/account-with-subscription-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
@@ -25,12 +26,13 @@ interface AccountServiceGroup {
 @Component({
   selector: 'app-accounts-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, AccountFormComponent, ProfileListComponent],
+  imports: [CommonModule, FormsModule, AccountFormComponent, AccountWithSubscriptionFormComponent, ProfileListComponent],
   templateUrl: './accounts-list.component.html',
   styleUrl: './accounts-list.component.scss'
   })
 export class AccountsListComponent implements OnInit {
   @ViewChild('accountForm') accountForm!: AccountFormComponent;
+  @ViewChild('unifiedForm') unifiedForm!: AccountWithSubscriptionFormComponent;
 
   private readonly accountsService = inject(AccountsService);
   private readonly toastService = inject(ToastService);

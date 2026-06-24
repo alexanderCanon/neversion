@@ -29,27 +29,146 @@
   }
 
   @if (!isLoading() && !hasError()) {
+    @if (reminderSuccess()) {
+      <div class="alert alert-success d-flex align-items-center" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <div>{{ reminderSuccess() }}</div>
+      </div>
+    }
+    @if (reminderError()) {
+      <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>{{ reminderError() }}</div>
+      </div>
+    }
+
     <div class="row g-4 mb-4">
-      <div class="col-12 col-xl-7">
+      <div class="col-12">
         <section class="dashboard-section">
           <div class="section-header">
-            <h3>Suscripciones por vencer</h3>
+            <div class="d-flex align-items-center gap-3">
+              <h3>Suscripciones por vencer</h3>
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn" [class.btn-primary]="groupMode() === 'date'" [class.btn-outline-secondary]="groupMode() !== 'date'" (click)="setGroupMode('date')">
+                  <i class="bi bi-calendar3 me-1"></i>Por fecha
+                </button>
+                <button class="btn" [class.btn-primary]="groupMode() === 'client'" [class.btn-outline-secondary]="groupMode() !== 'client'" (click)="setGroupMode('client')">
+                  <i class="bi bi-people me-1"></i>Por cliente
+                </button>
+              </div>
+            </div>
             <span class="text-muted">Hoy, mañana y esta semana</span>
           </div>
 
+          @if (groupMode() === 'date') {
+            <div class="row g-3">
+              @for (section of expiringSections(); track section.class) {
+                <div class="col-12 col-lg-4">
+                  <div class="due-column" [ngClass]="section.class">
+                    <div class="due-title">{{ section.title }}</div>
+                    @if (section.items.length === 0) {
+                      <p class="empty-state">Sin vencimientos.</p>
+                    } @else {
+                      @for (subscription of section.items; track trackExpiringSubscription($index, subscription)) {
+                        <div class="due-item">
+                          <div class="due-item-header">
+                            <strong>{{ subscription.clientName || 'Cliente' }}</strong>
+                            <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
+                          </div>
+                          <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
+                          <div class="due-item-actions">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    [disabled]="remindingId() === subscription.subscriptionId"
+                                    (click)="sendEmailReminder(subscription)">
+                              @if (remindingId() === subscription.subscriptionId) {
+                                <span class="spinner-border spinner-border-sm"></span>
+                              } @else {
+                                <i class="bi bi-envelope me-1"></i>Email
+                              }
+                            </button>
+                            <button class="btn btn-sm btn-outline-success"
+                                    [disabled]="!subscription.clientPhone"
+                                    (click)="openWhatsApp(subscription)">
+                              <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="row g-3">
+              @for (group of clientGroups(); track group.clientName) {
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="client-group">
+                    <div class="client-group-title">
+                      <i class="bi bi-person-circle"></i>
+                      {{ group.clientName }}
+                      <span class="badge bg-secondary ms-1">{{ group.items.length }}</span>
+                    </div>
+                    @for (subscription of group.items; track trackExpiringSubscription($index, subscription)) {
+                      <div class="due-item">
+                        <div class="due-item-header">
+                          <strong>{{ subscription.serviceName || 'Servicio' }}</strong>
+                          <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
+                        </div>
+                        <span>{{ subscription.profileName || 'Perfil' }}</span>
+                        <div class="due-item-actions">
+                          <button class="btn btn-sm btn-outline-primary"
+                                  [disabled]="remindingId() === subscription.subscriptionId"
+                                  (click)="sendEmailReminder(subscription)">
+                            @if (remindingId() === subscription.subscriptionId) {
+                              <span class="spinner-border spinner-border-sm"></span>
+                            } @else {
+                              <i class="bi bi-envelope me-1"></i>Email
+                            }
+                          </button>
+                          <button class="btn btn-sm btn-outline-success"
+                                  [disabled]="!subscription.clientPhone"
+                                  (click)="openWhatsApp(subscription)">
+                            <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-12">
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h3>Cuentas por renovar</h3>
+            <span class="text-muted">Cuentas maestras con fecha de renovación próxima</span>
+          </div>
+
           <div class="row g-3">
-            @for (section of expiringSections(); track section.class) {
+            @for (section of expiringAccountSections(); track section.class) {
               <div class="col-12 col-lg-4">
                 <div class="due-column" [ngClass]="section.class">
                   <div class="due-title">{{ section.title }}</div>
                   @if (section.items.length === 0) {
-                    <p class="empty-state">Sin vencimientos.</p>
+                    <p class="empty-state">Sin cuentas por renovar.</p>
                   } @else {
-                    @for (subscription of section.items; track trackExpiringSubscription($index, subscription)) {
+                    @for (account of section.items; track trackExpiringAccount($index, account)) {
                       <div class="due-item">
-                        <strong>{{ subscription.clientName || 'Cliente' }}</strong>
-                        <span>{{ subscription.serviceName || 'Servicio' }} · {{ subscription.profileName || 'Perfil' }}</span>
-                        <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
+                        <div class="due-item-header">
+                          <strong>{{ account.serviceName || 'Servicio' }}</strong>
+                          <small>{{ account.renewalDate | date:'dd/MM/yyyy' }}</small>
+                        </div>
+                        <span>{{ account.accountEmail || 'Sin email' }}</span>
+                        @if (account.status) {
+                          <span class="badge bg-secondary mt-1">{{ account.status }}</span>
+                        }
                       </div>
                     }
                   }
@@ -57,51 +176,6 @@
               </div>
             }
           </div>
-        </section>
-      </div>
-
-      <div class="col-12 col-xl-5">
-        <section class="dashboard-section">
-          <div class="section-header">
-            <h3>Inventario disponible</h3>
-            <span class="text-muted">Por servicio</span>
-          </div>
-
-          @if ((kpis()?.inventoryAvailability?.length ?? 0) === 0) {
-            <div class="text-center py-4">
-              <i class="bi bi-inbox fs-1 text-muted"></i>
-              <p class="mt-2 text-muted mb-0">No hay inventario registrado.</p>
-            </div>
-          } @else {
-            <div class="table-responsive">
-              <table class="table table-sm align-middle inventory-table">
-                <thead>
-                  <tr>
-                    <th>Servicio</th>
-                    <th class="text-end">Perfiles</th>
-                    <th class="text-end">Cuentas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (item of kpis()?.inventoryAvailability; track trackInventory($index, item)) {
-                    <tr>
-                      <td class="fw-semibold">{{ item.serviceName || 'Servicio' }}</td>
-                      <td class="text-end">
-                        <span class="text-success">{{ item.availableProfiles ?? 0 }}</span>
-                        <span class="text-muted"> / </span>
-                        <span class="text-secondary">{{ item.occupiedProfiles ?? 0 }}</span>
-                      </td>
-                      <td class="text-end">
-                        <span class="text-success">{{ item.availableFullAccounts ?? 0 }}</span>
-                        <span class="text-muted"> / </span>
-                        <span class="text-secondary">{{ item.occupiedFullAccounts ?? 0 }}</span>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          }
         </section>
       </div>
     </div>

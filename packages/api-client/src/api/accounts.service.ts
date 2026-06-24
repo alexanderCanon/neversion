@@ -22,6 +22,10 @@ import { AccountDetailResponse } from '../model/accountDetailResponse';
 import { AccountRequest } from '../model/accountRequest';
 // @ts-ignore
 import { AccountResponse } from '../model/accountResponse';
+// @ts-ignore
+import { AccountWithSubscriptionRequest } from '../model/accountWithSubscriptionRequest';
+// @ts-ignore
+import { CreateAccountWithSubscriptionResult } from '../model/createAccountWithSubscriptionResult';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -99,6 +103,76 @@ export class AccountsApiService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: accountRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Create account with subscription
+     * Creates a master account, auto-generates profiles, and immediately assigns a subscription to an existing client in a single transaction.
+     * @endpoint post /api/v1/accounts/with-subscription
+     * @param accountWithSubscriptionRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public createWithSubscription(accountWithSubscriptionRequest: AccountWithSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CreateAccountWithSubscriptionResult>;
+    public createWithSubscription(accountWithSubscriptionRequest: AccountWithSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CreateAccountWithSubscriptionResult>>;
+    public createWithSubscription(accountWithSubscriptionRequest: AccountWithSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CreateAccountWithSubscriptionResult>>;
+    public createWithSubscription(accountWithSubscriptionRequest: AccountWithSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (accountWithSubscriptionRequest === null || accountWithSubscriptionRequest === undefined) {
+            throw new Error('Required parameter accountWithSubscriptionRequest was null or undefined when calling createWithSubscription.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/accounts/with-subscription`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<CreateAccountWithSubscriptionResult>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: accountWithSubscriptionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

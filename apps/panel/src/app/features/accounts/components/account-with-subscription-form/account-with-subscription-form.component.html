@@ -1,0 +1,171 @@
+<div class="modal fade" tabindex="-1" #unifiedModal>
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-brand-dark text-white py-3 px-4">
+        <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold">
+          <i class="bi bi-lightning-charge"></i>
+          Cuenta + Suscripción
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
+      </div>
+
+      <form [formGroup]="unifiedForm" (ngSubmit)="onSubmit()">
+        <div class="modal-body p-4 bg-surface">
+          <div class="row g-4">
+
+            <!-- 1. Servicio Digital -->
+            <div class="col-12">
+              <label for="serviceId" class="form-label small fw-semibold text-muted">Servicio Digital <span class="text-danger">*</span></label>
+              <select class="form-select form-select-modern" id="serviceId" formControlName="serviceId" (change)="onServiceChange($any($event.target).value)">
+                <option [ngValue]="null">Selecciona un servicio</option>
+                @for (item of serviceOptions(); track item.id) {
+                  <option [value]="item.id">{{ item.displayName }}</option>
+                }
+              </select>
+              @if (unifiedForm.get('serviceId')?.invalid && unifiedForm.get('serviceId')?.touched) {
+                <div class="text-danger x-small mt-1">Selecciona un servicio</div>
+              }
+            </div>
+
+            <!-- 2. Credenciales de Acceso -->
+            <div class="col-md-6">
+              <label for="email" class="form-label small fw-semibold text-muted">Correo electrónico <span class="text-danger">*</span></label>
+              <input type="email" class="form-control form-control-modern" id="email" formControlName="email" placeholder="cuenta@ejemplo.com" data-bwignore>
+              @if (unifiedForm.get('email')?.invalid && unifiedForm.get('email')?.touched) {
+                <div class="text-danger x-small mt-1">Correo válido requerido</div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label for="password" class="form-label small fw-semibold text-muted">Contraseña de la cuenta <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-modern" id="password" formControlName="password" placeholder="Contraseña de acceso" data-bwignore>
+              @if (unifiedForm.get('password')?.invalid && unifiedForm.get('password')?.touched) {
+                <div class="text-danger x-small mt-1">Contraseña de la cuenta requerida</div>
+              }
+            </div>
+
+            <!-- 3. Modalidad de Venta -->
+            <div class="col-12">
+              <span class="form-label small fw-semibold text-muted d-block mb-2">Modalidad de Venta <span class="text-danger">*</span></span>
+              <div class="d-flex gap-3">
+                @for (mode of saleModes; track mode) {
+                  <div class="sale-mode-option" [class.active]="unifiedForm.get('saleMode')?.value === mode">
+                    <input class="form-check-input d-none" type="radio" formControlName="saleMode" [id]="'umode_' + mode" [value]="mode">
+                    <label class="form-check-label w-100 py-2 px-3 rounded-3 border text-center cursor-pointer" [for]="'umode_' + mode">
+                      <div class="fw-bold small">{{ mode === 'BY_PROFILE' ? 'Por Perfiles' : 'Cuenta Completa' }}</div>
+                      <div class="x-small text-muted opacity-75">{{ mode === 'BY_PROFILE' ? 'Venta individual' : 'Venta única' }}</div>
+                    </label>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- 4. Máx. Perfiles -->
+            @if (unifiedForm.get('saleMode')?.value === 'BY_PROFILE') {
+              <div class="col-12">
+                <label for="maxProfiles" class="form-label small fw-semibold text-muted">Perfiles de Cuenta</label>
+                <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1" max="50">
+              </div>
+            }
+
+            <!-- 5. Operación y Costos -->
+            <div class="col-12 mt-4 pt-3 border-top">
+              <h6 class="form-label-custom">Operación y Costos de la Cuenta</h6>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="purchasedAt" class="form-label small fw-semibold text-muted">Fecha de Compra</label>
+                  <input type="date" class="form-control form-control-modern" id="purchasedAt" formControlName="purchasedAt">
+                </div>
+                <div class="col-md-6">
+                  <label for="renewalDate" class="form-label small fw-semibold text-muted">Próximo Vencimiento <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control form-control-modern" id="renewalDate" formControlName="renewalDate">
+                  @if (unifiedForm.get('renewalDate')?.invalid && unifiedForm.get('renewalDate')?.touched) {
+                    <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label for="cost" class="form-label small fw-semibold text-muted">Costo Adquisición (Q) <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 fw-bold">Q</span>
+                    <input type="number" class="form-control form-control-modern border-start-0" id="cost" formControlName="cost" min="0">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="source" class="form-label small fw-semibold text-muted">Origen del servicio</label>
+                  <input type="text" class="form-control form-control-modern" id="source" formControlName="source" placeholder="Distribuidor externo, tarjeta, etc">
+                </div>
+                <div class="col-md-6">
+                  <label for="plan" class="form-label small fw-semibold text-muted">Plan / Calidad</label>
+                  <input type="text" class="form-control form-control-modern" id="plan" formControlName="plan" placeholder="Ej. Premium 4K, Familiar">
+                </div>
+                <div class="col-12">
+                  <label for="accountNotes" class="form-label small fw-semibold text-muted">Observaciones de la cuenta</label>
+                  <textarea class="form-control form-control-modern" id="accountNotes" formControlName="accountNotes" rows="2" placeholder="Notas sobre el proveedor, métodos de pago, etc."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. Suscripción -->
+            <div class="col-12 mt-4 pt-3 border-top">
+              <h6 class="form-label-custom">Asignar Suscripción a Cliente</h6>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="clientUuid" class="form-label small fw-semibold text-muted">Cliente <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-modern" id="clientUuid" formControlName="clientUuid">
+                    <option [ngValue]="null">Selecciona un cliente</option>
+                    @for (client of clientOptions(); track client.id) {
+                      <option [value]="client.id">{{ client.name }}{{ client.phone ? ' · ' + client.phone : '' }}</option>
+                    }
+                  </select>
+                  @if (unifiedForm.get('clientUuid')?.invalid && unifiedForm.get('clientUuid')?.touched) {
+                    <div class="text-danger x-small mt-1">Selecciona un cliente</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label for="paymentDueDate" class="form-label small fw-semibold text-muted">Fecha de Pago <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control form-control-modern" id="paymentDueDate" formControlName="paymentDueDate">
+                  @if (unifiedForm.get('paymentDueDate')?.invalid && unifiedForm.get('paymentDueDate')?.touched) {
+                    <div class="text-danger x-small mt-1">La fecha de pago es requerida</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label for="priceSold" class="form-label small fw-semibold text-muted">Precio de Venta (Q) <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 fw-bold">Q</span>
+                    <input type="number" class="form-control form-control-modern border-start-0" id="priceSold" formControlName="priceSold" min="0">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="discountApplied" class="form-label small fw-semibold text-muted">Descuento (Q)</label>
+                  <input type="number" class="form-control form-control-modern" id="discountApplied" formControlName="discountApplied" min="0">
+                </div>
+                <div class="col-12">
+                  <label for="subscriptionNotes" class="form-label small fw-semibold text-muted">Observaciones de la suscripción</label>
+                  <textarea class="form-control form-control-modern" id="subscriptionNotes" formControlName="subscriptionNotes" rows="2" placeholder="Notas sobre la suscripción"></textarea>
+                </div>
+                <div class="col-12">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sendNotification" formControlName="sendNotification">
+                    <label class="form-check-label small fw-semibold text-muted" for="sendNotification">
+                      Enviar notificación al cliente
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer bg-white border-top py-3 px-4">
+          <button type="button" class="btn btn-link text-muted text-decoration-none me-auto" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-5 fw-semibold shadow-sm rounded-3" [disabled]="isSubmitting || unifiedForm.invalid">
+            @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Crear Cuenta + Suscripción
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -11,9 +11,14 @@
         </div>
     </div>
     @if (!isSuperAdmin()) {
-    <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="accountForm.openModal()">
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary d-flex align-items-center px-3 py-2" (click)="unifiedForm.openModal()">
+        <i class="bi bi-lightning-charge me-2"></i> Cuenta + Suscripción
+      </button>
+      <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="accountForm.openModal()">
         <i class="bi bi-plus-lg me-2"></i> Nueva Cuenta
-    </button>
+      </button>
+    </div>
     }
   </div>
 
@@ -264,3 +269,4 @@
 </div>
 
 <app-account-form #accountForm [preselectedService]="currentService()" (accountCreated)="onAccountCreated()"></app-account-form>
+<app-account-with-subscription-form #unifiedForm (created)="onAccountCreated()"></app-account-with-subscription-form>

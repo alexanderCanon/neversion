@@ -87,6 +87,13 @@
   flex-direction: column;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 
+  .due-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.25rem;
+  }
+
   strong {
     font-size: 0.85rem;
     color: var(--color-text-primary);
@@ -98,10 +105,15 @@
   }
 
   small {
-    margin-top: 0.25rem;
     font-weight: 600;
     color: var(--color-brand-accent);
     font-size: 0.7rem;
+  }
+
+  .due-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
   }
 }
 
@@ -113,21 +125,24 @@
   font-style: italic;
 }
 
-.inventory-table {
-  margin-bottom: 0;
+.client-group {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem;
+  background-color: #fafafa;
+}
 
-  thead th {
-    background-color: transparent;
-    color: var(--color-text-secondary);
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    padding: 0.75rem 0.5rem;
-    border-bottom: 2px solid var(--color-surface);
-  }
+.client-group-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-primary);
 
-  tbody td {
-    padding: 0.75rem 0.5rem;
-    border-bottom: 1px solid var(--color-surface);
+  i {
+    color: var(--color-brand-accent);
+    font-size: 1rem;
   }
 }

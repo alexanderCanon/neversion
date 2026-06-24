@@ -9,13 +9,11 @@
  */
 
 
-export interface ExpiringSubscriptionResult { 
-    subscriptionId?: string;
-    clientName?: string;
-    clientPhone?: string;
+export interface ExpiringAccountResult { 
+    accountId?: string;
     serviceName?: string;
-    profileName?: string;
-    paymentDueDate?: string;
+    accountEmail?: string;
+    renewalDate?: string;
     status?: string;
 }
 
