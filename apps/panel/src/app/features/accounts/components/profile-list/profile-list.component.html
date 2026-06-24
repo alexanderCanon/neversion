@@ -5,11 +5,11 @@
       <div class="card-body p-3">
         <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
           <div class="flex-grow-1">
-            <h6 class="mb-1 fw-bold text-dark">Generación Rápida</h6>
+            <h6 class="mb-1 fw-bold text-dark">Genere perfiles si es necesario</h6>
             @if (isLimitReached) {
-              <p class="text-warning extra-small mb-0 fw-semibold">
+              <p class="small mb-0 fw-semibold">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                Límite de perfiles alcanzado ({{ currentProfileCount }}/{{ maxProfiles }})
+                La cuenta alcanzó el limite de perfiles ({{ currentProfileCount }}/{{ maxProfiles }})
               </p>
             } @else {
               <p class="text-muted extra-small mb-0">Crea múltiples perfiles automáticamente para esta cuenta.</p>
@@ -17,14 +17,18 @@
           </div>
           <div class="d-flex align-items-center gap-2">
             <div class="input-group input-group-sm" style="width: 140px;">
-                <span class="input-group-text bg-light border-end-0 text-muted fw-bold">CANT.</span>
+                <span class="input-group-text bg-light border-end-0 text-muted fw-bold">Cantidad</span>
                 <input type="number" class="form-control border-start-0 text-center fw-bold" [(ngModel)]="generateCount" min="1" max="10" [disabled]="isLimitReached">
             </div>
-            <button class="btn btn-sm btn-primary px-4 fw-semibold rounded-3 shadow-sm d-flex align-items-center gap-2" (click)="onGenerateProfiles()" [disabled]="isSubmitting || isLimitReached">
+              <button 
+              class="btn btn-sm btn-outline-primary fw-medium d-inline-flex align-items-center gap-2" 
+              (click)="onGenerateProfiles()" 
+              [disabled]="isSubmitting || isLimitReached">
+  
               @if (isSubmitting) {
-                <span class="spinner-border spinner-border-sm"></span>
+              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
               } @else {
-                <i class="bi bi-magic"></i>
+              
               }
               <span>Generar</span>
             </button>
@@ -86,10 +90,9 @@
                 }
               </td>
               <td>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="status-dot" [ngClass]="profile.status.toLowerCase()"></span>
-                    <span class="x-small fw-bold text-capitalize text-muted">{{ getStatusLabel(profile) }}</span>
-                </div>
+                <span class="badge-status" [ngClass]="profile.status.toLowerCase()" [class.owner]="profile.isOwner">
+                  {{ getStatusLabel(profile) }}
+                </span>
               </td>
               <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-2">
@@ -165,7 +168,7 @@
             <!-- Sección: Notas y Observaciones -->
             <div class="col-12">
               <label for="profileNotes" class="form-label small fw-semibold text-muted">
-                OBSERVACIONES INTERNAS / NOTAS
+                Observaciones y Notas del Vendedor
               </label>
               <textarea
                 class="form-control form-control-modern"
@@ -209,6 +212,40 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Seleccionar Fecha de Renovación -->
+<div class="modal fade" tabindex="-1" aria-hidden="true" #datePickerModal>
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-brand-dark text-white py-3 px-4">
+        <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold fs-6">
+          <i class="bi bi-calendar-event"></i>
+          <span>Fecha de Renovación</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeDatePickerModal()" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body p-4 bg-surface">
+        <div class="mb-3">
+          <label for="renewalDateSelect" class="form-label small fw-semibold text-muted">Selecciona la fecha:</label>
+          <input
+            type="date"
+            class="form-control form-control-modern"
+            id="renewalDateSelect"
+            [(ngModel)]="selectedRenewalDate"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer bg-white border-top py-2 px-3 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-link text-muted text-decoration-none me-auto btn-sm" (click)="closeDatePickerModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary fw-semibold btn-sm px-3 rounded-3" (click)="confirmCopyAccess()">
+          Copiar Accesos
+        </button>
+      </div>
     </div>
   </div>
 </div>

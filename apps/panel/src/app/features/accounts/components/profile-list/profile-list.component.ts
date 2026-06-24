@@ -29,6 +29,7 @@ declare const bootstrap: Bootstrap;
   })
 export class ProfileListComponent {
   @ViewChild('editProfileModal') editProfileModal!: ElementRef<HTMLElement>;
+  @ViewChild('datePickerModal') datePickerModal!: ElementRef<HTMLElement>;
 
   @Input() accountId!: string;
   @Input() accountEmail = '';
@@ -39,6 +40,7 @@ export class ProfileListComponent {
   @Input() maxProfiles = 0;
   @Input() currentProfileCount = 0;
   @Input() isSpotify = false;
+  @Input() serviceName = '';
   @Output() profilesChanged = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
@@ -53,6 +55,8 @@ export class ProfileListComponent {
   });
 
   selectedProfileId: string | null = null;
+  selectedProfileForAccess: ProfileResponse | null = null;
+  selectedRenewalDate = '';
   isSubmitting = false;
   isLoading = false;
   generateCount = 1;
@@ -126,19 +130,83 @@ export class ProfileListComponent {
   }
 
   copyAccess(profile: ProfileResponse): void {
+    this.selectedProfileForAccess = profile;
+    if (this.accountRenewalDate) {
+      this.selectedRenewalDate = this.accountRenewalDate.split('T')[0];
+    } else {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      this.selectedRenewalDate = `${year}-${month}-${day}`;
+    }
+    this.openDatePickerModal();
+  }
+
+  confirmCopyAccess(): void {
+    if (!this.selectedProfileForAccess) return;
+
+    const profile = this.selectedProfileForAccess;
     const access = [
-      '📺📺',
+      `📺 ${this.serviceName || 'Servicio'} 📺`,
       `📧 ${this.accountEmail || ''}`,
       `🔑 ${this.accountPassword || ''}`,
       `👤 ${profile.name || 'Perfil'}`,
       `🔒 ${profile.pin || ''}`,
-      `📆 ${this.formatDate(this.accountRenewalDate)}`,
-      '⚠️ No hacer cambios en la cuenta, cualquier duda e inconveniente contactar con el vendedor.'
+      `📆 ${this.formatDate(this.selectedRenewalDate)}`,
+      '⚠️ Dudas e inconvenientes, reportar inmediatamente, de lo contrario no será valido el soporte.',
     ].join('\n');
 
     copyToClipboard(access)
-      .then(() => this.toastService.success('Accesos copiados'))
+      .then(() => {
+        this.toastService.success('Accesos copiados');
+        this.closeDatePickerModal();
+      })
       .catch(() => this.toastService.error('No se pudieron copiar los accesos'));
+  }
+
+  openDatePickerModal(): void {
+    const modalEl = this.datePickerModal?.nativeElement;
+    if (modalEl) {
+      if (typeof bootstrap !== 'undefined') {
+        new bootstrap.Modal(modalEl).show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        document.body.classList.add('modal-open');
+        const backdrop = document.createElement('div');
+        backdrop.classList.add('modal-backdrop', 'fade', 'show');
+        document.body.appendChild(backdrop);
+      }
+    }
+  }
+
+  closeDatePickerModal(): void {
+    const modalEl = this.datePickerModal?.nativeElement;
+    const resetState = () => {
+      this.selectedProfileForAccess = null;
+      this.selectedRenewalDate = '';
+    };
+
+    if (modalEl) {
+      if (typeof bootstrap !== 'undefined') {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) {
+          modalEl.addEventListener('hidden.bs.modal', () => {
+            resetState();
+          }, { once: true });
+          modal.hide();
+          return;
+        }
+      } else {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
+      }
+    }
+    resetState();
   }
 
   openEditModal(profile: ProfileResponse): void {
@@ -218,7 +286,12 @@ export class ProfileListComponent {
       return '';
     }
 
-    const date = new Date(value);
+    let dateStr = value;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      dateStr = value.replace(/-/g, '/');
+    }
+
+    const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) {
       return value;
     }

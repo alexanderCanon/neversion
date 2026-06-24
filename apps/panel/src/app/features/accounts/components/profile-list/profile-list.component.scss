@@ -34,15 +34,74 @@
     border: 1px solid #e2e8f0;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
+.badge-status {
+    padding: 0.35em 0.8em;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
 
-    &.available { background-color: #22c55e; }
-    &.reserved { background-color: #f59e0b; }
-    &.blocked { background-color: #ef4444; }
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
+
+    &.available {
+        background-color: #f0fdf4;
+        color: #15803d;
+        border-color: #bbf7d0;
+        &::before { background-color: #22c55e; }
+    }
+    &.active {
+        background-color: #eff6ff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        &::before { background-color: #3b82f6; }
+    }
+    &.reserved {
+        background-color: #fffbeb;
+        color: #b45309;
+        border-color: #fde68a;
+        &::before { background-color: #f59e0b; }
+    }
+    &.occupied {
+        background-color: #faf5ff;
+        color: #7e22ce;
+        border-color: #e9d5ff;
+        &::before { background-color: #a855f7; }
+    }
+    &.blocked {
+        background-color: #fef2f2;
+        color: #b91c1c;
+        border-color: #fecaca;
+        &::before { background-color: #ef4444; }
+    }
+    &.expired {
+        background-color: #f8fafc;
+        color: #64748b;
+        border-color: #e2e8f0;
+        &::before { background-color: #94a3b8; }
+    }
+
+    &.owner {
+        background-color: #fffdf5 !important;
+        color: #b58a1d !important;
+        border-color: #fef3c7 !important;
+        font-weight: 800 !important;
+        &::before {
+            background-color: #cca43b !important;
+            box-shadow: 0 0 4px #cca43b;
+        }
+    }
 }
 
 .btn-action-sm {

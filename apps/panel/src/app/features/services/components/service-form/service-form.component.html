@@ -20,7 +20,7 @@
                 
                 <div class="mb-3">
                   <label for="name" class="form-label small fw-medium text-muted">Nombre del Servicio <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control form-control-modern" id="name" formControlName="name" placeholder="Ej. Netflix Premium">
+                  <input type="text" class="form-control form-control-modern" id="name" formControlName="name" placeholder="Netflix, Disney Plus, etc...">
                   @if(serviceForm.get('name')?.invalid && serviceForm.get('name')?.touched) {
                      <div class="text-danger x-small mt-1">El nombre es requerido (mín. 3 caracteres)</div>
                   }
@@ -74,7 +74,7 @@
                       @for(cat of categoryDetails; track cat.value) {
                           <option [value]="cat.value" [title]="cat.description">{{ cat.label }}</option>
                       }
-                  </select>/div>
+                  </select>
                    
                   @if (getSelectedCategoryDescription()) {
                     <div class="mt-2 text-muted x-small lh-sm bg-light p-2 rounded border">
@@ -87,13 +87,13 @@
                 <div class="row g-3">
                   @if (serviceForm.get('category')?.value === 'streaming') {
                     <div class="col-6">
-                      <label for="maxProfiles" class="form-label small fw-medium text-muted">Perfiles Máx.</label>
+                      <label for="maxProfiles" class="form-label small fw-medium text-muted">Límite de perfiles</label>
                       <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1">
                     </div>
                   }
                   @if (showDurationDays()) {
                     <div class="col" [class.col-6]="serviceForm.get('category')?.value === 'streaming'">
-                      <label for="durationDays" class="form-label small fw-medium text-muted">Duración (Días)</label>
+                      <label for="durationDays" class="form-label small fw-medium text-muted">Días de duración</label>
                       <input type="number" class="form-control form-control-modern" id="durationDays" formControlName="durationDays" min="1">
                     </div>
                   }
