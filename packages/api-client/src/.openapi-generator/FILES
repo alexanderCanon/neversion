@@ -13,6 +13,7 @@ api/profiles.service.ts
 api/reservations.service.ts
 api/services.service.ts
 api/subscriptions.service.ts
+api/vendors.service.ts
 api/vendorsPublic.service.ts
 configuration.ts
 encoder.ts
@@ -80,6 +81,7 @@ model/successfulRenewalsKpiResult.ts
 model/suggestAssignmentResponse.ts
 model/updateClientProfileRequest.ts
 model/updateClientRequest.ts
+model/updateDiscountConfigRequest.ts
 model/uploadReceiptRequest.ts
 model/validateReservationRequest.ts
 model/vendorPublicResponse.ts

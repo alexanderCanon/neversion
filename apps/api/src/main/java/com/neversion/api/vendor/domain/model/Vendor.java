@@ -2,6 +2,7 @@ package com.neversion.api.vendor.domain.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,6 +13,8 @@ import java.util.UUID;
  * <p>
  * bankDetails and discountCfg are stored as raw JSON strings — the domain treats
  * them as opaque blobs; parsing is the responsibility of application services.
+ * <p>
+ * discountCfg is mutable to allow in-place updates from the vendor panel (BR-13 v2).
  * <p>
  * Pure Java — no Spring or JPA dependencies.
  */
@@ -45,9 +48,11 @@ public class Vendor {
 
     /**
      * Discount tier configuration as JSON (BR-13).
-     * Structure: { "min_items": 2, "tiers": [{ "from": 2, "to": 3, "discount_pct": 5 }] }
+     * Structure: { "min_items": 2, "max_items": 4, "round_to": 5, "tiers": [{ "count": 2, "discount_pct": 25 }] }
+     * Mutable — updated via the vendor panel discount configuration endpoint.
      */
-    private final String discountCfg;
+    @Setter
+    private String discountCfg;
 
     private final Instant createdAt;
 }

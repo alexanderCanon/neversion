@@ -17,7 +17,7 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { VendorPublicResponse } from '../model/vendorPublicResponse';
+import { UpdateDiscountConfigRequest } from '../model/updateDiscountConfigRequest';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -29,27 +29,27 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class VendorsPublicApiService extends BaseService {
+export class VendorsApiService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * Get public vendor info by UUID
-     * Returns store name, logo and discount configuration for storefront initialization. No authentication required.
-     * @endpoint get /api/v1/vendors/public/{uuid}
-     * @param uuid 
+     * Update vendor discount configuration (BR-13 v2)
+     * Updates the discount_cfg JSON for the authenticated vendor. Validates structure: min_items &gt;&#x3D; 2, max_items &lt;&#x3D; 4, consecutive tiers, discount_pct 0-100, round_to &gt; 0.
+     * @endpoint put /api/v1/vendors/discount-config
+     * @param updateDiscountConfigRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getByUuid(uuid: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<VendorPublicResponse>;
-    public getByUuid(uuid: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<VendorPublicResponse>>;
-    public getByUuid(uuid: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<VendorPublicResponse>>;
-    public getByUuid(uuid: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (uuid === null || uuid === undefined) {
-            throw new Error('Required parameter uuid was null or undefined when calling getByUuid.');
+    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (updateDiscountConfigRequest === null || updateDiscountConfigRequest === undefined) {
+            throw new Error('Required parameter updateDiscountConfigRequest was null or undefined when calling updateDiscountConfig.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -69,6 +69,15 @@ export class VendorsPublicApiService extends BaseService {
         const localVarTransferCache: boolean = options?.transferCache ?? true;
 
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
         let responseType_: 'text' | 'json' | 'blob' = 'json';
         if (localVarHttpHeaderAcceptSelected) {
             if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
@@ -80,11 +89,12 @@ export class VendorsPublicApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/vendors/public/${this.configuration.encodeParam({name: "uuid", value: uuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/vendors/discount-config`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<VendorPublicResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<string>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                body: updateDiscountConfigRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

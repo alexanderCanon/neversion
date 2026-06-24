@@ -33,7 +33,11 @@ export class GamesComponent implements OnInit {
   }
 
   addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {
-    this.cartService.addToCart(service, type);
+    const result = this.cartService.addToCart(service, type);
+    if (!result.ok) {
+      this.toastService.show(result.message || 'No se pudo agregar al carrito', 'danger', 'Error');
+      return;
+    }
     const planName = type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa';
     this.toastService.show(`${service.name} (${planName}) añadido al carrito`, 'success', 'Carrito Actualizado');
   }

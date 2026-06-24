@@ -1,0 +1,39 @@
+// Discount Config page styles
+
+.bg-light-blue {
+    background-color: #eff6ff;
+}
+
+.text-dark-blue {
+    color: #1e3a8a;
+
+    i {
+        color: #3b82f6;
+    }
+}
+
+.form-control-modern {
+    padding: 0.65rem 0.85rem;
+    border-color: #e2e8f0;
+
+    &:focus {
+        border-color: var(--color-brand-accent-muted, #93c5fd);
+        box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.15);
+    }
+}
+
+.tier-row {
+    transition: all 0.2s ease;
+
+    &:hover {
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08) !important;
+    }
+}
+
+.x-small {
+    font-size: 0.72rem;
+}
+
+.form-text {
+    font-size: 0.75rem;
+}

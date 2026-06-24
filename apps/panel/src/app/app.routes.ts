@@ -105,6 +105,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'discount-config',
+                loadComponent: () => import('./features/vendors/pages/discount-config/discount-config.component').then(m => m.DiscountConfigComponent),
+                data: { allowedRoles: ['vendor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'help',
                 loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent),
                 data: { allowedRoles: ['vendor', 'super_admin'] },
