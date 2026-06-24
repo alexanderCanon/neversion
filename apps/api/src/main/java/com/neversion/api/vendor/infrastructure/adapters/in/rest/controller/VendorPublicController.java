@@ -39,12 +39,12 @@ public class VendorPublicController {
      * without needing a hardcoded UUID in the frontend build (ADR-02).
      *
      * @param uuid vendor's public UUID
-     * @return vendor name, logo and uuid
+     * @return vendor name, logo, uuid and discount configuration
      */
     @GetMapping("/{uuid}")
     @Operation(
             summary = "Get public vendor info by UUID",
-            description = "Returns store name and logo for storefront initialization. No authentication required.")
+            description = "Returns store name, logo and discount configuration for storefront initialization. No authentication required.")
     @ApiResponse(responseCode = "200", description = "Vendor found")
     @ApiResponse(responseCode = "404", description = "Vendor not found")
     public ResponseEntity<VendorPublicResponse> getByUuid(@PathVariable UUID uuid) {
@@ -54,6 +54,7 @@ public class VendorPublicController {
         return ResponseEntity.ok(new VendorPublicResponse(
                 vendor.getUuid(),
                 vendor.getStoreName(),
-                vendor.getLogoUrl()));
+                vendor.getLogoUrl(),
+                vendor.getDiscountCfg()));
     }
 }

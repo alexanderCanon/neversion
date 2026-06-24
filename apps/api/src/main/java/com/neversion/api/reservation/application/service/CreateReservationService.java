@@ -3,12 +3,15 @@ package com.neversion.api.reservation.application.service;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
@@ -95,13 +98,36 @@ public class CreateReservationService implements CreateReservationUseCase {
 
         // 3. Build reservation details — resolve prices from service catalog (BR-14)
         List<ReservationDetail> detailsToSave = new ArrayList<>();
-        int totalItemQty = 0;
+        int profileItemCount = 0;
+        Set<UUID> seenServiceUuids = new HashSet<>();
+        boolean hasFullAccount = false;
 
         for (ReservationItemCommand item : items) {
             com.neversion.api.service.domain.model.Service service =
                     serviceRepositoryPort.findById(item.serviceUuid())
                             .orElseThrow(() -> new ResourceNotFoundException(
                                     "Service not found with uuid: " + item.serviceUuid()));
+
+            // BR-13 v2: no duplicate services in the cart
+            if (!seenServiceUuids.add(item.serviceUuid())) {
+                throw new BusinessRuleException(
+                        "Duplicate service in cart: " + service.getName()
+                                + ". Each service can only appear once.");
+            }
+
+            SaleMode saleMode = item.saleMode() != null ? item.saleMode() : SaleMode.BY_PROFILE;
+
+            // BR-13 v2: FULL_ACCOUNT must be the only item in the cart
+            if (saleMode == SaleMode.FULL_ACCOUNT) {
+                if (items.size() > 1) {
+                    throw new BusinessRuleException(
+                            "A full account purchase cannot be combined with other services "
+                                    + "in the same reservation. Service: " + service.getName());
+                }
+                hasFullAccount = true;
+            } else {
+                profileItemCount++;
+            }
 
             // BR-US033-01: Validate profile availability
             long availableProfiles = profileRepositoryPort
@@ -112,27 +138,46 @@ public class CreateReservationService implements CreateReservationUseCase {
                                 + "'. Available: " + availableProfiles + ", requested: " + item.qty());
             }
 
-            // Use priceProfile as default unit price (BR-14)
-            BigDecimal unitPrice = service.getPriceProfile() != null
-                    ? service.getPriceProfile()
-                    : BigDecimal.ZERO;
+            // BR-14: use priceProfile or priceFull depending on sale mode
+            BigDecimal unitPrice;
+            if (saleMode == SaleMode.FULL_ACCOUNT) {
+                unitPrice = service.getPriceFull() != null
+                        ? service.getPriceFull()
+                        : BigDecimal.ZERO;
+            } else {
+                unitPrice = service.getPriceProfile() != null
+                        ? service.getPriceProfile()
+                        : BigDecimal.ZERO;
+            }
 
             detailsToSave.add(new ReservationDetail(
                     null,
-                    null, // uuid generated on persist
-                    null, // reservationId set after save
+                    null,
+                    null,
                     service.getId(),
                     item.qty(),
                     unitPrice,
-                    null)); // subtotal is DB-computed
-
-            totalItemQty += item.qty();
+                    null));
         }
 
-        // 4. Calculate pricing using domain service (BR-13)
+        // BR-13 v2: max 4 profile services (hard cap)
+        if (profileItemCount > 4) {
+            throw new BusinessRuleException(
+                    "Cannot purchase more than 4 profile services in a single reservation. "
+                            + "For 5 or more, please contact the vendor via WhatsApp.");
+        }
+
+        // 4. Calculate pricing using domain service (BR-13 v2)
+        // Discount applies only to BY_PROFILE items. FULL_ACCOUNT items pay full price.
         BigDecimal grossTotal = reservationPricingService.calculateGrossTotal(detailsToSave);
-        BigDecimal discount = reservationPricingService.calculateComboDiscount(
-                grossTotal, totalItemQty, vendor.getDiscountCfg());
+        BigDecimal discount;
+        if (hasFullAccount) {
+            // Single full account — no combo discount
+            discount = BigDecimal.ZERO;
+        } else {
+            discount = reservationPricingService.calculateComboDiscount(
+                    grossTotal, profileItemCount, vendor.getDiscountCfg());
+        }
         BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
 
         // 5. Build and persist the reservation

@@ -59,6 +59,7 @@ export * from './successfulRenewalsKpiResult';
 export * from './suggestAssignmentResponse';
 export * from './updateClientProfileRequest';
 export * from './updateClientRequest';
+export * from './updateDiscountConfigRequest';
 export * from './uploadReceiptRequest';
 export * from './validateReservationRequest';
 export * from './vendorPublicResponse';

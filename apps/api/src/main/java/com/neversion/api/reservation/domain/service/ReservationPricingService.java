@@ -12,11 +12,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.reservation.domain.model.ReservationDetail;
 
 /**
- * Domain service for reservation pricing logic (BR-13, BR-14).
+ * Domain service for reservation pricing logic (BR-13 v2, BR-14).
  * <p>
  * Discount tiers are read from the vendor's discount_cfg JSONB:
- * { "min_items": 2, "tiers": [{ "from": 2, "to": 3, "discount_pct": 5 }, ...] }
- * </p>
+ * <pre>{@json
+ * {
+ *   "min_items": 2,
+ *   "max_items": 4,
+ *   "round_to": 5,
+ *   "tiers": [
+ *     { "count": 2, "discount_pct": 25 },
+ *     { "count": 3, "discount_pct": 18 },
+ *     { "count": 4, "discount_pct": 22 }
+ *   ]
+ * }
+ * }</pre>
+ * The discount is a percentage applied to the gross total of BY_PROFILE items,
+ * then rounded to the nearest multiple of {@code round_to} (e.g. Q5).
+ * <p>
+ * Backward compatibility: if tiers use the legacy {@code from}/{@code to} format,
+ * the service falls back to the old matching logic without rounding.
  */
 @Service
 public class ReservationPricingService {
@@ -27,7 +42,7 @@ public class ReservationPricingService {
      * Calculates the gross total before any combo discount.
      *
      * @param details reservation line items with unit_price and qty already set
-     * @return sum of (qty × unitPrice) for all items
+     * @return sum of (qty * unitPrice) for all items
      */
     public BigDecimal calculateGrossTotal(List<ReservationDetail> details) {
         return details.stream()
@@ -36,14 +51,18 @@ public class ReservationPricingService {
     }
 
     /**
-     * Calculates the combo discount amount using the vendor's tier configuration (BR-13).
+     * Calculates the combo discount amount using the vendor's tier configuration (BR-13 v2).
+     * <p>
+     * The discount is computed as a percentage of the gross total, then rounded to
+     * the nearest multiple of {@code round_to}. Only BY_PROFILE items participate
+     * in the discount (the caller is responsible for passing only those items).
      *
-     * @param grossTotal    total before discount
-     * @param totalItemQty  total quantity of items in the cart (sum of all qty, not just line count)
-     * @param discountCfgJson vendor's discount_cfg JSON string (nullable — no discount if null)
+     * @param grossTotal       total before discount (sum of BY_PROFILE items only)
+     * @param profileItemCount number of distinct BY_PROFILE services in the cart
+     * @param discountCfgJson  vendor's discount_cfg JSON string (nullable — no discount if null)
      * @return discount amount (0 if no tier matches or discountCfg is absent)
      */
-    public BigDecimal calculateComboDiscount(BigDecimal grossTotal, int totalItemQty,
+    public BigDecimal calculateComboDiscount(BigDecimal grossTotal, int profileItemCount,
                                               String discountCfgJson) {
         if (discountCfgJson == null || discountCfgJson.isBlank()) {
             return BigDecimal.ZERO;
@@ -53,7 +72,7 @@ public class ReservationPricingService {
             JsonNode root = OBJECT_MAPPER.readTree(discountCfgJson);
 
             int minItems = root.has("min_items") ? root.get("min_items").asInt(2) : 2;
-            if (totalItemQty < minItems) {
+            if (profileItemCount < minItems) {
                 return BigDecimal.ZERO;
             }
 
@@ -62,16 +81,27 @@ public class ReservationPricingService {
                 return BigDecimal.ZERO;
             }
 
-            // Find the matching tier — tiers are expected sorted by "from" ascending
             BigDecimal discountPct = BigDecimal.ZERO;
-            for (JsonNode tier : tiers) {
-                int from = tier.get("from").asInt();
-                JsonNode toNode = tier.get("to");
-                int to = (toNode == null || toNode.isNull()) ? Integer.MAX_VALUE : toNode.asInt();
+            boolean useNewFormat = false;
 
-                if (totalItemQty >= from && totalItemQty <= to) {
-                    discountPct = BigDecimal.valueOf(tier.get("discount_pct").asDouble());
-                    break;
+            for (JsonNode tier : tiers) {
+                JsonNode countNode = tier.get("count");
+                if (countNode != null && !countNode.isNull()) {
+                    useNewFormat = true;
+                    int count = countNode.asInt();
+                    if (profileItemCount == count) {
+                        discountPct = BigDecimal.valueOf(tier.get("discount_pct").asDouble());
+                        break;
+                    }
+                } else {
+                    // Legacy format: from / to
+                    int from = tier.get("from").asInt();
+                    JsonNode toNode = tier.get("to");
+                    int to = (toNode == null || toNode.isNull()) ? Integer.MAX_VALUE : toNode.asInt();
+                    if (profileItemCount >= from && profileItemCount <= to) {
+                        discountPct = BigDecimal.valueOf(tier.get("discount_pct").asDouble());
+                        break;
+                    }
                 }
             }
 
@@ -79,14 +109,31 @@ public class ReservationPricingService {
                 return BigDecimal.ZERO;
             }
 
-            // discount_pct is a percentage (e.g. 5 = 5%), convert to decimal
-            return grossTotal.multiply(discountPct)
+            BigDecimal rawDiscount = grossTotal.multiply(discountPct)
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
+            if (useNewFormat) {
+                int roundTo = root.has("round_to") ? root.get("round_to").asInt(5) : 5;
+                if (roundTo > 0) {
+                    return roundToNearest(rawDiscount, roundTo);
+                }
+            }
+
+            return rawDiscount;
+
         } catch (JsonProcessingException e) {
-            // Malformed JSON — log and return zero discount
             return BigDecimal.ZERO;
         }
+    }
+
+    /**
+     * Rounds a BigDecimal to the nearest multiple of {@code roundTo} using HALF_UP.
+     * Example: roundToNearest(17.50, 5) = 20.00; roundToNearest(12.00, 5) = 10.00.
+     */
+    private BigDecimal roundToNearest(BigDecimal value, int roundTo) {
+        BigDecimal divisor = BigDecimal.valueOf(roundTo);
+        BigDecimal quotient = value.divide(divisor, 0, RoundingMode.HALF_UP);
+        return quotient.multiply(divisor).setScale(2, RoundingMode.HALF_UP);
     }
 
     /**

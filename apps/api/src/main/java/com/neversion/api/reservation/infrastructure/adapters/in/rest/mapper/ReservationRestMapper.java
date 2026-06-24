@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
+import com.neversion.api.account.domain.model.enums.SaleMode;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.ReservationDetail;
@@ -21,7 +22,10 @@ public class ReservationRestMapper {
             return Collections.emptyList();
         }
         return items.stream()
-                .map(item -> new ReservationItemCommand(item.serviceUuid(), item.qty()))
+                .map(item -> new ReservationItemCommand(
+                        item.serviceUuid(),
+                        item.qty(),
+                        item.saleMode() != null ? item.saleMode() : SaleMode.BY_PROFILE))
                 .collect(Collectors.toList());
     }
 

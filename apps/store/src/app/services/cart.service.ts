@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { ServiceResponse } from '@neversion/api-client';
+import { VendorService } from './vendor.service';
 
 export interface CartItem {
   service: ServiceResponse;
@@ -10,23 +11,77 @@ export interface CartItem {
   spotifyAccountPreference?: 'CUENTA_NUEVA' | 'CUENTA_PROPIA';
 }
 
+export type CartValidationError =
+  | 'DUPLICATE_SERVICE'
+  | 'MAX_PROFILES_EXCEEDED'
+  | 'FULL_ACCOUNT_EXCLUSIVE';
+
+export interface CartValidationResult {
+  ok: boolean;
+  error?: CartValidationError;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
+  private readonly vendorService = inject(VendorService);
+
   private itemsSubject = new BehaviorSubject<CartItem[]>([]);
   items$ = this.itemsSubject.asObservable();
 
-  addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE' = 'PROFILE'): void {
-    const currentItems = this.itemsSubject.value;
-    const existingItem = currentItems.find(item => item.service.id === service.id && item.type === type);
+  private static readonly MAX_PROFILES = 4;
 
-    if (existingItem) {
-      existingItem.quantity += 1;
-      this.itemsSubject.next([...currentItems]);
-    } else {
-      this.itemsSubject.next([...currentItems, { service, quantity: 1, type }]);
+  addToCart(
+    service: ServiceResponse,
+    type: 'PROFILE' | 'COMPLETE' = 'PROFILE'
+  ): CartValidationResult {
+    const currentItems = this.itemsSubject.value;
+
+    // BR-13 v2: FULL_ACCOUNT must be the only item
+    if (type === 'COMPLETE') {
+      if (currentItems.length > 0) {
+        return {
+          ok: false,
+          error: 'FULL_ACCOUNT_EXCLUSIVE',
+          message: 'Una cuenta completa no puede combinarse con otros servicios en el mismo pedido.'
+        };
+      }
+      this.itemsSubject.next([{ service, quantity: 1, type }]);
+      return { ok: true };
     }
+
+    // BR-13 v2: if there's a FULL_ACCOUNT in cart, can't add more
+    if (currentItems.some(i => i.type === 'COMPLETE')) {
+      return {
+        ok: false,
+        error: 'FULL_ACCOUNT_EXCLUSIVE',
+        message: 'Ya hay una cuenta completa en el carrito. No se pueden agregar más servicios.'
+      };
+    }
+
+    // BR-13 v2: no duplicate services
+    if (currentItems.some(i => i.service.id === service.id)) {
+      return {
+        ok: false,
+        error: 'DUPLICATE_SERVICE',
+        message: `El servicio "${service.name}" ya está en el carrito. Cada servicio solo puede aparecer una vez.`
+      };
+    }
+
+    // BR-13 v2: max 4 profile services
+    const profileCount = currentItems.filter(i => i.type === 'PROFILE').length;
+    if (profileCount >= this.getMaxProfiles()) {
+      return {
+        ok: false,
+        error: 'MAX_PROFILES_EXCEEDED',
+        message: `No se pueden agregar más de ${this.getMaxProfiles()} servicios de perfil en un solo pedido. Para 5 o más, contacta al vendedor por WhatsApp.`
+      };
+    }
+
+    this.itemsSubject.next([...currentItems, { service, quantity: 1, type }]);
+    return { ok: true };
   }
 
   updateQuantity(serviceId: string, type: 'PROFILE' | 'COMPLETE', quantity: number): void {
@@ -64,11 +119,34 @@ export class CartService {
     this.itemsSubject.next([]);
   }
 
+  /**
+   * Gross total of BY_PROFILE items only (discount applies to this).
+   * FULL_ACCOUNT items pay full price and don't participate in discounts.
+   */
+  getProfileSubtotal(): number {
+    return this.itemsSubject.value
+      .filter(item => item.type === 'PROFILE')
+      .reduce((acc, item) => acc + (item.service.priceProfile || 0) * item.quantity, 0);
+  }
+
+  /**
+   * Total of FULL_ACCOUNT items (no discount).
+   */
+  getFullAccountSubtotal(): number {
+    return this.itemsSubject.value
+      .filter(item => item.type === 'COMPLETE')
+      .reduce((acc, item) => acc + (item.service.priceComplete || 0) * item.quantity, 0);
+  }
+
   getTotal(): number {
-    return this.itemsSubject.value.reduce((acc, item) => {
-      const price = item.type === 'PROFILE' ? (item.service.priceProfile || 0) : (item.service.priceComplete || 0);
-      return acc + (price * item.quantity);
-    }, 0);
+    return this.getProfileSubtotal() + this.getFullAccountSubtotal();
+  }
+
+  /**
+   * Number of distinct profile services in the cart (for tier matching).
+   */
+  getProfileItemCount(): number {
+    return this.itemsSubject.value.filter(item => item.type === 'PROFILE').length;
   }
 
   getCartCount(): number {
@@ -79,25 +157,48 @@ export class CartService {
     return this.itemsSubject.value;
   }
 
-  /**
-   * Returns the combo discount percentage based on BR-13 tiers.
-   * 2-3 items → 5%, 4+ items → 10%, otherwise 0%.
-   * These tiers match the backend's discount_cfg for the vendor.
-   */
-  getComboDiscountPercent(): number {
-    const totalItems = this.getCartCount();
-    if (totalItems >= 4) return 10;
-    if (totalItems >= 2) return 5;
-    return 0;
+  hasFullAccount(): boolean {
+    return this.itemsSubject.value.some(i => i.type === 'COMPLETE');
   }
 
+  /**
+   * Returns the combo discount percentage based on dynamic discount_cfg tiers.
+   * Returns 0 if below min_items, no config, or no matching tier.
+   */
+  getComboDiscountPercent(): number {
+    const cfg = this.vendorService.getDiscountConfig();
+    const profileCount = this.getProfileItemCount();
+
+    if (!cfg || profileCount < cfg.minItems) return 0;
+
+    const tier = cfg.tiers.find(t => t.count === profileCount);
+    return tier ? tier.discountPct : 0;
+  }
+
+  /**
+   * Returns the combo discount amount (rounded to nearest Q5).
+   * Only applies to BY_PROFILE items.
+   */
   getComboDiscountAmount(): number {
     const percent = this.getComboDiscountPercent();
     if (percent === 0) return 0;
-    return Math.round(this.getTotal() * percent) / 100;
+
+    const profileSubtotal = this.getProfileSubtotal();
+    const rawDiscount = Math.round(profileSubtotal * percent) / 100;
+
+    const cfg = this.vendorService.getDiscountConfig();
+    const roundTo = cfg?.roundTo ?? 5;
+    if (roundTo <= 0) return rawDiscount;
+
+    return Math.round(rawDiscount / roundTo) * roundTo;
   }
 
   getDiscountedTotal(): number {
     return this.getTotal() - this.getComboDiscountAmount();
+  }
+
+  private getMaxProfiles(): number {
+    const cfg = this.vendorService.getDiscountConfig();
+    return cfg?.maxItems ?? CartService.MAX_PROFILES;
   }
 }

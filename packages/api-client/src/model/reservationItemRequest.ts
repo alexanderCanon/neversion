@@ -12,5 +12,14 @@
 export interface ReservationItemRequest { 
     serviceUuid: string;
     qty: number;
+    saleMode?: ReservationItemRequest.SaleModeEnum;
 }
+export namespace ReservationItemRequest {
+    export const SaleModeEnum = {
+        ByProfile: 'BY_PROFILE',
+        FullAccount: 'FULL_ACCOUNT'
+    } as const;
+    export type SaleModeEnum = typeof SaleModeEnum[keyof typeof SaleModeEnum];
+}
+
 

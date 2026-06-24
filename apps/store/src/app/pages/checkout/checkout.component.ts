@@ -85,7 +85,8 @@ export class CheckoutComponent implements OnInit {
       clientId: user.id,
       items: items.map(item => ({
         serviceUuid: item.service.id!,
-        qty: item.quantity
+        qty: item.quantity,
+        saleMode: item.type === 'COMPLETE' ? 'FULL_ACCOUNT' : 'BY_PROFILE'
       } as ReservationItemRequest)),
       paymentMethod: this.selectedPaymentMethod,
       ...(spotifyNotes ? { notes: spotifyNotes } : {})

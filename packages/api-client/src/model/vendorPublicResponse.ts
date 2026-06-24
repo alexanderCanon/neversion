@@ -22,5 +22,9 @@ export interface VendorPublicResponse {
      * URL to the vendor\'s logo image
      */
     logoUrl?: string;
+    /**
+     * Discount tier configuration as JSON (BR-13). Used by the storefront to calculate dynamic combo discounts.
+     */
+    discountCfg?: string;
 }
 

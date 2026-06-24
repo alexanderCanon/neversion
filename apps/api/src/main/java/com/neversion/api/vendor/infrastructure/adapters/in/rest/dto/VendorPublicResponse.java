@@ -17,6 +17,9 @@ public record VendorPublicResponse(
         String storeName,
 
         @Schema(description = "URL to the vendor's logo image", example = "https://cdn.example.com/logo.png")
-        String logoUrl
+        String logoUrl,
+
+        @Schema(description = "Discount tier configuration as JSON (BR-13). Used by the storefront to calculate dynamic combo discounts.")
+        String discountCfg
 ) {
 }
