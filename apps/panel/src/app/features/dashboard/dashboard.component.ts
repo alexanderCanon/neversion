@@ -14,7 +14,7 @@ interface ExpiringSection {
   items: ExpiringSubscriptionResult[];
 }
 
-type GroupMode = 'date' | 'client';
+type GroupMode = 'date' | 'client' | 'service';
 
 @Component({
   selector: 'app-dashboard',
@@ -81,6 +81,22 @@ export class DashboardComponent implements OnInit {
       map.get(key)!.push(sub);
     }
     return Array.from(map.entries()).map(([clientName, items]) => ({ clientName, items }));
+  });
+
+  serviceGroups = computed(() => {
+    const data = this.kpis();
+    const all = [
+      ...(data?.expiringToday ?? []),
+      ...(data?.expiringTomorrow ?? []),
+      ...(data?.expiringThisWeek ?? [])
+    ];
+    const map = new Map<string, ExpiringSubscriptionResult[]>();
+    for (const sub of all) {
+      const key = sub.serviceName ?? 'Sin servicio';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(sub);
+    }
+    return Array.from(map.entries()).map(([serviceName, items]) => ({ serviceName, items }));
   });
 
   expiringAccountSections = computed(() => {

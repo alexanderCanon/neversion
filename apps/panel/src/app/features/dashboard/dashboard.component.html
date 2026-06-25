@@ -55,6 +55,9 @@
                 <button class="btn" [class.btn-primary]="groupMode() === 'client'" [class.btn-outline-secondary]="groupMode() !== 'client'" (click)="setGroupMode('client')">
                   <i class="bi bi-people me-1"></i>Por cliente
                 </button>
+                <button class="btn" [class.btn-primary]="groupMode() === 'service'" [class.btn-outline-secondary]="groupMode() !== 'service'" (click)="setGroupMode('service')">
+                  <i class="bi bi-collection me-1"></i>Por servicio
+                </button>
               </div>
             </div>
             <span class="text-muted">Hoy, mañana y esta semana</span>
@@ -65,7 +68,19 @@
               @for (section of expiringSections(); track section.class) {
                 <div class="col-12 col-lg-4">
                   <div class="due-column" [ngClass]="section.class">
-                    <div class="due-title">{{ section.title }}</div>
+                    <div class="due-title">
+                      @if (section.class === 'due-today') {
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                      } @else if (section.class === 'due-tomorrow') {
+                        <i class="bi bi-clock-fill"></i>
+                      } @else {
+                        <i class="bi bi-calendar-week-fill"></i>
+                      }
+                      {{ section.title }}
+                      @if (section.items.length > 0) {
+                        <span class="due-count">{{ section.items.length }}</span>
+                      }
+                    </div>
                     @if (section.items.length === 0) {
                       <p class="empty-state">Sin vencimientos.</p>
                     } @else {
@@ -99,7 +114,7 @@
                 </div>
               }
             </div>
-          } @else {
+          } @else if (groupMode() === 'client') {
             <div class="row g-3">
               @for (group of clientGroups(); track group.clientName) {
                 <div class="col-12 col-md-6 col-xl-4">
@@ -113,6 +128,45 @@
                       <div class="due-item">
                         <div class="due-item-header">
                           <strong>{{ subscription.serviceName || 'Servicio' }}</strong>
+                          <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
+                        </div>
+                        <span>{{ subscription.profileName || 'Perfil' }}</span>
+                        <div class="due-item-actions">
+                          <button class="btn btn-sm btn-outline-primary"
+                                  [disabled]="remindingId() === subscription.subscriptionId"
+                                  (click)="sendEmailReminder(subscription)">
+                            @if (remindingId() === subscription.subscriptionId) {
+                              <span class="spinner-border spinner-border-sm"></span>
+                            } @else {
+                              <i class="bi bi-envelope me-1"></i>Email
+                            }
+                          </button>
+                          <button class="btn btn-sm btn-outline-success"
+                                  [disabled]="!subscription.clientPhone"
+                                  (click)="openWhatsApp(subscription)">
+                            <i class="bi bi-whatsapp me-1"></i>WhatsApp
+                          </button>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="row g-3">
+              @for (group of serviceGroups(); track group.serviceName) {
+                <div class="col-12 col-md-6 col-xl-4">
+                  <div class="client-group">
+                    <div class="client-group-title">
+                      <i class="bi bi-collection"></i>
+                      {{ group.serviceName }}
+                      <span class="badge bg-secondary ms-1">{{ group.items.length }}</span>
+                    </div>
+                    @for (subscription of group.items; track trackExpiringSubscription($index, subscription)) {
+                      <div class="due-item">
+                        <div class="due-item-header">
+                          <strong>{{ subscription.clientName || 'Cliente' }}</strong>
                           <small>{{ subscription.paymentDueDate | date:'dd/MM/yyyy' }}</small>
                         </div>
                         <span>{{ subscription.profileName || 'Perfil' }}</span>
@@ -155,7 +209,19 @@
             @for (section of expiringAccountSections(); track section.class) {
               <div class="col-12 col-lg-4">
                 <div class="due-column" [ngClass]="section.class">
-                  <div class="due-title">{{ section.title }}</div>
+                  <div class="due-title">
+                    @if (section.class === 'due-today') {
+                      <i class="bi bi-exclamation-circle-fill"></i>
+                    } @else if (section.class === 'due-tomorrow') {
+                      <i class="bi bi-clock-fill"></i>
+                    } @else {
+                      <i class="bi bi-calendar-week-fill"></i>
+                    }
+                    {{ section.title }}
+                    @if (section.items.length > 0) {
+                      <span class="due-count">{{ section.items.length }}</span>
+                    }
+                  </div>
                   @if (section.items.length === 0) {
                     <p class="empty-state">Sin cuentas por renovar.</p>
                   } @else {
