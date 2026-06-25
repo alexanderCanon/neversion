@@ -1,10 +1,13 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProfileRequest, ProfileResponse, ProfileStatus } from '@neversion/models';
+import { ProfileRequest, ProfileResponse, ProfileStatus, ClientResponse } from '@neversion/models';
 import { copyToClipboard } from '@neversion/utils';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
+import { ClientsService } from '../../../clients/services/clients.service';
+import { AssignmentsService } from '../../../assignments/services/assignments.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { ManualAssignmentRequest } from '@neversion/api-client';
 
 interface BootstrapModal {
   show(): void;
@@ -27,14 +30,16 @@ declare const bootstrap: Bootstrap;
   templateUrl: './profile-list.component.html',
   styleUrl: './profile-list.component.scss'
   })
-export class ProfileListComponent {
+export class ProfileListComponent implements OnInit {
   @ViewChild('editProfileModal') editProfileModal!: ElementRef<HTMLElement>;
   @ViewChild('datePickerModal') datePickerModal!: ElementRef<HTMLElement>;
+  @ViewChild('assignModal') assignModal!: ElementRef<HTMLElement>;
 
   @Input() accountId!: string;
   @Input() accountEmail = '';
   @Input() accountPassword = '';
   @Input() accountRenewalDate = '';
+  @Input() serviceUuid = '';
   @Input() profiles: ProfileResponse[] = [];
   @Input() canGenerateProfiles = true;
   @Input() maxProfiles = 0;
@@ -45,6 +50,8 @@ export class ProfileListComponent {
 
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
+  private readonly clientsService = inject(ClientsService);
+  private readonly assignmentsService = inject(AssignmentsService);
   private readonly toastService = inject(ToastService);
 
   readonly profileForm: FormGroup = this.fb.group({
@@ -54,12 +61,33 @@ export class ProfileListComponent {
     isOwner: [false]
   });
 
+  readonly assignForm: FormGroup = this.fb.group({
+    clientId: ['', Validators.required],
+    clientSearch: ['', Validators.required],
+    startDate: [new Date().toISOString().split('T')[0], Validators.required],
+    endDate: ['', Validators.required]
+  });
+
+  clients: ClientResponse[] = [];
+  filteredClients: ClientResponse[] = [];
+  showClientDropdown = false;
+  selectedProfileForAssign: ProfileResponse | null = null;
+  isAssigning = false;
+
   selectedProfileId: string | null = null;
   selectedProfileForAccess: ProfileResponse | null = null;
   selectedRenewalDate = '';
   isSubmitting = false;
   isLoading = false;
   generateCount = 1;
+
+  ngOnInit(): void {
+    this.assignForm.get('clientSearch')?.valueChanges.subscribe(value => {
+      if (typeof value === 'string') {
+        this.filterClients(value);
+      }
+    });
+  }
 
   getStatusClass(profile: ProfileResponse): string {
     switch (profile.status) {
@@ -301,6 +329,148 @@ export class ProfileListComponent {
       month: '2-digit',
       year: 'numeric'
     }).format(date);
+  }
+
+
+  // --- Quick Assignment ---
+
+  openAssignModal(profile: ProfileResponse): void {
+    if (profile.status !== 'AVAILABLE') {
+      this.toastService.error('Solo se pueden asignar perfiles disponibles.');
+      return;
+    }
+    this.selectedProfileForAssign = profile;
+    this.assignForm.reset({
+      clientId: '',
+      clientSearch: '',
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: ''
+    });
+    this.loadClients();
+    this.showModal(this.assignModal);
+  }
+
+  closeAssignModal(): void {
+    this.hideModal(this.assignModal, () => {
+      this.selectedProfileForAssign = null;
+      this.assignForm.reset({ startDate: new Date().toISOString().split('T')[0] });
+      this.isAssigning = false;
+    });
+  }
+
+  private loadClients(): void {
+    this.clientsService.getClients().subscribe({
+      next: (clients) => {
+        this.clients = clients;
+        this.filteredClients = clients;
+      }
+    });
+  }
+
+  filterClients(searchTerm: string): void {
+    if (!searchTerm) {
+      this.filteredClients = this.clients;
+      this.showClientDropdown = false;
+      return;
+    }
+    this.showClientDropdown = true;
+    const lowerTerm = searchTerm.toLowerCase();
+    this.filteredClients = this.clients.filter(c =>
+      c.name.toLowerCase().includes(lowerTerm) ||
+      (c.phone && c.phone.includes(lowerTerm)) ||
+      (c.email && c.email.toLowerCase().includes(lowerTerm))
+    );
+  }
+
+  selectClient(client: ClientResponse): void {
+    this.assignForm.patchValue({
+      clientId: client.id,
+      clientSearch: `${client.name} (${client.phone || client.email})`
+    });
+    this.showClientDropdown = false;
+  }
+
+  hideClientDropdown(): void {
+    setTimeout(() => {
+      this.showClientDropdown = false;
+    }, 200);
+  }
+
+  showClientDropdownList(): void {
+    if (this.clients.length > 0) {
+      this.filterClients(this.assignForm.get('clientSearch')?.value || '');
+      this.showClientDropdown = true;
+    }
+  }
+
+  submitAssignment(): void {
+    if (this.assignForm.invalid || !this.selectedProfileForAssign) {
+      Object.keys(this.assignForm.controls).forEach((key) => {
+        this.assignForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+
+    const formValue = this.assignForm.value;
+    const request: ManualAssignmentRequest = {
+      clientId: formValue.clientId,
+      serviceId: this.serviceUuid,
+      profileId: this.selectedProfileForAssign.id,
+      startDate: formValue.startDate,
+      endDate: formValue.endDate
+    };
+
+    this.isAssigning = true;
+    this.assignmentsService.manualAssignment(request).subscribe({
+      next: () => {
+        this.toastService.success('Asignación rápida completada con éxito.');
+        this.profilesChanged.emit();
+        this.closeAssignModal();
+      },
+      error: () => {
+        this.isAssigning = false;
+        this.toastService.error('Error al crear la asignación.');
+      }
+    });
+  }
+
+  private showModal(modalRef: ElementRef<HTMLElement>): void {
+    const modalEl = modalRef?.nativeElement;
+    if (modalEl) {
+      if (typeof bootstrap !== 'undefined') {
+        new bootstrap.Modal(modalEl).show();
+      } else {
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        document.body.classList.add('modal-open');
+        const backdrop = document.createElement('div');
+        backdrop.classList.add('modal-backdrop', 'fade', 'show');
+        document.body.appendChild(backdrop);
+      }
+    }
+  }
+
+  private hideModal(modalRef: ElementRef<HTMLElement>, resetFn: () => void): void {
+    const modalEl = modalRef?.nativeElement;
+    if (modalEl) {
+      if (typeof bootstrap !== 'undefined') {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) {
+          modalEl.addEventListener('hidden.bs.modal', () => {
+            resetFn();
+          }, { once: true });
+          modal.hide();
+          return;
+        }
+      } else {
+        modalEl.classList.remove('show');
+        modalEl.style.display = 'none';
+        document.body.classList.remove('modal-open');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) backdrop.remove();
+      }
+    }
+    resetFn();
   }
 
 

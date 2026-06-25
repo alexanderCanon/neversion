@@ -134,6 +134,18 @@
         border-color: #bbf7d0;
     }
 
+    &.assign:hover {
+        background-color: #f5f3ff;
+        color: #7c3aed;
+        border-color: #ddd6fe;
+    }
+
+    &.assign:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     &.activate:hover {
         background-color: #f0fdf4;
         color: #22c55e;

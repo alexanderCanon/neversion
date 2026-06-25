@@ -102,6 +102,10 @@
                   <button class="btn btn-action-sm copy" (click)="copyAccess(profile)" title="Generar Accesos">
                     <i class="bi bi-whatsapp"></i>
                   </button>
+                  <button class="btn btn-action-sm assign" (click)="openAssignModal(profile)" title="Asignación Rápida"
+                          [disabled]="profile.status !== 'AVAILABLE'">
+                    <i class="bi bi-person-plus"></i>
+                  </button>
                   <button class="btn btn-action-sm" 
                           [ngClass]="profile.status === 'BLOCKED' ? 'activate' : 'deactivate'"
                           (click)="toggleBlocked(profile)" 
@@ -246,6 +250,121 @@
           Copiar Accesos
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Asignación Rápida -->
+<div class="modal fade" tabindex="-1" aria-hidden="true" #assignModal>
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-brand-dark text-white py-3 px-4">
+        <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold">
+          <i class="bi bi-person-plus"></i>
+          Asignación Rápida
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeAssignModal()" aria-label="Cerrar"></button>
+      </div>
+
+      <form [formGroup]="assignForm" (ngSubmit)="submitAssignment()">
+        <div class="modal-body p-4 bg-surface">
+          @if (selectedProfileForAssign) {
+            <div class="alert alert-light border d-flex align-items-center gap-3 mb-4 rounded-3">
+              <i class="bi bi-person-badge-fill text-primary fs-4"></i>
+              <div>
+                <div class="fw-bold small">{{ serviceName }} · {{ selectedProfileForAssign.name || 'Perfil' }}</div>
+                <div class="x-small text-muted">{{ accountEmail }}@if (selectedProfileForAssign.pin) { · PIN: {{ selectedProfileForAssign.pin }} }</div>
+              </div>
+            </div>
+          }
+
+          <div class="row g-4">
+            <!-- Cliente -->
+            <div class="col-12">
+              <label class="form-label-custom">Asignación de Cliente</label>
+              <div class="position-relative">
+                <label for="clientSearch" class="form-label small fw-medium text-muted">Buscar Comprador <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-search"></i></span>
+                  <input
+                    id="clientSearch"
+                    type="text"
+                    class="form-control form-control-modern border-start-0"
+                    formControlName="clientSearch"
+                    placeholder="Nombre, correo o teléfono..."
+                    autocomplete="off"
+                    (focus)="showClientDropdownList()"
+                    (blur)="hideClientDropdown()"
+                  >
+                </div>
+                @if (showClientDropdown && filteredClients.length > 0) {
+                  <div class="list-group position-absolute w-100 shadow-lg z-3 mt-1 rounded-3 overflow-hidden border">
+                    @for (client of filteredClients; track client.id) {
+                      <button
+                        type="button"
+                        class="list-group-item list-group-item-action py-2 px-3"
+                        (mousedown)="selectClient(client)"
+                      >
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div class="d-flex flex-column">
+                            <span class="fw-bold small">{{ client.name }}</span>
+                            <span class="x-small text-muted">{{ client.email || client.phone }}</span>
+                          </div>
+                          <i class="bi bi-plus-circle text-primary opacity-50"></i>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                }
+                @if (assignForm.get('clientSearch')?.touched && assignForm.get('clientId')?.errors?.['required']) {
+                  <div class="text-danger x-small mt-1">Debes seleccionar un cliente de la lista.</div>
+                }
+              </div>
+            </div>
+
+            <!-- Vigencia -->
+            <div class="col-12">
+              <label class="form-label-custom">Vigencia</label>
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="startDate" class="form-label small fw-medium text-muted">Fecha de Inicio <span class="text-danger">*</span></label>
+                  <input
+                    id="startDate"
+                    type="date"
+                    class="form-control form-control-modern"
+                    formControlName="startDate"
+                  >
+                  @if (assignForm.get('startDate')?.touched && assignForm.get('startDate')?.errors?.['required']) {
+                    <div class="text-danger x-small mt-1">La fecha de inicio es requerida.</div>
+                  }
+                </div>
+                <div class="col-md-6">
+                  <label for="endDate" class="form-label small fw-medium text-muted">Fecha de Vencimiento <span class="text-danger">*</span></label>
+                  <input
+                    id="endDate"
+                    type="date"
+                    class="form-control form-control-modern"
+                    formControlName="endDate"
+                  >
+                  @if (assignForm.get('endDate')?.touched && assignForm.get('endDate')?.errors?.['required']) {
+                    <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida.</div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-white border-top py-3 px-4">
+          <button type="button" class="btn btn-link text-muted text-decoration-none me-auto" (click)="closeAssignModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-5 fw-semibold shadow-sm rounded-3" [disabled]="assignForm.invalid || isAssigning">
+            @if (isAssigning) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Confirmar Asignación
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

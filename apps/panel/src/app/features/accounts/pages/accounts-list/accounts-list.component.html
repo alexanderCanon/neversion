@@ -184,6 +184,7 @@
                       [accountEmail]="account.email"
                       [accountPassword]="account.password || ''"
                       [accountRenewalDate]="account.renewalDate"
+                      [serviceUuid]="account.serviceUuid || account.serviceId"
                       [profiles]="getProfilesForAccount(account.id)"
                       [canGenerateProfiles]="account.saleMode === 'BY_PROFILE'"
                       [maxProfiles]="account.maxProfiles || currentService()?.maxProfiles || 0"
