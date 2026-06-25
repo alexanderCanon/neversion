@@ -14,6 +14,10 @@
         <i class="bi bi-person-lines-fill text-primary"></i>
         <span class="d-none d-md-inline small fw-semibold">Asignación sin Costo</span>
       </button>
+      <button class="btn btn-outline-primary border d-flex align-items-center gap-2 px-3 py-2" (click)="batchForm.openModal()">
+        <i class="bi bi-collection-fill"></i>
+        <span class="d-none d-md-inline small fw-semibold">Asignación Múltiple</span>
+      </button>
       <button class="btn btn-primary d-flex align-items-center px-4 py-2" (click)="subscriptionForm.openModal()">
         <i class="bi bi-plus-lg me-2"></i> Nueva Suscripción
       </button>
@@ -197,4 +201,5 @@
 </div>
 
 <app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>
+<app-batch-subscription-form #batchForm (batchCreated)="onBatchCreated()"></app-batch-subscription-form>
 <app-manual-assignment-modal #manualModal (assignmentCreated)="onManualAssignmentCreated()"></app-manual-assignment-modal>

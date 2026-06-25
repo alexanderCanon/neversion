@@ -17,6 +17,10 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
+import { BatchCreateManualSubscriptionRequest } from '../model/batchCreateManualSubscriptionRequest';
+// @ts-ignore
+import { BatchCreateSubscriptionsResponse } from '../model/batchCreateSubscriptionsResponse';
+// @ts-ignore
 import { CreateManualSubscriptionRequest } from '../model/createManualSubscriptionRequest';
 // @ts-ignore
 import { DetectExpiredSubscriptionsResponse } from '../model/detectExpiredSubscriptionsResponse';
@@ -101,6 +105,76 @@ export class SubscriptionsApiService extends BaseService {
             {
                 context: localVarHttpContext,
                 body: createManualSubscriptionRequest,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Batch create manual subscriptions
+     * Creates multiple subscriptions for a single client across multiple services. Supports auto-assignment of available profiles (profileId &#x3D; null) or manual override. Partial success is possible: failed items are reported individually.
+     * @endpoint post /api/v1/subscriptions/batch
+     * @param batchCreateManualSubscriptionRequest 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BatchCreateSubscriptionsResponse>;
+    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BatchCreateSubscriptionsResponse>>;
+    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BatchCreateSubscriptionsResponse>>;
+    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (batchCreateManualSubscriptionRequest === null || batchCreateManualSubscriptionRequest === undefined) {
+            throw new Error('Required parameter batchCreateManualSubscriptionRequest was null or undefined when calling batchCreate.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+            'application/json'
+        ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Content-Type', httpContentTypeSelected);
+        }
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/subscriptions/batch`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<BatchCreateSubscriptionsResponse>('post', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                body: batchCreateManualSubscriptionRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

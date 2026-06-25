@@ -1,10 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, finalize, of, map, catchError } from 'rxjs';
-import { 
-  SubscriptionsApiService, 
-  SubscriptionResponse, 
+import {
+  SubscriptionsApiService,
+  SubscriptionResponse,
   SubscriptionDetailResponse,
   CreateManualSubscriptionRequest,
+  BatchCreateManualSubscriptionRequest,
+  BatchCreateSubscriptionsResponse,
   DetectExpiredSubscriptionsResponse
 } from '@neversion/api-client';
 import { SubscriptionsFilter } from '@neversion/models';
@@ -49,6 +51,12 @@ export class SubscriptionsService {
 
   createManualSubscription(request: CreateManualSubscriptionRequest): Observable<SubscriptionResponse> {
     return this.subscriptionsApi.assign(request).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
+  }
+
+  createBatchSubscriptions(request: BatchCreateManualSubscriptionRequest): Observable<BatchCreateSubscriptionsResponse> {
+    return this.subscriptionsApi.batchCreate(request).pipe(
       tap(() => this.refreshSubscriptions().subscribe())
     );
   }

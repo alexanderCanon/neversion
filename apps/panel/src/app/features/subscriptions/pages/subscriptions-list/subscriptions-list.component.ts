@@ -7,6 +7,7 @@ import { ServicesDataService } from '../../../services/services/services-data.se
 import { SubscriptionResponse } from '@neversion/api-client';
 import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
+import { BatchSubscriptionFormComponent } from '../../components/batch-subscription-form/batch-subscription-form.component';
 import { ManualAssignmentModalComponent } from '../../../assignments/components/manual-assignment-modal/manual-assignment-modal.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { getSubscriptionStatusClass, getSubscriptionStatusLabel } from '@neversion/utils';
@@ -14,12 +15,13 @@ import { getSubscriptionStatusClass, getSubscriptionStatusLabel } from '@neversi
 @Component({
   selector: 'app-subscriptions-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SubscriptionFormComponent, ManualAssignmentModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SubscriptionFormComponent, BatchSubscriptionFormComponent, ManualAssignmentModalComponent],
   templateUrl: './subscriptions-list.component.html',
   styleUrl: './subscriptions-list.component.scss'
   })
 export class SubscriptionsListComponent implements OnInit {
   @ViewChild('subscriptionForm') subscriptionForm!: SubscriptionFormComponent;
+  @ViewChild('batchForm') batchForm!: BatchSubscriptionFormComponent;
   @ViewChild('manualModal') manualModal!: ManualAssignmentModalComponent;
 
   private readonly subscriptionsService = inject(SubscriptionsService);
@@ -112,6 +114,10 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   onSubscriptionCreated(): void {
+    this.loadSubscriptions();
+  }
+
+  onBatchCreated(): void {
     this.loadSubscriptions();
   }
 

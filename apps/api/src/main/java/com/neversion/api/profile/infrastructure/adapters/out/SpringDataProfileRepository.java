@@ -41,4 +41,18 @@ public interface SpringDataProfileRepository extends JpaRepository<ProfileEntity
             nativeQuery = true)
     long countAvailableByServiceIdAndVendorId(@Param("serviceId") Long serviceId,
                                               @Param("vendorId") Long vendorId);
+
+    /**
+     * Returns AVAILABLE profiles for a service across all vendor accounts,
+     * ordered by creation date ASC. Used by batch subscription auto-assignment.
+     */
+    @Query(value = "SELECT p.* FROM profiles p "
+            + "JOIN accounts a ON p.account_id = a.id "
+            + "WHERE a.service_id = :serviceId "
+            + "AND a.vendor_id = :vendorId "
+            + "AND p.status = 'available' "
+            + "ORDER BY p.created_at ASC",
+            nativeQuery = true)
+    List<ProfileEntity> findAvailableByServiceIdAndVendorId(@Param("serviceId") Long serviceId,
+                                                            @Param("vendorId") Long vendorId);
 }

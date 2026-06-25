@@ -30,6 +30,10 @@ model/accountSummaryResponse.ts
 model/accountWithSubscriptionRequest.ts
 model/activeClientsKpiResult.ts
 model/activeSubscriptionSummaryDto.ts
+model/batchCreateManualSubscriptionRequest.ts
+model/batchCreateSubscriptionsResponse.ts
+model/batchItem.ts
+model/batchItemResult.ts
 model/changeProfileStatusRequest.ts
 model/clientAccessResponse.ts
 model/clientDeletionCheckResponse.ts

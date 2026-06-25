@@ -8,9 +8,14 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.service.domain.model.Service;
+import com.neversion.api.subscription.application.port.in.BatchCreateSubscriptionsUseCase;
 import com.neversion.api.subscription.application.port.in.GetSubscriptionDetailUseCase.SubscriptionDetail;
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.SubscriptionListView;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateManualSubscriptionRequest;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateSubscriptionsResponse;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateSubscriptionsResponse.BatchItemResult;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateSubscriptionsResponse.BatchItemStatus;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateManualSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDetailResponse;
@@ -45,6 +50,48 @@ public class SubscriptionMapper {
                 .priceSold(request.priceSold())
                 .discountApplied(request.discountApplied())
                 .notes(request.notes())
+                .build();
+    }
+
+    public BatchCreateSubscriptionsUseCase.BatchCommand toCommand(
+            BatchCreateManualSubscriptionRequest request) {
+        if (request == null) return null;
+
+        var items = request.items().stream()
+                .map(item -> new BatchCreateSubscriptionsUseCase.BatchItemCommand(
+                        item.serviceId(),
+                        item.quantity(),
+                        item.priceSold(),
+                        item.profileId()))
+                .toList();
+
+        return new BatchCreateSubscriptionsUseCase.BatchCommand(
+                request.clientId(),
+                items,
+                request.discountApplied(),
+                request.paymentDueDate(),
+                request.notes(),
+                request.sendNotification());
+    }
+
+    public BatchCreateSubscriptionsResponse toBatchResponse(
+            BatchCreateSubscriptionsUseCase.BatchResult result) {
+        if (result == null) return null;
+
+        var itemResults = result.results().stream()
+                .map(r -> BatchItemResult.builder()
+                        .serviceId(r.serviceUuid())
+                        .status(r.success() ? BatchItemStatus.SUCCESS : BatchItemStatus.FAILED)
+                        .subscriptionId(r.subscriptionUuid())
+                        .errorMessage(r.errorMessage())
+                        .build())
+                .toList();
+
+        return BatchCreateSubscriptionsResponse.builder()
+                .totalRequested(result.totalRequested())
+                .successCount(result.successCount())
+                .failedCount(result.failedCount())
+                .results(itemResults)
                 .build();
     }
 
