@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <!-- Column width adapts to current view: narrow for login/onboarding, wider for registration -->
-            <div [class]="(!isLoginMode) ? 'col-12 col-md-8 col-lg-6 col-xl-5' : 'col-12 col-md-6 col-lg-4'">
+            <div [class]="(!isLoginMode) ? 'col-12 col-md-8 col-lg-6 col-xl-5' : 'col-12 col-md-8 col-lg-5 col-xl-4'">
 
                 <div class="card shadow-lg border-0 rounded-5 overflow-hidden bg-white">
                     <div class="card-body p-4 p-md-5">
@@ -88,7 +88,7 @@
                                 <!-- Submit -->
                                 <div class="d-grid gap-2 mb-3">
                                     <button type="submit"
-                                        class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow transition-all hover-grow"
+                                        class="btn btn-primary btn-lg fw-bold py-3 shadow transition-all hover-grow"
                                         [disabled]="onboardingForm.invalid || (isLoading$ | async)">
                                         <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                         {{ (isLoading$ | async) ? 'Registrando...' : 'Completar Registro' }}
@@ -159,7 +159,7 @@
 
                                     <!-- Main Action Button -->
                                     <div class="d-grid gap-2 mb-4">
-                                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow transition-all hover-grow"
+                                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow transition-all hover-grow"
                                                 [disabled]="loginForm.invalid || (isLoading$ | async)">
                                             <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                             {{ (isLoading$ | async) ? 'Iniciando...' : 'Acceder ahora' }}
@@ -176,7 +176,7 @@
                                     <!-- Google Button (functional) -->
                                     <div class="d-grid gap-2 mb-5">
                                         <button type="button" (click)="onSocialLogin()"
-                                            class="btn btn-outline-dark btn-lg rounded-pill d-flex align-items-center justify-content-center gap-2 py-2 fw-bold transition-all hover-grow">
+                                            class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2 py-2 fw-bold transition-all hover-grow">
                                             <i class="bi bi-google"></i>
                                             Google
                                         </button>
@@ -274,7 +274,7 @@
 
                                     <!-- Submit Button -->
                                     <div class="d-grid gap-2 mb-4">
-                                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow transition-all hover-grow"
+                                        <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow transition-all hover-grow"
                                                 [disabled]="registerForm.invalid || (isLoading$ | async)">
                                             <span *ngIf="(isLoading$ | async)" class="spinner-border spinner-border-sm me-2" role="status"></span>
                                             {{ (isLoading$ | async) ? 'Creando...' : 'Crear mi cuenta' }}

@@ -23,7 +23,7 @@
                         <p class="text-muted small mx-auto mb-4" style="max-width: 380px;">
                             El tiempo límite de 1 hora para subir el comprobante de esta reservación ha vencido, o bien ha sido cancelada. Por favor, crea una nueva reserva.
                         </p>
-                        <button [routerLink]="['/platforms']" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                        <button [routerLink]="['/platforms']" class="btn btn-primary px-4 py-2 fw-bold shadow-sm">
                             Ver Plataformas y Reservar
                         </button>
                     </div>
@@ -37,7 +37,7 @@
                         <p class="text-muted small mx-auto mb-4" style="max-width: 380px;">
                             El comprobante de pago para esta reservación ya fue enviado y está siendo verificado. Te notificaremos una vez sea validado.
                         </p>
-                        <button [routerLink]="['/customer-panel']" class="btn btn-outline-primary px-4 py-2 rounded-pill fw-bold shadow-sm">
+                        <button [routerLink]="['/customer-panel']" class="btn btn-outline-primary px-4 py-2 fw-bold shadow-sm">
                             Ir a mis Accesos y Reservas
                         </button>
                     </div>
@@ -132,7 +132,7 @@
 
                         <button (click)="uploadReceipt()" 
                                 [disabled]="!selectedFile || isUploading"
-                                class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                                class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
                             <span *ngIf="isUploading" class="spinner-border spinner-border-sm me-2"></span>
                             {{ isUploading ? 'Subiendo...' : 'Confirmar Pago' }}
                         </button>

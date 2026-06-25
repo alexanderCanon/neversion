@@ -1,13 +1,14 @@
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileRequest, ProfileResponse, ProfileStatus, ClientResponse } from '@neversion/models';
 import { copyToClipboard } from '@neversion/utils';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
 import { ClientsService } from '../../../clients/services/clients.service';
-import { AssignmentsService } from '../../../assignments/services/assignments.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { ManualAssignmentRequest } from '@neversion/api-client';
+import { DashboardApiService, CreateManualSubscriptionRequest } from '@neversion/api-client';
+import { Router } from '@angular/router';
+import { SubscriptionsService } from '../../../subscriptions/services/subscriptions.service';
 
 interface BootstrapModal {
   show(): void;
@@ -30,7 +31,7 @@ declare const bootstrap: Bootstrap;
   templateUrl: './profile-list.component.html',
   styleUrl: './profile-list.component.scss'
   })
-export class ProfileListComponent implements OnInit {
+export class ProfileListComponent implements OnInit, OnChanges {
   @ViewChild('editProfileModal') editProfileModal!: ElementRef<HTMLElement>;
   @ViewChild('datePickerModal') datePickerModal!: ElementRef<HTMLElement>;
   @ViewChild('assignModal') assignModal!: ElementRef<HTMLElement>;
@@ -51,8 +52,12 @@ export class ProfileListComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
   private readonly clientsService = inject(ClientsService);
-  private readonly assignmentsService = inject(AssignmentsService);
+  private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly toastService = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly dashboardApi = inject(DashboardApiService);
+
+  profileClients: Record<string, { id: string; name: string; phone?: string }> = {};
 
   readonly profileForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -64,8 +69,11 @@ export class ProfileListComponent implements OnInit {
   readonly assignForm: FormGroup = this.fb.group({
     clientId: ['', Validators.required],
     clientSearch: ['', Validators.required],
-    startDate: [new Date().toISOString().split('T')[0], Validators.required],
-    endDate: ['', Validators.required]
+    priceSold: [0, [Validators.required, Validators.min(0)]],
+    discountApplied: [0, [Validators.min(0)]],
+    paymentDueDate: ['', Validators.required],
+    sendNotification: [true],
+    notes: ['']
   });
 
   clients: ClientResponse[] = [];
@@ -87,6 +95,48 @@ export class ProfileListComponent implements OnInit {
         this.filterClients(value);
       }
     });
+    this.loadProfilesClientData();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['accountId'] && !changes['accountId'].isFirstChange()) {
+      this.loadProfilesClientData();
+    }
+  }
+
+  loadProfilesClientData(): void {
+    if (!this.accountId) return;
+
+    this.dashboardApi.getProfilesByAccount(this.accountId).subscribe({
+      next: (data) => {
+        const clientsMap: Record<string, { id: string; name: string; phone?: string }> = {};
+        if (data && Array.isArray(data)) {
+          data.forEach(item => {
+            if (item.profileId && item.subscription?.customer) {
+              clientsMap[item.profileId] = {
+                id: item.subscription.customer.id || '',
+                name: item.subscription.customer.name || '',
+                phone: item.subscription.customer.phone || ''
+              };
+            }
+          });
+        }
+        this.profileClients = clientsMap;
+      },
+      error: (err) => {
+        console.error('Error fetching client profiles:', err);
+      }
+    });
+  }
+
+  viewClient(clientId: string): void {
+    if (clientId) {
+      this.router.navigate(['/clients', clientId]);
+    }
+  }
+
+  getClientId(profileId: string): string {
+    return this.profileClients[profileId]?.id || '';
   }
 
   getStatusClass(profile: ProfileResponse): string {
@@ -153,6 +203,7 @@ export class ProfileListComponent implements OnInit {
           next: () => {
               this.toastService.success('Estado del perfil actualizado.');
               this.profilesChanged.emit();
+              this.loadProfilesClientData();
           }
       });
   }
@@ -340,11 +391,15 @@ export class ProfileListComponent implements OnInit {
       return;
     }
     this.selectedProfileForAssign = profile;
+    const defaultDueDate = this.accountRenewalDate ? this.accountRenewalDate.split('T')[0] : '';
     this.assignForm.reset({
       clientId: '',
       clientSearch: '',
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: ''
+      priceSold: 0,
+      discountApplied: 0,
+      paymentDueDate: defaultDueDate,
+      sendNotification: true,
+      notes: ''
     });
     this.loadClients();
     this.showModal(this.assignModal);
@@ -353,7 +408,11 @@ export class ProfileListComponent implements OnInit {
   closeAssignModal(): void {
     this.hideModal(this.assignModal, () => {
       this.selectedProfileForAssign = null;
-      this.assignForm.reset({ startDate: new Date().toISOString().split('T')[0] });
+      this.assignForm.reset({
+        sendNotification: true,
+        priceSold: 0,
+        discountApplied: 0
+      });
       this.isAssigning = false;
     });
   }
@@ -412,26 +471,41 @@ export class ProfileListComponent implements OnInit {
     }
 
     const formValue = this.assignForm.value;
-    const request: ManualAssignmentRequest = {
+    const request: CreateManualSubscriptionRequest = {
       clientId: formValue.clientId,
-      serviceId: this.serviceUuid,
       profileId: this.selectedProfileForAssign.id,
-      startDate: formValue.startDate,
-      endDate: formValue.endDate
+      serviceId: this.serviceUuid,
+      priceSold: formValue.priceSold,
+      discountApplied: formValue.discountApplied || 0,
+      paymentDueDate: formValue.paymentDueDate,
+      sendNotification: formValue.sendNotification,
+      notes: formValue.notes || undefined
     };
 
     this.isAssigning = true;
-    this.assignmentsService.manualAssignment(request).subscribe({
+    this.subscriptionsService.createManualSubscription(request).subscribe({
       next: () => {
-        this.toastService.success('Asignación rápida completada con éxito.');
+        this.toastService.success('Asignación y suscripción rápida creadas con éxito.');
         this.profilesChanged.emit();
         this.closeAssignModal();
+        this.loadProfilesClientData();
       },
       error: () => {
         this.isAssigning = false;
-        this.toastService.error('Error al crear la asignación.');
+        this.toastService.error('Error al crear la asignación y suscripción.');
       }
     });
+  }
+
+  get minDate(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  get selectedClientHasEmail(): boolean {
+    const clientId = this.assignForm.get('clientId')?.value;
+    if (!clientId) return true;
+    const client = this.clients.find(c => c.id === clientId);
+    return !!client?.email;
   }
 
   private showModal(modalRef: ElementRef<HTMLElement>): void {

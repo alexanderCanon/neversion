@@ -146,6 +146,21 @@
         transform: none;
     }
 
+    &.view-client:hover {
+        background-color: #ecfeff;
+        color: #0891b2;
+        border-color: #cffafe;
+    }
+
+    &.view-client:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+        background-color: #fff;
+        color: var(--color-text-secondary);
+        border-color: var(--color-border);
+    }
+
     &.activate:hover {
         background-color: #f0fdf4;
         color: #22c55e;

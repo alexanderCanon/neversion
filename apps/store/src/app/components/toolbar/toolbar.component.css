@@ -125,7 +125,7 @@
   font-weight: var(--font-weight-medium);
   height: 36px;
   padding: 0 0.875rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   transition: background-color 0.2s;
 }
 .user-btn:hover {

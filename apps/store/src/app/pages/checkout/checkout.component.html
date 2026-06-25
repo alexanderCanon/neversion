@@ -119,7 +119,7 @@
 
                     <button (click)="placeOrder()" 
                             [disabled]="isSubmitting"
-                            class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                            class="btn btn-primary w-100 py-3 fw-bold shadow-sm">
                         <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
                         {{ isSubmitting ? 'Procesando...' : 'Realizar Pedido' }}
                     </button>
@@ -139,7 +139,7 @@
             </div>
             <h4 class="fw-bold">Tu carrito está vacío</h4>
             <p class="text-muted">Parece que aún no has seleccionado ningún servicio.</p>
-            <button routerLink="/platforms" class="btn btn-primary rounded-pill px-4 mt-3">
+            <button routerLink="/platforms" class="btn btn-primary px-4 mt-3">
                 Ver Catálogo
             </button>
         </div>

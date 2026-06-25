@@ -13,7 +13,7 @@
                 <i class="bi bi-search me-2 text-primary"></i>
                 Resultados para: <strong>"{{ query }}"</strong>
             </span>
-            <a routerLink="/platforms" class="btn btn-sm btn-outline-secondary rounded-pill">
+            <a routerLink="/platforms" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-x-lg me-1"></i> Limpiar búsqueda
             </a>
         </div>
@@ -79,7 +79,7 @@
                 <ng-container *ngIf="searchQuery$ | async as query; else noServices">
                     <i class="bi bi-search text-muted opacity-25 display-1"></i>
                     <p class="mt-3 lead text-muted">No se encontraron servicios para "<strong>{{ query }}</strong>"</p>
-                    <a routerLink="/platforms" class="btn btn-outline-primary rounded-pill mt-2">
+                    <a routerLink="/platforms" class="btn btn-outline-primary mt-2">
                         <i class="bi bi-arrow-left me-2"></i>Ver todos los servicios
                     </a>
                 </ng-container>
