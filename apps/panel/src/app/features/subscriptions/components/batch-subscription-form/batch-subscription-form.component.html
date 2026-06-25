@@ -1,16 +1,16 @@
-<div class="modal fade" id="batchSubscriptionModal" #batchModal tabindex="-1" aria-labelledby="batchSubscriptionModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-      <div class="modal-header bg-brand-dark text-white py-3 px-4">
-        <h5 class="modal-title d-flex align-items-center gap-2 fw-semibold" id="batchSubscriptionModalLabel">
-          <i class="bi bi-collection-fill"></i>
-          Asignación Múltiple
-        </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeModal()" aria-label="Close"></button>
-      </div>
+@if (isModalOpen) {
+<div class="batch-overlay" (click)="onOverlayClick($event)">
+  <div class="batch-modal">
+    <div class="batch-modal-header">
+      <h5 class="batch-modal-title">
+        <i class="bi bi-collection-fill"></i>
+        Asignación Múltiple
+      </h5>
+      <button type="button" class="batch-close-btn" (click)="closeModal()" aria-label="Close">&times;</button>
+    </div>
 
-      <form [formGroup]="batchForm" (ngSubmit)="onSubmit()">
-        <div class="modal-body p-4 bg-surface">
+    <form [formGroup]="batchForm" (ngSubmit)="onSubmit()">
+      <div class="batch-modal-body">
 
           <!-- Client Section -->
           <div class="form-section mb-4">
@@ -247,11 +247,11 @@
 
         </div>
 
-        <div class="modal-footer bg-white border-top py-3 px-4">
-          <button type="button" class="btn btn-link text-muted text-decoration-none me-auto" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary px-5 fw-semibold shadow-sm rounded-3" [disabled]="batchForm.invalid || isSubmitting || hasDuplicateServices">
+        <div class="batch-modal-footer">
+          <button type="button" class="batch-btn-cancel" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="batch-btn-submit" [disabled]="batchForm.invalid || isSubmitting || hasDuplicateServices">
             @if (isSubmitting) {
-              <span class="spinner-border spinner-border-sm me-2"></span>
+              <span class="batch-spinner"></span>
             }
             Crear {{ totalSubscriptions }} Suscripciones
           </button>
@@ -259,4 +259,4 @@
       </form>
     </div>
   </div>
-</div>
+}

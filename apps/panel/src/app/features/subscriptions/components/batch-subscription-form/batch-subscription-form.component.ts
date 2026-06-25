@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BatchCreateManualSubscriptionRequest, BatchItem } from '@neversion/api-client';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
@@ -8,18 +8,6 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ProfileResponse, AccountResponse, ClientResponse, ServiceResponse } from '@neversion/models';
-
-interface BootstrapModal {
-  show(): void;
-  hide(): void;
-}
-
-interface Bootstrap {
-  Modal: {
-    new (el: HTMLElement): BootstrapModal;
-    getInstance(el: HTMLElement): BootstrapModal | null;
-  };
-}
 
 interface ServiceLineContext {
   accounts: AccountResponse[];
@@ -36,13 +24,13 @@ interface ServiceLineContext {
   styleUrl: './batch-subscription-form.component.scss'
 })
 export class BatchSubscriptionFormComponent implements OnInit {
-  @ViewChild('batchModal') modalElement!: ElementRef;
   @Output() batchCreated = new EventEmitter<void>();
 
   batchForm!: FormGroup;
   isSubmitting = false;
   isLoadingData = false;
   isBrowser: boolean;
+  isModalOpen = false;
 
   services: ServiceResponse[] = [];
   clients: ClientResponse[] = [];
@@ -249,28 +237,22 @@ export class BatchSubscriptionFormComponent implements OnInit {
     if (this.isBrowser) {
       this.loadDropdownData();
       this.batchResult = null;
-      const modalEl = this.modalElement?.nativeElement;
-      if (modalEl) {
-        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
-        if (bootstrap) {
-          const modal = new bootstrap.Modal(modalEl);
-          modal.show();
-        }
-      }
+      this.isModalOpen = true;
+      document.body.style.overflow = 'hidden';
     }
   }
 
   closeModal(): void {
+    this.isModalOpen = false;
     if (this.isBrowser) {
-      const modalEl = this.modalElement?.nativeElement;
-      if (modalEl) {
-        const bootstrap = (window as unknown as { bootstrap: Bootstrap }).bootstrap;
-        if (bootstrap) {
-          const modal = bootstrap.Modal.getInstance(modalEl);
-          if (modal) modal.hide();
-        }
-      }
-      this.resetForm();
+      document.body.style.overflow = '';
+    }
+    this.resetForm();
+  }
+
+  onOverlayClick(event: Event): void {
+    if (event.target === event.currentTarget) {
+      this.closeModal();
     }
   }
 
