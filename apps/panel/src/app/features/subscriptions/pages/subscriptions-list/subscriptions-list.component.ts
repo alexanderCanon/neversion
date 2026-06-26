@@ -9,13 +9,34 @@ import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { BatchSubscriptionFormComponent } from '../../components/batch-subscription-form/batch-subscription-form.component';
 import { ManualAssignmentModalComponent } from '../../../assignments/components/manual-assignment-modal/manual-assignment-modal.component';
+import { ProfitMarginsComponent } from '../../components/profit-margins/profit-margins.component';
 import { ToastService } from '../../../../core/services/toast.service';
 import { getSubscriptionStatusClass, getSubscriptionStatusLabel } from '@neversion/utils';
+
+type ViewMode = 'table' | 'grouped';
+type GroupMode = 'service' | 'client' | 'date';
+type PageMode = 'subscriptions' | 'margins';
+
+interface GroupStats {
+  total: number;
+  active: number;
+  suspended: number;
+  expired: number;
+  cancelled: number;
+}
+
+interface SubscriptionGroup {
+  key: string;
+  label: string;
+  icon: string;
+  items: SubscriptionResponse[];
+  stats: GroupStats;
+}
 
 @Component({
   selector: 'app-subscriptions-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, SubscriptionFormComponent, BatchSubscriptionFormComponent, ManualAssignmentModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, SubscriptionFormComponent, BatchSubscriptionFormComponent, ManualAssignmentModalComponent, ProfitMarginsComponent],
   templateUrl: './subscriptions-list.component.html',
   styleUrl: './subscriptions-list.component.scss'
   })
@@ -39,26 +60,24 @@ export class SubscriptionsListComponent implements OnInit {
   currentPage = signal(1);
   pageSize = 10;
 
+  viewMode = signal<ViewMode>('grouped');
+  groupMode = signal<GroupMode>('service');
+  collapsedGroups = signal<Set<string>>(new Set());
+  pageMode = signal<PageMode>('subscriptions');
+
   readonly filteredSubscriptions = computed(() => {
     let result = this.subscriptions();
-    
+
     const status = this.filterStatus();
     if (status) {
         result = result.filter(s => s.status === status);
-    }
-
-    const serviceId = this.filterServiceId();
-    if (serviceId) {
-        // Since we are now filtering at API level, this is mostly for signal consistency
-        // but it doesn't hurt to keep it for local search.
-        // However, some fields might not be present in SubscriptionResponse yet.
     }
 
     const clientId = this.filterClientId();
     if (clientId) {
         result = result.filter(s => s.clientId === clientId);
     }
-    
+
     return result;
   });
 
@@ -72,6 +91,127 @@ export class SubscriptionsListComponent implements OnInit {
   );
 
   readonly statusOptions: SubscriptionStatus[] = Object.values(SubscriptionStatus);
+
+  private computeStats(items: SubscriptionResponse[]): GroupStats {
+    return {
+      total: items.length,
+      active: items.filter(s => s.status === 'ACTIVE').length,
+      suspended: items.filter(s => s.status === 'SUSPENDED').length,
+      expired: items.filter(s => (s.status as string) === 'EXPIRED').length,
+      cancelled: items.filter(s => s.status === 'CANCELLED').length,
+    };
+  }
+
+  readonly serviceGroups = computed<SubscriptionGroup[]>(() => {
+    const subs = this.filteredSubscriptions();
+    const map = new Map<string, SubscriptionResponse[]>();
+    for (const sub of subs) {
+      const key = sub.serviceName ?? 'Sin servicio';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(sub);
+    }
+    return Array.from(map.entries())
+      .map(([key, items]) => ({
+        key,
+        label: key,
+        icon: 'bi-collection-fill',
+        items: items.sort((a, b) => (a.clientName ?? '').localeCompare(b.clientName ?? '')),
+        stats: this.computeStats(items),
+      }))
+      .sort((a, b) => b.stats.active - a.stats.active || b.stats.total - a.stats.total);
+  });
+
+  readonly clientGroups = computed<SubscriptionGroup[]>(() => {
+    const subs = this.filteredSubscriptions();
+    const map = new Map<string, SubscriptionResponse[]>();
+    for (const sub of subs) {
+      const key = sub.clientName ?? 'Sin cliente';
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(sub);
+    }
+    return Array.from(map.entries())
+      .map(([key, items]) => ({
+        key,
+        label: key,
+        icon: 'bi-person-circle',
+        items: items.sort((a, b) => (a.serviceName ?? '').localeCompare(b.serviceName ?? '')),
+        stats: this.computeStats(items),
+      }))
+      .sort((a, b) => b.stats.active - a.stats.active || b.stats.total - a.stats.total);
+  });
+
+  readonly dateGroups = computed<SubscriptionGroup[]>(() => {
+    const subs = this.filteredSubscriptions();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const weekEnd = new Date(today);
+    weekEnd.setDate(weekEnd.getDate() + 7);
+    const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    const buckets: Record<string, SubscriptionResponse[]> = {
+      'Vencen hoy': [],
+      'Vencen mañana': [],
+      'Esta semana': [],
+      'Este mes': [],
+      'Vencidas': [],
+      'Sin fecha': [],
+    };
+
+    for (const sub of subs) {
+      if (!sub.paymentDueDate) {
+        buckets['Sin fecha'].push(sub);
+        continue;
+      }
+      const due = new Date(sub.paymentDueDate);
+      const dueDay = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+
+      if (sub.status === 'CANCELLED') {
+        buckets['Sin fecha'].push(sub);
+      } else if (dueDay < today && (sub.status as string) !== 'EXPIRED') {
+        buckets['Vencidas'].push(sub);
+      } else if (dueDay.getTime() === today.getTime()) {
+        buckets['Vencen hoy'].push(sub);
+      } else if (dueDay.getTime() === tomorrow.getTime()) {
+        buckets['Vencen mañana'].push(sub);
+      } else if (dueDay <= weekEnd) {
+        buckets['Esta semana'].push(sub);
+      } else if (dueDay <= monthEnd) {
+        buckets['Este mes'].push(sub);
+      } else {
+        buckets['Sin fecha'].push(sub);
+      }
+    }
+
+    const iconMap: Record<string, string> = {
+      'Vencen hoy': 'bi-exclamation-circle-fill',
+      'Vencen mañana': 'bi-clock-fill',
+      'Esta semana': 'bi-calendar-week-fill',
+      'Este mes': 'bi-calendar-month-fill',
+      'Vencidas': 'bi-x-circle-fill',
+      'Sin fecha': 'bi-calendar-x',
+    };
+
+    return Object.entries(buckets)
+      .filter(([, items]) => items.length > 0)
+      .map(([key, items]) => ({
+        key,
+        label: key,
+        icon: iconMap[key] ?? 'bi-calendar',
+        items: items.sort((a, b) => (a.paymentDueDate ?? '').localeCompare(b.paymentDueDate ?? '')),
+        stats: this.computeStats(items),
+      }));
+  });
+
+  readonly activeGroups = computed<SubscriptionGroup[]>(() => {
+    const mode = this.groupMode();
+    if (mode === 'service') return this.serviceGroups();
+    if (mode === 'client') return this.clientGroups();
+    return this.dateGroups();
+  });
+
+  readonly totalStats = computed<GroupStats>(() => this.computeStats(this.filteredSubscriptions()));
 
   ngOnInit(): void {
     this.servicesService.getServices({ isActive: true }).subscribe();
@@ -159,6 +299,33 @@ export class SubscriptionsListComponent implements OnInit {
     this.loadSubscriptions();
   }
 
+  setViewMode(mode: ViewMode): void {
+    this.viewMode.set(mode);
+  }
+
+  setPageMode(mode: PageMode): void {
+    this.pageMode.set(mode);
+  }
+
+  setGroupMode(mode: GroupMode): void {
+    this.groupMode.set(mode);
+    this.collapsedGroups.set(new Set());
+  }
+
+  toggleGroup(key: string): void {
+    const current = new Set(this.collapsedGroups());
+    if (current.has(key)) {
+      current.delete(key);
+    } else {
+      current.add(key);
+    }
+    this.collapsedGroups.set(current);
+  }
+
+  isGroupCollapsed(key: string): boolean {
+    return this.collapsedGroups().has(key);
+  }
+
   prevPage(): void {
     if (this.currentPage() > 1) {
       this.currentPage.update((p) => p - 1);
@@ -181,5 +348,9 @@ export class SubscriptionsListComponent implements OnInit {
 
   trackBySubscriptionId(index: number, subscription: SubscriptionResponse): string {
     return subscription.id || '';
+  }
+
+  trackByGroupKey(index: number, group: SubscriptionGroup): string {
+    return group.key;
   }
 }

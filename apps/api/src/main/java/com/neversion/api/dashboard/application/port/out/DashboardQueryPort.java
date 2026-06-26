@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.neversion.api.dashboard.application.result.AccountProfitMarginResult;
 import com.neversion.api.dashboard.application.result.ExpiringAccountResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
@@ -71,4 +72,14 @@ public interface DashboardQueryPort {
      * US-067: Vendor-scoped gross profit from created subscriptions and successful renewals.
      */
     BigDecimal calculateGrossProfit(Long vendorId, OffsetDateTime periodStart, OffsetDateTime nextPeriodStart);
+
+    /**
+     * Per-account profit margins for a given period. Includes all non-expired
+     * accounts (even with zero sales) with revenue from new subscriptions and
+     * renewals, allocated cost, and net profit.
+     */
+    List<AccountProfitMarginResult> findAccountProfitMargins(
+            Long vendorId,
+            OffsetDateTime periodStart,
+            OffsetDateTime nextPeriodStart);
 }

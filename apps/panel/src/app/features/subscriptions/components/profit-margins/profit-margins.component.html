@@ -1,0 +1,179 @@
+<div class="profit-margins-container">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+      <h4 class="mb-1 fw-bold text-dark">
+        <i class="bi bi-cash-stack me-2 text-primary"></i>
+        Márgenes de Ganancia
+      </h4>
+      <p class="text-muted small mb-0">Margen neto por cuenta y servicio — {{ currentMonthLabel() }}</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <select
+        class="form-select form-select-filter"
+        [ngModel]="selectedMonthValue"
+        (ngModelChange)="onMonthChange($event)"
+      >
+        @for (m of availableMonths(); track m.label) {
+          <option [value]="m.year + '-' + m.month">{{ m.label }}</option>
+        }
+      </select>
+      <button class="btn btn-white border shadow-sm btn-refresh" (click)="load()" title="Refrescar">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+      <p class="mt-3 text-muted">Calculando márgenes...</p>
+    </div>
+  } @else if (error()) {
+    <div class="alert alert-danger rounded-3">
+      <i class="bi bi-exclamation-circle me-2"></i>{{ error() }}
+    </div>
+  } @else if (!data() || accountMargins().length === 0) {
+    <div class="empty-state text-center py-5 bg-white rounded-4 shadow-sm border">
+      <i class="bi bi-cash text-muted display-4 mb-3"></i>
+      <h4 class="fw-semibold">Sin datos para este período</h4>
+      <p class="text-muted">No hay cuentas activas ni ventas registradas en {{ currentMonthLabel() }}.</p>
+    </div>
+  } @else {
+    <!-- Grand Total Cards -->
+    @if (grandTotal(); as gt) {
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="summary-card summary-revenue">
+            <div class="summary-icon"><i class="bi bi-cash-coin"></i></div>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatCurrency(gt.totalRevenue) }}</span>
+              <span class="summary-label">Ingresos Netos</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card summary-cost">
+            <div class="summary-icon"><i class="bi bi-bag-dash"></i></div>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatCurrency(gt.totalAllocatedCost) }}</span>
+              <span class="summary-label">Costo Alocado</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card" [class.summary-profit-positive]="(gt.totalProfit ?? 0) >= 0" [class.summary-profit-negative]="(gt.totalProfit ?? 0) < 0">
+            <div class="summary-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatCurrency(gt.totalProfit) }}</span>
+              <span class="summary-label">Ganancia Neta</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="summary-card" [class]="getMarginClass(gt.avgMarginPct)">
+            <div class="summary-icon"><i class="bi bi-percent"></i></div>
+            <div class="summary-info">
+              <span class="summary-value">{{ formatPct(gt.avgMarginPct) }}</span>
+              <span class="summary-label">Margen Promedio</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Service Summaries -->
+    <h5 class="fw-bold text-dark mb-3">
+      <i class="bi bi-collection me-2"></i>Resumen por Servicio
+    </h5>
+    <div class="row g-3 mb-4">
+      @for (svc of serviceSummaries(); track trackByServiceName($index, svc)) {
+        <div class="col-12 col-md-6 col-xxl-4">
+          <div class="service-card" [class.expanded]="isExpanded(svc.serviceName ?? '')" (click)="toggleService(svc.serviceName ?? '')">
+            <div class="service-card-header">
+              <div class="service-header-left">
+                <i class="bi bi-collection-fill service-icon"></i>
+                <span class="service-title">{{ svc.serviceName }}</span>
+              </div>
+              <div class="service-header-right">
+                <span class="service-accounts-badge">{{ svc.activeAccounts }} cuentas</span>
+                <i class="bi bi-chevron-down service-chevron"></i>
+              </div>
+            </div>
+            <div class="service-card-stats">
+              <div class="service-stat">
+                <span class="stat-label">Perfiles vendidos</span>
+                <span class="stat-value">{{ svc.totalProfilesSold }}</span>
+              </div>
+              <div class="service-stat">
+                <span class="stat-label">Ingresos</span>
+                <span class="stat-value">{{ formatCurrency(svc.totalRevenue) }}</span>
+              </div>
+              <div class="service-stat">
+                <span class="stat-label">Costo alocado</span>
+                <span class="stat-value">{{ formatCurrency(svc.totalAllocatedCost) }}</span>
+              </div>
+              <div class="service-stat">
+                <span class="stat-label">Ganancia</span>
+                <span class="stat-value" [class]="getProfitClass(svc.totalProfit)">{{ formatCurrency(svc.totalProfit) }}</span>
+              </div>
+              <div class="service-stat">
+                <span class="stat-label">Margen</span>
+                <span class="stat-value">
+                  <span class="margin-badge" [class]="getMarginClass(svc.avgMarginPct)">{{ formatPct(svc.avgMarginPct) }}</span>
+                </span>
+              </div>
+            </div>
+
+            @if (isExpanded(svc.serviceName ?? '')) {
+              <div class="service-card-body">
+                @for (acc of getAccountsForService(svc.serviceName ?? ''); track trackByAccountUuid($index, acc)) {
+                  <div class="account-row" [class.account-zero]="acc.profilesSold === 0">
+                    <div class="account-row-main">
+                      <div class="account-email">
+                        <i class="bi bi-envelope me-1"></i>{{ acc.email }}
+                      </div>
+                      <div class="account-meta">
+                        <span class="account-meta-item">
+                          <i class="bi bi-people"></i>{{ acc.profilesSold }}/{{ acc.maxProfiles }} perfiles
+                        </span>
+                        <span class="account-meta-item">
+                          <i class="bi bi-tag"></i>{{ acc.saleMode === 'full_account' ? 'Cuenta completa' : 'Por perfil' }}
+                        </span>
+                        <span class="account-meta-item">
+                          <i class="bi bi-cash-stack"></i>Costo: {{ formatCurrency(acc.accountCost) }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="account-row-financials">
+                      <div class="fin-col">
+                        <span class="fin-label">Ingresos</span>
+                        <span class="fin-value">{{ formatCurrency(acc.totalRevenue) }}</span>
+                      </div>
+                      <div class="fin-col">
+                        <span class="fin-label">Descuento</span>
+                        <span class="fin-value text-muted">{{ formatCurrency(acc.totalDiscount) }}</span>
+                      </div>
+                      <div class="fin-col">
+                        <span class="fin-label">Costo aloc.</span>
+                        <span class="fin-value">{{ formatCurrency(acc.allocatedCost) }}</span>
+                      </div>
+                      <div class="fin-col">
+                        <span class="fin-label">Ganancia</span>
+                        <span class="fin-value" [class]="getProfitClass(acc.profit)">{{ formatCurrency(acc.profit) }}</span>
+                      </div>
+                      <div class="fin-col">
+                        <span class="fin-label">Margen</span>
+                        <span class="margin-badge" [class]="getMarginClass(acc.marginPct)">{{ formatPct(acc.marginPct) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

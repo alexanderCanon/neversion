@@ -23,6 +23,7 @@ index.ts
 model/accessSummary.ts
 model/accountDetailResponse.ts
 model/accountGroupResult.ts
+model/accountProfitMarginResult.ts
 model/accountRequest.ts
 model/accountResponse.ts
 model/accountSummary.ts
@@ -56,6 +57,7 @@ model/expiringAccountsKpiResult.ts
 model/expiringSubscriptionResult.ts
 model/expiringSubscriptionsKpiResult.ts
 model/financialSnapshot.ts
+model/grandTotal.ts
 model/grossProfitKpiResult.ts
 model/inventoryAvailabilityResult.ts
 model/manualAssignmentRequest.ts
@@ -73,6 +75,7 @@ model/profileResult.ts
 model/profileSubscriptionResult.ts
 model/profileSummary.ts
 model/profileSummaryResponse.ts
+model/profitMarginsResult.ts
 model/registerClientRequest.ts
 model/registerClientResponse.ts
 model/registerVendorRequest.ts
@@ -81,6 +84,7 @@ model/reservationDetailResponse.ts
 model/reservationItemRequest.ts
 model/reservationRequest.ts
 model/reservationResponse.ts
+model/serviceProfitSummaryResult.ts
 model/serviceRequest.ts
 model/serviceResponse.ts
 model/statusChangeResponse.ts

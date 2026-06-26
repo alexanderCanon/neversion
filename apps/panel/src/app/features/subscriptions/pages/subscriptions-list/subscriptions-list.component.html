@@ -1,11 +1,24 @@
 <div class="container-fluid py-4 h-100 bg-surface">
-  <!-- Header Title and Actions -->
+  <!-- Page Mode Tabs -->
+  <div class="page-tabs mb-4">
+    <button class="page-tab" [class.active]="pageMode() === 'subscriptions'" (click)="setPageMode('subscriptions')">
+      <i class="bi bi-credit-card-2-front me-1"></i>Suscripciones
+    </button>
+    <button class="page-tab" [class.active]="pageMode() === 'margins'" (click)="setPageMode('margins')">
+      <i class="bi bi-cash-stack me-1"></i>Márgenes de Ganancia
+    </button>
+  </div>
+
+  @if (pageMode() === 'margins') {
+    <app-profit-margins></app-profit-margins>
+  } @else {
+  <!-- Header -->
   <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
     <div>
         <h3 class="mb-1 fw-bold text-dark">Control de Suscripciones</h3>
         <p class="text-muted small mb-0">Gestiona las entregas de accesos, estados de pago y renovaciones.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 flex-wrap">
       <button class="btn btn-white border shadow-sm d-flex align-items-center gap-2" (click)="detectExpired()">
         <i class="bi bi-alarm text-warning"></i>
         <span class="d-none d-md-inline small fw-semibold">Detectar Vencidas</span>
@@ -24,41 +37,100 @@
     </div>
   </div>
 
-  <!-- Filters Row -->
-  <div class="row g-3 mb-4">
-    <div class="col-12 col-md-4 col-lg-3">
-        <select
-          class="form-select border-0 shadow-sm h-100"
-          [ngModel]="filterStatus()"
-          (ngModelChange)="onStatusFilterChange($event)"
-        >
-          <option value="">Todos los estados</option>
-          @for (status of statusOptions; track status) {
-            <option [value]="status">{{ getStatusLabel(status) }}</option>
-          }
-        </select>
+  <!-- Summary Stats Bar -->
+  @if (!isLoading() && filteredSubscriptions().length > 0) {
+    <div class="row g-2 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="summary-card summary-total">
+          <div class="summary-icon"><i class="bi bi-collection"></i></div>
+          <div class="summary-info">
+            <span class="summary-value">{{ totalStats().total }}</span>
+            <span class="summary-label">Total</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="summary-card summary-active">
+          <div class="summary-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="summary-info">
+            <span class="summary-value">{{ totalStats().active }}</span>
+            <span class="summary-label">Activas</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="summary-card summary-suspended">
+          <div class="summary-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+          <div class="summary-info">
+            <span class="summary-value">{{ totalStats().suspended }}</span>
+            <span class="summary-label">Suspendidas</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="summary-card summary-expired">
+          <div class="summary-icon"><i class="bi bi-x-circle-fill"></i></div>
+          <div class="summary-info">
+            <span class="summary-value">{{ totalStats().expired + totalStats().cancelled }}</span>
+            <span class="summary-label">Vencidas / Canceladas</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col-12 col-md-4 col-lg-3">
-        <select
-          class="form-select border-0 shadow-sm h-100"
-          [ngModel]="filterServiceId()"
-          (ngModelChange)="onServiceFilterChange($event)"
-        >
-          <option value="">Todos los servicios</option>
-          @for (service of services(); track service.id) {
-            <option [value]="service.id">{{ service.name }}</option>
-          }
-        </select>
+  }
+
+  <!-- Filters + View Toggle Row -->
+  <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-4">
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <select
+        class="form-select form-select-filter"
+        [ngModel]="filterStatus()"
+        (ngModelChange)="onStatusFilterChange($event)"
+      >
+        <option value="">Todos los estados</option>
+        @for (status of statusOptions; track status) {
+          <option [value]="status">{{ getStatusLabel(status) }}</option>
+        }
+      </select>
+      <select
+        class="form-select form-select-filter"
+        [ngModel]="filterServiceId()"
+        (ngModelChange)="onServiceFilterChange($event)"
+      >
+        <option value="">Todos los servicios</option>
+        @for (service of services(); track service.id) {
+          <option [value]="service.id">{{ service.name }}</option>
+        }
+      </select>
+      <button class="btn btn-white border shadow-sm btn-refresh" (click)="loadSubscriptions()" title="Refrescar">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
     </div>
-    <div class="col-auto">
-        <button class="btn btn-white border shadow-sm h-100 px-3 d-flex align-items-center justify-content-center" (click)="loadSubscriptions()">
-          <i class="bi bi-arrow-clockwise"></i>
+
+    <div class="d-flex gap-2 align-items-center">
+      <!-- View Mode Toggle -->
+      <div class="btn-group btn-group-sm" role="group">
+        <button class="btn" [class.btn-primary]="viewMode() === 'grouped'" [class.btn-outline-secondary]="viewMode() !== 'grouped'" (click)="setViewMode('grouped')" title="Vista agrupada">
+          <i class="bi bi-grid-3x3-gap"></i>
         </button>
-    </div>
-    <div class="col-auto ms-auto align-self-center">
-        <span class="badge bg-white text-dark border shadow-sm px-3 py-2 rounded-3">
-            <span class="text-muted fw-normal">Total:</span> <span class="fw-bold">{{ filteredSubscriptions().length }}</span>
-        </span>
+        <button class="btn" [class.btn-primary]="viewMode() === 'table'" [class.btn-outline-secondary]="viewMode() !== 'table'" (click)="setViewMode('table')" title="Vista tabla">
+          <i class="bi bi-list-ul"></i>
+        </button>
+      </div>
+
+      @if (viewMode() === 'grouped') {
+        <div class="btn-group btn-group-sm" role="group">
+          <button class="btn" [class.btn-primary]="groupMode() === 'service'" [class.btn-outline-secondary]="groupMode() !== 'service'" (click)="setGroupMode('service')">
+            <i class="bi bi-collection me-1"></i>Servicio
+          </button>
+          <button class="btn" [class.btn-primary]="groupMode() === 'client'" [class.btn-outline-secondary]="groupMode() !== 'client'" (click)="setGroupMode('client')">
+            <i class="bi bi-people me-1"></i>Cliente
+          </button>
+          <button class="btn" [class.btn-primary]="groupMode() === 'date'" [class.btn-outline-secondary]="groupMode() !== 'date'" (click)="setGroupMode('date')">
+            <i class="bi bi-calendar3 me-1"></i>Fecha
+          </button>
+        </div>
+      }
     </div>
   </div>
 
@@ -81,123 +153,212 @@
         }
       </div>
     } @else {
-      <div class="table-container bg-white rounded-4 shadow-sm overflow-hidden border">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle mb-0 border-0">
-            <thead>
-              <tr>
-                <th class="ps-4">Servicio & ID</th>
-                <th>Cliente</th>
-                <th>Perfil</th>
-                <th>Inicio</th>
-                <th>Vencimiento</th>
-                <th>Estado</th>
-                <th class="text-end pe-4">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
-                <tr class="subscription-row">
-                  <td class="ps-4 py-3">
-                    <div class="d-flex flex-column gap-1">
+      <!-- ===== GROUPED VIEW ===== -->
+      @if (viewMode() === 'grouped') {
+        <div class="row g-3">
+          @for (group of activeGroups(); track trackByGroupKey($index, group)) {
+            <div class="col-12 col-md-6 col-xxl-4">
+              <div class="group-card" [class.collapsed]="isGroupCollapsed(group.key)">
+                <!-- Group Header -->
+                <div class="group-header" (click)="toggleGroup(group.key)">
+                  <div class="group-header-left">
+                    <i class="bi group-icon" [class]="group.icon"></i>
+                    <span class="group-title">{{ group.label }}</span>
+                    <span class="group-count-badge">{{ group.items.length }}</span>
+                  </div>
+                  <div class="group-header-right">
+                    <div class="group-mini-stats">
+                      @if (group.stats.active > 0) {
+                        <span class="mini-stat mini-active" title="Activas">
+                          <i class="bi bi-check-circle-fill"></i>{{ group.stats.active }}
+                        </span>
+                      }
+                      @if (group.stats.suspended > 0) {
+                        <span class="mini-stat mini-suspended" title="Suspendidas">
+                          <i class="bi bi-exclamation-triangle-fill"></i>{{ group.stats.suspended }}
+                        </span>
+                      }
+                      @if (group.stats.expired > 0) {
+                        <span class="mini-stat mini-expired" title="Vencidas">
+                          <i class="bi bi-x-circle-fill"></i>{{ group.stats.expired }}
+                        </span>
+                      }
+                      @if (group.stats.cancelled > 0) {
+                        <span class="mini-stat mini-cancelled" title="Canceladas">
+                          <i class="bi bi-slash-circle-fill"></i>{{ group.stats.cancelled }}
+                        </span>
+                      }
+                    </div>
+                    <i class="bi bi-chevron-down group-chevron"></i>
+                  </div>
+                </div>
+
+                <!-- Group Body -->
+                @if (!isGroupCollapsed(group.key)) {
+                  <div class="group-body">
+                    @for (sub of group.items; track trackBySubscriptionId($index, sub)) {
+                      <div class="sub-item" [class.sub-active]="sub.status === 'ACTIVE'" [class.sub-suspended]="sub.status === 'SUSPENDED'" [class.sub-expired]="$any(sub.status) === 'EXPIRED'" [class.sub-cancelled]="sub.status === 'CANCELLED'">
+                        <div class="sub-item-main">
+                          <div class="sub-item-top">
+                            @if (groupMode() === 'service') {
+                              <span class="sub-client">{{ sub.clientName || 'Sin cliente' }}</span>
+                            } @else if (groupMode() === 'client') {
+                              <span class="sub-client">{{ sub.serviceName || 'Sin servicio' }}</span>
+                            } @else {
+                              <span class="sub-client">{{ sub.clientName || 'Sin cliente' }} · {{ sub.serviceName || 'Sin servicio' }}</span>
+                            }
+                            <span class="sub-status-dot" [class]="getStatusClass(sub.status!)" title="{{ getStatusLabel(sub.status!) }}"></span>
+                          </div>
+                          <div class="sub-item-meta">
+                            <span class="sub-meta-item">
+                              <i class="bi bi-person-badge"></i>{{ sub.profileName || 'Sin perfil' }}
+                            </span>
+                            <span class="sub-meta-item">
+                              <i class="bi bi-calendar-check"></i>{{ sub.paymentDueDate | date:'dd/MM/yy' }}
+                            </span>
+                            @if (sub.status === 'ACTIVE') {
+                              <span class="sub-meta-badge sub-badge-active">Al día</span>
+                            } @else if (sub.status === 'SUSPENDED') {
+                              <span class="sub-meta-badge sub-badge-suspended">Suspendido</span>
+                            } @else if ($any(sub.status) === 'EXPIRED') {
+                              <span class="sub-meta-badge sub-badge-expired">Vencido</span>
+                            } @else if (sub.status === 'CANCELLED') {
+                              <span class="sub-meta-badge sub-badge-cancelled">Cancelado</span>
+                            }
+                          </div>
+                        </div>
+                        <div class="sub-item-actions">
+                          <a class="btn-action-sm view" [routerLink]="['/subscriptions', sub.id]" title="Ver detalle">
+                            <i class="bi bi-eye"></i>
+                          </a>
+                          @if (sub.status === 'ACTIVE') {
+                            <button class="btn-action-sm suspend" (click)="suspendSubscription(sub)" title="Suspender">
+                              <i class="bi bi-pause-fill"></i>
+                            </button>
+                          }
+                          @if (sub.status !== 'CANCELLED') {
+                            <button class="btn-action-sm cancel" (click)="cancelSubscription(sub)" title="Revocar Acceso">
+                              <i class="bi bi-x"></i>
+                            </button>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <!-- ===== TABLE VIEW ===== -->
+        <div class="table-container bg-white rounded-4 shadow-sm overflow-hidden border">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 border-0">
+              <thead>
+                <tr>
+                  <th class="ps-4">Servicio & ID</th>
+                  <th>Cliente</th>
+                  <th>Perfil</th>
+                  <th>Inicio</th>
+                  <th>Vencimiento</th>
+                  <th>Estado</th>
+                  <th class="text-end pe-4">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
+                  <tr class="subscription-row">
+                    <td class="ps-4 py-3">
+                      <div class="d-flex flex-column gap-1">
                         <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ sub.serviceName }}</span>
                         <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ sub.id?.substring(0, 8) }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div class="fw-medium text-dark small">{{ sub.clientName }}</div>
-                  </td>
-                  <td>
-                    <div class="d-flex align-items-center gap-2">
+                      </div>
+                    </td>
+                    <td>
+                      <div class="fw-medium text-dark small">{{ sub.clientName }}</div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
                         <i class="bi bi-person-badge text-muted"></i>
                         <span class="small">{{ sub.profileName }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="small text-muted">{{ sub.startDate | date:'dd/MM/yyyy' }}</span>
-                  </td>
-                  <td>
-                    <div class="d-flex flex-column gap-1">
+                      </div>
+                    </td>
+                    <td>
+                      <span class="small text-muted">{{ sub.startDate | date:'dd/MM/yyyy' }}</span>
+                    </td>
+                    <td>
+                      <div class="d-flex flex-column gap-1">
                         <span class="text-dark fw-semibold" style="font-size: 0.85rem;" [class.text-danger]="$any(sub.status) === 'SUSPENDED' || $any(sub.status) === 'EXPIRED'">
                           <i class="bi bi-calendar-check me-1 text-muted"></i>{{ sub.paymentDueDate | date:'dd/MM/yyyy' }}
                         </span>
                         @if (sub.status === 'ACTIVE') {
-                            <span class="text-success fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                <i class="bi bi-check-circle-fill me-1"></i>Al día
-                            </span>
+                          <span class="text-success fw-bold text-uppercase" style="font-size: 0.7rem;">
+                            <i class="bi bi-check-circle-fill me-1"></i>Al día
+                          </span>
                         } @else if (sub.status === 'SUSPENDED') {
-                            <span class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Suspendido
-                            </span>
+                          <span class="text-warning fw-bold text-uppercase" style="font-size: 0.7rem;">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Suspendido
+                          </span>
                         } @else if ($any(sub.status) === 'EXPIRED') {
-                            <span class="text-danger fw-bold text-uppercase" style="font-size: 0.7rem;">
-                                <i class="bi bi-exclamation-octagon-fill me-1"></i>Vencido
-                            </span>
+                          <span class="text-danger fw-bold text-uppercase" style="font-size: 0.7rem;">
+                            <i class="bi bi-exclamation-octagon-fill me-1"></i>Vencido
+                          </span>
                         }
-                    </div>
-                  </td>
-                  <td>
-                    <span [class]="getStatusClass(sub.status!)">
-                      {{ getStatusLabel(sub.status!) }}
-                    </span>
-                  </td>
-                  <td class="text-end pe-4">
-                    <div class="d-flex justify-content-end gap-2">
-                      <a
-                        class="btn-action-sm view"
-                        [routerLink]="['/subscriptions', sub.id]"
-                        title="Ver detalle"
-                      >
-                        <i class="bi bi-eye"></i>
-                      </a>
-                      @if (sub.status === 'ACTIVE') {
-                        <button
-                          class="btn-action-sm suspend"
-                          (click)="suspendSubscription(sub)"
-                          title="Suspender"
-                        >
-                          <i class="bi bi-pause-fill"></i>
-                        </button>
-                      }
-                      @if (sub.status !== 'CANCELLED') {
-                        <button
-                          class="btn-action-sm cancel"
-                          (click)="cancelSubscription(sub)"
-                          title="Revocar Acceso"
-                        >
-                          <i class="bi bi-x"></i>
-                        </button>
-                      }
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+                      </div>
+                    </td>
+                    <td>
+                      <span [class]="getStatusClass(sub.status!)">
+                        {{ getStatusLabel(sub.status!) }}
+                      </span>
+                    </td>
+                    <td class="text-end pe-4">
+                      <div class="d-flex justify-content-end gap-2">
+                        <a class="btn-action-sm view" [routerLink]="['/subscriptions', sub.id]" title="Ver detalle">
+                          <i class="bi bi-eye"></i>
+                        </a>
+                        @if (sub.status === 'ACTIVE') {
+                          <button class="btn-action-sm suspend" (click)="suspendSubscription(sub)" title="Suspender">
+                            <i class="bi bi-pause-fill"></i>
+                          </button>
+                        }
+                        @if (sub.status !== 'CANCELLED') {
+                          <button class="btn-action-sm cancel" (click)="cancelSubscription(sub)" title="Revocar Acceso">
+                            <i class="bi bi-x"></i>
+                          </button>
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      @if (totalPages() > 1) {
-        <nav class="mt-5">
-          <ul class="pagination pagination-modern justify-content-center mb-0 gap-2">
-            <li class="page-item" [class.disabled]="currentPage() === 1">
-              <button class="page-link rounded-3" (click)="prevPage()"><i class="bi bi-chevron-left"></i></button>
-            </li>
-            @for (pageNum of [].constructor(totalPages()); track $index) {
-              <li class="page-item" [class.active]="currentPage() === $index + 1">
-                <button class="page-link rounded-3 shadow-sm" (click)="currentPage.set($index + 1)">
-                  {{ $index + 1 }}
-                </button>
+        @if (totalPages() > 1) {
+          <nav class="mt-5">
+            <ul class="pagination pagination-modern justify-content-center mb-0 gap-2">
+              <li class="page-item" [class.disabled]="currentPage() === 1">
+                <button class="page-link rounded-3" (click)="prevPage()"><i class="bi bi-chevron-left"></i></button>
               </li>
-            }
-            <li class="page-item" [class.disabled]="currentPage() === totalPages()">
-              <button class="page-link rounded-3" (click)="nextPage()"><i class="bi bi-chevron-right"></i></button>
-            </li>
-          </ul>
-        </nav>
+              @for (pageNum of [].constructor(totalPages()); track $index) {
+                <li class="page-item" [class.active]="currentPage() === $index + 1">
+                  <button class="page-link rounded-3 shadow-sm" (click)="currentPage.set($index + 1)">
+                    {{ $index + 1 }}
+                  </button>
+                </li>
+              }
+              <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                <button class="page-link rounded-3" (click)="nextPage()"><i class="bi bi-chevron-right"></i></button>
+              </li>
+            </ul>
+          </nav>
+        }
       }
     }
   </div>
+  }
 </div>
 
 <app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>

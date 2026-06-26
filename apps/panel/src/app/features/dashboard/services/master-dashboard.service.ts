@@ -12,7 +12,8 @@ import {
   ExpiringSubscriptionResult,
   ExpiringAccountResult,
   ExpiringAccountsKpiResult,
-  NotificationsApiService
+  NotificationsApiService,
+  ProfitMarginsResult
 } from '@neversion/api-client';
 
 export interface VendorKpiMetrics {
@@ -139,5 +140,9 @@ export class MasterDashboardService {
     return this.notificationsApi.sendManualReminder(subscriptionId, 'body', false).pipe(
       map(() => void 0)
     );
+  }
+
+  getAccountProfitMargins(year?: number, month?: number): Observable<ProfitMarginsResult> {
+    return this.dashboardApi.getAccountProfitMargins(year, month, 'body', false);
   }
 }
