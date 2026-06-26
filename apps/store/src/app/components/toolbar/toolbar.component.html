@@ -15,19 +15,20 @@
            title="Carrito de compras" style="cursor: pointer; width: 38px; height: 38px;">
           <img src="/assets/cart.svg" alt="Cart" class="cart-icon" style="width: 22px;">
           <span *ngIf="cartItemCount$ | async as count" 
-                class="badge rounded-pill cart-badge position-absolute top-0 start-100 translate-middle">
+                class="badge rounded-pill cart-badge position-absolute top-0 start-100 translate-middle"
+                [class.cart-badge-animate]="cartBadgeAnimate">
             {{ count }}
           </span>
         </a>
 
         <!-- Cart Preview Menu -->
         <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-0 rounded-4 overflow-hidden" 
-             aria-labelledby="cartDropdown" style="width: 300px; max-width: 90vw;">
+             aria-labelledby="cartDropdown" style="width: 360px; max-width: 90vw;">
           <div class="cart-panel-header">
             <h6 class="mb-0 fw-bold small"><i class="bi bi-cart3 me-2"></i>Tu Carrito</h6>
           </div>
           
-          <div class="cart-panel-body scrollbar-hidden" style="max-height: 240px; overflow-y: auto;">
+          <div class="cart-panel-body scrollbar-hidden" style="max-height: 320px; overflow-y: auto;">
             <div *ngIf="(cartItems$ | async)?.length === 0" class="p-4 text-center">
               <i class="bi bi-cart-x text-white-50 fs-1"></i>
               <p class="text-white-50 mt-2 small mb-0">Tu carrito está vacío</p>
@@ -38,8 +39,8 @@
                 <img [src]="item.service.imageUrl || '/assets/placeholder-service.svg'" class="img-fluid rounded-2 h-100 w-100" style="object-fit: contain;">
               </div>
               <div class="flex-grow-1 overflow-hidden">
-                <div class="fw-bold small text-truncate" style="font-size: 0.85rem;">{{ item.service.name }}</div>
-                <div class="text-muted" style="font-size: 0.65rem;">
+                <div class="fw-bold small text-truncate text-white" style="font-size: 0.85rem;">{{ item.service.name }}</div>
+                <div class="text-white-50" style="font-size: 0.65rem;">
                   {{ item.type === 'PROFILE' ? 'Perfil' : 'Cuenta Comp.' }} x{{ item.quantity }}
                 </div>
                 <div class="text-primary fw-bold small" style="font-size: 0.8rem;">Q{{ (item.type === 'PROFILE' ? item.service.priceProfile : item.service.priceComplete) || 0 }}</div>
@@ -52,7 +53,7 @@
 
           <div *ngIf="(cartItems$ | async)?.length" class="cart-panel-footer">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <span class="fw-bold text-muted small text-uppercase" style="font-size: 0.6rem;">Total estimado</span>
+              <span class="fw-bold text-white-50 small text-uppercase" style="font-size: 0.6rem;">Total estimado</span>
               <span class="fw-bold text-white mb-0">Q{{ getTotal() }}</span>
             </div>
             <div class="d-grid gap-2">

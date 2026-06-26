@@ -205,7 +205,7 @@
   right: 0;
   left: auto;
   margin-top: 8px;
-  width: 300px;
+  width: 360px;
   max-width: 90vw;
   background-color: var(--color-brand-800) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -229,3 +229,16 @@
 /* Hidden scrollbar */
 .scrollbar-hidden::-webkit-scrollbar { display: none; }
 .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Badge bounce keyframes & classes */
+@keyframes cartBounce {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  30% { transform: translate(-50%, -50%) scale(1.4) translateY(-5px); }
+  50% { transform: translate(-50%, -50%) scale(1.1) translateY(2px); }
+  70% { transform: translate(-50%, -50%) scale(1.2) translateY(-2px); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+.cart-badge-animate {
+  animation: cartBounce 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}

@@ -24,6 +24,17 @@ export class PlatformsComponent implements OnInit {
   platforms$!: Observable<ServiceResponse[]>;
   searchQuery$!: Observable<string>;
 
+  activePlatformId: string | null = null;
+  addingState: { [key: string]: 'idle' | 'adding' | 'success' | 'error' } = {};
+  addingErrorMessage: { [key: string]: string } = {};
+
+  cartHasProfile$: Observable<boolean> = this._cartService.items$.pipe(
+    map(items => items.some(i => i.type === 'PROFILE'))
+  );
+  cartHasComplete$: Observable<boolean> = this._cartService.items$.pipe(
+    map(items => items.some(i => i.type === 'COMPLETE'))
+  );
+
   ngOnInit(): void {
     const allPlatforms$ = this._platformService.getPlatforms();
     this.searchQuery$ = this._route.queryParams.pipe(
@@ -41,6 +52,68 @@ export class PlatformsComponent implements OnInit {
         );
       })
     );
+  }
+
+  openCartOverlay(platformId: string | undefined, event: Event): void {
+    if (!platformId) return;
+    event.stopPropagation();
+    this.activePlatformId = platformId;
+    this.addingState[platformId] = 'idle';
+  }
+
+  closeCartOverlay(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.activePlatformId = null;
+  }
+
+  confirmAddToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE', event: Event): void {
+    event.stopPropagation();
+    const serviceId = service.id;
+    if (!serviceId) return;
+
+    // Set loading state
+    this.addingState[serviceId] = 'adding';
+
+    // Tiny delay for smooth animation flow
+    setTimeout(() => {
+      const result = this._cartService.addToCart(service, type);
+      if (!result.ok) {
+        this.addingState[serviceId] = 'error';
+        this.addingErrorMessage[serviceId] = result.message || 'No se pudo agregar al carrito';
+        
+        // Auto revert to idle after 3.5s
+        setTimeout(() => {
+          if (this.addingState[serviceId] === 'error') {
+            this.addingState[serviceId] = 'idle';
+          }
+        }, 3500);
+        return;
+      }
+
+      // Success state
+      this.addingState[serviceId] = 'success';
+
+      // Smoothly close overlay after 1200ms
+      setTimeout(() => {
+        if (this.activePlatformId === serviceId) {
+          this.closeCartOverlay();
+        }
+        // Reset state after animation finishes
+        setTimeout(() => {
+          this.addingState[serviceId] = 'idle';
+        }, 300);
+      }, 1200);
+    }, 600);
+  }
+
+  getAddingState(id?: string): 'idle' | 'adding' | 'success' | 'error' {
+    return id ? (this.addingState[id] || 'idle') : 'idle';
+  }
+
+  getAddingErrorMessage(id?: string): string {
+    return id ? (this.addingErrorMessage[id] || '') : '';
   }
 
   addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {
