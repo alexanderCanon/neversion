@@ -1,0 +1,15 @@
+// ─────────────────────────────────────────────
+// Shared SCSS Mixins
+// ─────────────────────────────────────────────
+
+// Mixin: scrollable flex container for modals
+// Apply to every intermediate element between a max-height container
+// and a scrollable body. Without min-height: 0, flexbox won't shrink
+// the element below its content size, breaking overflow scrolling.
+@mixin scrollable-flex {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}

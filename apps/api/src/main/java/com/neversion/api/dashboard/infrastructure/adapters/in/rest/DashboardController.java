@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.dashboard.application.port.in.GetAccountProfitMarginsUseCase;
 import com.neversion.api.dashboard.application.port.in.GetActiveClientsKpiUseCase;
 import com.neversion.api.dashboard.application.port.in.GetAccountsByProductUseCase;
 import com.neversion.api.dashboard.application.port.in.GetExpiringAccountsKpiUseCase;
@@ -27,6 +28,7 @@ import com.neversion.api.dashboard.application.result.ExpiringAccountsKpiResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionsKpiResult;
 import com.neversion.api.dashboard.application.result.GrossProfitKpiResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
+import com.neversion.api.dashboard.application.result.ProfitMarginsResult;
 import com.neversion.api.dashboard.application.result.ProfileResult;
 import com.neversion.api.dashboard.application.result.ProductSummaryResult;
 import com.neversion.api.dashboard.application.result.SuccessfulRenewalsKpiResult;
@@ -51,6 +53,7 @@ public class DashboardController {
     private final GetActiveClientsKpiUseCase getActiveClientsKpiUseCase;
     private final GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase;
     private final GetGrossProfitKpiUseCase getGrossProfitKpiUseCase;
+    private final GetAccountProfitMarginsUseCase getAccountProfitMarginsUseCase;
 
     public DashboardController(GetProductsSummaryUseCase getProductsSummaryUseCase,
             GetAccountsByProductUseCase getAccountsByProductUseCase,
@@ -60,7 +63,8 @@ public class DashboardController {
             GetInventoryAvailabilityKpiUseCase getInventoryAvailabilityKpiUseCase,
             GetActiveClientsKpiUseCase getActiveClientsKpiUseCase,
             GetSuccessfulRenewalsKpiUseCase getSuccessfulRenewalsKpiUseCase,
-            GetGrossProfitKpiUseCase getGrossProfitKpiUseCase) {
+            GetGrossProfitKpiUseCase getGrossProfitKpiUseCase,
+            GetAccountProfitMarginsUseCase getAccountProfitMarginsUseCase) {
         this.getProductsSummaryUseCase = getProductsSummaryUseCase;
         this.getAccountsByProductUseCase = getAccountsByProductUseCase;
         this.getProfilesByAccountUseCase = getProfilesByAccountUseCase;
@@ -70,6 +74,7 @@ public class DashboardController {
         this.getActiveClientsKpiUseCase = getActiveClientsKpiUseCase;
         this.getSuccessfulRenewalsKpiUseCase = getSuccessfulRenewalsKpiUseCase;
         this.getGrossProfitKpiUseCase = getGrossProfitKpiUseCase;
+        this.getAccountProfitMarginsUseCase = getAccountProfitMarginsUseCase;
     }
 
     @GetMapping("/kpis/expiring-subscriptions")
@@ -135,6 +140,22 @@ public class DashboardController {
     public ResponseEntity<GrossProfitKpiResult> getGrossProfit(JwtAuthenticationToken token) {
         return ResponseEntity.ok(getGrossProfitKpiUseCase
                 .getForAuthenticatedVendor(extractExternalId(token)));
+    }
+
+    @GetMapping("/account-profit-margins")
+    @Operation(summary = "Get per-account profit margins",
+            description = "Returns per-account and per-service profit margins for the specified calendar month "
+                    + "(defaults to current month). Includes all non-expired accounts, even those with zero sales.")
+    @ApiResponse(responseCode = "200", description = "Profit margins retrieved")
+    @ApiResponse(responseCode = "403", description = "Only vendors can access this endpoint")
+    public ResponseEntity<ProfitMarginsResult> getAccountProfitMargins(
+            JwtAuthenticationToken token,
+            @Parameter(description = "Year (e.g. 2026). Defaults to current year.")
+            @RequestParam(required = false) Integer year,
+            @Parameter(description = "Month (1-12). Defaults to current month.")
+            @RequestParam(required = false) Integer month) {
+        return ResponseEntity.ok(getAccountProfitMarginsUseCase
+                .getForAuthenticatedVendor(extractExternalId(token), year, month));
     }
 
     @GetMapping

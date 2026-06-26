@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.neversion.api.subscription.application.port.in.BatchCreateSubscriptionsUseCase;
 import com.neversion.api.subscription.application.port.in.CreateManualSubscriptionUseCase;
 import com.neversion.api.subscription.application.port.in.DetectExpiredSubscriptionsUseCase;
 import com.neversion.api.subscription.application.port.in.GetSubscriptionDetailUseCase;
@@ -27,6 +28,8 @@ import com.neversion.api.subscription.application.port.in.UpdateSubscriptionUseC
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.SubscriptionListView;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateManualSubscriptionRequest;
+import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.BatchCreateSubscriptionsResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.CreateManualSubscriptionRequest;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.DetectExpiredSubscriptionsResponse;
 import com.neversion.api.subscription.infrastructure.adapters.in.rest.dto.SubscriptionDetailResponse;
@@ -44,6 +47,7 @@ import jakarta.validation.Valid;
 public class SubscriptionController {
 
     private final CreateManualSubscriptionUseCase createManualSubscriptionUseCase;
+    private final BatchCreateSubscriptionsUseCase batchCreateSubscriptionsUseCase;
     private final UpdateSubscriptionUseCase updateSubscriptionUseCase;
     private final ListSubscriptionsUseCase listSubscriptionsUseCase;
     private final GetSubscriptionDetailUseCase getSubscriptionDetailUseCase;
@@ -53,6 +57,7 @@ public class SubscriptionController {
     private final SubscriptionMapper subscriptionMapper;
 
     public SubscriptionController(CreateManualSubscriptionUseCase createManualSubscriptionUseCase,
+            BatchCreateSubscriptionsUseCase batchCreateSubscriptionsUseCase,
             UpdateSubscriptionUseCase updateSubscriptionUseCase,
             ListSubscriptionsUseCase listSubscriptionsUseCase,
             GetSubscriptionDetailUseCase getSubscriptionDetailUseCase,
@@ -61,6 +66,7 @@ public class SubscriptionController {
             DetectExpiredSubscriptionsUseCase detectExpiredSubscriptionsUseCase,
             SubscriptionMapper subscriptionMapper) {
         this.createManualSubscriptionUseCase = createManualSubscriptionUseCase;
+        this.batchCreateSubscriptionsUseCase = batchCreateSubscriptionsUseCase;
         this.updateSubscriptionUseCase = updateSubscriptionUseCase;
         this.listSubscriptionsUseCase = listSubscriptionsUseCase;
         this.getSubscriptionDetailUseCase = getSubscriptionDetailUseCase;
@@ -87,6 +93,24 @@ public class SubscriptionController {
                 subscription, request.sendNotification(), extractExternalId(token));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(subscriptionMapper.toResponse(created));
+    }
+
+    @PostMapping("/batch")
+    @Operation(summary = "Batch create manual subscriptions",
+            description = "Creates multiple subscriptions for a single client across multiple services. "
+                    + "Supports auto-assignment of available profiles (profileId = null) or manual override. "
+                    + "Partial success is possible: failed items are reported individually.")
+    @ApiResponse(responseCode = "200", description = "Batch processed (check individual item results)")
+    @ApiResponse(responseCode = "400", description = "Validation error")
+    @ApiResponse(responseCode = "403", description = "Caller does not own selected resources")
+    @ApiResponse(responseCode = "404", description = "Client, Service or Profile not found")
+    public ResponseEntity<BatchCreateSubscriptionsResponse> batchCreate(
+            @Valid @RequestBody BatchCreateManualSubscriptionRequest request,
+            JwtAuthenticationToken token) {
+        BatchCreateSubscriptionsUseCase.BatchCommand command = subscriptionMapper.toCommand(request);
+        BatchCreateSubscriptionsUseCase.BatchResult result =
+                batchCreateSubscriptionsUseCase.create(command, extractExternalId(token));
+        return ResponseEntity.ok(subscriptionMapper.toBatchResponse(result));
     }
 
     @GetMapping("/vendor/{vendorUuid}")

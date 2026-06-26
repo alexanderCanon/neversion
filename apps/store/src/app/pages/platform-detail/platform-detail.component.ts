@@ -77,12 +77,12 @@ export class PlatformDetailComponent implements OnInit {
       const result = this.cartService.addToCart(this.platform, type);
       if (!result.ok) {
         this.toastService.show(result.message || 'No se pudo agregar al carrito', 'danger', 'Error');
-        return;
-      }
-      if (confirm('¿Deseas ir al carrito para finalizar tu compra?')) {
-        this.router.navigate(['/checkout']);
       }
     }
+  }
+
+  navigateToCheckout(): void {
+    this.router.navigate(['/checkout']);
   }
 
   goBack(): void {

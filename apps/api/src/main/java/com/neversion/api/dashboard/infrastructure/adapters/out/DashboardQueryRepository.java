@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.neversion.api.dashboard.application.port.out.DashboardQueryPort;
+import com.neversion.api.dashboard.application.result.AccountProfitMarginResult;
 import com.neversion.api.dashboard.application.result.ExpiringAccountResult;
 import com.neversion.api.dashboard.application.result.ExpiringSubscriptionResult;
 import com.neversion.api.dashboard.application.result.InventoryAvailabilityResult;
@@ -331,5 +332,113 @@ public class DashboardQueryRepository implements DashboardQueryPort {
                 periodStart,
                 nextPeriodStart);
         return result != null ? result : BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<AccountProfitMarginResult> findAccountProfitMargins(
+            Long vendorId,
+            OffsetDateTime periodStart,
+            OffsetDateTime nextPeriodStart) {
+
+        String sql = """
+                SELECT a.uuid              AS account_uuid,
+                       a.email             AS email,
+                       svc.name            AS service_name,
+                       a.sale_mode         AS sale_mode,
+                       COALESCE(a.cost, 0) AS account_cost,
+                       COALESCE(a.max_profiles, 1) AS max_profiles,
+                       COALESCE(new_subs.profiles_sold, 0)    AS profiles_sold,
+                       COALESCE(new_subs.revenue, 0)          AS new_revenue,
+                       COALESCE(new_subs.total_discount, 0)   AS new_discount,
+                       COALESCE(renewals.revenue, 0)          AS renewal_revenue,
+                       COALESCE(renewals.total_discount, 0)   AS renewal_discount
+                FROM accounts a
+                JOIN services svc ON svc.id = a.service_id
+                LEFT JOIN (
+                    SELECT p.account_id                            AS account_id,
+                           COUNT(*)                                AS profiles_sold,
+                           SUM(COALESCE(s.price_sold, 0)
+                               - COALESCE(s.discount_applied, 0)) AS revenue,
+                           SUM(COALESCE(s.discount_applied, 0))   AS total_discount
+                    FROM subscriptions s
+                    JOIN profiles p ON p.id = s.profile_id
+                    WHERE s.vendor_id = ?
+                      AND s.created_at >= ?
+                      AND s.created_at < ?
+                    GROUP BY p.account_id
+                ) new_subs ON new_subs.account_id = a.id
+                LEFT JOIN (
+                    SELECT p.account_id                            AS account_id,
+                           SUM(COALESCE(s.price_sold, 0)
+                               - COALESCE(s.discount_applied, 0)) AS revenue,
+                           SUM(COALESCE(s.discount_applied, 0))   AS total_discount
+                    FROM orders o
+                    JOIN reservations r ON r.id = o.reservation_id
+                    JOIN subscriptions s ON s.id = r.renewal_subscription_id
+                    JOIN profiles p ON p.id = s.profile_id
+                    WHERE o.vendor_id = ?
+                      AND o.status IN ('COMPLETED', 'completed')
+                      AND o.approved_at >= ?
+                      AND o.approved_at < ?
+                    GROUP BY p.account_id
+                ) renewals ON renewals.account_id = a.id
+                WHERE a.vendor_id = ?
+                  AND a.status != 'expired'
+                ORDER BY svc.name ASC, a.email ASC
+                """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            BigDecimal newRevenue = rs.getBigDecimal("new_revenue") != null
+                    ? rs.getBigDecimal("new_revenue") : BigDecimal.ZERO;
+            BigDecimal renewalRevenue = rs.getBigDecimal("renewal_revenue") != null
+                    ? rs.getBigDecimal("renewal_revenue") : BigDecimal.ZERO;
+            BigDecimal newDiscount = rs.getBigDecimal("new_discount") != null
+                    ? rs.getBigDecimal("new_discount") : BigDecimal.ZERO;
+            BigDecimal renewalDiscount = rs.getBigDecimal("renewal_discount") != null
+                    ? rs.getBigDecimal("renewal_discount") : BigDecimal.ZERO;
+
+            BigDecimal totalRevenue = newRevenue.add(renewalRevenue);
+            BigDecimal totalDiscount = newDiscount.add(renewalDiscount);
+
+            String saleMode = rs.getString("sale_mode");
+            BigDecimal accountCost = rs.getBigDecimal("account_cost") != null
+                    ? rs.getBigDecimal("account_cost") : BigDecimal.ZERO;
+            int maxProfiles = rs.getInt("max_profiles");
+            int profilesSold = rs.getInt("profiles_sold");
+
+            BigDecimal allocatedCost;
+            if ("full_account".equalsIgnoreCase(saleMode)) {
+                allocatedCost = profilesSold > 0 ? accountCost : BigDecimal.ZERO;
+            } else {
+                BigDecimal perProfileCost = accountCost.divide(
+                        BigDecimal.valueOf(maxProfiles > 0 ? maxProfiles : 1),
+                        2, java.math.RoundingMode.HALF_UP);
+                allocatedCost = perProfileCost.multiply(BigDecimal.valueOf(profilesSold));
+            }
+
+            BigDecimal profit = totalRevenue.subtract(allocatedCost);
+            BigDecimal marginPct = totalRevenue.compareTo(BigDecimal.ZERO) > 0
+                    ? profit.multiply(BigDecimal.valueOf(100))
+                            .divide(totalRevenue, 2, java.math.RoundingMode.HALF_UP)
+                    : BigDecimal.ZERO;
+
+            return new AccountProfitMarginResult(
+                    rs.getObject("account_uuid", UUID.class),
+                    rs.getString("email"),
+                    rs.getString("service_name"),
+                    saleMode,
+                    accountCost,
+                    maxProfiles,
+                    profilesSold,
+                    newRevenue,
+                    renewalRevenue,
+                    totalRevenue,
+                    totalDiscount,
+                    allocatedCost,
+                    profit,
+                    marginPct);
+        }, vendorId, periodStart, nextPeriodStart,
+          vendorId, periodStart, nextPeriodStart,
+          vendorId);
     }
 }

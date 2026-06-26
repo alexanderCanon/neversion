@@ -173,6 +173,34 @@ h1, h2, h3, h4, h5, h6 {
 // ─────────────────────────────────────────────
 // Shared Utilities
 // ─────────────────────────────────────────────
+
+@import 'styles/mixins';
+
+// Fix for Bootstrap modals with long content:
+// Add .modal-scrollable-fix to .modal-content to make the form,
+// body, and footer respect max-height and keep footer visible.
+.modal-scrollable-fix {
+    max-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+
+    form {
+        @include scrollable-flex;
+    }
+
+    .modal-body {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        min-height: 0;
+    }
+
+    .modal-footer {
+        flex-shrink: 0;
+    }
+}
+
 .text-label {
     font-size: 0.75rem;
     font-weight: 600;

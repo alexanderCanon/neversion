@@ -26,6 +26,13 @@ public interface ProfileRepositoryPort {
      */
     long countAvailableByServiceIdAndVendorId(Long serviceId, Long vendorId);
 
+    /**
+     * Returns profiles with status AVAILABLE for a given service across all
+     * accounts of the specified vendor, ordered by creation date ASC.
+     * Used by batch subscription creation for auto-assignment.
+     */
+    List<Profile> findAvailableByServiceIdAndVendorId(Long serviceId, Long vendorId);
+
     void saveAll(List<Profile> profiles);
 
     void deleteById(UUID uuid);

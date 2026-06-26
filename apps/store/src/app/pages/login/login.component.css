@@ -15,7 +15,7 @@
 
 /* Form Controls with Modern Styling */
 .form-control {
-    border-radius: 12px !important;
+    border-radius: var(--radius-sm) !important;
     border: 1px solid oklch(0.88 0.01 240) !important;
     padding: 0.75rem 1rem !important;
     font-size: 0.95rem;
@@ -36,12 +36,62 @@
     letter-spacing: 0.05em;
 }
 
-/* Input Group Icon Styling */
-.input-group-text {
-    border-radius: 12px !important;
+/* Unified Modern Input Groups */
+.input-group {
     border: 1px solid oklch(0.88 0.01 240) !important;
+    border-radius: var(--radius-sm) !important;
     background-color: oklch(0.99 0.003 240) !important;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+}
+
+.input-group:focus-within {
+    background-color: #ffffff !important;
+    border-color: var(--secondary-color) !important;
+    box-shadow: 0 0 0 4px oklch(0.70 0.17 220 / 0.15) !important;
+}
+
+.input-group .form-control {
+    border: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0.75rem 1rem !important;
+}
+
+.input-group .input-group-text {
+    border: none !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
     color: oklch(0.45 0.02 240) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Specific spacing for icons and inputs inside input groups to ensure they are not cramped */
+.input-group > .input-group-text:first-child {
+    padding-left: 1.1rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.input-group > .input-group-text:last-child {
+    padding-left: 0.5rem !important;
+    padding-right: 1.1rem !important;
+}
+
+.input-group > .form-control {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
+
+.input-group > .form-control:first-child {
+    padding-left: 1.1rem !important;
+}
+
+.input-group > .form-control:last-child {
+    padding-right: 1.1rem !important;
 }
 
 /* Custom Checkboxes */

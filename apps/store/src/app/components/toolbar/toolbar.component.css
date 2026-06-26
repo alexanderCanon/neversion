@@ -125,7 +125,7 @@
   font-weight: var(--font-weight-medium);
   height: 36px;
   padding: 0 0.875rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   transition: background-color 0.2s;
 }
 .user-btn:hover {
@@ -194,9 +194,11 @@
   box-shadow: none !important;
 }
 
-/* Cart hover dropdown */
-.cart-dropdown:hover .dropdown-menu {
-  display: block;
+/* Cart hover dropdown - only on desktop to prevent touch glitches */
+@media (min-width: 992px) {
+  .cart-dropdown:hover .dropdown-menu {
+    display: block;
+  }
 }
 .cart-dropdown .dropdown-menu {
   top: 100%;

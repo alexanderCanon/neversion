@@ -60,6 +60,13 @@ public class JpaProfileAdapter implements ProfileRepositoryPort {
     }
 
     @Override
+    public List<Profile> findAvailableByServiceIdAndVendorId(Long serviceId, Long vendorId) {
+        return profileRepo.findAvailableByServiceIdAndVendorId(serviceId, vendorId).stream()
+                .map(profileMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void saveAll(List<Profile> profiles) {
         List<ProfileEntity> entities = profiles.stream()
                 .map(profileMapper::toEntity)

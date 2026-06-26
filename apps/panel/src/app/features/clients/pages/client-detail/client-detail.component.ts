@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ClientsService } from '../../services/clients.service';
 import { ClientDetail } from '@neversion/models';
@@ -23,11 +23,16 @@ export class ClientDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
+  private readonly location = inject(Location);
 
   clientDetail = signal<ClientDetail | null>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
   activeTab = signal<'INFO' | 'SUBS' | 'ORDERS'>('INFO');
+
+  goBack(): void {
+    this.location.back();
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

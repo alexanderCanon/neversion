@@ -106,6 +106,12 @@
                           [disabled]="profile.status !== 'AVAILABLE'">
                     <i class="bi bi-person-plus"></i>
                   </button>
+                  <button class="btn btn-action-sm view-client"
+                          (click)="viewClient(getClientId(profile.id))"
+                          [disabled]="!profileClients[profile.id]"
+                          [title]="profileClients[profile.id] ? 'Ver Cliente: ' + profileClients[profile.id].name : 'Este perfil aún no tiene asignado un cliente, o perfil disponible para venta'">
+                    <i class="bi bi-eye"></i>
+                  </button>
                   <button class="btn btn-action-sm" 
                           [ngClass]="profile.status === 'BLOCKED' ? 'activate' : 'deactivate'"
                           (click)="toggleBlocked(profile)" 
@@ -322,35 +328,69 @@
               </div>
             </div>
 
-            <!-- Vigencia -->
-            <div class="col-12">
-              <label class="form-label-custom">Vigencia</label>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label for="startDate" class="form-label small fw-medium text-muted">Fecha de Inicio <span class="text-danger">*</span></label>
-                  <input
-                    id="startDate"
-                    type="date"
-                    class="form-control form-control-modern"
-                    formControlName="startDate"
-                  >
-                  @if (assignForm.get('startDate')?.touched && assignForm.get('startDate')?.errors?.['required']) {
-                    <div class="text-danger x-small mt-1">La fecha de inicio es requerida.</div>
-                  }
+            <!-- Finanzas -->
+            <div class="col-md-6">
+              <label class="form-label-custom">Finanzas</label>
+              
+              <div class="mb-3">
+                <label for="priceSold" class="form-label small fw-medium text-muted">Precio de Venta <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0 fw-bold">Q</span>
+                  <input id="priceSold" type="number" class="form-control form-control-modern border-start-0" formControlName="priceSold" step="0.01">
                 </div>
-                <div class="col-md-6">
-                  <label for="endDate" class="form-label small fw-medium text-muted">Fecha de Vencimiento <span class="text-danger">*</span></label>
-                  <input
-                    id="endDate"
-                    type="date"
-                    class="form-control form-control-modern"
-                    formControlName="endDate"
-                  >
-                  @if (assignForm.get('endDate')?.touched && assignForm.get('endDate')?.errors?.['required']) {
-                    <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida.</div>
-                  }
+                @if (assignForm.get('priceSold')?.touched && assignForm.get('priceSold')?.errors?.['required']) {
+                  <div class="text-danger x-small mt-1">El precio de venta es requerido.</div>
+                }
+              </div>
+
+              <div class="mb-3">
+                <label for="discountApplied" class="form-label small fw-medium text-muted">Descuento</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-end-0">Q</span>
+                  <input id="discountApplied" type="number" class="form-control form-control-modern border-start-0" formControlName="discountApplied" step="0.01">
                 </div>
               </div>
+            </div>
+
+            <!-- Vigencia y Notificación -->
+            <div class="col-md-6">
+              <label class="form-label-custom">Vigencia y Envío</label>
+
+              <div class="mb-3">
+                <label for="paymentDueDate" class="form-label small fw-medium text-muted">Fecha de Vencimiento / Próximo Pago <span class="text-danger">*</span></label>
+                <input
+                  id="paymentDueDate"
+                  type="date"
+                  class="form-control form-control-modern"
+                  formControlName="paymentDueDate"
+                  [min]="minDate"
+                >
+                @if (assignForm.get('paymentDueDate')?.touched && assignForm.get('paymentDueDate')?.errors?.['required']) {
+                  <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida.</div>
+                }
+              </div>
+
+              <div class="alert rounded-4 p-3 mb-0" [ngClass]="selectedClientHasEmail ? 'alert-indigo-subtle' : 'alert-warning'">
+                <div class="form-check form-switch d-flex align-items-center gap-3">
+                  <input class="form-check-input ms-0" style="width: 2.5rem; height: 1.25rem;" type="checkbox" role="switch" id="notifyClient" formControlName="sendNotification">
+                  <label class="form-check-label fw-bold small mb-0" for="notifyClient">
+                    Notificar por correo
+                  </label>
+                </div>
+                @if (selectedClientHasEmail) {
+                  <p class="x-small text-muted mt-2 mb-0 ps-5 ms-1">Envía automáticamente las credenciales al correo del cliente.</p>
+                } @else {
+                  <p class="x-small text-danger fw-medium mt-2 mb-0 ps-5 ms-1">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i> Sin correo registrado.
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Notas -->
+            <div class="col-12">
+              <label class="form-label small fw-bold text-muted text-uppercase">Notas de Control</label>
+              <textarea class="form-control form-control-modern" formControlName="notes" rows="2" placeholder="Notas sobre el pago, acuerdos especiales, etc."></textarea>
             </div>
           </div>
         </div>

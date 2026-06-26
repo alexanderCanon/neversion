@@ -24,7 +24,7 @@
                 <h2 class="fw-bold mb-1">Servicios Destacados</h2>
                 <p class="text-muted">Nuestra mejor selección para ti</p>
             </div>
-            <a routerLink="/platforms" class="btn btn-outline-primary rounded-pill px-4">Ver todo el catálogo</a>
+            <a routerLink="/platforms" class="btn btn-outline-primary px-4">Ver todo el catálogo</a>
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" *ngIf="offers$ | async as offers; else loading">
@@ -65,7 +65,7 @@
 
                         <!-- Actions -->
                         <div class="d-grid gap-2">
-                            <button class="btn btn-primary rounded-pill fw-bold" (click)="addToCart(service, 'PROFILE')">
+                            <button class="btn btn-primary fw-bold" (click)="addToCart(service, 'PROFILE')">
                                 <i class="bi bi-cart-plus me-2"></i>Añadir Perfil
                             </button>
                             <button [routerLink]="['/platforms', service.id]" class="btn btn-link btn-sm text-muted text-decoration-none">
