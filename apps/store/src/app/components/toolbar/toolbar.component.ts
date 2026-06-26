@@ -1,17 +1,17 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { User } from '@neversion/models';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { Observable, Subscription } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css']
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
@@ -23,6 +23,31 @@ export class ToolbarComponent {
   );
 
   searchQuery = '';
+  private routerSubscription?: Subscription;
+
+  ngOnInit(): void {
+    // Auto-close mobile navbar collapse menu on navigation end
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.closeNavbarCollapse();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
+  }
+
+  private closeNavbarCollapse(): void {
+    const navbar = document.getElementById('navbarContent');
+    if (navbar && navbar.classList.contains('show')) {
+      navbar.classList.remove('show');
+      const toggler = document.querySelector('.navbar-toggler');
+      if (toggler) {
+        toggler.setAttribute('aria-expanded', 'false');
+      }
+    }
+  }
 
   logout(): void {
     this.authService.logout().subscribe(() => {
@@ -42,6 +67,8 @@ export class ToolbarComponent {
     const query = this.searchQuery.trim();
     if (query) {
       this.router.navigate(['/platforms'], { queryParams: { q: query } });
+      this.closeNavbarCollapse();
     }
   }
 }
+

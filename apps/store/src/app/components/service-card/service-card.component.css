@@ -129,6 +129,27 @@
 /* Responsive */
 @media (max-width: 576px) {
   .svc-card__img-wrapper {
-    height: 150px;
+    height: 110px;
+  }
+  .svc-card__body {
+    padding: 0.75rem;
+    gap: 0.5rem;
+  }
+  .svc-card__name {
+    font-size: 0.875rem;
+  }
+  .svc-card__pricing {
+    padding-top: 0.5rem;
+    gap: 0.25rem;
+  }
+  .svc-card__price-label {
+    font-size: 0.7rem;
+  }
+  .svc-card__price {
+    font-size: 0.85rem;
+  }
+  .svc-card__cta {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.85rem;
   }
 }

@@ -7,6 +7,7 @@ import {
   ReservationsApiService
 } from '@neversion/api-client';
 import { AuthService } from '../../../../services/auth.service';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-customer-accesses',
@@ -24,7 +25,8 @@ export class AccessesComponent implements OnInit {
     private clientsApi: ClientsApiService,
     private reservationsApi: ReservationsApiService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +37,22 @@ export class AccessesComponent implements OnInit {
         this.isLoading = false;
         this.error = 'Usuario no autenticado.';
       }
+    });
+  }
+
+  copyToClipboard(text?: string, fieldName: string = 'Texto'): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastService.show(`${fieldName} copiado al portapapeles.`, 'success', 'Copiado');
+    }).catch(err => {
+      console.error('Error copying text:', err);
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      this.toastService.show(`${fieldName} copiado al portapapeles.`, 'success', 'Copiado');
     });
   }
 

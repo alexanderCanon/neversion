@@ -54,6 +54,9 @@
                 <div class="input-group input-group-sm">
                   <span class="input-group-text"><i class="bi bi-envelope"></i></span>
                   <input type="text" class="form-control font-monospace" [value]="sub.accountEmail" readonly>
+                  <button class="btn btn-outline-secondary" type="button" (click)="copyToClipboard(sub.accountEmail, 'Correo')" title="Copiar Correo">
+                    <i class="bi bi-copy"></i>
+                  </button>
                 </div>
               </div>
 
@@ -62,6 +65,9 @@
                 <div class="input-group input-group-sm">
                   <span class="input-group-text"><i class="bi bi-key"></i></span>
                   <input type="text" class="form-control font-monospace" [value]="sub.accountPassword" readonly>
+                  <button class="btn btn-outline-secondary" type="button" (click)="copyToClipboard(sub.accountPassword, 'Contraseña')" title="Copiar Contraseña">
+                    <i class="bi bi-copy"></i>
+                  </button>
                 </div>
               </div>
             </ng-container>

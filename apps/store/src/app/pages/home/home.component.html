@@ -52,10 +52,18 @@
       </a>
     </div>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
+    <div class="row row-cols-2 row-cols-lg-4 g-3 g-md-4">
       <div class="col" *ngFor="let item of platforms$ | async">
         <app-service-card [platforms]="item"></app-service-card>
       </div>
+    </div>
+
+    <!-- CTA para ver todo el catálogo al final de los destacados -->
+    <div class="text-center mt-4 pt-2">
+      <a routerLink="/platforms" class="btn btn-outline-primary px-4 py-2.5 fw-bold shadow-sm d-inline-flex align-items-center gap-2">
+        <span>Ver catálogo completo</span>
+        <i class="bi bi-arrow-right"></i>
+      </a>
     </div>
   </div>
 </section>
