@@ -38,3 +38,148 @@
 .container {
   max-width: 1200px;
 }
+
+/* Card relative wrapper for overlays */
+.card.position-relative {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Overlay Selection Container */
+.card-cart-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(30, 30, 28, 0.98) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1.25rem;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.22s ease-out, transform 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card-cart-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Close button inside overlay */
+.btn-close-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.btn-close-overlay:hover {
+  color: white;
+  transform: scale(1.1);
+}
+
+.overlay-header {
+  text-align: center;
+  color: white;
+  width: 100%;
+}
+
+.overlay-options {
+  width: 100%;
+}
+
+/* Overlay option buttons (inheriting standard button rounding) */
+.overlay-option-btn {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: white !important;
+  padding: 0.65rem 0.85rem !important;
+  width: 100%;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.overlay-option-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: var(--color-brand-500) !important;
+  transform: translateY(-1px);
+}
+
+.overlay-option-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  transform: none !important;
+}
+
+.disabled-reason {
+  display: block;
+  font-size: 0.62rem;
+  color: #fca5a5;
+  margin-top: 4px;
+  text-align: left;
+  font-weight: 500;
+  width: 100%;
+}
+
+/* Success and loading states in overlay */
+.overlay-state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  height: 100%;
+  width: 100%;
+  animation: overlayFadeIn 0.2s ease-out;
+}
+
+.overlay-success-icon {
+  font-size: 2.5rem;
+  color: var(--color-success);
+  margin-bottom: 0.6rem;
+}
+
+.overlay-error-icon {
+  font-size: 2.5rem;
+  color: var(--color-error);
+  margin-bottom: 0.6rem;
+}
+
+/* Spinner override for overlay */
+.overlay-state-container .spinner-border {
+  color: var(--color-brand-500) !important;
+}
+
+/* Single Add to Cart Button (standard rounding) */
+.add-to-cart-btn {
+  border-radius: var(--radius-sm) !important; /* Subtle rounded corners */
+  font-weight: var(--font-weight-bold);
+  font-size: 0.85rem;
+  letter-spacing: 0.4px;
+  padding: 0.6rem 1rem;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

@@ -20,7 +20,7 @@
 
         <div class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-3 g-md-4" *ngIf="platforms$ | async as platforms; else loading">
             <div class="col" *ngFor="let platform of platforms">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
                     <div class="bg-white p-3 p-sm-4 text-center cursor-pointer" [routerLink]="['/platforms', platform.id]">
                         <img [src]="resolveImageUrl(platform.imageUrl)"
                              [alt]="platform.name"
@@ -36,32 +36,23 @@
                         <p class="text-muted small mb-3 line-clamp-2 d-none d-sm-block" style="height: 2.5rem;">{{ platform.description }}</p>
 
                         <div class="pricing-container bg-light rounded-4 p-2 p-sm-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
+                            <div class="row g-0">
+                                <div class="col-6 border-end text-center py-1">
                                     <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.2px;">Perfil Ind.</div>
                                     <div class="fw-bold text-primary mb-0" style="font-size: clamp(0.85rem, 1.8vw, 1.1rem);">Q{{ platform.priceProfile }}</div>
                                 </div>
-                                <button (click)="addToCart(platform, 'PROFILE')"
-                                        class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-                                        style="width: 32px; height: 32px; min-width: 32px;"
-                                        aria-label="Añadir perfil al carrito">
-                                    <i class="bi bi-cart-plus fs-6"></i>
-                                </button>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
+                                <div class="col-6 text-center py-1">
                                     <div class="small text-muted fw-bold text-uppercase" style="font-size: 0.58rem; letter-spacing: 0.2px;">Cuenta Comp.</div>
                                     <div class="fw-bold text-primary mb-0" style="font-size: clamp(0.85rem, 1.8vw, 1.1rem);">Q{{ platform.priceComplete }}</div>
                                 </div>
-                                <button (click)="addToCart(platform, 'COMPLETE')"
-                                        class="btn btn-primary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
-                                        style="width: 32px; height: 32px; min-width: 32px;"
-                                        aria-label="Añadir cuenta completa al carrito">
-                                    <i class="bi bi-cart-plus fs-6"></i>
-                                </button>
                             </div>
                         </div>
+
+                        <button (click)="openCartOverlay(platform.id, $event)"
+                                class="btn btn-primary w-100 add-to-cart-btn mb-3"
+                                aria-label="Agregar al carrito">
+                            <i class="bi bi-cart-plus me-2"></i>Agregar al carrito
+                        </button>
 
                         <div class="d-flex justify-content-between align-items-center border-top pt-3">
                             <button [routerLink]="['/platforms', platform.id]" class="btn btn-link btn-sm text-muted text-decoration-none p-0" style="font-size: 0.78rem;">
@@ -70,6 +61,77 @@
                             <span class="small text-muted fw-bold" style="font-size: 0.75rem;">
                                 <i class="bi bi-clock me-1"></i>{{ platform.durationDays }} d
                             </span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive overlay selection flow -->
+                    <div class="card-cart-overlay" [class.active]="activePlatformId === platform.id" (click)="$event.stopPropagation()">
+                        <button class="btn-close-overlay" (click)="closeCartOverlay($event)" aria-label="Cerrar">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        
+                        <!-- 1. Idle state: Selection options -->
+                        <div *ngIf="getAddingState(platform.id) === 'idle'" class="w-100">
+                            <div class="overlay-header mb-3">
+                                <span class="fw-bold d-block text-white" style="font-size: 0.95rem;">¿Cómo deseas comprar?</span>
+                                <span class="text-white-50 small">{{ platform.name }}</span>
+                            </div>
+                            
+                            <div class="overlay-options d-flex flex-column gap-2">
+                                <!-- Option Profile -->
+                                <button class="overlay-option-btn btn"
+                                        [disabled]="(cartHasComplete$ | async)"
+                                        (click)="confirmAddToCart(platform, 'PROFILE', $event)">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <div class="text-start">
+                                            <span class="fw-bold d-block text-white" style="font-size: 0.8rem;">Perfil Individual</span>
+                                            <span class="text-white-50" style="font-size: 0.65rem;">1 dispositivo</span>
+                                        </div>
+                                        <span class="fw-bold text-warning" style="font-size: 0.9rem;">Q{{ platform.priceProfile }}</span>
+                                    </div>
+                                    <span *ngIf="cartHasComplete$ | async" class="disabled-reason">
+                                        No compatible con cuenta completa en carrito
+                                    </span>
+                                </button>
+
+                                <!-- Option Complete -->
+                                <button class="overlay-option-btn btn"
+                                        [disabled]="(cartHasProfile$ | async) || (cartHasComplete$ | async)"
+                                        (click)="confirmAddToCart(platform, 'COMPLETE', $event)">
+                                    <div class="d-flex justify-content-between align-items-center w-100">
+                                        <div class="text-start">
+                                            <span class="fw-bold d-block text-white" style="font-size: 0.8rem;">Cuenta Completa</span>
+                                            <span class="text-white-50" style="font-size: 0.65rem;">Perfiles privados</span>
+                                        </div>
+                                        <span class="fw-bold text-warning" style="font-size: 0.9rem;">Q{{ platform.priceComplete }}</span>
+                                    </div>
+                                    <span *ngIf="cartHasProfile$ | async" class="disabled-reason">
+                                        No compatible con perfiles en carrito
+                                    </span>
+                                    <span *ngIf="cartHasComplete$ | async" class="disabled-reason">
+                                        Ya tienes una cuenta completa en carrito
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Adding / Loading state -->
+                        <div *ngIf="getAddingState(platform.id) === 'adding'" class="overlay-state-container">
+                            <div class="spinner-border text-primary mb-2" role="status" style="width: 1.8rem; height: 1.8rem;"></div>
+                            <span class="text-white small fw-bold">Añadiendo al carrito...</span>
+                        </div>
+
+                        <!-- 3. Success state -->
+                        <div *ngIf="getAddingState(platform.id) === 'success'" class="overlay-state-container">
+                            <i class="bi bi-check-circle-fill overlay-success-icon"></i>
+                            <span class="text-white small fw-bold">¡Añadido exitosamente!</span>
+                        </div>
+
+                        <!-- 4. Error state -->
+                        <div *ngIf="getAddingState(platform.id) === 'error'" class="overlay-state-container p-2">
+                            <i class="bi bi-exclamation-triangle-fill overlay-error-icon"></i>
+                            <span class="text-danger small fw-bold mb-2">Error al agregar</span>
+                            <span class="text-white-50 text-center" style="font-size: 0.7rem; line-height: 1.2;">{{ getAddingErrorMessage(platform.id) }}</span>
                         </div>
                     </div>
                 </div>

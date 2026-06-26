@@ -22,8 +22,11 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     map(items => items.reduce((acc, item) => acc + item.quantity, 0))
   );
 
+  cartBadgeAnimate = false;
   searchQuery = '';
+  private lastCount = 0;
   private routerSubscription?: Subscription;
+  private cartSubscription?: Subscription;
 
   ngOnInit(): void {
     // Auto-close mobile navbar collapse menu on navigation end
@@ -32,10 +35,21 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.closeNavbarCollapse();
     });
+
+    this.cartSubscription = this.cartItemCount$.subscribe(count => {
+      if (count > this.lastCount) {
+        this.cartBadgeAnimate = true;
+        setTimeout(() => {
+          this.cartBadgeAnimate = false;
+        }, 600);
+      }
+      this.lastCount = count;
+    });
   }
 
   ngOnDestroy(): void {
     this.routerSubscription?.unsubscribe();
+    this.cartSubscription?.unsubscribe();
   }
 
   private closeNavbarCollapse(): void {
