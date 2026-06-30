@@ -73,6 +73,18 @@ export class ToolbarComponent implements OnInit, OnDestroy {
     return this.cartService.getTotal();
   }
 
+  getComboDiscountPercent(): number {
+    return this.cartService.getComboDiscountPercent();
+  }
+
+  getComboDiscountAmount(): number {
+    return this.cartService.getComboDiscountAmount();
+  }
+
+  getDiscountedTotal(): number {
+    return this.cartService.getDiscountedTotal();
+  }
+
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.service.id!, item.type);
   }
