@@ -52,10 +52,37 @@
           </div>
 
           <div *ngIf="(cartItems$ | async)?.length" class="cart-panel-footer">
+            <!-- Subtotal (only visible if there is a discount) -->
+            <div *ngIf="getComboDiscountPercent() > 0" class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-white-50 small" style="font-size: 0.75rem;">Subtotal</span>
+              <span class="text-white small" style="font-size: 0.75rem;">Q{{ getTotal() | number:'1.2-2' }}</span>
+            </div>
+
+            <!-- Discount Row (only visible if there is a discount) -->
+            <div *ngIf="getComboDiscountPercent() > 0" class="d-flex justify-content-between align-items-center mb-2 text-discount-green">
+              <span class="small d-flex align-items-center gap-1" style="font-size: 0.75rem;">
+                <i class="bi bi-tag-fill"></i>Descuento Combo
+                <span class="badge cart-discount-badge small">-{{ getComboDiscountPercent() }}%</span>
+              </span>
+              <span class="small fw-semibold" style="font-size: 0.75rem;">-Q{{ getComboDiscountAmount() | number:'1.2-2' }}</span>
+            </div>
+
+            <hr *ngIf="getComboDiscountPercent() > 0" class="my-2" style="border-top: 1px dashed rgba(255, 255, 255, 0.15);">
+
+            <!-- Final Total -->
             <div class="d-flex justify-content-between align-items-center mb-3">
               <span class="fw-bold text-white-50 small text-uppercase" style="font-size: 0.6rem;">Total estimado</span>
-              <span class="fw-bold text-white mb-0">Q{{ getTotal() }}</span>
+              <span class="fw-bold text-white mb-0" [class.text-brand-gold]="getComboDiscountPercent() > 0">Q{{ getDiscountedTotal() | number:'1.2-2' }}</span>
             </div>
+
+            <!-- Promotion tip if no discount yet -->
+            <div *ngIf="getComboDiscountPercent() === 0" class="cart-promo-tip rounded-3 py-2 px-3 mb-3">
+              <small class="d-flex align-items-start gap-1" style="font-size: 0.7rem; line-height: 1.2;">
+                <i class="bi bi-lightbulb text-warning" style="font-size: 0.8rem; margin-top: 1px;"></i>
+                <span>Agrega <strong>2 o más servicios</strong> para obtener un <strong>descuento</strong> automático.</span>
+              </small>
+            </div>
+
             <div class="d-grid gap-2">
               <button routerLink="/checkout" class="btn btn-primary btn-sm fw-bold shadow-sm">
                 Finalizar Compra
