@@ -24,6 +24,7 @@ import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.loyalty.application.port.in.RedeemPointsUseCase;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.domain.model.Reservation;
@@ -52,6 +53,7 @@ class CreateReservationServiceUT {
     @Mock private ProfileRepositoryPort profileRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private UserRepositoryPort userRepositoryPort;
+    @Mock private RedeemPointsUseCase redeemPointsUseCase;
 
     private ReservationPricingService reservationPricingService;
     private CreateReservationService createReservationService;
@@ -83,7 +85,8 @@ class CreateReservationServiceUT {
                 serviceRepositoryPort,
                 profileRepositoryPort,
                 vendorRepositoryPort,
-                userRepositoryPort);
+                userRepositoryPort,
+                redeemPointsUseCase);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────
@@ -183,7 +186,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then
         assertThat(result).isNotNull();
@@ -211,7 +214,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID_2, 1, SaleMode.BY_PROFILE));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then — 2 profiles: 50 + 30 = 80, discount = 5% of 80 = 4.00, total = 76.00
         assertThat(result.getDiscount()).isEqualByComparingTo(new BigDecimal("4.00"));
@@ -232,7 +235,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID_4, 1, SaleMode.BY_PROFILE));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then — 4 profiles: 50+30+40+45 = 165, discount = 10% of 165 = 16.50, total = 148.50
         assertThat(result.getDiscount()).isEqualByComparingTo(new BigDecimal("16.50"));
@@ -250,7 +253,7 @@ class CreateReservationServiceUT {
 
         // When
         Instant before = Instant.now().plus(59, ChronoUnit.MINUTES);
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
         Instant after = Instant.now().plus(61, ChronoUnit.MINUTES);
 
         // Then
@@ -267,7 +270,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("User not found");
     }
@@ -284,7 +287,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Service not found");
     }
@@ -303,7 +306,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 3, SaleMode.BY_PROFILE));
 
         // When / Then — BR-US033-01
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Not enough available profiles");
     }
@@ -318,7 +321,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then
         assertThat(result.getDetails()).hasSize(1);
@@ -338,7 +341,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("Duplicate service in cart");
     }
@@ -366,7 +369,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(uuid5, 1, SaleMode.BY_PROFILE));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("more than 4 profile services");
     }
@@ -384,7 +387,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID_2, 1, SaleMode.BY_PROFILE));
 
         // When / Then
-        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null))
+        assertThatThrownBy(() -> createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null))
                 .isInstanceOf(BusinessRuleException.class)
                 .hasMessageContaining("full account purchase cannot be combined");
     }
@@ -399,7 +402,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.FULL_ACCOUNT));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then — priceFull = 150.00, no discount
         assertThat(result.getDiscount()).isEqualByComparingTo(BigDecimal.ZERO);
@@ -418,7 +421,7 @@ class CreateReservationServiceUT {
                 new ReservationItemCommand(SERVICE_UUID, 1, SaleMode.BY_PROFILE));
 
         // When
-        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null);
+        Reservation result = createReservationService.create(CLIENT_UUID, items, PAYMENT_METHOD, null, null, null);
 
         // Then — priceProfile = 50.00
         assertThat(result.getDetails().get(0).unitPrice())

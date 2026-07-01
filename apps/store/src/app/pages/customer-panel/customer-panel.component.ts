@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-type CustomerPanelTab = 'accesses' | 'orders' | 'receipts' | 'profile';
+type CustomerPanelTab = 'accesses' | 'orders' | 'receipts' | 'profile' | 'points';
 
 @Component({
   selector: 'app-customer-panel',
@@ -42,12 +42,21 @@ type CustomerPanelTab = 'accesses' | 'orders' | 'receipts' | 'profile';
                 Perfil
               </button>
             </li>
+            <li class="nav-item">
+              <button type="button"
+                      class="nav-link"
+                      [class.active]="activeTab === 'points'"
+                      (click)="setActiveTab('points')">
+                Mis Puntos
+              </button>
+            </li>
           </ul>
  
           <app-customer-accesses *ngIf="activeTab === 'accesses'"></app-customer-accesses>
           <app-customer-orders *ngIf="activeTab === 'orders'"></app-customer-orders>
           <app-customer-receipts *ngIf="activeTab === 'receipts'"></app-customer-receipts>
           <app-customer-profile *ngIf="activeTab === 'profile'"></app-customer-profile>
+          <app-customer-points *ngIf="activeTab === 'points'"></app-customer-points>
         </div>
       </div>
     </div>

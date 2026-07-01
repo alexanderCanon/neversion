@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.loyalty.application.port.in.ReversePointsUseCase;
 import com.neversion.api.order.application.port.in.ChangeOrderStatusUseCase;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.model.OrderStatusChange;
@@ -34,6 +35,7 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
+    private final ReversePointsUseCase reversePointsUseCase;
 
     public ChangeOrderStatusService(
             OrderRepositoryPort orderRepositoryPort,
@@ -41,13 +43,15 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
             NotificationLogPort notificationLogPort,
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            ClientRepositoryPort clientRepositoryPort) {
+            ClientRepositoryPort clientRepositoryPort,
+            ReversePointsUseCase reversePointsUseCase) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.orderStatusHistoryPort = orderStatusHistoryPort;
         this.notificationLogPort = notificationLogPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
+        this.reversePointsUseCase = reversePointsUseCase;
     }
 
     @Override
@@ -92,6 +96,11 @@ public class ChangeOrderStatusService implements ChangeOrderStatusUseCase {
                 .notes(notes)
                 .changedAt(Instant.now())
                 .build());
+
+        // 3b. Reverse earned points if the order is cancelled (loyalty program)
+        if (newStatus == OrderStatus.CANCELLED) {
+            reversePointsUseCase.reverseForOrder(updated.getId());
+        }
 
         // 4. Notify Client
         notifyClient(updated);

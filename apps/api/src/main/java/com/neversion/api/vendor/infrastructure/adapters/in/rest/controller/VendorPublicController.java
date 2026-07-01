@@ -55,6 +55,7 @@ public class VendorPublicController {
                 vendor.getUuid(),
                 vendor.getStoreName(),
                 vendor.getLogoUrl(),
-                vendor.getDiscountCfg()));
+                vendor.getDiscountCfg(),
+                vendor.getRewardsCfg()));
     }
 }

@@ -20,6 +20,9 @@ public record VendorPublicResponse(
         String logoUrl,
 
         @Schema(description = "Discount tier configuration as JSON (BR-13). Used by the storefront to calculate dynamic combo discounts.")
-        String discountCfg
+        String discountCfg,
+
+        @Schema(description = "Rewards/loyalty points configuration as JSON. Used by the storefront and panel to determine points accrual.")
+        String rewardsCfg
 ) {
 }

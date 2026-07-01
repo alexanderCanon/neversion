@@ -20,5 +20,7 @@ public record ReservationRequest(
         String paymentMethod,
         AccountPreference accountPreference,
         /** Client notes, e.g. Spotify account preference captured at checkout. */
-        String notes) {
+        String notes,
+        /** Loyalty points to redeem as a discount at checkout (1 point = 1 GTQ). Optional. */
+        Long pointsToRedeem) {
 }

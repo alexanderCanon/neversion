@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.loyalty.application.port.in.ReversePointsUseCase;
 import com.neversion.api.reservation.application.port.in.RejectReservationUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
@@ -32,18 +33,21 @@ public class RejectReservationService implements RejectReservationUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final ClientRepositoryPort clientRepositoryPort;
+    private final ReversePointsUseCase reversePointsUseCase;
 
     public RejectReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
             NotificationLogPort notificationLogPort,
             UserRepositoryPort userRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            ClientRepositoryPort clientRepositoryPort) {
+            ClientRepositoryPort clientRepositoryPort,
+            ReversePointsUseCase reversePointsUseCase) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.notificationLogPort = notificationLogPort;
         this.userRepositoryPort = userRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.clientRepositoryPort = clientRepositoryPort;
+        this.reversePointsUseCase = reversePointsUseCase;
     }
 
     @Override
@@ -82,6 +86,9 @@ public class RejectReservationService implements RejectReservationUseCase {
         reservation.setStatus(ReservationStatus.REJECTED);
         reservation.setNotes(reason); // Now Reservation has notes field
         Reservation updated = reservationRepositoryPort.update(reservation);
+
+        // 3b. Restore any points redeemed at checkout (loyalty program)
+        reversePointsUseCase.reverseForReservation(updated.getId());
 
         // 4. Notify Client
         notifyClient(updated, reason);

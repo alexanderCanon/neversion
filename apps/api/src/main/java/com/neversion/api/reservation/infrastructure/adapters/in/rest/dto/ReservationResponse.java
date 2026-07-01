@@ -30,5 +30,7 @@ public record ReservationResponse(
         Instant expirationDate,
         Instant createdAt,
         UUID renewalSubscriptionId,
-        List<ReservationDetailResponse> details) {
+        List<ReservationDetailResponse> details,
+        Long pointsRedeemed,
+        BigDecimal pointsDiscount) {
 }

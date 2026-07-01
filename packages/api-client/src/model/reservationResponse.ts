@@ -25,6 +25,8 @@ export interface ReservationResponse {
     createdAt?: string;
     renewalSubscriptionId?: string;
     details?: Array<ReservationDetailResponse>;
+    pointsRedeemed?: number;
+    pointsDiscount?: number;
 }
 export namespace ReservationResponse {
     export const StatusEnum = {

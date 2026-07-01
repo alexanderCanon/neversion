@@ -1,0 +1,107 @@
+<div class="container-fluid py-4 px-3 px-lg-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1 text-dark">Programa de Recompensas</h3>
+        <p class="text-secondary small mb-0">
+            Configura cómo tus clientes acumulan y redimen puntos de lealtad al comprar en tu tienda.
+        </p>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading()) {
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+
+    <!-- Content -->
+    @if (!isLoading()) {
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-body p-4 p-md-5 bg-white">
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info border-0 rounded-4 p-4 mb-4 bg-light-blue text-dark-blue">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-info-circle-fill fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">¿Cómo funciona el programa de recompensas?</h6>
+                                    <p class="mb-0 small opacity-90">
+                                        Cuando actives el programa, tus clientes acumularán puntos automáticamente
+                                        por cada compra aprobada, según el porcentaje que definas. Los clientes
+                                        podrán redimir esos puntos como descuento al hacer una nueva reserva.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form [formGroup]="configForm" (ngSubmit)="onSave()">
+                            <!-- Enable toggle -->
+                            <div class="form-check form-switch mb-4">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="enabled"
+                                    formControlName="enabled"
+                                />
+                                <label class="form-check-label fw-semibold" for="enabled">
+                                    Activar programa de recompensas
+                                </label>
+                            </div>
+
+                            <hr class="my-4 opacity-10">
+
+                            <!-- Earn percentage -->
+                            <h5 class="fw-bold mb-3">Acumulación de Puntos</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label for="earnPct" class="form-label fw-semibold text-secondary small">
+                                        Porcentaje de acumulación <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input
+                                            type="number"
+                                            class="form-control form-control-modern"
+                                            id="earnPct"
+                                            formControlName="earnPct"
+                                            min="0"
+                                            max="100"
+                                            step="0.5"
+                                        />
+                                        <span class="input-group-text bg-light">%</span>
+                                    </div>
+                                    <div class="form-text x-small">
+                                        Ej: 2% significa que por cada Q100 de compra, el cliente gana 2 puntos.
+                                    </div>
+                                    @if (configForm.get('earnPct')?.invalid && configForm.get('earnPct')?.touched) {
+                                        <div class="text-danger x-small mt-1">Debe estar entre 0 y 100.</div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary px-5 py-3 rounded-3"
+                                    [disabled]="configForm.invalid || isSaving()">
+                                    @if (isSaving()) {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    } @else {
+                                        <i class="bi bi-check-lg me-1"></i>
+                                    }
+                                    Guardar Configuración
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

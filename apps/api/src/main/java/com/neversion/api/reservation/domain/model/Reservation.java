@@ -54,6 +54,14 @@ public class Reservation {
     private UUID renewalSubscriptionUuid;
     private List<ReservationDetail> details;
 
+    /** Points redeemed by the client as a discount at checkout (loyalty program). */
+    @Builder.Default
+    private Long pointsRedeemed = 0L;
+
+    /** Discount amount in GTQ resulting from redeemed points (1 point = 1 GTQ). */
+    @Builder.Default
+    private BigDecimal pointsDiscount = BigDecimal.ZERO;
+
     public Reservation() {
     }
 
@@ -61,7 +69,7 @@ public class Reservation {
             BigDecimal discount, BigDecimal total, String receiptUrl, String paymentMethod,
             ReservationStatus status, AccountPreference accountPreference, Instant expirationDate,
             Instant createdAt, String notes, Long renewalSubscriptionId, UUID renewalSubscriptionUuid,
-            List<ReservationDetail> details) {
+            List<ReservationDetail> details, Long pointsRedeemed, BigDecimal pointsDiscount) {
         this.id = id;
         this.uuid = uuid;
         this.clientId = clientId;
@@ -79,5 +87,7 @@ public class Reservation {
         this.renewalSubscriptionId = renewalSubscriptionId;
         this.renewalSubscriptionUuid = renewalSubscriptionUuid;
         this.details = details;
+        this.pointsRedeemed = pointsRedeemed;
+        this.pointsDiscount = pointsDiscount;
     }
 }

@@ -54,5 +54,13 @@ public class Vendor {
     @Setter
     private String discountCfg;
 
+    /**
+     * Rewards/loyalty points configuration as JSON.
+     * Structure: { "enabled": true, "earn_pct": 2.0 }
+     * Mutable — updated via the vendor panel rewards configuration endpoint.
+     */
+    @Setter
+    private String rewardsCfg;
+
     private final Instant createdAt;
 }
