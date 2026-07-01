@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.neversion.api.vendor.application.port.in.UpdateDiscountConfigUseCase;
+import com.neversion.api.vendor.application.port.in.UpdateRewardsConfigUseCase;
 import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateDiscountConfigRequest;
+import com.neversion.api.vendor.infrastructure.adapters.in.rest.dto.UpdateRewardsConfigRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,9 +31,12 @@ import jakarta.validation.Valid;
 public class VendorController {
 
     private final UpdateDiscountConfigUseCase updateDiscountConfigUseCase;
+    private final UpdateRewardsConfigUseCase updateRewardsConfigUseCase;
 
-    public VendorController(UpdateDiscountConfigUseCase updateDiscountConfigUseCase) {
+    public VendorController(UpdateDiscountConfigUseCase updateDiscountConfigUseCase,
+            UpdateRewardsConfigUseCase updateRewardsConfigUseCase) {
         this.updateDiscountConfigUseCase = updateDiscountConfigUseCase;
+        this.updateRewardsConfigUseCase = updateRewardsConfigUseCase;
     }
 
     /**
@@ -60,6 +65,34 @@ public class VendorController {
 
         String updated = updateDiscountConfigUseCase.updateDiscountConfig(
                 jwt.getSubject(), request.discountCfg());
+        return ResponseEntity.ok(updated);
+    }
+
+    /**
+     * Updates the authenticated vendor's loyalty points (rewards) configuration.
+     * <p>
+     * The caller is identified from the JWT subject. The request body must contain
+     * a valid JSON string: { "enabled": true, "earn_pct": 2.0 }.
+     *
+     * @param request contains the rewards_cfg JSON
+     * @param jwt     authenticated caller's JWT
+     * @return the persisted rewards_cfg JSON
+     */
+    @PutMapping("/rewards-config")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Update vendor rewards (loyalty points) configuration",
+            description = "Updates the rewards_cfg JSON for the authenticated vendor. "
+                    + "Validates structure: enabled (boolean), earn_pct (0-100).")
+    @ApiResponse(responseCode = "200", description = "Rewards configuration updated")
+    @ApiResponse(responseCode = "400", description = "Invalid JSON structure or validation error")
+    @ApiResponse(responseCode = "403", description = "Not a vendor or super admin")
+    public ResponseEntity<String> updateRewardsConfig(
+            @Valid @RequestBody UpdateRewardsConfigRequest request,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        String updated = updateRewardsConfigUseCase.updateRewardsConfig(
+                jwt.getSubject(), request.rewardsCfg());
         return ResponseEntity.ok(updated);
     }
 }

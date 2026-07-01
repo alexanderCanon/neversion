@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.loyalty.application.port.in.ReversePointsUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
@@ -29,13 +30,16 @@ class CancelReservationServiceUT {
     @Mock
     private ReservationRepositoryPort reservationRepositoryPort;
 
+    @Mock
+    private ReversePointsUseCase reversePointsUseCase;
+
     private CancelReservationService cancelReservationService;
 
     private static final UUID RESERVATION_UUID = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
-        cancelReservationService = new CancelReservationService(reservationRepositoryPort);
+        cancelReservationService = new CancelReservationService(reservationRepositoryPort, reversePointsUseCase);
     }
 
     private Reservation buildReservation(ReservationStatus status) {

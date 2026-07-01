@@ -7,6 +7,7 @@ import { AccessesComponent } from './components/accesses/accesses.component';
 import { OrdersComponent } from './components/orders/orders.component';
 import { ReceiptsComponent } from './components/receipts/receipts.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { PointsComponent } from './components/points/points.component';
 
 const routes: Routes = [
   { path: '', component: CustomerPanelComponent }
@@ -18,7 +19,8 @@ const routes: Routes = [
     AccessesComponent,
     OrdersComponent,
     ReceiptsComponent,
-    ProfileComponent
+    ProfileComponent,
+    PointsComponent
   ],
   imports: [
     CommonModule,

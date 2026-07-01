@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neversion.api.loyalty.application.port.in.EarnPointsUseCase;
 import com.neversion.api.order.application.port.in.CreateOrderUseCase;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.model.OrderStatusChange;
@@ -21,11 +22,14 @@ public class CreateOrderService implements CreateOrderUseCase {
 
     private final OrderRepositoryPort orderRepositoryPort;
     private final OrderStatusHistoryPort orderStatusHistoryPort;
+    private final EarnPointsUseCase earnPointsUseCase;
 
     public CreateOrderService(OrderRepositoryPort orderRepositoryPort,
-            OrderStatusHistoryPort orderStatusHistoryPort) {
+            OrderStatusHistoryPort orderStatusHistoryPort,
+            EarnPointsUseCase earnPointsUseCase) {
         this.orderRepositoryPort = orderRepositoryPort;
         this.orderStatusHistoryPort = orderStatusHistoryPort;
+        this.earnPointsUseCase = earnPointsUseCase;
     }
 
     @Override
@@ -60,6 +64,9 @@ public class CreateOrderService implements CreateOrderUseCase {
                 .notes("Order created from approved reservation")
                 .changedAt(Instant.now())
                 .build());
+
+        // Credit loyalty points based on the vendor's rewards_cfg (no-op if disabled)
+        earnPointsUseCase.earnForOrder(saved.getId(), clientId, vendorId, total);
 
         return saved;
     }

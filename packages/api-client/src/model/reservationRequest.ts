@@ -16,6 +16,7 @@ export interface ReservationRequest {
     paymentMethod?: string;
     accountPreference?: ReservationRequest.AccountPreferenceEnum;
     notes?: string;
+    pointsToRedeem?: number;
 }
 export namespace ReservationRequest {
     export const AccountPreferenceEnum = {

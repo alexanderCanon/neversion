@@ -111,6 +111,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'rewards-config',
+                loadComponent: () => import('./features/vendors/pages/rewards-config/rewards-config.component').then(m => m.RewardsConfigComponent),
+                data: { allowedRoles: ['vendor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'help',
                 loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent),
                 data: { allowedRoles: ['vendor', 'super_admin'] },

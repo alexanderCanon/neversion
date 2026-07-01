@@ -21,7 +21,9 @@ public interface CreateReservationUseCase {
      * @param paymentMethod  payment method selected by the client (BR-06)
      * @param accountPreference optional client account preference for Spotify Fam
      * @param notes          optional client notes, e.g. Spotify account preference
+     * @param pointsToRedeem optional loyalty points to redeem as a discount (1 point = 1 GTQ), null or 0 to skip
      * @return the persisted reservation with pricing and details
      */
-    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod, AccountPreference accountPreference, String notes);
+    Reservation create(UUID clientUuid, List<ReservationItemCommand> items, String paymentMethod,
+            AccountPreference accountPreference, String notes, Long pointsToRedeem);
 }

@@ -18,6 +18,7 @@ import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.exception.ResourceNotFoundException;
 import com.neversion.api.profile.domain.port.out.ProfileRepositoryPort;
+import com.neversion.api.loyalty.application.port.in.RedeemPointsUseCase;
 import com.neversion.api.reservation.application.port.in.CreateReservationUseCase;
 import com.neversion.api.reservation.application.port.in.ReservationItemCommand;
 import com.neversion.api.reservation.domain.model.Reservation;
@@ -54,6 +55,7 @@ public class CreateReservationService implements CreateReservationUseCase {
     private final ProfileRepositoryPort profileRepositoryPort;
     private final VendorRepositoryPort vendorRepositoryPort;
     private final UserRepositoryPort userRepositoryPort;
+    private final RedeemPointsUseCase redeemPointsUseCase;
 
     public CreateReservationService(
             ReservationRepositoryPort reservationRepositoryPort,
@@ -62,7 +64,8 @@ public class CreateReservationService implements CreateReservationUseCase {
             ServiceRepositoryPort serviceRepositoryPort,
             ProfileRepositoryPort profileRepositoryPort,
             VendorRepositoryPort vendorRepositoryPort,
-            UserRepositoryPort userRepositoryPort) {
+            UserRepositoryPort userRepositoryPort,
+            RedeemPointsUseCase redeemPointsUseCase) {
         this.reservationRepositoryPort = reservationRepositoryPort;
         this.reservationPricingService = reservationPricingService;
         this.clientRepositoryPort = clientRepositoryPort;
@@ -70,12 +73,14 @@ public class CreateReservationService implements CreateReservationUseCase {
         this.profileRepositoryPort = profileRepositoryPort;
         this.vendorRepositoryPort = vendorRepositoryPort;
         this.userRepositoryPort = userRepositoryPort;
+        this.redeemPointsUseCase = redeemPointsUseCase;
     }
 
     @Override
     @Transactional
     public Reservation create(UUID clientUuid, List<ReservationItemCommand> items,
-                               String paymentMethod, AccountPreference accountPreference, String notes) {
+                               String paymentMethod, AccountPreference accountPreference, String notes,
+                               Long pointsToRedeem) {
 
         // 1. Resolve client and vendor for multi-tenancy
         var user = userRepositoryPort.findByExternalId(clientUuid.toString())
@@ -180,6 +185,17 @@ public class CreateReservationService implements CreateReservationUseCase {
         }
         BigDecimal finalTotal = reservationPricingService.calculateFinalTotal(grossTotal, discount);
 
+        // 4b. Validate points redemption request against the reservation total (BR: rewards program)
+        long redeemPoints = pointsToRedeem != null ? pointsToRedeem : 0L;
+        if (redeemPoints < 0) {
+            throw new BusinessRuleException("pointsToRedeem must not be negative.");
+        }
+        if (redeemPoints > 0 && BigDecimal.valueOf(redeemPoints).compareTo(finalTotal) > 0) {
+            throw new BusinessRuleException(
+                    "Points redeemed cannot exceed the reservation total. Total: " + finalTotal
+                            + ", points requested: " + redeemPoints);
+        }
+
         // 5. Build and persist the reservation
         OffsetDateTime now = OffsetDateTime.now();
         OffsetDateTime expirationDate = now.plusMinutes(EXPIRATION_MINUTES);
@@ -198,6 +214,16 @@ public class CreateReservationService implements CreateReservationUseCase {
                 .build();
 
         Reservation savedReservation = reservationRepositoryPort.save(reservation);
+
+        // 5b. Redeem points (if requested) — recorded against the now-persisted reservation id
+        if (redeemPoints > 0) {
+            BigDecimal pointsDiscountAmount = redeemPointsUseCase.redeemForReservation(
+                    savedReservation.getId(), client.getId(), vendorId, redeemPoints);
+            savedReservation.setPointsRedeemed(redeemPoints);
+            savedReservation.setPointsDiscount(pointsDiscountAmount);
+            savedReservation.setTotal(finalTotal.subtract(pointsDiscountAmount));
+            savedReservation = reservationRepositoryPort.update(savedReservation);
+        }
 
         // 6. Persist each detail linked to the saved reservation
         List<ReservationDetail> savedDetails = new ArrayList<>();

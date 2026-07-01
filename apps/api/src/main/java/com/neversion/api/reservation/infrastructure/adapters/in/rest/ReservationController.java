@@ -89,7 +89,8 @@ public class ReservationController {
 
         List<ReservationItemCommand> items = reservationRestMapper.toItemCommands(request.items());
         Reservation reservation = createReservationUseCase.create(
-                request.clientId(), items, request.paymentMethod(), request.accountPreference(), request.notes());
+                request.clientId(), items, request.paymentMethod(), request.accountPreference(), request.notes(),
+                request.pointsToRedeem());
         ReservationResponse response = reservationRestMapper.toResponse(reservation);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

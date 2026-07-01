@@ -62,6 +62,11 @@
               <span class="badge ms-2">{{ clientDetail()?.orderHistory?.length || 0 }}</span>
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" [class.active]="activeTab() === 'POINTS'" (click)="setTab('POINTS')">
+              <i class="bi bi-gift me-2"></i>Puntos
+            </button>
+          </li>
         </ul>
       </div>
     </div>
@@ -268,6 +273,139 @@
                 </table>
               </div>
             }
+          </div>
+        </div>
+      }
+
+      <!-- Tab: POINTS -->
+      @if (activeTab() === 'POINTS') {
+        <div class="row g-4">
+          <!-- Summary -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                  <i class="bi bi-gift text-primary"></i>
+                  <h5 class="fw-bold mb-0">Saldo de Puntos</h5>
+                </div>
+                @if (isLoadingPoints() && !pointsSummary()) {
+                  <div class="d-flex justify-content-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                  </div>
+                } @else {
+                  <div class="d-flex flex-column gap-3">
+                    <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                      <span class="text-muted small">Disponibles</span>
+                      <span class="fw-bold fs-5 text-success">{{ pointsSummary()?.available || 0 }}</span>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                      <span class="text-muted small">Pendientes</span>
+                      <span class="fw-bold fs-5 text-warning">{{ pointsSummary()?.pending || 0 }}</span>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                      <span class="text-muted small">Total histórico</span>
+                      <span class="fw-bold fs-5 text-dark">{{ pointsSummary()?.total || 0 }}</span>
+                    </div>
+                  </div>
+                }
+
+                <hr class="my-4 opacity-10">
+
+                <!-- Manual adjustment form -->
+                <h6 class="fw-bold mb-3">Ajuste Manual</h6>
+                <form [formGroup]="adjustForm" (ngSubmit)="onAdjustPoints()">
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary small">
+                      Puntos <span class="text-muted">(positivo para acreditar, negativo para debitar)</span>
+                    </label>
+                    <input type="number" class="form-control" formControlName="points" step="1" />
+                    @if (adjustForm.get('points')?.invalid && adjustForm.get('points')?.touched) {
+                      <div class="text-danger x-small mt-1">Requerido.</div>
+                    }
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary small">Motivo</label>
+                    <textarea class="form-control" formControlName="notes" rows="2"></textarea>
+                    @if (adjustForm.get('notes')?.invalid && adjustForm.get('notes')?.touched) {
+                      <div class="text-danger x-small mt-1">El motivo es obligatorio (máx. 255 caracteres).</div>
+                    }
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100" [disabled]="adjustForm.invalid || isAdjustingPoints()">
+                    @if (isAdjustingPoints()) {
+                      <span class="spinner-border spinner-border-sm me-2"></span>
+                    } @else {
+                      <i class="bi bi-check-lg me-1"></i>
+                    }
+                    Aplicar Ajuste
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Movements -->
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+              <div class="card-body p-0">
+                @if (isLoadingPoints() && pointsMovements().length === 0) {
+                  <div class="d-flex justify-content-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                  </div>
+                } @else if (pointsMovements().length === 0) {
+                  <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted display-4 mb-3"></i>
+                    <h5 class="fw-semibold">Sin movimientos de puntos</h5>
+                    <p class="text-muted small">Este cliente aún no tiene actividad en el programa de recompensas.</p>
+                  </div>
+                } @else {
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 border-0">
+                      <thead>
+                        <tr>
+                          <th class="ps-4">Tipo</th>
+                          <th>Puntos</th>
+                          <th>Notas</th>
+                          <th class="pe-4">Fecha</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (movement of pointsMovements(); track movement.id) {
+                          <tr class="detail-row">
+                            <td class="ps-4 py-3">
+                              <span [class]="getMovementTypeClass(movement.entryType)">
+                                {{ getMovementTypeLabel(movement.entryType) }}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="fw-bold" [class.text-success]="(movement.points || 0) > 0" [class.text-danger]="(movement.points || 0) < 0">
+                                {{ (movement.points || 0) > 0 ? '+' : '' }}{{ movement.points }}
+                              </span>
+                            </td>
+                            <td>
+                              <span class="text-muted small">{{ movement.notes || '-' }}</span>
+                            </td>
+                            <td class="pe-4">
+                              <span class="text-muted small">{{ movement.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  @if (pointsTotalPages > 1) {
+                    <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+                      <button class="btn btn-white border shadow-sm btn-sm" [disabled]="pointsPage() === 0" (click)="goToPointsPage(pointsPage() - 1)">
+                        <i class="bi bi-chevron-left"></i> Anterior
+                      </button>
+                      <span class="text-muted small">Página {{ pointsPage() + 1 }} de {{ pointsTotalPages }}</span>
+                      <button class="btn btn-white border shadow-sm btn-sm" [disabled]="pointsPage() + 1 >= pointsTotalPages" (click)="goToPointsPage(pointsPage() + 1)">
+                        Siguiente <i class="bi bi-chevron-right"></i>
+                      </button>
+                    </div>
+                  }
+                }
+              </div>
+            </div>
           </div>
         </div>
       }

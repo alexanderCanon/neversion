@@ -2,10 +2,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CartService, CartItem } from '../../services/cart.service';
+import { LoyaltyPointsApiService } from '@neversion/api-client';
 import { ReservationsApiService, ReservationRequest, ReservationItemRequest } from '@neversion/api-client';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 @Component({
@@ -34,6 +35,18 @@ export class CheckoutComponent implements OnInit {
     map(() => this.cartService.getDiscountedTotal())
   );
 
+  private readonly loyaltyApi = inject(LoyaltyPointsApiService);
+  availablePoints = 0;
+  readonly pointsToRedeemSubject = new BehaviorSubject<number>(0);
+  pointsToRedeem$ = this.pointsToRedeemSubject.asObservable();
+  finalTotalAfterPoints$: Observable<number> = combineLatest([
+    this.discountedTotal$,
+    this.pointsToRedeem$
+  ]).pipe(
+    map(([total, points]) => Math.max(0, total - points))
+  );
+  currentDiscountedTotal = 0;
+
   paymentMethods = [
     { id: 'TRANSFERENCIA', label: 'Transferencia Bancaria' },
     { id: 'DEPOSITO', label: 'Depósito Bancario' }
@@ -51,7 +64,15 @@ export class CheckoutComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // If cart is empty, redirect to platforms after a short delay or just show empty state
+    this.discountedTotal$.subscribe(t => (this.currentDiscountedTotal = t));
+    this.authService.currentUser$.pipe(take(1)).subscribe(user => {
+      if (user) {
+        this.loyaltyApi.getMySummary().subscribe({
+          next: (s) => (this.availablePoints = s.available ?? 0),
+          error: (err) => console.error('Error loading points balance', err)
+        });
+      }
+    });
   }
 
   updateQuantity(item: CartItem, delta: number): void {
@@ -60,6 +81,15 @@ export class CheckoutComponent implements OnInit {
 
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.service.id!, item.type);
+  }
+
+  setPointsToRedeem(value: number, maxTotal: number): void {
+    const clamped = Math.max(0, Math.min(value, this.availablePoints, Math.floor(maxTotal)));
+    this.pointsToRedeemSubject.next(clamped);
+  }
+
+  useMaxPoints(maxTotal: number): void {
+    this.setPointsToRedeem(this.availablePoints, maxTotal);
   }
 
   async placeOrder(): Promise<void> {
@@ -75,6 +105,8 @@ export class CheckoutComponent implements OnInit {
 
     this.isSubmitting = true;
 
+    const pointsToRedeem = this.pointsToRedeemSubject.value;
+
     // Build optional order notes from Spotify preferences.
     const spotifyNotes = items
       .filter(i => this.isSpotifyProfile(i) && i.spotifyAccountPreference)
@@ -89,7 +121,8 @@ export class CheckoutComponent implements OnInit {
         saleMode: item.type === 'COMPLETE' ? 'FULL_ACCOUNT' : 'BY_PROFILE'
       } as ReservationItemRequest)),
       paymentMethod: this.selectedPaymentMethod,
-      ...(spotifyNotes ? { notes: spotifyNotes } : {})
+      ...(spotifyNotes ? { notes: spotifyNotes } : {}),
+      ...(pointsToRedeem > 0 ? { pointsToRedeem } : {})
     } as ReservationRequest;
 
     this.reservationsApi.createReservation(reservationRequest).subscribe({
@@ -124,6 +157,12 @@ export class CheckoutComponent implements OnInit {
           } else if (message.includes('Client is not linked to any vendor')) {
             title = 'Error de Cuenta';
             friendlyMessage = 'Su cuenta de cliente no está vinculada a ningún vendedor. Por favor contáctenos.';
+          } else if (message.includes('Points redeemed cannot exceed')) {
+            title = 'Puntos Inválidos';
+            friendlyMessage = 'La cantidad de puntos a redimir excede el total de tu compra.';
+          } else if (message.includes('Insufficient points balance')) {
+            title = 'Saldo Insuficiente';
+            friendlyMessage = 'No cuentas con suficientes puntos disponibles.';
           }
         }
         

@@ -8,6 +8,7 @@ api/assignments.service.ts
 api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
+api/loyaltyPoints.service.ts
 api/notifications.service.ts
 api/orders.service.ts
 api/profiles.service.ts
@@ -31,6 +32,7 @@ model/accountSummaryResponse.ts
 model/accountWithSubscriptionRequest.ts
 model/activeClientsKpiResult.ts
 model/activeSubscriptionSummaryDto.ts
+model/adjustPointsRequest.ts
 model/batchCreateManualSubscriptionRequest.ts
 model/batchCreateSubscriptionsResponse.ts
 model/batchItem.ts
@@ -67,6 +69,9 @@ model/orderDetailResponse.ts
 model/orderResponse.ts
 model/orderSummary.ts
 model/orderSummaryDto.ts
+model/pointsMovementResponse.ts
+model/pointsMovementsPageResponse.ts
+model/pointsSummaryResponse.ts
 model/productSummaryResult.ts
 model/profileCustomerResult.ts
 model/profileRequest.ts
@@ -95,6 +100,7 @@ model/suggestAssignmentResponse.ts
 model/updateClientProfileRequest.ts
 model/updateClientRequest.ts
 model/updateDiscountConfigRequest.ts
+model/updateRewardsConfigRequest.ts
 model/uploadReceiptRequest.ts
 model/validateReservationRequest.ts
 model/vendorPublicResponse.ts

@@ -25,6 +25,7 @@ import org.springframework.security.access.AccessDeniedException;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
 import com.neversion.api.exception.BusinessRuleException;
+import com.neversion.api.loyalty.application.port.in.ReversePointsUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
@@ -43,6 +44,7 @@ class RejectReservationServiceUT {
     @Mock private UserRepositoryPort userRepositoryPort;
     @Mock private VendorRepositoryPort vendorRepositoryPort;
     @Mock private ClientRepositoryPort clientRepositoryPort;
+    @Mock private ReversePointsUseCase reversePointsUseCase;
 
     private RejectReservationService rejectReservationService;
 
@@ -55,7 +57,8 @@ class RejectReservationServiceUT {
     @BeforeEach
     void setUp() {
         rejectReservationService = new RejectReservationService(
-                reservationRepositoryPort, notificationLogPort, userRepositoryPort, vendorRepositoryPort, clientRepositoryPort);
+                reservationRepositoryPort, notificationLogPort, userRepositoryPort, vendorRepositoryPort,
+                clientRepositoryPort, reversePointsUseCase);
     }
 
     private Reservation buildReservation(ReservationStatus status, Long vendorId) {

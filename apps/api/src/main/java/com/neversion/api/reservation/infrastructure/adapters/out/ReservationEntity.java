@@ -83,6 +83,14 @@ public class ReservationEntity {
     @Column(name = "renewal_subscription_id")
     private Long renewalSubscriptionId;
 
+    @Column(name = "points_redeemed", nullable = false)
+    @Builder.Default
+    private Long pointsRedeemed = 0L;
+
+    @Column(name = "points_discount", nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal pointsDiscount = BigDecimal.ZERO;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 

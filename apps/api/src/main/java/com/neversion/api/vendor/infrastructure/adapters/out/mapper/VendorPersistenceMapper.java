@@ -20,6 +20,7 @@ public class VendorPersistenceMapper {
                 .logoUrl(entity.getLogoUrl())
                 .bankDetails(entity.getBankDetails())
                 .discountCfg(entity.getDiscountCfg())
+                .rewardsCfg(entity.getRewardsCfg())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
@@ -33,6 +34,7 @@ public class VendorPersistenceMapper {
                 .logoUrl(domain.getLogoUrl())
                 .bankDetails(domain.getBankDetails())
                 .discountCfg(domain.getDiscountCfg())
+                .rewardsCfg(domain.getRewardsCfg())
                 .build();
     }
 }

@@ -54,7 +54,9 @@ public class ReservationRestMapper {
                 reservation.getExpirationDate(),
                 reservation.getCreatedAt(),
                 reservation.getRenewalSubscriptionUuid(),
-                detailResponses);
+                detailResponses,
+                reservation.getPointsRedeemed(),
+                reservation.getPointsDiscount());
     }
 
     private ReservationDetailResponse toDetailResponse(ReservationDetail detail) {

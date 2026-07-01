@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.neversion.api.loyalty.application.port.in.EarnPointsUseCase;
 import com.neversion.api.order.domain.model.Order;
 import com.neversion.api.order.domain.model.OrderStatusChange;
 import com.neversion.api.order.domain.model.enums.OrderStatus;
@@ -27,12 +28,13 @@ class CreateOrderServiceUT {
 
     @Mock private OrderRepositoryPort orderRepositoryPort;
     @Mock private OrderStatusHistoryPort orderStatusHistoryPort;
+    @Mock private EarnPointsUseCase earnPointsUseCase;
 
     private CreateOrderService createOrderService;
 
     @BeforeEach
     void setUp() {
-        createOrderService = new CreateOrderService(orderRepositoryPort, orderStatusHistoryPort);
+        createOrderService = new CreateOrderService(orderRepositoryPort, orderStatusHistoryPort, earnPointsUseCase);
     }
 
     @Test

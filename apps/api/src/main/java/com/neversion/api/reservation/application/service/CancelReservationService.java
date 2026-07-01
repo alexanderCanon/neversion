@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.exception.ResourceNotFoundException;
+import com.neversion.api.loyalty.application.port.in.ReversePointsUseCase;
 import com.neversion.api.reservation.application.port.in.CancelReservationUseCase;
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
@@ -21,9 +22,12 @@ import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
 public class CancelReservationService implements CancelReservationUseCase {
 
     private final ReservationRepositoryPort reservationRepositoryPort;
+    private final ReversePointsUseCase reversePointsUseCase;
 
-    public CancelReservationService(ReservationRepositoryPort reservationRepositoryPort) {
+    public CancelReservationService(ReservationRepositoryPort reservationRepositoryPort,
+            ReversePointsUseCase reversePointsUseCase) {
         this.reservationRepositoryPort = reservationRepositoryPort;
+        this.reversePointsUseCase = reversePointsUseCase;
     }
 
     @Override
@@ -42,6 +46,11 @@ public class CancelReservationService implements CancelReservationUseCase {
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
-        return reservationRepositoryPort.update(reservation);
+        Reservation updated = reservationRepositoryPort.update(reservation);
+
+        // Restore any points redeemed at checkout (loyalty program)
+        reversePointsUseCase.reverseForReservation(updated.getId());
+
+        return updated;
     }
 }

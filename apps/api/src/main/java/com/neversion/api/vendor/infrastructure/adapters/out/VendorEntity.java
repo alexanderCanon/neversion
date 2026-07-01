@@ -59,6 +59,11 @@ public class VendorEntity {
     @Column(name = "discount_cfg", columnDefinition = "jsonb")
     private String discountCfg;
 
+    /** JSONB column — rewards/loyalty points config (opaque to domain). */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "rewards_cfg", columnDefinition = "jsonb")
+    private String rewardsCfg;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
