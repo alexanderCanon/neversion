@@ -15,6 +15,7 @@ export interface CreateManualSubscriptionRequest {
     serviceId: string;
     priceSold: number;
     discountApplied?: number;
+    startDate?: string;
     paymentDueDate: string;
     notes?: string;
     sendNotification?: boolean;

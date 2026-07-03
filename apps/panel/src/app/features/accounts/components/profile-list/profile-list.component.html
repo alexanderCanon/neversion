@@ -357,13 +357,26 @@
               <label class="form-label-custom">Vigencia y Envío</label>
 
               <div class="mb-3">
+                <label for="startDate" class="form-label small fw-medium text-muted">Fecha de Inicio <span class="text-danger">*</span></label>
+                <input
+                  id="startDate"
+                  type="date"
+                  class="form-control form-control-modern"
+                  formControlName="startDate"
+                >
+                @if (assignForm.get('startDate')?.touched && assignForm.get('startDate')?.errors?.['required']) {
+                  <div class="text-danger x-small mt-1">La fecha de inicio es requerida.</div>
+                }
+              </div>
+
+              <div class="mb-3">
                 <label for="paymentDueDate" class="form-label small fw-medium text-muted">Fecha de Vencimiento / Próximo Pago <span class="text-danger">*</span></label>
                 <input
                   id="paymentDueDate"
                   type="date"
                   class="form-control form-control-modern"
                   formControlName="paymentDueDate"
-                  [min]="minDate"
+                  [min]="assignForm.get('startDate')?.value || minDate"
                 >
                 @if (assignForm.get('paymentDueDate')?.touched && assignForm.get('paymentDueDate')?.errors?.['required']) {
                   <div class="text-danger x-small mt-1">La fecha de vencimiento es requerida.</div>

@@ -13,6 +13,7 @@ public record CreateManualSubscriptionRequest(
         @NotNull UUID serviceId,
         @NotNull @DecimalMin("0.00") BigDecimal priceSold,
         @DecimalMin("0.00") BigDecimal discountApplied,
+        LocalDate startDate,
         @NotNull LocalDate paymentDueDate,
         String notes,
         boolean sendNotification) {

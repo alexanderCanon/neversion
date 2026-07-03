@@ -46,6 +46,7 @@ public class SubscriptionMapper {
                 .clientUuid(request.clientId())
                 .profileUuid(request.profileId())
                 .serviceUuid(request.serviceId())
+                .startDate(request.startDate())
                 .paymentDueDate(request.paymentDueDate())
                 .priceSold(request.priceSold())
                 .discountApplied(request.discountApplied())

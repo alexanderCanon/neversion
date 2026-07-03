@@ -30,6 +30,7 @@ import com.neversion.api.account.domain.port.out.AccountRepositoryPort;
 import com.neversion.api.assignment.application.port.in.DeliverAccessUseCase;
 import com.neversion.api.client.domain.model.Client;
 import com.neversion.api.client.domain.port.out.ClientRepositoryPort;
+import com.neversion.api.exception.BadRequestException;
 import com.neversion.api.exception.BusinessRuleException;
 import com.neversion.api.profile.domain.model.Profile;
 import com.neversion.api.profile.domain.model.enums.ProfileStatus;
@@ -223,6 +224,75 @@ class CreateManualSubscriptionServiceUT {
             assertThatThrownBy(() -> createManualSubscriptionService.create(buildInput(), false, EXTERNAL_ID))
                     .isInstanceOf(BusinessRuleException.class)
                     .hasMessageContaining("active subscription");
+        }
+
+        @Test
+        @DisplayName("should create subscription with custom startDate when provided")
+        void create_withCustomStartDate_shouldPreserveStartDate() {
+            LocalDate customStart = LocalDate.of(2026, 4, 15);
+            Subscription input = Subscription.builder()
+                    .clientUuid(CLIENT_UUID)
+                    .profileUuid(PROFILE_UUID)
+                    .serviceUuid(SERVICE_UUID)
+                    .startDate(customStart)
+                    .paymentDueDate(LocalDate.of(2026, 5, 15))
+                    .priceSold(new BigDecimal("100.00"))
+                    .discountApplied(new BigDecimal("5.00"))
+                    .notes("External sale")
+                    .build();
+
+            Client client = buildClient(VENDOR_ID);
+            Service service = buildService(VENDOR_ID);
+            Profile profile = buildProfile(VENDOR_ID, false);
+            Account account = Account.builder()
+                    .id(ACCOUNT_ID).uuid(UUID.randomUUID()).serviceId(SERVICE_ID)
+                    .saleMode(SaleMode.BY_PROFILE).status(AccountStatus.PARTIAL).build();
+
+            mockOwnershipResolution();
+            when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(client));
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
+            when(profileRepositoryPort.findById(PROFILE_UUID)).thenReturn(Optional.of(profile));
+            when(subscriptionRepositoryPort.existsActiveByProfileId(PROFILE_ID)).thenReturn(false);
+            when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+            when(subscriptionRepositoryPort.save(any(Subscription.class))).thenAnswer(inv -> inv.getArgument(0));
+
+            Subscription result = createManualSubscriptionService.create(input, false, EXTERNAL_ID);
+
+            assertThat(result.getStartDate()).isEqualTo(customStart);
+            assertThat(result.getEndDate()).isEqualTo(LocalDate.of(2026, 5, 15));
+        }
+
+        @Test
+        @DisplayName("should throw BadRequestException when paymentDueDate is before custom startDate")
+        void create_paymentDueDateBeforeCustomStartDate_shouldThrow400() {
+            LocalDate customStart = LocalDate.of(2026, 4, 15);
+            Subscription input = Subscription.builder()
+                    .clientUuid(CLIENT_UUID)
+                    .profileUuid(PROFILE_UUID)
+                    .serviceUuid(SERVICE_UUID)
+                    .startDate(customStart)
+                    .paymentDueDate(LocalDate.of(2026, 4, 10))
+                    .priceSold(new BigDecimal("100.00"))
+                    .discountApplied(new BigDecimal("5.00"))
+                    .build();
+
+            Client client = buildClient(VENDOR_ID);
+            Service service = buildService(VENDOR_ID);
+            Profile profile = buildProfile(VENDOR_ID, false);
+            Account account = Account.builder()
+                    .id(ACCOUNT_ID).uuid(UUID.randomUUID()).serviceId(SERVICE_ID)
+                    .saleMode(SaleMode.BY_PROFILE).status(AccountStatus.PARTIAL).build();
+
+            mockOwnershipResolution();
+            when(clientRepositoryPort.findById(CLIENT_UUID)).thenReturn(Optional.of(client));
+            when(serviceRepositoryPort.findById(SERVICE_UUID)).thenReturn(Optional.of(service));
+            when(profileRepositoryPort.findById(PROFILE_UUID)).thenReturn(Optional.of(profile));
+            when(subscriptionRepositoryPort.existsActiveByProfileId(PROFILE_ID)).thenReturn(false);
+            when(accountRepositoryPort.findByInternalId(ACCOUNT_ID)).thenReturn(Optional.of(account));
+
+            assertThatThrownBy(() -> createManualSubscriptionService.create(input, false, EXTERNAL_ID))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessageContaining("Payment due date must be on or after start date");
         }
     }
 }

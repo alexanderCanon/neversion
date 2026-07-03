@@ -71,6 +71,7 @@ export class ProfileListComponent implements OnInit, OnChanges {
     clientSearch: ['', Validators.required],
     priceSold: [0, [Validators.required, Validators.min(0)]],
     discountApplied: [0, [Validators.min(0)]],
+    startDate: ['', Validators.required],
     paymentDueDate: ['', Validators.required],
     sendNotification: [true],
     notes: ['']
@@ -392,11 +393,13 @@ export class ProfileListComponent implements OnInit, OnChanges {
     }
     this.selectedProfileForAssign = profile;
     const defaultDueDate = this.accountRenewalDate ? this.accountRenewalDate.split('T')[0] : '';
+    const todayStr = new Date().toISOString().split('T')[0];
     this.assignForm.reset({
       clientId: '',
       clientSearch: '',
       priceSold: 0,
       discountApplied: 0,
+      startDate: todayStr,
       paymentDueDate: defaultDueDate,
       sendNotification: true,
       notes: ''
@@ -477,6 +480,7 @@ export class ProfileListComponent implements OnInit, OnChanges {
       serviceId: this.serviceUuid,
       priceSold: formValue.priceSold,
       discountApplied: formValue.discountApplied || 0,
+      startDate: formValue.startDate,
       paymentDueDate: formValue.paymentDueDate,
       sendNotification: formValue.sendNotification,
       notes: formValue.notes || undefined
