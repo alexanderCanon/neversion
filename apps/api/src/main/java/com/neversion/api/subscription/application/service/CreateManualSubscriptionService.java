@@ -108,9 +108,9 @@ public class CreateManualSubscriptionService implements CreateManualSubscription
             throw new BadRequestException("Selected profile does not belong to the selected service.");
         }
 
-        LocalDate startDate = LocalDate.now(clock);
+        LocalDate startDate = subscription.getStartDate() != null ? subscription.getStartDate() : LocalDate.now(clock);
         if (subscription.getPaymentDueDate().isBefore(startDate)) {
-            throw new BadRequestException("Payment due date must be today or later.");
+            throw new BadRequestException("Payment due date must be on or after start date.");
         }
 
         activateInventory(account, profile);

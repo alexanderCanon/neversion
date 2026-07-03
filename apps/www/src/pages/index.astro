@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neversion — El panel que te avisa antes de perder una renovación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #111B2D;
+    --surface: #1e293b;
+    --surface-2: #1e293b;
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --brand-accent: #1d4ed8;
+    --brand-accent-light: #60a5fa;
+    --danger: #e11d48;
+    --success: #059669;
+    --warning: #d97706;
+
+    --display: 'Inter', system-ui, -apple-system, sans-serif;
+    --body: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    --max: 1120px;
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img, svg{ display:block; max-width:100%; }
+
+  a{ color: inherit; text-decoration: none; }
+
+  .wrap{ max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brand-accent-light);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .eyebrow::before{
+    content:'';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brand-accent-light);
+    box-shadow: 0 0 0 3px rgba(96,165,250,0.18);
+  }
+
+  h1, h2, h3{ font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; }
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(17,27,45,0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px 24px;
+  }
+  .logo{
+    font-family: var(--display); font-weight: 700; font-size: 1.15rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo-mark{
+    width: 22px; height: 22px;
+    flex-shrink:0;
+  }
+  .nav-links{ display:flex; gap: 32px; }
+  .nav-links a{
+    font-size: 0.92rem; color: var(--text-muted);
+    transition: color .15s ease;
+  }
+  .nav-links a:hover{ color: var(--text); }
+  .nav-cta{
+    font-size: 0.88rem; font-weight: 500;
+    padding: 9px 18px; border-radius: 8px;
+    background: var(--text); color: var(--ink);
+    transition: opacity .15s ease;
+  }
+  .nav-cta:hover{ opacity: 0.85; }
+  .nav-toggle{ display:none; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-grid{
+    display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items:center;
+  }
+  .hero h1{
+    font-size: clamp(2.1rem, 4.2vw, 3.4rem);
+    line-height: 1.08;
+    margin-bottom: 22px;
+  }
+  .hero h1 .accent{ color: var(--brand-accent-light); }
+  .hero p.lede{
+    font-size: 1.08rem; color: var(--text-muted);
+    max-width: 46ch; margin-bottom: 34px;
+  }
+  .cta-group{ display:flex; gap: 14px; flex-wrap: wrap; }
+  .btn-primary{
+    font-family: var(--body); font-weight: 600; font-size: 0.95rem;
+    padding: 13px 24px; border-radius: 9px;
+    background: var(--brand-accent); color: #ffffff;
+    transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+  .btn-primary:hover{ background: #1e40af; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(29, 78, 216, 0.25); }
+  .btn-secondary{
+    font-family: var(--body); font-weight: 500; font-size: 0.95rem;
+    padding: 13px 22px; border-radius: 9px;
+    border: 1px solid var(--border); color: var(--text);
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .btn-secondary:hover{ border-color: var(--text-muted); background: var(--surface); }
+
+  /* ---- signature element: renewal timeline ---- */
+  .timeline-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 26px 24px 22px;
+  }
+  .timeline-head{
+    display:flex; justify-content: space-between; align-items:baseline;
+    margin-bottom: 26px;
+  }
+  .timeline-head span.label{ font-size: 0.82rem; color: var(--text-muted); }
+  .timeline-head span.month{ font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted); }
+
+  .timeline{
+    position: relative;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    margin: 0 4px 30px;
+  }
+  .t-fill{
+    position:absolute; left:0; top:0; height:100%;
+    width: 62%;
+    background: linear-gradient(90deg, var(--brand-accent), var(--brand-accent-light));
+    border-radius: 4px;
+  }
+  .t-dot{
+    position:absolute; top:50%; transform: translate(-50%,-50%);
+    width: 13px; height: 13px; border-radius: 50%;
+    border: 2px solid var(--ink);
+  }
+  .t-dot.done{ background: var(--brand-accent); left: 14%; }
+  .t-dot.done2{ background: var(--brand-accent); left: 36%; }
+  .t-dot.now{
+    background: var(--brand-accent-light); left: 62%;
+    width: 16px; height: 16px;
+    box-shadow: 0 0 0 4px rgba(96,165,250,0.22);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  .t-dot.pending{ background: var(--surface-2); border-color: var(--border); left: 84%; }
+
+  @keyframes pulse{
+    0%, 100%{ box-shadow: 0 0 0 4px rgba(96,165,250,0.22); }
+    50%{ box-shadow: 0 0 0 8px rgba(96,165,250,0.10); }
+  }
+
+  .status-rows{ display:flex; flex-direction:column; gap: 11px; }
+  .status-row{
+    display:flex; align-items:center; justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 10px 12px;
+    background: var(--surface-2);
+    border-radius: 8px;
+  }
+  .status-row .client{ color: var(--text); font-weight: 500; }
+  .status-row .date{ font-family: var(--mono); color: var(--text-muted); font-size: 0.8rem; }
+  .badge{
+    font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.03em;
+    padding: 3px 9px; border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .badge.activa{ background: rgba(5, 150, 105, 0.12); color: var(--success); }
+  .badge.pronto{ background: rgba(217, 119, 6, 0.14); color: var(--warning); }
+  .badge.vencida{ background: rgba(225, 29, 72, 0.14); color: var(--danger); }
+
+  /* ---------- SECTION SHARED ---------- */
+  section{ padding: 88px 0; border-bottom: 1px solid var(--border); }
+  .section-head{ max-width: 640px; margin-bottom: 48px; }
+  .section-head h2{ font-size: clamp(1.6rem, 3vw, 2.3rem); margin-bottom: 16px; }
+  .section-head p{ color: var(--text-muted); font-size: 1.02rem; }
+
+  /* ---------- PROBLEM ---------- */
+  .problem-body{ display:grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items:start; }
+  .problem-body p{ color: var(--text-muted); font-size: 1.02rem; margin-bottom: 18px; }
+  .problem-body p strong{ color: var(--text); font-weight: 600; }
+
+  .chaos-card{
+    background: var(--surface); border:1px solid var(--border); border-radius: 14px;
+    padding: 22px;
+  }
+  .chaos-card .chaos-title{ font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.06em;}
+  .chaos-line{ display:flex; align-items:center; gap: 10px; font-size: 0.88rem; color: var(--text-muted); padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .chaos-line:last-child{ border-bottom:none; }
+  .chaos-line .dot{ width:6px; height:6px; border-radius:50%; background: var(--danger); flex-shrink:0; }
+
+  /* ---------- SOLUTION / PANEL MOCK ---------- */
+  .solution-grid{ display:grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items:center; }
+  .solution-grid .section-head{ margin-bottom: 0; }
+
+  .panel-mock{
+    background: var(--surface); border:1px solid var(--border); border-radius: 16px;
+    overflow:hidden;
+  }
+  .panel-mock-head{
+    display:flex; align-items:center; gap:8px;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  .panel-mock-head span{ width:9px; height:9px; border-radius:50%; background: var(--border); }
+  .panel-mock-head .fname{ font-family: var(--mono); font-size: 0.76rem; color: var(--text-muted); margin-left: 8px; }
+  .panel-table{ width:100%; border-collapse: collapse; }
+  .panel-table th{
+    text-align:left; font-family: var(--mono); font-size: 0.7rem; text-transform: uppercase;
+    color: var(--text-muted); letter-spacing: 0.05em;
+    padding: 12px 18px; border-bottom: 1px solid var(--border);
+    background-color: var(--surface-2);
+  }
+  .panel-table td{
+    padding: 13px 18px; font-size: 0.86rem; border-bottom: 1px solid var(--border);
+  }
+  .panel-table tr:last-child td{ border-bottom: none; }
+  .panel-table td.mono{ font-family: var(--mono); color: var(--text-muted); font-size: 0.8rem; }
+
+  /* ---------- FEATURES ---------- */
+  .features-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .feature-card{
+    background: var(--surface); border:1px solid var(--border); border-radius: 14px;
+    padding: 26px 22px;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .feature-card:hover{ border-color: var(--text-muted); transform: translateY(-2px); }
+  .feature-card .f-badge{
+    width: 34px; height: 34px; border-radius: 9px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 18px; font-family: var(--mono); font-size: 0.85rem; font-weight: 500;
+  }
+  .feature-card:nth-child(1) .f-badge{ background: rgba(217,119,6,0.14); color: var(--warning); }
+  .feature-card:nth-child(2) .f-badge{ background: rgba(5,150,105,0.14); color: var(--success); }
+  .feature-card:nth-child(3) .f-badge{ background: rgba(225,29,72,0.14); color: var(--danger); }
+  .feature-card:nth-child(4) .f-badge{ background: rgba(29,78,216,0.14); color: var(--brand-accent-light); }
+  .feature-card h3{ font-size: 1.02rem; margin-bottom: 10px; }
+  .feature-card p{ color: var(--text-muted); font-size: 0.88rem; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how-list{ display:flex; flex-direction:column; }
+  .how-item{
+    display:grid; grid-template-columns: 64px 1fr; gap: 22px;
+    padding: 26px 0; border-top: 1px solid var(--border);
+  }
+  .how-item:last-child{ border-bottom: 1px solid var(--border); }
+  .how-num{ font-family: var(--mono); font-size: 0.95rem; color: var(--brand-accent-light); }
+  .how-item h3{ font-size: 1.05rem; margin-bottom: 6px; }
+  .how-item p{ color: var(--text-muted); font-size: 0.92rem; max-width: 56ch; }
+
+  /* ---------- CONTACT ---------- */
+  .contact{ border-bottom:none; padding-bottom: 56px; }
+  .contact-inner{
+    background: linear-gradient(135deg, var(--surface), var(--surface-2));
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 56px 48px;
+    display:flex; align-items:center; justify-content:space-between; gap: 32px;
+    flex-wrap: wrap;
+  }
+  .contact-inner h2{ font-size: clamp(1.5rem, 2.6vw, 2rem); margin-bottom: 10px; max-width: 24ch;}
+  .contact-inner p{ color: var(--text-muted); max-width: 42ch; }
+  .contact-cta{ display:flex; gap: 14px; flex-wrap: wrap; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding: 32px 0 40px; }
+  .footer-inner{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-left{ font-size: 0.82rem; color: var(--text-muted); }
+  .footer-stack{
+    font-family: var(--mono); font-size: 0.76rem; color: var(--text-muted);
+    display:flex; align-items:center; gap: 10px; flex-wrap: wrap;
+  }
+  .footer-stack a{ color: var(--text-muted); border-bottom: 1px dotted var(--border); transition: color .15s ease; }
+  .footer-stack a:hover{ color: var(--text); }
+  .footer-links{ display:flex; gap: 18px; }
+  .footer-links a{ font-size: 0.82rem; color: var(--text-muted); transition: color .15s ease; }
+  .footer-links a:hover{ color: var(--text); }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    .reveal{ opacity:1; transform:none; transition:none; }
+    .t-dot.now{ animation: none; }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 880px){
+    .hero-grid, .problem-body, .solution-grid{ grid-template-columns: 1fr; }
+    .features-grid{ grid-template-columns: repeat(2, 1fr); }
+    .nav-links{ display:none; }
+    .contact-inner{ padding: 36px 26px; }
+  }
+  @media (max-width: 560px){
+    .features-grid{ grid-template-columns: 1fr; }
+    .how-item{ grid-template-columns: 40px 1fr; }
+    section{ padding: 64px 0; }
+    .hero{ padding: 64px 0 48px; }
+    .contact-inner{ flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="#" class="logo">
+      <svg class="logo-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 490">
+        <defs>
+          <linearGradient id="logo_grad_0" gradientUnits="userSpaceOnUse" x1="1255.0703" y1="673.42664" x2="995.78479" y2="1103.6108">
+            <stop offset="0" stop-color="#BABBBC"/>
+            <stop offset="1" stop-color="#E0E0DF"/>
+          </linearGradient>
+          <linearGradient id="logo_grad_1" gradientUnits="userSpaceOnUse" x1="1425.715" y1="612.81427" x2="1121.7953" y2="807.79822">
+            <stop offset="0" stop-color="#828386"/>
+            <stop offset="1" stop-color="#D9DAD9"/>
+          </linearGradient>
+          <linearGradient id="logo_grad_2" gradientUnits="userSpaceOnUse" x1="672.15167" y1="1156.9562" x2="892.7854" y2="922.4082">
+            <stop offset="0" stop-color="#808285"/>
+            <stop offset="1" stop-color="#CCCDCD"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(-220, -120)">
+          <path fill="url(#logo_grad_0)" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M1300 705.17C1305.11 707.983 1309.07 710.452 1313.95 713.594C1315.2 717.816 1327.2 724.67 1332.51 723.857L1334.61 721.838C1336.7 726.555 1334.71 731.548 1334.29 736.464C1333.48 737.815 1338.96 740.385 1338.94 740.529C1336.44 761.924 1349.24 760.591 1362.04 772.092C1362.83 772.803 1360.46 794.887 1363.85 796.346L1365.37 795.374C1367.64 800.911 1366.15 799.576 1370.61 801.922C1374.34 802.131 1375.12 801.329 1378.35 799.496C1379.65 802.724 1379.36 807.539 1379.84 811.395C1375.5 809.353 1364.39 802.131 1359.9 799.369L1318.19 773.634C1243.5 904.851 1168.02 1035.61 1091.74 1165.91C1035.97 1076.21 974.142 984.143 916.737 894.943C922.848 881.749 936.385 860.341 944.14 847.249L1035.28 987.701C1052.88 1014.95 1070.9 1043.73 1089.14 1070.44C1109.82 1030.86 1140.24 981.78 1163.12 942.189L1300 705.17Z"/>
+          <path fill="url(#logo_grad_1)" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M1103.75 661.945L1381.28 536.338C1381.2 566.378 1382.3 808.087 1380.21 811.446L1379.84 811.395C1379.36 807.539 1379.65 802.724 1378.35 799.496C1375.12 801.329 1374.34 802.131 1370.61 801.922C1366.15 799.576 1367.64 800.911 1365.37 795.374L1363.85 796.346C1360.46 794.887 1362.83 772.803 1362.04 772.092C1349.24 760.591 1336.44 761.924 1338.94 740.529C1338.96 740.385 1333.48 737.815 1334.29 736.464C1334.71 731.548 1336.7 726.555 1334.61 721.838L1332.51 723.857C1327.2 724.67 1315.2 717.816 1313.95 713.594C1319.38 716.055 1326.15 720.628 1331.37 723.935L1331.45 611.669L1216.88 663.959C1226.66 668.626 1236.41 673.363 1246.13 678.17L1179.72 793.911C1176.78 799.018 1160.08 829.121 1157.56 831.388C1151.94 843.749 1137.3 867.504 1130.07 880.065C1119.73 865.518 1108.43 847.189 1098.5 832.025C1103.57 821.82 1113.36 805.68 1119.51 795.985C1125.56 783.77 1135.19 767.937 1142.18 755.853C1153.45 736.186 1164.88 716.61 1176.47 697.128C1152.26 685.477 1127.79 673.881 1103.75 661.945Z"/>
+          <path fill="#E2E2E2" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M1119.51 795.985C1119.19 801.165 1118.46 800.545 1120.44 804.576C1140.58 815.741 1139.36 810.891 1143.96 835.523C1148.28 837.689 1146.16 837.406 1150.42 837.205C1152.04 835.795 1155.92 832.215 1157.56 831.388C1151.94 843.749 1137.3 867.504 1130.07 880.065C1119.73 865.518 1108.43 847.189 1098.5 832.025C1103.57 821.82 1113.36 805.68 1119.51 795.985Z"/>
+          <path fill="url(#logo_grad_2)" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M647.785 1140.96C657.672 1122.44 669.603 1102.58 680.067 1084.18L754.983 953.646L796.808 881.149C803.645 869.289 813.1 851.591 820.471 840.994L820.197 841.968C819.023 846.042 818.269 847.836 816.5 851.677C818.189 852.698 818.441 852.726 820.284 853.464C821.638 857.417 820.649 861.325 819.862 865.452C828.206 869.154 828.96 877.587 836.171 879.91L838.933 879.081C841.961 882.968 837.813 883.461 840.675 885.327L842.971 883.142L845.021 883.605C846.275 886.164 845.522 892.485 844.582 895.164L844.871 896.189C847.447 891.531 852.408 881.146 856.581 878.677C846.688 898.214 832.967 919.309 822.171 938.797C793.909 989.815 761.784 1041.04 733.974 1092.14L803.571 1092.11C812.399 1076.02 870.563 971.703 875.319 967.689C882.741 953.248 891.753 938.79 899.842 924.59L931.022 972.102C928.036 977.471 915.79 1000.02 912.612 1003.88L833.652 1140.83L647.785 1140.96Z"/>
+          <path fill="#BDBEBD" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M875.319 967.689C882.741 953.248 891.753 938.79 899.842 924.59L931.022 972.102C928.036 977.471 915.79 1000.02 912.612 1003.88L911.796 1002.89L912.031 1001.76C913.565 994.32 914.052 992.652 909.554 986.333C904.331 978.995 902.803 971.172 893.614 968.071C889.82 966.791 891.734 960.275 886.519 957.309C879.909 959.612 881.662 965.649 875.319 967.689Z"/>
+          <path fill="#E2E2E2" transform="matrix(0.764179 0 0 0.764179 -270.519 -286.567)" d="M938.5 635.38C996.276 726.959 1054.58 818.203 1113.41 909.107L1085.44 956.918L992.102 811.689C975.43 785.656 957.395 758.361 941.407 732.023L881.643 835.918C879.055 840.432 859.061 875.866 856.581 878.677C852.408 881.146 847.447 891.531 844.871 896.189L844.582 895.164C845.522 892.485 846.275 886.164 845.021 883.605L842.971 883.142L840.675 885.327C837.813 883.461 841.961 882.968 838.933 879.081L836.171 879.91C828.96 877.587 828.206 869.154 819.862 865.452C820.649 861.325 821.638 857.417 820.284 853.464C818.441 852.726 818.189 852.698 816.5 851.677C818.269 847.836 819.023 846.042 820.197 841.968L820.471 840.994C827.373 825.607 842.68 802.762 851.114 787.348C878.825 736.704 911.112 686.066 938.5 635.38Z"/>
+        </g>
+      </svg>
+      Neversion
+    </a>
+    <nav class="nav-links">
+      <a href="#producto">Producto</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#vendedores">Para vendedores</a>
+    </nav>
+    <a href="#contacto" class="nav-cta">Hablemos</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="reveal in">
+        <span class="eyebrow">Plataforma multivendedor de servicios digitales</span>
+        <h1>El panel que te avisa <span class="accent">antes</span> de perder una renovación</h1>
+        <p class="lede">Neversion es la plataforma para vender suscripciones, gift cards y recargas — con tienda propia por vendedor y un panel que rastrea cada fecha de vencimiento por ti.</p>
+        <div class="cta-group">
+          <a href="#contacto" class="btn-primary">Hablemos de tu tienda</a>
+          <a href="#como-funciona" class="btn-secondary">Ver cómo funciona</a>
+        </div>
+      </div>
+
+      <div class="timeline-card reveal in">
+        <div class="timeline-head">
+          <span class="label">Vencimientos — este mes</span>
+          <span class="month">JUL 2026</span>
+        </div>
+        <div class="timeline">
+          <div class="t-fill"></div>
+          <div class="t-dot done"></div>
+          <div class="t-dot done2"></div>
+          <div class="t-dot now"></div>
+          <div class="t-dot pending"></div>
+        </div>
+        <div class="status-rows">
+          <div class="status-row">
+            <span class="client">M. Rodríguez — Plan Anual</span>
+            <span class="date">08 jul</span>
+            <span class="badge pronto">Por vencer</span>
+          </div>
+          <div class="status-row">
+            <span class="client">D. Herrera — Gift Card</span>
+            <span class="date">14 jul</span>
+            <span class="badge activa">Activa</span>
+          </div>
+          <div class="status-row">
+            <span class="client">C. Aguilar — Plan Mensual</span>
+            <span class="date">30 jun</span>
+            <span class="badge vencida">Vencida</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEMA -->
+  <section id="producto">
+    <div class="wrap problem-body">
+      <div class="reveal">
+        <span class="eyebrow">El problema</span>
+        <h2>Vender no es el reto. Recordar sí lo es.</h2>
+        <p>Quien revende suscripciones digitales termina con decenas de clientes y fechas de vencimiento distintas. Sin un sistema centralizado, eso se resuelve a mano: <strong>hojas de cálculo, notas sueltas, memoria.</strong></p>
+        <p>El resultado casi nunca es falta de demanda. Es una renovación que se pasa, un cliente que se va, un ingreso que se pierde por algo evitable.</p>
+      </div>
+      <div class="chaos-card reveal">
+        <div class="chaos-title">Sin Neversion</div>
+        <div class="chaos-line"><span class="dot"></span>Excel con 3 pestañas distintas por proveedor</div>
+        <div class="chaos-line"><span class="dot"></span>Recordatorios en el celular que se posponen</div>
+        <div class="chaos-line"><span class="dot"></span>Cliente que escribe preguntando "¿ya venció?"</div>
+        <div class="chaos-line"><span class="dot"></span>Renovación cobrada tarde — o nunca</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOLUCIÓN -->
+  <section>
+    <div class="wrap solution-grid">
+      <div class="reveal">
+        <span class="eyebrow">Cómo lo resuelve</span>
+        <h2>Un panel, todas las renovaciones, ninguna sorpresa</h2>
+        <p style="color:var(--text-muted); margin-top:16px;">Cada vendedor opera su propia tienda dentro de Neversion, con su marca y su catálogo. El panel muestra de un vistazo qué vence hoy, esta semana y este mes — con alertas antes de que expire. Nada depende de la memoria.</p>
+      </div>
+      <div class="panel-mock reveal">
+        <div class="panel-mock-head">
+          <span></span><span></span><span></span>
+          <span class="fname">panel-renovaciones.neversion</span>
+        </div>
+        <table class="panel-table">
+          <thead>
+            <tr><th>Cliente</th><th>Producto</th><th>Vence</th><th>Estado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>M. Rodríguez</td><td>Plan Anual</td><td class="mono">2026-07-08</td><td><span class="badge pronto">Por vencer</span></td></tr>
+            <tr><td>D. Herrera</td><td>Gift Card Steam</td><td class="mono">2026-07-14</td><td><span class="badge activa">Activa</span></td></tr>
+            <tr><td>C. Aguilar</td><td>Plan Mensual</td><td class="mono">2026-06-30</td><td><span class="badge vencida">Vencida</span></td></tr>
+            <tr><td>P. Lima</td><td>Recarga Riot</td><td class="mono">2026-07-21</td><td><span class="badge activa">Activa</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="vendedores">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Lo que incluye</span>
+        <h2>Todo lo que necesita un vendedor de servicios digitales</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal">
+          <div class="f-badge">⏱</div>
+          <h3>Panel de renovaciones</h3>
+          <p>Vencimientos por cliente y producto, con alertas automáticas antes de que expiren.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-badge">◇</div>
+          <h3>Tienda propia</h3>
+          <p>Storefront, catálogo y marca independientes para cada vendedor.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-badge">≡</div>
+          <h3>Catálogo multi-producto</h3>
+          <p>Suscripciones, gift cards y recargas en un mismo sistema.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="f-badge">⬡</div>
+          <h3>Arquitectura multivendedor</h3>
+          <p>Una plataforma, múltiples negocios operando sin interferir entre sí.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section id="como-funciona">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Cómo funciona</span>
+        <h2>De cero a tu primera renovación rastreada</h2>
+      </div>
+      <div class="how-list">
+        <div class="how-item reveal">
+          <span class="how-num">01</span>
+          <div><h3>Activa tu tienda</h3><p>Regístrate and configura tu storefront con tu marca.</p></div>
+        </div>
+        <div class="how-item reveal">
+          <span class="how-num">02</span>
+          <div><h3>Carga tu catálogo</h3><p>Suscripciones, gift cards y recargas, listas para vender.</p></div>
+        </div>
+        <div class="how-item reveal">
+          <span class="how-num">03</span>
+          <div><h3>Vende y asigna</h3><p>Cada compra queda ligada a un cliente y a una fecha de vencimiento.</p></div>
+        </div>
+        <div class="how-item reveal">
+          <span class="how-num">04</span>
+          <div><h3>Deja que el panel vigile</h3><p>Rastrea automáticamente cada renovación activa, sin que tengas que recordarlo tú.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section class="contact" id="contacto">
+    <div class="wrap">
+      <div class="contact-inner reveal">
+        <div>
+          <h2>¿Vendes servicios digitales y ya perdiste una renovación?</h2>
+          <p>Escríbeme directamente. Cuéntame cómo vendes hoy y vemos si Neversion encaja.</p>
+        </div>
+        <div class="contact-cta">
+          <a href="https://www.linkedin.com/in/alexcanon64" target="_blank" rel="noopener" class="btn-primary">Hablar por LinkedIn</a>
+          <a href="https://github.com/alexanderCanon" target="_blank" rel="noopener" class="btn-secondary">Ver el código</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span class="footer-left">Neversion — plataforma multivendedor de servicios digitales.</span>
+    <span class="footer-stack">Construido con Spring Boot · PostgreSQL · Docker — <a href="https://github.com/alexanderCanon" target="_blank" rel="noopener">código en GitHub</a></span>
+  </div>
+</footer>
+
+<script>
+  // Reveal-on-scroll for elements below the fold (hero stays visible immediately)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal:not(.in)').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
