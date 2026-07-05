@@ -100,7 +100,7 @@ export class AuthService {
       vendorUuid: runtimeConfig.storeVendorUuid
     };
 
-    return this.authApiService.registerClient(apiRequest).pipe(
+    return this.authApiService.registerClientAuth(apiRequest).pipe(
       map(() => {
         // Backend successfully registered the client.
         // It does not log them in. The client must sign in separately.
@@ -136,7 +136,7 @@ export class AuthService {
       externalId: pending.supabaseUid
     };
 
-    return this.authApiService.registerClient(apiRequest).pipe(
+    return this.authApiService.registerClientAuth(apiRequest).pipe(
       // switchMap lets us wait for the async token refresh before proceeding.
       switchMap(() =>
         from(this.supabaseService.client.auth.refreshSession()).pipe(
@@ -206,7 +206,7 @@ export class AuthService {
    * - 404 → first-time Google user, show the WhatsApp onboarding form.
    */
   private checkBackendUser(uid: string, email: string, name: string): void {
-    this.authApiService.me().subscribe({
+    this.authApiService.meAuth().subscribe({
       next: (meResponse) => {
         // User exists in the DB — build the full local User object.
         // /me does not return name; it comes from Supabase user_metadata.

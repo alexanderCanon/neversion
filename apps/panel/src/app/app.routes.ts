@@ -39,6 +39,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'games',
+                loadComponent: () => import('./features/games/pages/games-list/games-list.component').then(m => m.GamesListComponent),
+                data: { allowedRoles: ['vendor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'accounts',
                 loadChildren: () => import('./features/accounts/accounts.routes').then(m => m.accountsRoutes),
                 data: { allowedRoles: ['vendor'] },

@@ -60,14 +60,14 @@ export class AccessesComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.clientsApi.getMyAccesses().subscribe({
-      next: (accesses) => {
+    this.clientsApi.getMyAccessesClient().subscribe({
+      next: (accesses: any) => {
         this.subscriptions = this.normalizeAccessesResponse(accesses).sort((left, right) =>
           this.toTimestamp(left.paymentDueDate) - this.toTimestamp(right.paymentDueDate)
         );
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error fetching accesses:', err);
         this.error = 'Ocurrió un error al cargar los accesos.';
         this.isLoading = false;
@@ -111,8 +111,8 @@ export class AccessesComponent implements OnInit {
       paymentMethod: 'TRANSFERENCIA'
     };
 
-    this.reservationsApi.createRenewalReservation(request).subscribe({
-      next: (reservation) => {
+    this.reservationsApi.createRenewalReservationReservation(request).subscribe({
+      next: (reservation: any) => {
         this.renewingSubscriptionId = null;
         this.router.navigate(['/payment-page'], {
           queryParams: {
@@ -121,7 +121,7 @@ export class AccessesComponent implements OnInit {
           }
         });
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error creating renewal reservation:', err);
         this.renewalError = err?.status === 400
           ? 'Ya existe una renovación pendiente para esta suscripción.'

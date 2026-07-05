@@ -21,12 +21,12 @@ export class ReceiptsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.clientsApi.getMyReservations().subscribe({
-      next: (reservations) => {
+    this.clientsApi.getMyReservationsClient().subscribe({
+      next: (reservations: any) => {
         this.reservations = reservations;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error fetching client reservations:', err);
         this.error = 'Ocurrió un error al cargar tus comprobantes.';
         this.isLoading = false;

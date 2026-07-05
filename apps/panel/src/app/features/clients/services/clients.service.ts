@@ -27,7 +27,7 @@ export class ClientsService {
     if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.clientsApi.listByVendor3(
+    return this.clientsApi.listByVendorClient(
       vendorUuid,
       filter?.name,
       filter?.phone,
@@ -42,13 +42,13 @@ export class ClientsService {
   }
 
   getClientById(id: string): Observable<ClientResponse> {
-    return this.clientsApi.getById2(id).pipe(
+    return this.clientsApi.getByIdClient(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
 
   getClientDetail(id: string): Observable<ClientDetail> {
-    return this.clientsApi.getDetail(id).pipe(
+    return this.clientsApi.getDetailClient(id).pipe(
       map(api => this.mapDetailToModel(api))
     );
   }
@@ -61,7 +61,7 @@ export class ClientsService {
       notes: client.notes
     };
 
-    return this.clientsApi.create2(apiRequest).pipe(
+    return this.clientsApi.createClient(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newClient) => {
         this._clients.update((current) => [...current, newClient]);
@@ -76,7 +76,7 @@ export class ClientsService {
       notes: client.notes
     };
 
-    return this.clientsApi.update2(id, apiRequest).pipe(
+    return this.clientsApi.updateClient(id, apiRequest).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedClient) => {
             this._clients.update(current => 
@@ -87,11 +87,11 @@ export class ClientsService {
   }
 
   checkDeletion(id: string): Observable<ClientDeletionCheckResponse> {
-    return this.clientsApi.checkDeletion(id);
+    return this.clientsApi.checkDeletionClient(id);
   }
 
   deleteClient(id: string): Observable<void> {
-    return this.clientsApi.delete2(id).pipe(
+    return this.clientsApi.deleteClient(id).pipe(
       tap(() => {
         this._clients.update((current) => current.filter((c) => c.id !== id));
       })

@@ -46,8 +46,8 @@ export class AccountsService {
     }
 
     this._isLoading.set(true);
-    // listByVendor3(vendorUuid, serviceUuid, status)
-    const request$ = this.accountsApi.listByVendor4(
+    // listByVendorAccount(vendorUuid, serviceUuid, status)
+    const request$ = this.accountsApi.listByVendorAccount(
       vendorUuid,
       filter?.serviceId,
       filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED',
@@ -68,7 +68,7 @@ export class AccountsService {
   }
 
   getAccountById(id: string): Observable<AccountResponse> {
-    return this.accountsApi.getById3(id).pipe(
+    return this.accountsApi.getByIdAccount(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -77,7 +77,7 @@ export class AccountsService {
    * Detailed view with profiles (US-028)
    */
   getAccountDetail(id: string): Observable<ApiAccountDetailResponse> {
-      return this.accountsApi.getDetail1(id).pipe(
+      return this.accountsApi.getDetailAccount(id).pipe(
         map((detail) => ({
           ...detail,
           profiles: detail.profiles ?? [],
@@ -92,7 +92,7 @@ export class AccountsService {
       saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.create3(apiRequest).pipe(
+    return this.accountsApi.createAccount(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newAccount) => {
         this._accounts.update((current) => [...current, newAccount]);
@@ -107,7 +107,7 @@ export class AccountsService {
         saleMode: account.saleMode as unknown as ApiAccountRequest.SaleModeEnum
     };
 
-    return this.accountsApi.update3(id, apiRequest).pipe(
+    return this.accountsApi.updateAccount(id, apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((updatedAccount) => {
         this._accounts.update((current) => 
@@ -118,7 +118,7 @@ export class AccountsService {
   }
 
   deactivateAccount(id: string): Observable<void> {
-    return this.accountsApi.delete3(id).pipe(
+    return this.accountsApi.deleteAccount(id).pipe(
       tap(() => {
         this._accounts.update((current) => current.filter((a) => a.id !== id));
       })
@@ -130,7 +130,7 @@ export class AccountsService {
   }
 
   createAccountWithSubscription(request: AccountWithSubscriptionRequest): Observable<CreateAccountWithSubscriptionResult> {
-    return this.accountsApi.createWithSubscription(request, 'body', false);
+    return this.accountsApi.createWithSubscriptionAccount(request, 'body', false);
   }
 
   private normalizeAccountsResponse(response: ApiAccountResponse[] | ApiAccountsPageResponse): ApiAccountResponse[] {

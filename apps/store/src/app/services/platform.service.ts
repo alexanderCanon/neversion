@@ -14,7 +14,7 @@ export class PlatformService {
    * Fetch only ACTIVE services for the storefront (US-021)
    */
   public getPlatforms(): Observable<ServiceResponse[]> {
-    return this.servicesApi.listActive(runtimeConfig.storeVendorUuid).pipe(
+    return this.servicesApi.listActiveService(runtimeConfig.storeVendorUuid).pipe(
       catchError(err => {
         console.error('Error fetching storefront services:', err);
         return throwError(() => err);
@@ -23,7 +23,7 @@ export class PlatformService {
   }
 
   public getPlatformById(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.getById(id).pipe(
+    return this.servicesApi.getByIdService(id).pipe(
       catchError(err => {
         console.error('Error fetching service details:', err);
         return throwError(() => err);

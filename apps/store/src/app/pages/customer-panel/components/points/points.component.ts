@@ -23,9 +23,9 @@ export class PointsComponent implements OnInit {
   }
 
   loadSummary(): void {
-    this.loyaltyApi.getMySummary().subscribe({
-      next: (s) => (this.summary = s),
-      error: (err) => {
+    this.loyaltyApi.getMySummaryClientPoints().subscribe({
+      next: (s: any) => (this.summary = s),
+      error: (err: any) => {
         console.error(err);
         this.error = 'Error al cargar tu saldo de puntos.';
       }
@@ -34,14 +34,14 @@ export class PointsComponent implements OnInit {
 
   loadMovements(page: number): void {
     this.isLoading = true;
-    this.loyaltyApi.getMyMovements(page, this.pageSize).subscribe({
-      next: (result) => {
+    this.loyaltyApi.getMyMovementsClientPoints(page, this.pageSize).subscribe({
+      next: (result: any) => {
         this.movements = result.movements ?? [];
         this.totalElements = result.totalElements ?? 0;
         this.page = page;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error(err);
         this.error = 'Error al cargar tus movimientos de puntos.';
         this.isLoading = false;

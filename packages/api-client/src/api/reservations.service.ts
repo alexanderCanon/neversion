@@ -53,15 +53,15 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public attachClient(id: string, clientId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public attachClient(id: string, clientId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public attachClient(id: string, clientId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public attachClient(id: string, clientId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public attachClientReservation(id: string, clientId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public attachClientReservation(id: string, clientId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public attachClientReservation(id: string, clientId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public attachClientReservation(id: string, clientId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling attachClient.');
+            throw new Error('Required parameter id was null or undefined when calling attachClientReservation.');
         }
         if (clientId === null || clientId === undefined) {
-            throw new Error('Required parameter clientId was null or undefined when calling attachClient.');
+            throw new Error('Required parameter clientId was null or undefined when calling attachClientReservation.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -128,12 +128,12 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public cancelReservation(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public cancelReservation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public cancelReservation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public cancelReservation(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public cancelReservationReservation(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public cancelReservationReservation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public cancelReservationReservation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public cancelReservationReservation(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling cancelReservation.');
+            throw new Error('Required parameter id was null or undefined when calling cancelReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -188,12 +188,12 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createRenewalReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public createRenewalReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public createRenewalReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public createRenewalReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public createRenewalReservationReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public createRenewalReservationReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public createRenewalReservationReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public createRenewalReservationReservation(createRenewalReservationRequest: CreateRenewalReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (createRenewalReservationRequest === null || createRenewalReservationRequest === undefined) {
-            throw new Error('Required parameter createRenewalReservationRequest was null or undefined when calling createRenewalReservation.');
+            throw new Error('Required parameter createRenewalReservationRequest was null or undefined when calling createRenewalReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -258,12 +258,12 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createReservation(reservationRequest: ReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public createReservation(reservationRequest: ReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public createReservation(reservationRequest: ReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public createReservation(reservationRequest: ReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public createReservationReservation(reservationRequest: ReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public createReservationReservation(reservationRequest: ReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public createReservationReservation(reservationRequest: ReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public createReservationReservation(reservationRequest: ReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (reservationRequest === null || reservationRequest === undefined) {
-            throw new Error('Required parameter reservationRequest was null or undefined when calling createReservation.');
+            throw new Error('Required parameter reservationRequest was null or undefined when calling createReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -328,12 +328,12 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getReservation(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public getReservation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public getReservation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public getReservation(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getReservationReservation(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public getReservationReservation(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public getReservationReservation(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public getReservationReservation(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getReservation.');
+            throw new Error('Required parameter id was null or undefined when calling getReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -388,10 +388,10 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listReservations(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ReservationResponse>>;
-    public listReservations(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ReservationResponse>>>;
-    public listReservations(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ReservationResponse>>>;
-    public listReservations(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listReservationsReservation(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ReservationResponse>>;
+    public listReservationsReservation(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ReservationResponse>>>;
+    public listReservationsReservation(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ReservationResponse>>>;
+    public listReservationsReservation(status?: 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -458,15 +458,15 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public rejectReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public rejectReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public rejectReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public rejectReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public rejectReservationReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public rejectReservationReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public rejectReservationReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public rejectReservationReservation(id: string, validateReservationRequest: ValidateReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling rejectReservation.');
+            throw new Error('Required parameter id was null or undefined when calling rejectReservationReservation.');
         }
         if (validateReservationRequest === null || validateReservationRequest === undefined) {
-            throw new Error('Required parameter validateReservationRequest was null or undefined when calling rejectReservation.');
+            throw new Error('Required parameter validateReservationRequest was null or undefined when calling rejectReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -532,15 +532,15 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public uploadReceipt(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public uploadReceipt(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public uploadReceipt(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public uploadReceipt(id: string, uploadReceiptRequest: UploadReceiptRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public uploadReceiptReservation(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public uploadReceiptReservation(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public uploadReceiptReservation(id: string, uploadReceiptRequest: UploadReceiptRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public uploadReceiptReservation(id: string, uploadReceiptRequest: UploadReceiptRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling uploadReceipt.');
+            throw new Error('Required parameter id was null or undefined when calling uploadReceiptReservation.');
         }
         if (uploadReceiptRequest === null || uploadReceiptRequest === undefined) {
-            throw new Error('Required parameter uploadReceiptRequest was null or undefined when calling uploadReceipt.');
+            throw new Error('Required parameter uploadReceiptRequest was null or undefined when calling uploadReceiptReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -606,12 +606,12 @@ export class ReservationsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public validateReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
-    public validateReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
-    public validateReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
-    public validateReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public validateReservationReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ReservationResponse>;
+    public validateReservationReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ReservationResponse>>;
+    public validateReservationReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ReservationResponse>>;
+    public validateReservationReservation(id: string, validateReservationRequest?: ValidateReservationRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling validateReservation.');
+            throw new Error('Required parameter id was null or undefined when calling validateReservationReservation.');
         }
 
         let localVarHeaders = this.defaultHeaders;

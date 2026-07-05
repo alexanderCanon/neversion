@@ -31,7 +31,7 @@ export class ServicesDataService {
     if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.servicesApi.listByVendor1(
+    return this.servicesApi.listByVendorService(
       vendorUuid,
       filter?.category as any,
       filter?.isActive,
@@ -45,7 +45,7 @@ export class ServicesDataService {
   }
 
   getServiceById(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.getById(id).pipe(
+    return this.servicesApi.getByIdService(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -56,7 +56,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.create(apiRequest).pipe(
+    return this.servicesApi.createService(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newService) => {
         this._services.update((current) => [...current, newService]);
@@ -70,7 +70,7 @@ export class ServicesDataService {
       category: service.category as any
     };
 
-    return this.servicesApi.update(id, apiRequest).pipe(
+    return this.servicesApi.updateService(id, apiRequest).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 
@@ -84,7 +84,7 @@ export class ServicesDataService {
    * Toggles the active status of a service (US-019)
    */
   toggleServiceStatus(id: string): Observable<ServiceResponse> {
-    return this.servicesApi.toggleStatus(id).pipe(
+    return this.servicesApi.toggleStatusService(id).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedService) => {
             this._services.update(current => 
@@ -95,7 +95,7 @@ export class ServicesDataService {
   }
 
   deleteService(id: string): Observable<void> {
-    return this.servicesApi._delete(id).pipe(
+    return this.servicesApi.deleteService(id).pipe(
       tap(() => {
         this._services.update((current) => current.filter((a) => a.id !== id));
       })

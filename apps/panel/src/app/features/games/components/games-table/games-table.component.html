@@ -1,0 +1,82 @@
+<div class="table-responsive">
+  <table class="table table-hover align-middle mb-0 border-0">
+    <thead>
+      <tr>
+        <th scope="col" class="ps-4">Detalle del Juego</th>
+        <th scope="col">Código</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Estado</th>
+        @if (!isReadOnly) {
+        <th scope="col" class="text-end pe-4">Acciones</th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (game of games; track game.id) {
+        <tr class="game-row">
+          <!-- Image + Name -->
+          <td class="ps-4 py-3">
+            <div class="d-flex align-items-center">
+              <div class="game-img-container shadow-sm border">
+                @if (game.imageUrl) {
+                  <img [src]="game.imageUrl" alt="{{game.name}}" class="img-fluid rounded">
+                } @else {
+                  <div class="placeholder-img d-flex align-items-center justify-content-center text-white fw-bold">
+                    {{ getGameInitials(game.name) }}
+                  </div>
+                }
+              </div>
+              <div class="ms-3">
+                <div class="fw-bold text-dark fs-6">{{ game.name }}</div>
+              </div>
+            </div>
+          </td>
+          
+          <!-- Code -->
+          <td>
+            <span class="badge-code border px-2 py-1 rounded bg-light text-secondary font-monospace small">
+              {{ game.code }}
+            </span>
+          </td>
+ 
+          <!-- Price -->
+          <td>
+            <span class="fw-bold text-primary">Q{{ game.price | number:'1.2-2' }}</span>
+          </td>
+ 
+          <!-- Status -->
+          <td>
+            <div class="form-check form-switch p-0 d-flex align-items-center gap-2">
+                <span class="status-indicator" [ngClass]="game.isActive ? 'active' : 'inactive'"></span>
+                <span class="small fw-semibold" [ngClass]="game.isActive ? 'text-success' : 'text-muted'">
+                    {{ game.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+            </div>
+          </td>
+ 
+          <!-- Actions -->
+          @if (!isReadOnly) {
+          <td class="text-end pe-4">
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-action-text edit d-inline-flex align-items-center px-3 py-2 border rounded-3" (click)="editGame.emit(game)">
+                <i class="bi bi-pencil-square me-1"></i>
+                <span>Editar</span>
+              </button>
+              <button class="btn btn-action-text d-inline-flex align-items-center px-3 py-2 border rounded-3" 
+                      [ngClass]="game.isActive ? 'deactivate' : 'activate'"
+                      (click)="toggleStatus.emit(game.id)">
+                <i class="bi me-1" [ngClass]="game.isActive ? 'bi-eye-slash-fill' : 'bi-eye-fill'"></i>
+                <span>{{ game.isActive ? 'Desactivar' : 'Activar' }}</span>
+              </button>
+              <button class="btn btn-action-text delete d-inline-flex align-items-center px-3 py-2 border rounded-3" (click)="deleteGame.emit(game.id)">
+                <i class="bi bi-trash3 me-1 text-danger"></i>
+                <span>Eliminar</span>
+              </button>
+            </div>
+          </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

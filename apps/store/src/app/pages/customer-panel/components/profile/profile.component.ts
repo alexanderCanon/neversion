@@ -33,8 +33,8 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.clientsApi.getMyProfile().subscribe({
-      next: (profile) => {
+    this.clientsApi.getMyProfileClient().subscribe({
+      next: (profile: any) => {
         this.profile = profile;
         this.form.patchValue({
           name: profile.name ?? '',
@@ -42,7 +42,7 @@ export class ProfileComponent implements OnInit {
         });
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error fetching client profile:', err);
         this.error = 'Ocurrió un error al cargar tu perfil.';
         this.isLoading = false;
@@ -65,8 +65,8 @@ export class ProfileComponent implements OnInit {
       phone: this.form.value.phone
     };
 
-    this.clientsApi.updateMyProfile(request).subscribe({
-      next: (profile) => {
+    this.clientsApi.updateMyProfileClient(request).subscribe({
+      next: (profile: any) => {
         this.profile = profile;
         this.form.patchValue({
           name: profile.name ?? '',
@@ -75,7 +75,7 @@ export class ProfileComponent implements OnInit {
         this.successMessage = 'Perfil actualizado correctamente.';
         this.isSaving = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error updating client profile:', err);
         this.error = 'No se pudo actualizar tu perfil. Intenta de nuevo.';
         this.isSaving = false;

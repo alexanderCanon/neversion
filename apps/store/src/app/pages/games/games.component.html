@@ -2,10 +2,10 @@
     <!-- Section Header -->
     <div class="bg-primary text-white py-5 mb-5 shadow-sm" 
          style="background: linear-gradient(135deg, var(--primary-color) 0%, #1a1a1a 100%);">
-        <div class="container py-4 text-center">
-            <h1 class="display-4 fw-bold mb-3"><i class="bi bi-controller me-3"></i>Juegos y Gift Cards</h1>
-            <p class="lead opacity-75">Las mejores recargas y licencias para tus juegos favoritos en un solo lugar.</p>
-        </div>
+         <div class="container py-4 text-center">
+             <h1 class="display-4 fw-bold mb-3"><i class="bi bi-controller me-3"></i>Juegos y Gift Cards</h1>
+             <p class="lead opacity-75">Las mejores recargas y licencias para tus juegos favoritos en un solo lugar.</p>
+         </div>
     </div>
 
     <div class="container">
@@ -14,7 +14,7 @@
             <div class="col" *ngFor="let game of games">
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden game-card transition-all">
                     <div class="p-3">
-                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-3" [routerLink]="['/platforms', game.id]" style="cursor: pointer;">
+                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-3" (click)="contactToBuy(game)" style="cursor: pointer;">
                             <img [src]="resolveImageUrl(game.imageUrl)" 
                                  [alt]="game.name" 
                                  class="img-fluid" 
@@ -24,24 +24,24 @@
                     
                     <div class="card-body pt-0 px-4 pb-4">
                         <div class="mb-3">
-                            <span class="badge bg-info-subtle text-info small mb-2">{{ game.category }}</span>
+                            <span class="badge bg-info-subtle text-info small mb-2">Juego / Licencia</span>
                             <h5 class="fw-bold mb-1 text-dark">{{ game.name }}</h5>
-                            <p class="text-muted small line-clamp-2">{{ game.description }}</p>
+                            <p class="text-muted small font-monospace">Código: {{ game.code }}</p>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="price-box">
                                 <span class="small text-muted d-block">Precio</span>
-                                <span class="h4 fw-bold text-primary mb-0">Q{{ game.priceProfile }}</span>
+                                <span class="h4 fw-bold text-primary mb-0">Q{{ game.price | number:'1.2-2' }}</span>
                             </div>
-                            <button (click)="addToCart(game, 'PROFILE')" class="btn btn-primary rounded-circle shadow-sm" style="width: 45px; height: 45px;">
-                                <i class="bi bi-cart-plus"></i>
+                            <button (click)="contactToBuy(game)" class="btn btn-success rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background-color: #25d366; border-color: #25d366;">
+                                <i class="bi bi-whatsapp text-white fs-5"></i>
                             </button>
                         </div>
                         
                         <div class="border-top pt-3">
-                            <button [routerLink]="['/platforms', game.id]" class="btn btn-link btn-sm p-0 text-decoration-none text-muted w-100 text-center">
-                                Ver más información
+                            <button (click)="contactToBuy(game)" class="btn btn-link btn-sm p-0 text-decoration-none text-success w-100 text-center fw-bold">
+                                Solicitar por WhatsApp
                             </button>
                         </div>
                     </div>

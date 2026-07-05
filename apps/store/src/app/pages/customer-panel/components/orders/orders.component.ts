@@ -21,12 +21,12 @@ export class OrdersComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
 
-    this.clientsApi.getMyOrders().subscribe({
-      next: (orders) => {
+    this.clientsApi.getMyOrdersClient().subscribe({
+      next: (orders: any) => {
         this.orders = orders;
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error fetching client orders:', err);
         this.error = 'Ocurrió un error al cargar tu historial de órdenes.';
         this.isLoading = false;
