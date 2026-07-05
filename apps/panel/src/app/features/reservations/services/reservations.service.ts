@@ -24,7 +24,7 @@ export class ReservationsService {
 
   getReservations(filter?: ReservationsFilter): Observable<ReservationResponse[]> {
     this._isLoading.set(true);
-    return this.reservationsApi.listReservations(
+    return this.reservationsApi.listReservationsReservation(
       filter?.status as 'PENDING' | 'UPLOADED' | 'VALIDATED' | 'REJECTED' | 'EXPIRED' | 'CANCELLED' | undefined,
       'body',
       false,
@@ -36,7 +36,7 @@ export class ReservationsService {
   }
 
   getReservationById(id: string): Observable<ReservationResponse> {
-    return this.reservationsApi.getReservation(id).pipe(
+    return this.reservationsApi.getReservationReservation(id).pipe(
       map(api => this.mapToModel(api))
     );
   }
@@ -50,7 +50,7 @@ export class ReservationsService {
       })),
     };
 
-    return this.reservationsApi.createReservation(apiRequest).pipe(
+    return this.reservationsApi.createReservationReservation(apiRequest).pipe(
       map(api => this.mapToModel(api)),
       tap((newReserv) => {
         this._reservations.update((current) => [newReserv, ...current]);
@@ -59,7 +59,7 @@ export class ReservationsService {
   }
 
   uploadReceipt(id: string, receiptUrl: string): Observable<void> {
-    return this.reservationsApi.uploadReceipt(
+    return this.reservationsApi.uploadReceiptReservation(
       id,
       { receiptUrl },
       'body',
@@ -68,7 +68,7 @@ export class ReservationsService {
   }
 
   validateReservation(id: string, notes: string): Observable<void> {
-    return this.reservationsApi.validateReservation(
+    return this.reservationsApi.validateReservationReservation(
       id,
       { notes },
       'body',
@@ -77,7 +77,7 @@ export class ReservationsService {
   }
 
   cancelReservation(id: string): Observable<void> {
-    return this.reservationsApi.cancelReservation(
+    return this.reservationsApi.cancelReservationReservation(
       id,
       'body',
       false,
@@ -85,7 +85,7 @@ export class ReservationsService {
   }
 
   attachClient(id: string, clientId: string): Observable<void> {
-    return this.reservationsApi.attachClient(
+    return this.reservationsApi.attachClientReservation(
       id,
       clientId,
       'body',

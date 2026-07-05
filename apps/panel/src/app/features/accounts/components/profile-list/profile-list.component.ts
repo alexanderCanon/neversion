@@ -108,8 +108,8 @@ export class ProfileListComponent implements OnInit, OnChanges {
   loadProfilesClientData(): void {
     if (!this.accountId) return;
 
-    this.dashboardApi.getProfilesByAccount(this.accountId).subscribe({
-      next: (data) => {
+    this.dashboardApi.getProfilesByAccountDashboard(this.accountId).subscribe({
+      next: (data: any) => {
         const clientsMap: Record<string, { id: string; name: string; phone?: string }> = {};
         if (data && Array.isArray(data)) {
           data.forEach(item => {
@@ -124,7 +124,7 @@ export class ProfileListComponent implements OnInit, OnChanges {
         }
         this.profileClients = clientsMap;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error fetching client profiles:', err);
       }
     });

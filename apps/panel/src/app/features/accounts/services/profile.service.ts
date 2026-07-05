@@ -22,11 +22,10 @@ export class ProfileService {
 
   getProfilesByAccount(accountId: string, available?: boolean): Observable<ProfileResponse[]> {
     this._isLoading.set(true);
-    // Note: API client expects 'number' for accountId in listByAccount. 
-    // We cast to any for now to allow UUID strings if the backend supports them but types aren't updated.
-    return this.profilesApi.listByAccount(accountId as any, available).pipe(
-      map(apiProfiles => apiProfiles.map(api => this.mapToModel(api))),
-      tap((profiles) => this._profiles.set(profiles)),
+    // Note: API client expects 'string' for accountId in listByAccountProfile.
+    return this.profilesApi.listByAccountProfile(accountId, available).pipe(
+      map((apiProfiles: ApiProfileResponse[]) => apiProfiles.map((api: ApiProfileResponse) => this.mapToModel(api))),
+      tap((profiles: ProfileResponse[]) => this._profiles.set(profiles)),
       finalize(() => this._isLoading.set(false))
     );
   }
@@ -36,14 +35,14 @@ export class ProfileService {
    */
   generateProfiles(accountId: string, count: number): Observable<void> {
       this._isLoading.set(true);
-      return this.accountsApi.generateProfiles(accountId, count).pipe(
+      return this.accountsApi.generateProfilesAccount(accountId, count).pipe(
           finalize(() => this._isLoading.set(false))
       );
   }
 
   getProfileById(id: string): Observable<ProfileResponse> {
-    return this.profilesApi.getById1(id).pipe(
-      map(api => this.mapToModel(api))
+    return this.profilesApi.getByIdProfile(id).pipe(
+      map((api: ApiProfileResponse) => this.mapToModel(api))
     );
   }
 
@@ -56,11 +55,11 @@ export class ProfileService {
       isOwner: profile.isOwner
     };
 
-    return this.profilesApi.update1(id, apiRequest).pipe(
-      map(api => this.mapToModel(api)),
-      tap((updatedProfile) => {
-          this._profiles.update(current => 
-              current.map(p => p.id === id ? updatedProfile : p)
+    return this.profilesApi.updateProfile(id, apiRequest).pipe(
+      map((api: ApiProfileResponse) => this.mapToModel(api)),
+      tap((updatedProfile: ProfileResponse) => {
+          this._profiles.update((current: ProfileResponse[]) => 
+              current.map((p: ProfileResponse) => p.id === id ? updatedProfile : p)
           );
       })
     );
@@ -73,11 +72,11 @@ export class ProfileService {
       const apiRequest: ApiStatusRequest = {
           status: request.status as any
       };
-      return this.profilesApi.changeStatus(id, apiRequest).pipe(
-          map(api => this.mapToModel(api)),
-          tap((updated) => {
-              this._profiles.update(current => 
-                current.map(p => p.id === id ? updated : p)
+      return this.profilesApi.changeStatusProfile(id, apiRequest).pipe(
+          map((api: ApiProfileResponse) => this.mapToModel(api)),
+          tap((updated: ProfileResponse) => {
+              this._profiles.update((current: ProfileResponse[]) => 
+                current.map((p: ProfileResponse) => p.id === id ? updated : p)
               );
           })
       );

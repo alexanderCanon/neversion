@@ -21,7 +21,8 @@ public abstract class BaseIntegrationTest {
 
     static {
         DockerImageName myImage = DockerImageName.parse("mirror.gcr.io/library/postgres:16-alpine").asCompatibleSubstituteFor("postgres");
-        POSTGRES = new PostgreSQLContainer<>(myImage);
+        POSTGRES = new PostgreSQLContainer<>(myImage)
+                .withCommand("postgres", "-c", "max_connections=200");
         POSTGRES.start();
     }
 

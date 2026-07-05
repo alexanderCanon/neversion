@@ -51,15 +51,15 @@ export class LoyaltyPointsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public adjust(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementResponse>;
-    public adjust(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementResponse>>;
-    public adjust(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementResponse>>;
-    public adjust(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public adjustVendorClientPoints(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementResponse>;
+    public adjustVendorClientPoints(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementResponse>>;
+    public adjustVendorClientPoints(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementResponse>>;
+    public adjustVendorClientPoints(clientUuid: string, adjustPointsRequest: AdjustPointsRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientUuid === null || clientUuid === undefined) {
-            throw new Error('Required parameter clientUuid was null or undefined when calling adjust.');
+            throw new Error('Required parameter clientUuid was null or undefined when calling adjustVendorClientPoints.');
         }
         if (adjustPointsRequest === null || adjustPointsRequest === undefined) {
-            throw new Error('Required parameter adjustPointsRequest was null or undefined when calling adjust.');
+            throw new Error('Required parameter adjustPointsRequest was null or undefined when calling adjustVendorClientPoints.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -126,12 +126,12 @@ export class LoyaltyPointsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getMovements(clientUuid: string, page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementsPageResponse>;
-    public getMovements(clientUuid: string, page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementsPageResponse>>;
-    public getMovements(clientUuid: string, page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementsPageResponse>>;
-    public getMovements(clientUuid: string, page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getMovementsVendorClientPoints(clientUuid: string, page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementsPageResponse>;
+    public getMovementsVendorClientPoints(clientUuid: string, page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementsPageResponse>>;
+    public getMovementsVendorClientPoints(clientUuid: string, page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementsPageResponse>>;
+    public getMovementsVendorClientPoints(clientUuid: string, page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientUuid === null || clientUuid === undefined) {
-            throw new Error('Required parameter clientUuid was null or undefined when calling getMovements.');
+            throw new Error('Required parameter clientUuid was null or undefined when calling getMovementsVendorClientPoints.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -208,10 +208,10 @@ export class LoyaltyPointsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getMyMovements(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementsPageResponse>;
-    public getMyMovements(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementsPageResponse>>;
-    public getMyMovements(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementsPageResponse>>;
-    public getMyMovements(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getMyMovementsClientPoints(page?: number, size?: number, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsMovementsPageResponse>;
+    public getMyMovementsClientPoints(page?: number, size?: number, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsMovementsPageResponse>>;
+    public getMyMovementsClientPoints(page?: number, size?: number, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsMovementsPageResponse>>;
+    public getMyMovementsClientPoints(page?: number, size?: number, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
 
@@ -285,10 +285,10 @@ export class LoyaltyPointsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getMySummary(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsSummaryResponse>;
-    public getMySummary(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsSummaryResponse>>;
-    public getMySummary(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsSummaryResponse>>;
-    public getMySummary(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getMySummaryClientPoints(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsSummaryResponse>;
+    public getMySummaryClientPoints(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsSummaryResponse>>;
+    public getMySummaryClientPoints(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsSummaryResponse>>;
+    public getMySummaryClientPoints(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -342,12 +342,12 @@ export class LoyaltyPointsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getSummary(clientUuid: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsSummaryResponse>;
-    public getSummary(clientUuid: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsSummaryResponse>>;
-    public getSummary(clientUuid: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsSummaryResponse>>;
-    public getSummary(clientUuid: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getSummaryVendorClientPoints(clientUuid: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<PointsSummaryResponse>;
+    public getSummaryVendorClientPoints(clientUuid: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<PointsSummaryResponse>>;
+    public getSummaryVendorClientPoints(clientUuid: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<PointsSummaryResponse>>;
+    public getSummaryVendorClientPoints(clientUuid: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (clientUuid === null || clientUuid === undefined) {
-            throw new Error('Required parameter clientUuid was null or undefined when calling getSummary.');
+            throw new Error('Required parameter clientUuid was null or undefined when calling getSummaryVendorClientPoints.');
         }
 
         let localVarHeaders = this.defaultHeaders;

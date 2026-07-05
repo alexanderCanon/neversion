@@ -55,4 +55,45 @@ export class StorageService {
       })
     );
   }
+
+  /**
+   * Uploads a game image file to Supabase Storage and returns the public URL.
+   * Saved under the 'games/' subfolder.
+   */
+  uploadGameImage(file: File, path: string): Observable<string> {
+    const uploadPromise = this.supabase.storage
+      .from(this.BUCKET_SERVICES)
+      .upload(`games/${path}`, file, {
+        upsert: true,
+        cacheControl: '3600'
+      });
+
+    return from(uploadPromise).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        
+        const { data: { publicUrl } } = this.supabase.storage
+          .from(this.BUCKET_SERVICES)
+          .getPublicUrl(data.path);
+          
+        return publicUrl;
+      })
+    );
+  }
+
+  /**
+   * Deletes a game file from Supabase Storage games subfolder.
+   */
+  deleteGameImage(path: string): Observable<void> {
+    const deletePromise = this.supabase.storage
+      .from(this.BUCKET_SERVICES)
+      .remove([`games/${path}`]);
+
+    return from(deletePromise).pipe(
+      map(({ error }) => {
+        if (error) throw error;
+        return;
+      })
+    );
+  }
 }

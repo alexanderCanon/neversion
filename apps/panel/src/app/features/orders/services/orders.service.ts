@@ -12,11 +12,11 @@ export class OrdersService {
   private readonly ordersApi = inject(OrdersApiService);
 
   getOrderById(id: string): Observable<ApiOrderDetailResponse> {
-    return this.ordersApi.getById5(id);
+    return this.ordersApi.getByIdOrderGet(id);
   }
 
   getOrderByReservationId(reservationId: string): Observable<ApiOrderResponse> {
-    return this.ordersApi.getByReservationId(
+    return this.ordersApi.getByReservationIdOrderGet(
       Number(reservationId),
       'body',
       false,
@@ -24,7 +24,7 @@ export class OrdersService {
   }
 
   getOrdersByVendor(vendorUuid: string, status?: string): Observable<OrderResponse[]> {
-    return this.ordersApi.listByVendor2(
+    return this.ordersApi.listByVendorOrderGet(
       vendorUuid,
       undefined,
       status as 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING' | undefined,

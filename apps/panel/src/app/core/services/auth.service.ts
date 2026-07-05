@@ -183,7 +183,7 @@ export class AuthService {
             storeName: request.storeName,
         };
 
-        return this.authApiService.registerVendor(apiRequest).pipe(
+        return this.authApiService.registerVendorAuth(apiRequest).pipe(
             map(() => {
                 return {
                     success: true,

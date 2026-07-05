@@ -46,12 +46,12 @@ export class VendorsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updateDiscountConfig(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateDiscountConfigVendor(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public updateDiscountConfigVendor(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public updateDiscountConfigVendor(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public updateDiscountConfigVendor(updateDiscountConfigRequest: UpdateDiscountConfigRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (updateDiscountConfigRequest === null || updateDiscountConfigRequest === undefined) {
-            throw new Error('Required parameter updateDiscountConfigRequest was null or undefined when calling updateDiscountConfig.');
+            throw new Error('Required parameter updateDiscountConfigRequest was null or undefined when calling updateDiscountConfigVendor.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -116,12 +116,12 @@ export class VendorsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateRewardsConfig(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
-    public updateRewardsConfig(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
-    public updateRewardsConfig(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
-    public updateRewardsConfig(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateRewardsConfigVendor(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<string>;
+    public updateRewardsConfigVendor(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<string>>;
+    public updateRewardsConfigVendor(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<string>>;
+    public updateRewardsConfigVendor(updateRewardsConfigRequest: UpdateRewardsConfigRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (updateRewardsConfigRequest === null || updateRewardsConfigRequest === undefined) {
-            throw new Error('Required parameter updateRewardsConfigRequest was null or undefined when calling updateRewardsConfig.');
+            throw new Error('Required parameter updateRewardsConfigRequest was null or undefined when calling updateRewardsConfigVendor.');
         }
 
         let localVarHeaders = this.defaultHeaders;

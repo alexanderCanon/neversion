@@ -1,11 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { PlatformService } from '../../services/platform.service';
+import { GameService } from '../../services/game.service';
 import { ImageService } from '../../services/image.service';
-import { CartService } from '../../services/cart.service';
-import { ToastService } from '../../services/toast.service';
-import { ServiceResponse } from '@neversion/api-client';
+import { GameResponse } from '@neversion/api-client';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-games',
@@ -13,32 +10,22 @@ import { map } from 'rxjs/operators';
   styleUrls: ['./games.component.css']
 })
 export class GamesComponent implements OnInit {
-  private readonly platformService = inject(PlatformService);
+  private readonly gameService = inject(GameService);
   private readonly imageService = inject(ImageService);
-  private readonly cartService = inject(CartService);
-  private readonly toastService = inject(ToastService);
 
-  games$!: Observable<ServiceResponse[]>;
+  games$!: Observable<GameResponse[]>;
 
   ngOnInit(): void {
-    this.games$ = this.platformService.getPlatforms().pipe(
-      map(services => services.filter(s => 
-        s.category === 'digital_service'
-      ))
-    );
+    this.games$ = this.gameService.getGames();
   }
 
   resolveImageUrl(url?: string): string {
     return this.imageService.resolveServiceImageUrl(url);
   }
 
-  addToCart(service: ServiceResponse, type: 'PROFILE' | 'COMPLETE'): void {
-    const result = this.cartService.addToCart(service, type);
-    if (!result.ok) {
-      this.toastService.show(result.message || 'No se pudo agregar al carrito', 'danger', 'Error');
-      return;
-    }
-    const planName = type === 'PROFILE' ? 'Perfil Individual' : 'Cuenta Completa';
-    this.toastService.show(`${service.name} (${planName}) añadido al carrito`, 'success', 'Carrito Actualizado');
+  contactToBuy(game: GameResponse): void {
+    const text = `Hola, me interesa comprar el juego: *${game.name}* (Código: \`${game.code}\`) por *Q${game.price}*.`;
+    const message = encodeURIComponent(text);
+    window.open(`https://wa.me/message/WEOAAOMZ5XU3I1?text=${message}`, '_blank');
   }
 }

@@ -46,13 +46,13 @@ export class PaymentPageComponent implements OnInit, OnDestroy {
   loadReservation(): void {
     if (!this.reservationId) return;
     this.isLoadingReservation = true;
-    this.reservationsApi.getReservation(this.reservationId).subscribe({
-      next: (res) => {
+    this.reservationsApi.getReservationReservation(this.reservationId).subscribe({
+      next: (res: any) => {
         this.reservation = res;
         this.isLoadingReservation = false;
         this.checkReservationStatus();
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading reservation:', err);
         this.toastService.show('Error al cargar la información de la reserva.', 'danger');
         this.isLoadingReservation = false;
@@ -175,12 +175,12 @@ export class PaymentPageComponent implements OnInit, OnDestroy {
         receiptUrl: publicUrlData.publicUrl
       };
 
-      this.reservationsApi.uploadReceipt(this.reservationId, request).subscribe({
+      this.reservationsApi.uploadReceiptReservation(this.reservationId, request).subscribe({
         next: () => {
           alert('Comprobante subido exitosamente. Tu orden está siendo procesada.');
           this.router.navigate([this.flow === 'renewal' ? '/customer-panel' : '/platforms']);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Error uploading receipt url to backend:', err);
           alert('Error al registrar el comprobante en el servidor. Por favor intente de nuevo.');
           this.isUploading = false;

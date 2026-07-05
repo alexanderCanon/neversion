@@ -36,7 +36,7 @@ export class VendorService {
       return of(this.vendorSubject.value);
     }
 
-    return this.vendorsPublicApi.getByUuid(runtimeConfig.storeVendorUuid).pipe(
+    return this.vendorsPublicApi.getByUuidVendorPublic(runtimeConfig.storeVendorUuid).pipe(
       tap(vendor => {
         this.vendorSubject.next(vendor);
         this.discountCfgSubject.next(this.parseDiscountCfg(vendor?.discountCfg));

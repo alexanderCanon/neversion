@@ -51,10 +51,10 @@ export class AuthApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public me(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CurrentUserResponse>;
-    public me(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CurrentUserResponse>>;
-    public me(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CurrentUserResponse>>;
-    public me(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public meAuth(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<CurrentUserResponse>;
+    public meAuth(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<CurrentUserResponse>>;
+    public meAuth(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<CurrentUserResponse>>;
+    public meAuth(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -108,12 +108,12 @@ export class AuthApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterClientResponse>;
-    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterClientResponse>>;
-    public registerClient(registerClientRequest: RegisterClientRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterClientResponse>>;
-    public registerClient(registerClientRequest: RegisterClientRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public registerClientAuth(registerClientRequest: RegisterClientRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterClientResponse>;
+    public registerClientAuth(registerClientRequest: RegisterClientRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterClientResponse>>;
+    public registerClientAuth(registerClientRequest: RegisterClientRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterClientResponse>>;
+    public registerClientAuth(registerClientRequest: RegisterClientRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (registerClientRequest === null || registerClientRequest === undefined) {
-            throw new Error('Required parameter registerClientRequest was null or undefined when calling registerClient.');
+            throw new Error('Required parameter registerClientRequest was null or undefined when calling registerClientAuth.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -178,12 +178,12 @@ export class AuthApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterVendorResponse>;
-    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterVendorResponse>>;
-    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterVendorResponse>>;
-    public registerVendor(registerVendorRequest: RegisterVendorRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public registerVendorAuth(registerVendorRequest: RegisterVendorRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<RegisterVendorResponse>;
+    public registerVendorAuth(registerVendorRequest: RegisterVendorRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<RegisterVendorResponse>>;
+    public registerVendorAuth(registerVendorRequest: RegisterVendorRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<RegisterVendorResponse>>;
+    public registerVendorAuth(registerVendorRequest: RegisterVendorRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (registerVendorRequest === null || registerVendorRequest === undefined) {
-            throw new Error('Required parameter registerVendorRequest was null or undefined when calling registerVendor.');
+            throw new Error('Required parameter registerVendorRequest was null or undefined when calling registerVendorAuth.');
         }
 
         let localVarHeaders = this.defaultHeaders;

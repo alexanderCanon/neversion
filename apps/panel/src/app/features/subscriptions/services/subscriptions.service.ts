@@ -28,7 +28,7 @@ export class SubscriptionsService {
     if (!vendorUuid) return of([]);
 
     this._isLoading.set(true);
-    return this.subscriptionsApi.listByVendor(
+    return this.subscriptionsApi.listByVendorSubscription(
       vendorUuid,
       filter?.serviceId,
       filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED',
@@ -46,35 +46,35 @@ export class SubscriptionsService {
   }
 
   getSubscriptionDetail(id: string): Observable<SubscriptionDetailResponse> {
-    return this.subscriptionsApi.getById4(id);
+    return this.subscriptionsApi.getByIdSubscription(id);
   }
 
   createManualSubscription(request: CreateManualSubscriptionRequest): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.assign(request).pipe(
+    return this.subscriptionsApi.assignSubscription(request).pipe(
       tap(() => this.refreshSubscriptions().subscribe())
     );
   }
 
   createBatchSubscriptions(request: BatchCreateManualSubscriptionRequest): Observable<BatchCreateSubscriptionsResponse> {
-    return this.subscriptionsApi.batchCreate(request).pipe(
+    return this.subscriptionsApi.batchCreateSubscription(request).pipe(
       tap(() => this.refreshSubscriptions().subscribe())
     );
   }
 
   renewSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.renew(id);
+    return this.subscriptionsApi.renewSubscription(id);
   }
 
   cancelSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.cancel(id);
+    return this.subscriptionsApi.cancelSubscription(id);
   }
 
   suspendSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.suspend(id);
+    return this.subscriptionsApi.suspendSubscription(id);
   }
 
   detectExpiredSubscriptions(): Observable<DetectExpiredSubscriptionsResponse> {
-    return this.subscriptionsApi.detectExpired();
+    return this.subscriptionsApi.detectExpiredSubscription();
   }
 
   refreshSubscriptions(): Observable<SubscriptionResponse[]> {

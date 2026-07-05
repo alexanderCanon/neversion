@@ -53,15 +53,15 @@ export class AssignmentsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public confirm(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ConfirmAssignmentResponse>;
-    public confirm(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ConfirmAssignmentResponse>>;
-    public confirm(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ConfirmAssignmentResponse>>;
-    public confirm(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public confirmAssignment(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ConfirmAssignmentResponse>;
+    public confirmAssignment(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ConfirmAssignmentResponse>>;
+    public confirmAssignment(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ConfirmAssignmentResponse>>;
+    public confirmAssignment(orderId: string, confirmAssignmentRequest: ConfirmAssignmentRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (orderId === null || orderId === undefined) {
-            throw new Error('Required parameter orderId was null or undefined when calling confirm.');
+            throw new Error('Required parameter orderId was null or undefined when calling confirmAssignment.');
         }
         if (confirmAssignmentRequest === null || confirmAssignmentRequest === undefined) {
-            throw new Error('Required parameter confirmAssignmentRequest was null or undefined when calling confirm.');
+            throw new Error('Required parameter confirmAssignmentRequest was null or undefined when calling confirmAssignment.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -126,12 +126,12 @@ export class AssignmentsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public manual(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ManualAssignmentResponse>;
-    public manual(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ManualAssignmentResponse>>;
-    public manual(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ManualAssignmentResponse>>;
-    public manual(manualAssignmentRequest: ManualAssignmentRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public manualAssignment(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ManualAssignmentResponse>;
+    public manualAssignment(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ManualAssignmentResponse>>;
+    public manualAssignment(manualAssignmentRequest: ManualAssignmentRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ManualAssignmentResponse>>;
+    public manualAssignment(manualAssignmentRequest: ManualAssignmentRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (manualAssignmentRequest === null || manualAssignmentRequest === undefined) {
-            throw new Error('Required parameter manualAssignmentRequest was null or undefined when calling manual.');
+            throw new Error('Required parameter manualAssignmentRequest was null or undefined when calling manualAssignment.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -196,12 +196,12 @@ export class AssignmentsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public suggest(orderId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SuggestAssignmentResponse>;
-    public suggest(orderId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SuggestAssignmentResponse>>;
-    public suggest(orderId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SuggestAssignmentResponse>>;
-    public suggest(orderId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public suggestAssignment(orderId: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SuggestAssignmentResponse>;
+    public suggestAssignment(orderId: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SuggestAssignmentResponse>>;
+    public suggestAssignment(orderId: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SuggestAssignmentResponse>>;
+    public suggestAssignment(orderId: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (orderId === null || orderId === undefined) {
-            throw new Error('Required parameter orderId was null or undefined when calling suggest.');
+            throw new Error('Required parameter orderId was null or undefined when calling suggestAssignment.');
         }
 
         let localVarHeaders = this.defaultHeaders;

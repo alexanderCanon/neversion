@@ -49,15 +49,15 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
-    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
-    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
-    public changeStatus(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public changeStatusProfile(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
+    public changeStatusProfile(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
+    public changeStatusProfile(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
+    public changeStatusProfile(id: string, changeProfileStatusRequest: ChangeProfileStatusRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling changeStatus.');
+            throw new Error('Required parameter id was null or undefined when calling changeStatusProfile.');
         }
         if (changeProfileStatusRequest === null || changeProfileStatusRequest === undefined) {
-            throw new Error('Required parameter changeProfileStatusRequest was null or undefined when calling changeStatus.');
+            throw new Error('Required parameter changeProfileStatusRequest was null or undefined when calling changeStatusProfile.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -122,12 +122,12 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public create1(profileRequest: ProfileRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
-    public create1(profileRequest: ProfileRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
-    public create1(profileRequest: ProfileRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
-    public create1(profileRequest: ProfileRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public createProfile(profileRequest: ProfileRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
+    public createProfile(profileRequest: ProfileRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
+    public createProfile(profileRequest: ProfileRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
+    public createProfile(profileRequest: ProfileRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (profileRequest === null || profileRequest === undefined) {
-            throw new Error('Required parameter profileRequest was null or undefined when calling create1.');
+            throw new Error('Required parameter profileRequest was null or undefined when calling createProfile.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -191,12 +191,12 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public delete1(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public delete1(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public delete1(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public delete1(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteProfile(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteProfile(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteProfile(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteProfile(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling delete1.');
+            throw new Error('Required parameter id was null or undefined when calling deleteProfile.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -249,12 +249,12 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getById1(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
-    public getById1(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
-    public getById1(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
-    public getById1(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getByIdProfile(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
+    public getByIdProfile(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
+    public getByIdProfile(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
+    public getByIdProfile(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getById1.');
+            throw new Error('Required parameter id was null or undefined when calling getByIdProfile.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -310,12 +310,12 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByAccount(accountId: string, available?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ProfileResponse>>;
-    public listByAccount(accountId: string, available?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ProfileResponse>>>;
-    public listByAccount(accountId: string, available?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ProfileResponse>>>;
-    public listByAccount(accountId: string, available?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByAccountProfile(accountId: string, available?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<ProfileResponse>>;
+    public listByAccountProfile(accountId: string, available?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<ProfileResponse>>>;
+    public listByAccountProfile(accountId: string, available?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<ProfileResponse>>>;
+    public listByAccountProfile(accountId: string, available?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (accountId === null || accountId === undefined) {
-            throw new Error('Required parameter accountId was null or undefined when calling listByAccount.');
+            throw new Error('Required parameter accountId was null or undefined when calling listByAccountProfile.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -392,15 +392,15 @@ export class ProfilesApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public update1(id: string, profileRequest: ProfileRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
-    public update1(id: string, profileRequest: ProfileRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
-    public update1(id: string, profileRequest: ProfileRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
-    public update1(id: string, profileRequest: ProfileRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateProfile(id: string, profileRequest: ProfileRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<ProfileResponse>;
+    public updateProfile(id: string, profileRequest: ProfileRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<ProfileResponse>>;
+    public updateProfile(id: string, profileRequest: ProfileRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<ProfileResponse>>;
+    public updateProfile(id: string, profileRequest: ProfileRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling update1.');
+            throw new Error('Required parameter id was null or undefined when calling updateProfile.');
         }
         if (profileRequest === null || profileRequest === undefined) {
-            throw new Error('Required parameter profileRequest was null or undefined when calling update1.');
+            throw new Error('Required parameter profileRequest was null or undefined when calling updateProfile.');
         }
 
         let localVarHeaders = this.defaultHeaders;

@@ -14,15 +14,15 @@ export class AssignmentsService {
   private readonly assignmentsApi = inject(AssignmentsApiService);
 
   suggestAssignment(orderId: string): Observable<SuggestAssignmentResponse> {
-    return this.assignmentsApi.suggest(orderId);
+    return this.assignmentsApi.suggestAssignment(orderId);
   }
 
   confirmAssignment(orderId: string, profileId: string): Observable<ConfirmAssignmentResponse> {
     const request: ConfirmAssignmentRequest = { profileId };
-    return this.assignmentsApi.confirm(orderId, request);
+    return this.assignmentsApi.confirmAssignment(orderId, request);
   }
 
   manualAssignment(request: ManualAssignmentRequest): Observable<ManualAssignmentResponse> {
-    return this.assignmentsApi.manual(request);
+    return this.assignmentsApi.manualAssignment(request);
   }
 }

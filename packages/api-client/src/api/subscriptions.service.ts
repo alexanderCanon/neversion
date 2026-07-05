@@ -54,12 +54,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
-    public assign(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public assignSubscription(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public assignSubscription(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public assignSubscription(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public assignSubscription(createManualSubscriptionRequest: CreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (createManualSubscriptionRequest === null || createManualSubscriptionRequest === undefined) {
-            throw new Error('Required parameter createManualSubscriptionRequest was null or undefined when calling assign.');
+            throw new Error('Required parameter createManualSubscriptionRequest was null or undefined when calling assignSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -124,12 +124,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BatchCreateSubscriptionsResponse>;
-    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BatchCreateSubscriptionsResponse>>;
-    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BatchCreateSubscriptionsResponse>>;
-    public batchCreate(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public batchCreateSubscription(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<BatchCreateSubscriptionsResponse>;
+    public batchCreateSubscription(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<BatchCreateSubscriptionsResponse>>;
+    public batchCreateSubscription(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<BatchCreateSubscriptionsResponse>>;
+    public batchCreateSubscription(batchCreateManualSubscriptionRequest: BatchCreateManualSubscriptionRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (batchCreateManualSubscriptionRequest === null || batchCreateManualSubscriptionRequest === undefined) {
-            throw new Error('Required parameter batchCreateManualSubscriptionRequest was null or undefined when calling batchCreate.');
+            throw new Error('Required parameter batchCreateManualSubscriptionRequest was null or undefined when calling batchCreateSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -194,12 +194,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public cancel(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public cancel(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public cancel(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
-    public cancel(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public cancelSubscription(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public cancelSubscription(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public cancelSubscription(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public cancelSubscription(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling cancel.');
+            throw new Error('Required parameter id was null or undefined when calling cancelSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -253,10 +253,10 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public detectExpired(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DetectExpiredSubscriptionsResponse>;
-    public detectExpired(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DetectExpiredSubscriptionsResponse>>;
-    public detectExpired(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DetectExpiredSubscriptionsResponse>>;
-    public detectExpired(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public detectExpiredSubscription(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<DetectExpiredSubscriptionsResponse>;
+    public detectExpiredSubscription(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<DetectExpiredSubscriptionsResponse>>;
+    public detectExpiredSubscription(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<DetectExpiredSubscriptionsResponse>>;
+    public detectExpiredSubscription(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -310,12 +310,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getById4(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionDetailResponse>;
-    public getById4(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionDetailResponse>>;
-    public getById4(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionDetailResponse>>;
-    public getById4(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getByIdSubscription(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionDetailResponse>;
+    public getByIdSubscription(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionDetailResponse>>;
+    public getByIdSubscription(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionDetailResponse>>;
+    public getByIdSubscription(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getById4.');
+            throw new Error('Required parameter id was null or undefined when calling getByIdSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -372,12 +372,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<SubscriptionResponse>>;
-    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SubscriptionResponse>>>;
-    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SubscriptionResponse>>>;
-    public listByVendor(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendorSubscription(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<SubscriptionResponse>>;
+    public listByVendorSubscription(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<SubscriptionResponse>>>;
+    public listByVendorSubscription(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<SubscriptionResponse>>>;
+    public listByVendorSubscription(vendorUuid: string, serviceId?: string, status?: 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED', observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendor.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendorSubscription.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
@@ -453,12 +453,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public renew(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public renew(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public renew(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
-    public renew(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public renewSubscription(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public renewSubscription(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public renewSubscription(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public renewSubscription(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling renew.');
+            throw new Error('Required parameter id was null or undefined when calling renewSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -512,12 +512,12 @@ export class SubscriptionsApiService extends BaseService {
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public suspend(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
-    public suspend(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
-    public suspend(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
-    public suspend(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public suspendSubscription(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<SubscriptionResponse>;
+    public suspendSubscription(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SubscriptionResponse>>;
+    public suspendSubscription(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SubscriptionResponse>>;
+    public suspendSubscription(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling suspend.');
+            throw new Error('Required parameter id was null or undefined when calling suspendSubscription.');
         }
 
         let localVarHeaders = this.defaultHeaders;

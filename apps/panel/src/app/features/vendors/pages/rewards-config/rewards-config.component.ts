@@ -49,7 +49,7 @@ export class RewardsConfigComponent implements OnInit {
     }
 
     this.isLoading.set(true);
-    this.vendorsPublicApi.getByUuid(vendorUuid).subscribe({
+    this.vendorsPublicApi.getByUuidVendorPublic(vendorUuid).subscribe({
       next: (vendor: VendorPublicResponse) => {
         this.isLoading.set(false);
         if (vendor.rewardsCfg) {
@@ -61,7 +61,7 @@ export class RewardsConfigComponent implements OnInit {
           }
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading.set(false);
         this.toastService.error('Error al cargar la configuración de recompensas');
         console.error(err);
@@ -90,12 +90,12 @@ export class RewardsConfigComponent implements OnInit {
     };
 
     this.isSaving.set(true);
-    this.vendorsApi.updateRewardsConfig({ rewardsCfg: JSON.stringify(cfg) }).subscribe({
+    this.vendorsApi.updateRewardsConfigVendor({ rewardsCfg: JSON.stringify(cfg) }).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.toastService.success('Configuración de recompensas guardada correctamente');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSaving.set(false);
         const msg = err?.error?.message || 'Error al guardar la configuración';
         this.toastService.error(msg);

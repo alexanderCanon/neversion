@@ -40,7 +40,7 @@ export class MasterDashboardService {
   private readonly notificationsApi = inject(NotificationsApiService);
 
   getProductsSummary(category = 'streaming'): Observable<ProductSummary[]> {
-    return this.dashboardApi.getProductsSummary(
+    return this.dashboardApi.getProductsSummaryDashboard(
       category as 'streaming',
       'body',
       false,
@@ -55,7 +55,7 @@ export class MasterDashboardService {
   }
 
   getAccountsByProduct(productId: string): Observable<AccountGroup[]> {
-    return this.dashboardApi.getAccountsByProduct(
+    return this.dashboardApi.getAccountsByProductDashboard(
       productId,
       'body',
       false,
@@ -76,7 +76,7 @@ export class MasterDashboardService {
   }
 
   getProfilesByAccount(accountId: string): Observable<ProfileItem[]> {
-    return this.dashboardApi.getProfilesByAccount(
+    return this.dashboardApi.getProfilesByAccountDashboard(
       accountId,
       'body',
       false,
@@ -100,17 +100,17 @@ export class MasterDashboardService {
               }
             }
           : null
-      })))
+       })))
     );
   }
 
   getVendorKpis(): Observable<VendorDashboardKpis> {
     return forkJoin({
-      expiring: this.dashboardApi.getExpiringSubscriptions(),
-      expiringAccounts: this.dashboardApi.getExpiringAccounts(),
-      activeClients: this.dashboardApi.getActiveClients(),
-      successfulRenewals: this.dashboardApi.getSuccessfulRenewals(),
-      grossProfit: this.dashboardApi.getGrossProfit()
+      expiring: this.dashboardApi.getExpiringSubscriptionsDashboard(),
+      expiringAccounts: this.dashboardApi.getExpiringAccountsDashboard(),
+      activeClients: this.dashboardApi.getActiveClientsDashboard(),
+      successfulRenewals: this.dashboardApi.getSuccessfulRenewalsDashboard(),
+      grossProfit: this.dashboardApi.getGrossProfitDashboard()
     }).pipe(
       map(({ expiring, expiringAccounts, activeClients, successfulRenewals, grossProfit }) => {
         const expiringToday = expiring.today ?? [];
@@ -137,12 +137,12 @@ export class MasterDashboardService {
   }
 
   sendManualReminder(subscriptionId: string): Observable<void> {
-    return this.notificationsApi.sendManualReminder(subscriptionId, 'body', false).pipe(
+    return this.notificationsApi.sendManualReminderNotification(subscriptionId, 'body', false).pipe(
       map(() => void 0)
     );
   }
 
   getAccountProfitMargins(year?: number, month?: number): Observable<ProfitMarginsResult> {
-    return this.dashboardApi.getAccountProfitMargins(year, month, 'body', false);
+    return this.dashboardApi.getAccountProfitMarginsDashboard(year, month, 'body', false);
   }
 }

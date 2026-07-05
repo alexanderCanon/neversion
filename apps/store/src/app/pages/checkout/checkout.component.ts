@@ -67,9 +67,9 @@ export class CheckoutComponent implements OnInit {
     this.discountedTotal$.subscribe(t => (this.currentDiscountedTotal = t));
     this.authService.currentUser$.pipe(take(1)).subscribe(user => {
       if (user) {
-        this.loyaltyApi.getMySummary().subscribe({
-          next: (s) => (this.availablePoints = s.available ?? 0),
-          error: (err) => console.error('Error loading points balance', err)
+        this.loyaltyApi.getMySummaryClientPoints().subscribe({
+          next: (s: any) => (this.availablePoints = s.available ?? 0),
+          error: (err: any) => console.error('Error loading points balance', err)
         });
       }
     });
@@ -125,8 +125,8 @@ export class CheckoutComponent implements OnInit {
       ...(pointsToRedeem > 0 ? { pointsToRedeem } : {})
     } as ReservationRequest;
 
-    this.reservationsApi.createReservation(reservationRequest).subscribe({
-      next: (response) => {
+    this.reservationsApi.createReservationReservation(reservationRequest).subscribe({
+      next: (response: any) => {
         this.cartService.clearCart();
         this.router.navigate(['/payment-page'], { queryParams: { reservationId: response.id } });
       },
