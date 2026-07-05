@@ -10,11 +10,11 @@
 
     <div class="container">
         <!-- Content Grid -->
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" *ngIf="games$ | async as games; else loading">
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4" *ngIf="games$ | async as games; else loading">
             <div class="col" *ngFor="let game of games">
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden game-card transition-all">
-                    <div class="p-3">
-                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-3" (click)="contactToBuy(game)" style="cursor: pointer;">
+                    <div class="p-2 p-sm-3">
+                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-2 p-sm-3" (click)="contactToBuy(game)" style="cursor: pointer;">
                             <img [src]="resolveImageUrl(game.imageUrl)" 
                                  [alt]="game.name" 
                                  class="img-fluid" 
@@ -22,25 +22,22 @@
                         </div>
                     </div>
                     
-                    <div class="card-body pt-0 px-4 pb-4">
+                    <div class="card-body pt-0 px-2 px-sm-4 pb-3 pb-sm-4">
                         <div class="mb-3">
-                            <span class="badge bg-info-subtle text-info small mb-2">Juego / Licencia</span>
-                            <h5 class="fw-bold mb-1 text-dark">{{ game.name }}</h5>
-                            <p class="text-muted small font-monospace">Código: {{ game.code }}</p>
+                            <span class="badge bg-info-subtle text-info small mb-2" style="font-size: clamp(0.6rem, 1.5vw, 0.75rem);">Juego / Licencia</span>
+                            <h5 class="fw-bold mb-1 text-dark" style="font-size: clamp(0.85rem, 2vw, 1.1rem);">{{ game.name }}</h5>
+                            <p class="text-muted small font-monospace mb-0" style="font-size: clamp(0.65rem, 1.5vw, 0.8rem);">Código: {{ game.code }}</p>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="price-box">
-                                <span class="small text-muted d-block">Precio</span>
-                                <span class="h4 fw-bold text-primary mb-0">Q{{ game.price | number:'1.2-2' }}</span>
+                                <span class="small text-muted d-block" style="font-size: clamp(0.6rem, 1.5vw, 0.75rem);">Precio</span>
+                                <span class="fw-bold text-primary mb-0" style="font-size: clamp(0.85rem, 1.8vw, 1.1rem);">Q{{ game.price | number:'1.2-2' }}</span>
                             </div>
-                            <button (click)="contactToBuy(game)" class="btn btn-success rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background-color: #25d366; border-color: #25d366;">
-                                <i class="bi bi-whatsapp text-white fs-5"></i>
-                            </button>
                         </div>
                         
                         <div class="border-top pt-3">
-                            <button (click)="contactToBuy(game)" class="btn btn-link btn-sm p-0 text-decoration-none text-success w-100 text-center fw-bold">
+                            <button (click)="contactToBuy(game)" class="btn btn-link btn-sm p-0 text-decoration-none text-success w-100 text-center fw-bold" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
                                 Solicitar por WhatsApp
                             </button>
                         </div>
