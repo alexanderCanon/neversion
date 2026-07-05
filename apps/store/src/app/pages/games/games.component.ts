@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { GameService } from '../../services/game.service';
 import { ImageService } from '../../services/image.service';
 import { GameResponse } from '@neversion/api-client';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Component({
   selector: 'app-games',
@@ -16,7 +16,9 @@ export class GamesComponent implements OnInit {
   games$!: Observable<GameResponse[]>;
 
   ngOnInit(): void {
-    this.games$ = this.gameService.getGames();
+    this.games$ = this.gameService.getGames().pipe(
+      map(games => [...games].sort((a, b) => (a.price || 0) - (b.price || 0)))
+    );
   }
 
   resolveImageUrl(url?: string): string {
@@ -24,7 +26,7 @@ export class GamesComponent implements OnInit {
   }
 
   contactToBuy(game: GameResponse): void {
-    const text = `Hola, me interesa comprar el juego: *${game.name}* (Código: \`${game.code}\`) por *Q${game.price}*.`;
+    const text = `Quiero comprar este producto: *${game.name}* (Código: \`${game.code}\`). porfavor necesito las cuentas de banco`;
     const message = encodeURIComponent(text);
     window.open(`https://wa.me/message/WEOAAOMZ5XU3I1?text=${message}`, '_blank');
   }
