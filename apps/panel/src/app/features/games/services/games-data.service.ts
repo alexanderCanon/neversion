@@ -1,9 +1,9 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap, finalize, map, of } from 'rxjs';
-import { 
-    GamesApiService, 
-    GameRequest as ApiGameRequest, 
-    GameResponse as ApiGameResponse 
+import {
+    GamesApiService,
+    GameRequest as ApiGameRequest,
+    GameResponse as ApiGameResponse
 } from '@neversion/api-client';
 import { GameRequest, GameResponse } from '@neversion/models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -24,7 +24,7 @@ export class GamesDataService {
   readonly isLoading = this._isLoading.asReadonly();
 
   /**
-   * List games for the current authenticated vendor
+   * List games (parents) for the current authenticated vendor
    */
   getGames(isActive?: boolean): Observable<GameResponse[]> {
     const vendorUuid = this.authService.currentVendorUuid();
@@ -51,9 +51,8 @@ export class GamesDataService {
 
   createGame(game: GameRequest): Observable<GameResponse> {
     const apiRequest: ApiGameRequest = {
-      code: game.code,
       name: game.name,
-      price: game.price,
+      slug: game.slug,
       imageUrl: game.imageUrl
     };
 
@@ -67,16 +66,15 @@ export class GamesDataService {
 
   updateGame(id: string, game: GameRequest): Observable<GameResponse> {
     const apiRequest: ApiGameRequest = {
-      code: game.code,
       name: game.name,
-      price: game.price,
+      slug: game.slug,
       imageUrl: game.imageUrl
     };
 
     return this.gamesApi.updateGame(id, apiRequest).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedGame) => {
-            this._games.update(current => 
+            this._games.update(current =>
                 current.map(g => g.id === id ? updatedGame : g)
             );
         })
@@ -90,7 +88,7 @@ export class GamesDataService {
     return this.gamesApi.toggleStatusGame(id).pipe(
         map(api => this.mapToModel(api)),
         tap((updatedGame) => {
-            this._games.update(current => 
+            this._games.update(current =>
                 current.map(g => g.id === id ? updatedGame : g)
             );
         })
@@ -119,9 +117,8 @@ export class GamesDataService {
   private mapToModel(api: ApiGameResponse): GameResponse {
     return {
       id: api.id || '',
-      code: api.code || '',
       name: api.name || '',
-      price: api.price || 0,
+      slug: api.slug || '',
       imageUrl: api.imageUrl || '',
       isActive: api.isActive ?? true,
       createdAt: api.createdAt || ''

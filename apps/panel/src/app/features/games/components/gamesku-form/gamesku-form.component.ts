@@ -1,7 +1,7 @@
-import { Component, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID, inject, signal, Renderer2 } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID, inject, signal, Renderer2, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { GameRequest, GameResponse } from '@neversion/models';
+import { GameSkuRequest, GameSkuResponse, GameResponse } from '@neversion/models';
 import { StorageService } from '../../../../core/services/storage.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { finalize } from 'rxjs';
@@ -19,16 +19,19 @@ interface Bootstrap {
 }
 
 @Component({
-  selector: 'app-game-form',
+  selector: 'app-gamesku-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './game-form.component.html',
-  styleUrl: './game-form.component.scss'
+  templateUrl: './gamesku-form.component.html',
+  styleUrl: './gamesku-form.component.scss'
 })
-export class GameFormComponent {
-  @ViewChild('gameModal') modalElement!: ElementRef;
+export class GameSkuFormComponent implements OnInit {
+  @ViewChild('skuModal') modalElement!: ElementRef;
 
-  @Output() saveGame = new EventEmitter<GameRequest>();
+  @Input() availableGames: GameResponse[] = [];
+  @Input() preselectedGameUuid: string | null = null;
+
+  @Output() saveSku = new EventEmitter<GameSkuRequest>();
 
   private readonly fb = inject(FormBuilder);
   private readonly platformId = inject(PLATFORM_ID);
@@ -37,21 +40,29 @@ export class GameFormComponent {
   private readonly renderer = inject(Renderer2);
   private readonly document = inject(DOCUMENT);
 
-  gameForm: FormGroup;
+  skuForm: FormGroup;
   isBrowser: boolean;
   isEditMode = false;
-  editingGameId: string | null = null;
+  editingSkuId: string | null = null;
   isUploading = signal(false);
   private manualBackdrop: HTMLElement | null = null;
 
   constructor() {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
-    this.gameForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    this.skuForm = this.fb.group({
+      gameUuid: ['', [Validators.required]],
+      code: ['', [Validators.required, Validators.maxLength(25)]],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      price: [0, [Validators.required, Validators.min(0)]],
       imageUrl: ['']
     });
+  }
+
+  ngOnInit(): void {
+    if (this.preselectedGameUuid) {
+      this.skuForm.patchValue({ gameUuid: this.preselectedGameUuid });
+    }
   }
 
   onFileSelected(event: Event): void {
@@ -76,13 +87,13 @@ export class GameFormComponent {
       const sanitizedName = file.name.replace(/\s+/g, '_');
       const fileName = `${Date.now()}_${sanitizedName}`;
 
-      const previousUrl = this.gameForm.get('imageUrl')?.value;
+      const previousUrl = this.skuForm.get('imageUrl')?.value;
 
       this.storageService.uploadGameImage(file, fileName)
         .pipe(finalize(() => this.isUploading.set(false)))
         .subscribe({
           next: (url) => {
-            this.gameForm.patchValue({ imageUrl: url });
+            this.skuForm.patchValue({ imageUrl: url });
             this.toastService.success('Imagen subida correctamente');
 
             if (previousUrl) {
@@ -103,51 +114,29 @@ export class GameFormComponent {
       if (parts.length > 1) {
         const fileName = parts[parts.length - 1];
         this.storageService.deleteGameImage(fileName).subscribe({
-          next: () => console.log('Previous game image deleted from storage:', fileName),
-          error: (err) => console.error('Failed to delete old game image from storage:', err)
+          next: () => console.log('Previous SKU image deleted from storage:', fileName),
+          error: (err) => console.error('Failed to delete old SKU image from storage:', err)
         });
       }
     } catch (e) {
-      console.error('Error parsing previous game image URL:', e);
+      console.error('Error parsing previous SKU image URL:', e);
     }
   }
 
-  /**
-   * Auto-generates a slug from the name field
-   */
-  onNameChange(): void {
-    if (!this.isEditMode) {
-      const name = this.gameForm.get('name')?.value || '';
-      const slug = this.slugify(name);
-      this.gameForm.patchValue({ slug }, { emitEvent: false });
-    }
-  }
-
-  private slugify(text: string): string {
-    return text
-      .toString()
-      .toLowerCase()
-      .trim()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // remove accents
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
-
-  openModal(game?: GameResponse): void {
-    if (game) {
+  openModal(sku?: GameSkuResponse): void {
+    if (sku) {
       this.isEditMode = true;
-      this.editingGameId = game.id;
-      this.gameForm.patchValue({
-        name: game.name,
-        slug: game.slug,
-        imageUrl: game.imageUrl
+      this.editingSkuId = sku.id;
+      this.skuForm.patchValue({
+        gameUuid: sku.gameUuid || this.preselectedGameUuid,
+        code: sku.code,
+        name: sku.name,
+        price: sku.price,
+        imageUrl: sku.imageUrl
       });
     } else {
       this.isEditMode = false;
-      this.editingGameId = null;
+      this.editingSkuId = null;
       this.resetForm();
     }
 
@@ -202,27 +191,31 @@ export class GameFormComponent {
   }
 
   onSubmit(): void {
-    if (this.gameForm.valid) {
-      const formValue = this.gameForm.value;
-      const request: GameRequest = {
+    if (this.skuForm.valid) {
+      const formValue = this.skuForm.value;
+      const request: GameSkuRequest = {
+        gameUuid: formValue.gameUuid,
+        code: formValue.code,
         name: formValue.name,
-        slug: formValue.slug,
+        price: Number(formValue.price),
         imageUrl: formValue.imageUrl
       };
 
-      this.saveGame.emit(request);
+      this.saveSku.emit(request);
       this.closeModal();
     } else {
-      Object.keys(this.gameForm.controls).forEach(key => {
-        this.gameForm.get(key)?.markAsTouched();
+      Object.keys(this.skuForm.controls).forEach(key => {
+        this.skuForm.get(key)?.markAsTouched();
       });
     }
   }
 
   resetForm(): void {
-    this.gameForm.reset({
+    this.skuForm.reset({
+      gameUuid: this.preselectedGameUuid || '',
+      code: '',
       name: '',
-      slug: '',
+      price: 0,
       imageUrl: ''
     });
   }

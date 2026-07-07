@@ -1,0 +1,66 @@
+<div class="container-fluid py-4 h-100 bg-surface">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+    <div>
+      <h3 class="mb-1 fw-bold text-dark">Juegos</h3>
+      <p class="text-muted small mb-0">Selecciona un juego para ver y administrar sus recargas (SKUs).</p>
+    </div>
+    <div>
+      <button class="btn btn-primary d-inline-flex align-items-center gap-2 px-4 py-2-5 rounded-3 fw-semibold shadow-sm" (click)="openNewGameModal()">
+        <i class="bi bi-plus-circle"></i>
+        <span>Nuevo Juego</span>
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="d-flex flex-column align-items-center justify-content-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+      <p class="mt-3 text-muted">Cargando juegos...</p>
+    </div>
+  } @else if (games().length === 0) {
+    <div class="empty-state text-center py-5 bg-white rounded-4 shadow-sm border">
+      <i class="bi bi-controller text-muted display-4 mb-3"></i>
+      <h4 class="fw-semibold">Sin juegos registrados</h4>
+      <p class="text-muted">Crea tu primer juego (ej. Free Fire) para luego agregarle recargas.</p>
+    </div>
+  } @else {
+    <div class="row g-3">
+      @for (game of games(); track game.id) {
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="game-card" (click)="selectGame(game)" (keydown.enter)="selectGame(game)" tabindex="0" role="button">
+            <div class="game-card-img">
+              @if (game.imageUrl) {
+                <img [src]="game.imageUrl" [alt]="game.name" />
+              } @else {
+                <div class="game-card-placeholder">
+                  {{ getGameInitials(game.name) }}
+                </div>
+              }
+              <span class="game-card-status" [ngClass]="game.isActive ? 'active' : 'inactive'"></span>
+            </div>
+            <div class="game-card-body">
+              <h6 class="game-card-title">{{ game.name }}</h6>
+              <span class="game-card-slug font-monospace">{{ game.slug }}</span>
+            </div>
+            <div class="game-card-footer">
+              <div class="game-card-actions" (click)="$event.stopPropagation()">
+                <button class="btn btn-sm btn-link p-0 text-muted" (click)="onEditGame(game)" title="Editar">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button class="btn btn-sm btn-link p-0 text-muted" (click)="onToggleStatus(game.id)" title="{{ game.isActive ? 'Desactivar' : 'Activar' }}">
+                  <i class="bi" [ngClass]="game.isActive ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+                <button class="btn btn-sm btn-link p-0 text-danger" (click)="onDeleteGame(game.id)" title="Eliminar">
+                  <i class="bi bi-trash3"></i>
+                </button>
+              </div>
+              <i class="bi bi-chevron-right game-card-arrow"></i>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<app-game-form (saveGame)="onSaveGame($event)"></app-game-form>

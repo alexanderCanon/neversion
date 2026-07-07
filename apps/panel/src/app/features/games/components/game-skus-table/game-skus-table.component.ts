@@ -1,22 +1,22 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameResponse } from '@neversion/models';
+import { GameSkuResponse } from '@neversion/models';
 
 @Component({
-  selector: 'app-games-table',
+  selector: 'app-game-skus-table',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './games-table.component.html',
-  styleUrl: './games-table.component.scss'
+  templateUrl: './game-skus-table.component.html',
+  styleUrl: './game-skus-table.component.scss'
 })
-export class GamesTableComponent {
-  @Input() games: GameResponse[] = [];
+export class GameSkusTableComponent {
+  @Input() skus: GameSkuResponse[] = [];
   @Input() isReadOnly = false;
-  @Output() editGame = new EventEmitter<GameResponse>();
+  @Output() editSku = new EventEmitter<GameSkuResponse>();
   @Output() toggleStatus = new EventEmitter<string>();
-  @Output() deleteGame = new EventEmitter<string>();
+  @Output() deleteSku = new EventEmitter<string>();
 
-  getGameInitials(name: string): string {
+  getSkuInitials(name: string): string {
     if (!name) return '';
     const words = name.split(' ');
     if (words.length > 1) {

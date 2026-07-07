@@ -12,34 +12,23 @@
       <form [formGroup]="gameForm" (ngSubmit)="onSubmit()">
         <div class="modal-body p-4 bg-surface">
           <div class="d-flex flex-column gap-3">
-            
-            <!-- Code -->
-            <div>
-              <label for="code" class="form-label small fw-medium text-muted">Código del Juego <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-modern" id="code" formControlName="code" placeholder="ej. ff-100, cod-310...">
-              @if(gameForm.get('code')?.invalid && gameForm.get('code')?.touched) {
-                 <div class="text-danger x-small mt-1">El código es requerido (máx. 25 caracteres)</div>
-              }
-            </div>
 
             <!-- Name -->
             <div>
               <label for="name" class="form-label small fw-medium text-muted">Nombre del Juego <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-modern" id="name" formControlName="name" placeholder="ej. Free Fire 100 Diamantes...">
+              <input type="text" class="form-control form-control-modern" id="name" formControlName="name" placeholder="ej. Free Fire, Clash Royale..." (input)="onNameChange()">
               @if(gameForm.get('name')?.invalid && gameForm.get('name')?.touched) {
-                 <div class="text-danger x-small mt-1">El nombre es requerido (mín. 3 y máx. 30 caracteres)</div>
+                 <div class="text-danger x-small mt-1">El nombre es requerido (mín. 2 y máx. 100 caracteres)</div>
               }
             </div>
 
-            <!-- Price -->
+            <!-- Slug -->
             <div>
-              <label for="price" class="form-label small fw-medium text-muted">Precio de Venta (Q) <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <span class="input-group-text border-end-0 bg-light fw-bold text-muted">Q</span>
-                <input type="number" class="form-control form-control-modern border-start-0" id="price" formControlName="price" min="0" step="0.01">
-              </div>
-              @if(gameForm.get('price')?.invalid && gameForm.get('price')?.touched) {
-                 <div class="text-danger x-small mt-1">El precio es requerido y debe ser positivo o cero.</div>
+              <label for="slug" class="form-label small fw-medium text-muted">Slug (URL) <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-modern font-monospace" id="slug" formControlName="slug" placeholder="ej. free-fire, clash-royale...">
+              <div class="x-small text-muted mt-1">Se usa en la URL de la tienda: /games/{{ gameForm.get('slug')?.value || 'slug' }}</div>
+              @if(gameForm.get('slug')?.invalid && gameForm.get('slug')?.touched) {
+                 <div class="text-danger x-small mt-1">El slug debe ser minúsculas, sin espacios ni acentos (ej. free-fire)</div>
               }
             </div>
 
@@ -58,7 +47,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <input type="file" class="d-none" #fileInput (change)="onFileSelected($event)" accept="image/*">
-                        <button type="button" class="btn btn-white border shadow-sm w-100 d-flex align-items-center justify-content-center gap-2" 
+                        <button type="button" class="btn btn-white border shadow-sm w-100 d-flex align-items-center justify-content-center gap-2"
                                 (click)="fileInput.click()" [disabled]="isUploading()">
                             @if (isUploading()) {
                                 <span class="spinner-border spinner-border-sm" role="status"></span>
@@ -83,7 +72,7 @@
           </button>
         </div>
       </form>
-      
+
     </div>
   </div>
 </div>

@@ -9,6 +9,7 @@ import { CheckoutComponent } from '../checkout/checkout.component';
 import { ComboComponent } from '../combo/combo.component';
 import { ContactComponent } from '../contact/contact.component';
 import { GamesComponent } from '../games/games.component';
+import { GameDetailComponent } from '../game-detail/game-detail.component';
 import { HomeComponent } from '../home/home.component';
 import { HowToBuyComponent } from '../how-to-buy/how-to-buy.component';
 import { LoginComponent } from '../login/login.component';
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'payment-methods', component: PaymentMethodsComponent },
   { path: 'offers', component: OffersComponent },
   { path: 'games', component: GamesComponent },
+  { path: 'games/:slug', component: GameDetailComponent },
   { path: 'platforms', component: PlatformsComponent },
   { path: 'platforms/:platformId', component: PlatformDetailComponent },
   { path: 'combo', component: ComboComponent },
@@ -49,6 +51,7 @@ const routes: Routes = [
     PaymentMethodsComponent,
     OffersComponent,
     GamesComponent,
+    GameDetailComponent,
     PlatformsComponent,
     PlatformDetailComponent,
     ComboComponent,

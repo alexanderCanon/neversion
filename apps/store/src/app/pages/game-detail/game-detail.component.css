@@ -1,0 +1,12 @@
+.sku-card {
+    transition: all 0.2s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.15) !important;
+    }
+}
+
+.transition-all {
+    transition: all 0.2s ease;
+}
