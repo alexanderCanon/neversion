@@ -5,6 +5,7 @@ import { SupabaseService } from '../../services/supabase.service';
 import { ToastService } from '../../services/toast.service';
 
 @Component({
+  standalone: false,
   selector: 'app-payment-page',
   templateUrl: './payment-page.component.html',
   styleUrls: ['./payment-page.component.css']

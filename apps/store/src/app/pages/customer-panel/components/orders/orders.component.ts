@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ClientsApiService, ClientOrderHistoryResponse } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-orders',
   templateUrl: './orders.component.html',
   styleUrls: []

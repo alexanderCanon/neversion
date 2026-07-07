@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LoyaltyPointsApiService, PointsMovementResponse, PointsSummaryResponse } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-points',
   templateUrl: './points.component.html',
   styleUrls: []

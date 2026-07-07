@@ -8,6 +8,7 @@ import { ServiceResponse } from '@neversion/api-client';
 import { switchMap, finalize } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-platform-detail',
   templateUrl: './platform-detail.component.html',
   styleUrls: ['./platform-detail.component.css']
