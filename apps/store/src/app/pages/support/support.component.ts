@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
+  standalone: false,
   selector: 'app-support',
   templateUrl: './support.component.html',
   styleUrls: ['./support.component.css']

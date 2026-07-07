@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ClientsApiService, ClientResponse, UpdateClientProfileRequest } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-profile',
   templateUrl: './profile.component.html',
   styleUrls: []

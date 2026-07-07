@@ -5,6 +5,7 @@ import { ImageService } from '../../services/image.service';
 import { GameResponse, GameSkuResponse } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-game-detail',
   templateUrl: './game-detail.component.html',
   styleUrls: ['./game-detail.component.css']

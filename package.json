@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'pnpm-lock.yaml' -type f -delete",
-    "build": "pnpm -r build",
+    "build:api-client": "pnpm --filter @neversion/api-client build",
+    "build:apps": "pnpm --filter panel build && pnpm --filter neversion-site build",
+    "build": "pnpm build:api-client && pnpm build:apps",
+    "build:seq": "pnpm build:api-client && pnpm --filter panel build && pnpm --filter neversion-site build",
+    "build:seq:safe": "NODE_OPTIONS=--max-old-space-size=3072 pnpm build:seq",
     "api:sync": "openapi-generator-cli generate -i ${API_URL:-http://localhost:8080/v3/api-docs} -g typescript-angular -o packages/api-client/src --additional-properties=providedInRoot=true,serviceSuffix=ApiService,apiModulePrefix=Neversion",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

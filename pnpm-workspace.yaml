@@ -4,8 +4,11 @@ packages:
 allowBuilds:
   '@nestjs/core': true
   '@openapitools/openapi-generator-cli': true
+  '@parcel/watcher': true
   better-sqlite3: true
   esbuild: true
+  lmdb: true
+  msgpackr-extract: true
   nice-napi: true
   protobufjs: true
   sharp: true

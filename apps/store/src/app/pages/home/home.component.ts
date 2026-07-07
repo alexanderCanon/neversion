@@ -5,6 +5,7 @@ import { PlatformService } from '../../services/platform.service';
 import { ServiceResponse } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']

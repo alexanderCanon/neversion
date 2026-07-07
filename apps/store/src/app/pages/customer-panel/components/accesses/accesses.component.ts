@@ -10,6 +10,7 @@ import { AuthService } from '../../../../services/auth.service';
 import { ToastService } from '../../../../services/toast.service';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-accesses',
   templateUrl: './accesses.component.html',
   styleUrls: []

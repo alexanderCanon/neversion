@@ -7,6 +7,7 @@ import { map, filter } from 'rxjs/operators';
 import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
+  standalone: false,
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
   styleUrls: ['./toolbar.component.css']

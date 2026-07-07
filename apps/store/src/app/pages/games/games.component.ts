@@ -6,6 +6,7 @@ import { GameResponse } from '@neversion/api-client';
 import { Observable } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-games',
   templateUrl: './games.component.html',
   styleUrls: ['./games.component.css']

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LoginHeaderComponent } from './components/login-header/login-header.component';
 import { LoginFormComponent } from './components/login-form/login-form.component';
@@ -8,7 +8,7 @@ import { LoginFormComponent } from './components/login-form/login-form.component
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [CommonModule, RouterLink, LoginHeaderComponent, LoginFormComponent],
+    imports: [CommonModule, LoginHeaderComponent, LoginFormComponent],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'
 })

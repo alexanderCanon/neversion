@@ -9,6 +9,7 @@ import { map, startWith } from 'rxjs/operators';
 import { ServiceResponse } from '@neversion/api-client';
 
 @Component({
+  standalone: false,
   selector: 'app-platforms',
   templateUrl: './platforms.component.html',
   styleUrls: ['./platforms.component.css'],

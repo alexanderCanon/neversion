@@ -9,3 +9,6 @@ CLAUDE.md
 
 /assets
 
+# Build artifacts
+packages/api-client/dist
+

@@ -10,6 +10,7 @@ interface ComboTierDisplay {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-combo',
   templateUrl: './combo.component.html',
   styleUrls: ['./combo.component.css']

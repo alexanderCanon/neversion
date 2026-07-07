@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
+  standalone: false,
   selector: 'app-wholesalers',
   templateUrl: './wholesalers.component.html',
   styleUrls: ['./wholesalers.component.css']
