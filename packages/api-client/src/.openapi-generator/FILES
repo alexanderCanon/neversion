@@ -8,6 +8,7 @@ api/assignments.service.ts
 api/auth.service.ts
 api/clients.service.ts
 api/dashboard.service.ts
+api/gameSKUs.service.ts
 api/games.service.ts
 api/loyaltyPoints.service.ts
 api/notifications.service.ts
@@ -62,6 +63,8 @@ model/expiringSubscriptionsKpiResult.ts
 model/financialSnapshot.ts
 model/gameRequest.ts
 model/gameResponse.ts
+model/gameSkuRequest.ts
+model/gameSkuResponse.ts
 model/grandTotal.ts
 model/grossProfitKpiResult.ts
 model/inventoryAvailabilityResult.ts

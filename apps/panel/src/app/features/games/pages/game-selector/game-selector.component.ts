@@ -1,45 +1,29 @@
-import { Component, OnInit, signal, computed, ViewChild, inject } from '@angular/core';
+import { Component, OnInit, ViewChild, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { GamesDataService } from '../../services/games-data.service';
 import { GameResponse, GameRequest } from '@neversion/models';
-import { GamesTableComponent } from '../../components/games-table/games-table.component';
 import { GameFormComponent } from '../../components/game-form/game-form.component';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
-  selector: 'app-games-list',
+  selector: 'app-game-selector',
   standalone: true,
-  imports: [CommonModule, FormsModule, GamesTableComponent, GameFormComponent],
-  templateUrl: './games-list.component.html',
-  styleUrl: './games-list.component.scss'
+  imports: [CommonModule, GameFormComponent],
+  templateUrl: './game-selector.component.html',
+  styleUrl: './game-selector.component.scss'
 })
-export class GamesListComponent implements OnInit {
+export class GameSelectorComponent implements OnInit {
   @ViewChild(GameFormComponent) gameModal!: GameFormComponent;
 
   private readonly gamesDataService = inject(GamesDataService);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   isSuperAdmin = computed(() => this.authService.userRole() === 'super_admin');
 
   games = this.gamesDataService.games;
   isLoading = this.gamesDataService.isLoading;
-
-  // Filters
-  searchTerm = signal('');
-  selectedStatus = signal(''); // '', 'active', 'inactive'
-
-  // Computed state
-  filteredGames = computed(() => {
-    const term = this.searchTerm().toLowerCase();
-    const status = this.selectedStatus();
-    
-    return this.games().filter(g => {
-      const matchName = term ? (g.name?.toLowerCase().includes(term) || g.code?.toLowerCase().includes(term)) : true;
-      const matchStatus = status === '' ? true : (status === 'active' ? g.isActive : !g.isActive);
-      return matchName && matchStatus;
-    });
-  });
 
   ngOnInit(): void {
     this.loadGames();
@@ -49,12 +33,8 @@ export class GamesListComponent implements OnInit {
     this.gamesDataService.getGames().subscribe();
   }
 
-  onSearchChange(term: string): void {
-    this.searchTerm.set(term);
-  }
-
-  onStatusChange(status: string): void {
-    this.selectedStatus.set(status);
+  selectGame(game: GameResponse): void {
+    this.router.navigate(['/games', game.id]);
   }
 
   openNewGameModal(): void {
@@ -96,5 +76,14 @@ export class GamesListComponent implements OnInit {
         error: (err) => console.error('Failed to create game', err)
       });
     }
+  }
+
+  getGameInitials(name: string): string {
+    if (!name) return '';
+    const words = name.split(' ');
+    if (words.length > 1) {
+      return (words[0].charAt(0) + words[1].charAt(0)).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 }

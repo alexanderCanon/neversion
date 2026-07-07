@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,9 +73,8 @@ class GameControllerIT extends BaseIntegrationTest {
                 .id(1L)
                 .uuid(GAME_UUID)
                 .vendorId(10L)
-                .code("ff-100")
-                .name("Free Fire 100 Diamonds")
-                .price(BigDecimal.valueOf(10.00))
+                .name("Free Fire")
+                .slug("free-fire")
                 .imageUrl("https://example.com/image.png")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
@@ -84,9 +83,8 @@ class GameControllerIT extends BaseIntegrationTest {
 
     private Map<String, Object> validRequestBody() {
         return Map.of(
-                "code", "ff-100",
-                "name", "Free Fire 100 Diamonds",
-                "price", 10.00,
+                "name", "Free Fire",
+                "slug", "free-fire",
                 "imageUrl", "https://example.com/image.png"
         );
     }
@@ -127,8 +125,8 @@ class GameControllerIT extends BaseIntegrationTest {
                             .content(objectMapper.writeValueAsString(validRequestBody())))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(GAME_UUID.toString()))
-                    .andExpect(jsonPath("$.code").value("ff-100"))
-                    .andExpect(jsonPath("$.name").value("Free Fire 100 Diamonds"));
+                    .andExpect(jsonPath("$.slug").value("free-fire"))
+                    .andExpect(jsonPath("$.name").value("Free Fire"));
         }
     }
 
@@ -141,9 +139,8 @@ class GameControllerIT extends BaseIntegrationTest {
         void create_invalidFields_400() throws Exception {
             String token = buildJwt("vendor");
             Map<String, Object> invalidBody = Map.of(
-                    "code", "",
                     "name", "",
-                    "price", -5.00
+                    "slug", "Invalid Slug With Spaces"
             );
 
             mockMvc.perform(post("/api/v1/games")
@@ -166,6 +163,18 @@ class GameControllerIT extends BaseIntegrationTest {
             mockMvc.perform(get("/api/v1/games/store/" + VENDOR_UUID))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").value(GAME_UUID.toString()));
+        }
+
+        @Test
+        @DisplayName("GET /api/v1/games/store/{vendorUuid}/by-slug/{slug} - should return 200 and allow public access")
+        void storeBySlug_public_200() throws Exception {
+            when(gameUseCase.getActiveBySlug(eq(VENDOR_UUID), eq("free-fire")))
+                    .thenReturn(mockGame());
+
+            mockMvc.perform(get("/api/v1/games/store/" + VENDOR_UUID + "/by-slug/free-fire"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(GAME_UUID.toString()))
+                    .andExpect(jsonPath("$.slug").value("free-fire"));
         }
 
         @Test

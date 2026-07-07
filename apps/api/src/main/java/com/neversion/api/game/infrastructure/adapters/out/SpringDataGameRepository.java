@@ -10,11 +10,11 @@ public interface SpringDataGameRepository extends JpaRepository<GameEntity, Long
 
     Optional<GameEntity> findByUuid(UUID uuid);
 
-    Optional<GameEntity> findByVendorIdAndCode(Long vendorId, String code);
+    Optional<GameEntity> findByVendorIdAndSlug(Long vendorId, String slug);
 
     List<GameEntity> findAllByVendorId(Long vendorId);
 
     List<GameEntity> findAllByVendorIdAndIsActiveTrue(Long vendorId);
 
-    boolean existsByVendorIdAndCode(Long vendorId, String code);
+    boolean existsByVendorIdAndSlug(Long vendorId, String slug);
 }

@@ -15,17 +15,13 @@ export interface GameResponse {
      */
     id?: string;
     /**
-     * Game identifier code
-     */
-    code?: string;
-    /**
      * Game name
      */
     name?: string;
     /**
-     * Price of the game item
+     * URL-friendly slug, unique per vendor
      */
-    price?: number;
+    slug?: string;
     /**
      * URL to the game logo/image
      */

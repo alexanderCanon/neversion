@@ -1,6 +1,5 @@
 package com.neversion.api.game.domain.model;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -9,7 +8,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Domain model for a game catalog item.
+ * Domain model for a Game parent entity (e.g. "Free Fire", "Clash Royale").
+ * A Game groups multiple GameSku children (e.g. "110 Diamonds", "220 Diamonds").
+ *
+ * See ADR-11: the parent-child relationship with GameSku is modeled via a
+ * plain FK column (game_skus.game_id), not a JPA @ManyToOne.
  */
 @Getter
 @Setter
@@ -19,9 +22,8 @@ public class Game {
     private Long id;
     private UUID uuid;
     private Long vendorId;
-    private String code;
     private String name;
-    private BigDecimal price;
+    private String slug;
     private String imageUrl;
 
     @lombok.Builder.Default
@@ -32,14 +34,13 @@ public class Game {
     public Game() {
     }
 
-    public Game(Long id, UUID uuid, Long vendorId, String code, String name,
-                BigDecimal price, String imageUrl, Boolean isActive, LocalDateTime createdAt) {
+    public Game(Long id, UUID uuid, Long vendorId, String name, String slug,
+                String imageUrl, Boolean isActive, LocalDateTime createdAt) {
         this.id = id;
         this.uuid = uuid;
         this.vendorId = vendorId;
-        this.code = code;
         this.name = name;
-        this.price = price;
+        this.slug = slug;
         this.imageUrl = imageUrl;
         this.isActive = isActive;
         this.createdAt = createdAt;

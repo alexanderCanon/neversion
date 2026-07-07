@@ -1,10 +1,10 @@
 <div class="games-page bg-light min-vh-100 pb-5">
     <!-- Section Header -->
-    <div class="bg-primary text-white py-5 mb-5 shadow-sm" 
+    <div class="bg-primary text-white py-5 mb-5 shadow-sm"
          style="background: linear-gradient(135deg, var(--primary-color) 0%, #1a1a1a 100%);">
          <div class="container py-4 text-center">
-             <h1 class="display-4 fw-bold mb-3"><i class="bi bi-controller me-3"></i>Juegos y Gift Cards</h1>
-             <p class="lead opacity-75">Las mejores recargas y licencias para tus juegos favoritos en un solo lugar.</p>
+             <h1 class="display-4 fw-bold mb-3"><i class="bi bi-controller me-3"></i>Juegos y Recargas</h1>
+             <p class="lead opacity-75">Las mejores recargas y diamantes para tus juegos favoritos en un solo lugar.</p>
          </div>
     </div>
 
@@ -12,34 +12,28 @@
         <!-- Content Grid -->
         <div class="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4" *ngIf="games$ | async as games; else loading">
             <div class="col" *ngFor="let game of games">
-                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden game-card transition-all">
+                <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden game-card transition-all"
+                     (click)="viewGameDetail(game)" style="cursor: pointer;">
                     <div class="p-2 p-sm-3">
-                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-2 p-sm-3" (click)="contactToBuy(game)" style="cursor: pointer;">
-                            <img [src]="resolveImageUrl(game.imageUrl)" 
-                                 [alt]="game.name" 
-                                 class="img-fluid" 
+                        <div class="ratio ratio-1x1 bg-white rounded-4 overflow-hidden p-2 p-sm-3">
+                            <img [src]="resolveImageUrl(game.imageUrl)"
+                                 [alt]="game.name"
+                                 class="img-fluid"
                                  style="object-fit: contain;">
                         </div>
                     </div>
-                    
+
                     <div class="card-body pt-0 px-2 px-sm-4 pb-3 pb-sm-4">
                         <div class="mb-3">
-                            <span class="badge bg-info-subtle text-info small mb-2" style="font-size: clamp(0.6rem, 1.5vw, 0.75rem);">Juego / Licencia</span>
+                            <span class="badge bg-info-subtle text-info small mb-2" style="font-size: clamp(0.6rem, 1.5vw, 0.75rem);">Juego</span>
                             <h5 class="fw-bold mb-1 text-dark" style="font-size: clamp(0.85rem, 2vw, 1.1rem);">{{ game.name }}</h5>
-                            <p class="text-muted small font-monospace mb-0" style="font-size: clamp(0.65rem, 1.5vw, 0.8rem);">Código: {{ game.code }}</p>
                         </div>
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="price-box">
-                                <span class="small text-muted d-block" style="font-size: clamp(0.6rem, 1.5vw, 0.75rem);">Precio</span>
-                                <span class="fw-bold text-primary mb-0" style="font-size: clamp(0.85rem, 1.8vw, 1.1rem);">Q{{ game.price | number:'1.2-2' }}</span>
-                            </div>
-                        </div>
-                        
                         <div class="border-top pt-3">
-                            <button (click)="contactToBuy(game)" class="btn btn-link btn-sm p-0 text-decoration-none text-success w-100 text-center fw-bold" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
-                                Solicitar por WhatsApp
-                            </button>
+                            <span class="btn btn-link btn-sm p-0 text-decoration-none text-primary w-100 text-center fw-bold" style="font-size: clamp(0.7rem, 1.8vw, 0.85rem);">
+                                Ver recargas disponibles
+                                <i class="bi bi-chevron-right ms-1"></i>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -52,7 +46,7 @@
                 <i class="bi bi-controller text-muted opacity-25" style="font-size: 8rem;"></i>
             </div>
             <h3 class="fw-bold text-muted">Próximamente más juegos</h3>
-            <p class="text-muted fs-5">Estamos trabajando para traerte las mejores licencias y gift cards del mercado.</p>
+            <p class="text-muted fs-5">Estamos trabajando para traerte las mejores recargas y gift cards del mercado.</p>
             <a routerLink="/platforms" class="btn btn-primary px-4 mt-3">Ver otras plataformas</a>
         </div>
 

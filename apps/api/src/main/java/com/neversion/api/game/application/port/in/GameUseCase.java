@@ -17,6 +17,8 @@ public interface GameUseCase {
 
     List<Game> listActive(UUID vendorUuid);
 
+    Game getActiveBySlug(UUID vendorUuid, String slug);
+
     Game getById(UUID uuid);
 
     List<Game> getAll();

@@ -3,12 +3,12 @@ package com.neversion.api.game.infrastructure.adapters.out;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * JPA Entity for 'games' table.
+ * JPA Entity for the 'games' parent table (e.g. "Free Fire", "Clash Royale").
+ * Groups GameSku children via the game_skus.game_id FK column (ADR-11).
  */
 @Entity
 @Table(name = "games")
@@ -31,14 +31,11 @@ public class GameEntity {
     @Column(name = "vendor_id", nullable = false)
     private Long vendorId;
 
-    @Column(name = "code", nullable = false, length = 25)
-    private String code;
-
-    @Column(name = "name", nullable = false, length = 30)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "price", nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;
+    @Column(name = "slug", nullable = false, length = 100)
+    private String slug;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;

@@ -48,9 +48,8 @@ export class GameFormComponent {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     this.gameForm = this.fb.group({
-      code: ['', [Validators.required, Validators.maxLength(25)]],
-      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
-      price: [0, [Validators.required, Validators.min(0)]],
+      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
       imageUrl: ['']
     });
   }
@@ -59,7 +58,6 @@ export class GameFormComponent {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
-      // 1. Validar tamaño (máximo 2MB)
       const maxSize = 2 * 1024 * 1024;
       if (file.size > maxSize) {
         this.toastService.error('El archivo es demasiado grande. El límite es de 2MB.');
@@ -67,7 +65,6 @@ export class GameFormComponent {
         return;
       }
 
-      // 2. Validar tipo MIME
       const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
       if (!allowedTypes.includes(file.type)) {
         this.toastService.error('Formato no permitido. Solo se permiten imágenes (JPG, PNG, WEBP, GIF, SVG).');
@@ -79,7 +76,6 @@ export class GameFormComponent {
       const sanitizedName = file.name.replace(/\s+/g, '_');
       const fileName = `${Date.now()}_${sanitizedName}`;
 
-      // Guardar URL previa para borrar del storage si existe
       const previousUrl = this.gameForm.get('imageUrl')?.value;
 
       this.storageService.uploadGameImage(file, fileName)
@@ -89,7 +85,6 @@ export class GameFormComponent {
             this.gameForm.patchValue({ imageUrl: url });
             this.toastService.success('Imagen subida correctamente');
 
-            // Si se subió con éxito y había una imagen previa, borrar la antigua del storage
             if (previousUrl) {
               this.deleteOldImageFromStorage(previousUrl);
             }
@@ -117,14 +112,37 @@ export class GameFormComponent {
     }
   }
 
+  /**
+   * Auto-generates a slug from the name field
+   */
+  onNameChange(): void {
+    if (!this.isEditMode) {
+      const name = this.gameForm.get('name')?.value || '';
+      const slug = this.slugify(name);
+      this.gameForm.patchValue({ slug }, { emitEvent: false });
+    }
+  }
+
+  private slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove accents
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
   openModal(game?: GameResponse): void {
     if (game) {
       this.isEditMode = true;
       this.editingGameId = game.id;
       this.gameForm.patchValue({
-        code: game.code,
         name: game.name,
-        price: game.price,
+        slug: game.slug,
         imageUrl: game.imageUrl
       });
     } else {
@@ -144,7 +162,7 @@ export class GameFormComponent {
                this.renderer.addClass(modalEl, 'show');
                this.renderer.setStyle(modalEl, 'display', 'block');
                this.renderer.addClass(this.document.body, 'modal-open');
-               
+
                this.manualBackdrop = this.renderer.createElement('div') as HTMLElement;
                this.renderer.addClass(this.manualBackdrop, 'modal-backdrop');
                this.renderer.addClass(this.manualBackdrop, 'fade');
@@ -167,7 +185,7 @@ export class GameFormComponent {
                this.renderer.removeClass(modalEl, 'show');
                this.renderer.setStyle(modalEl, 'display', 'none');
                this.renderer.removeClass(this.document.body, 'modal-open');
-               
+
                if (this.manualBackdrop) {
                    this.renderer.removeChild(this.document.body, this.manualBackdrop);
                    this.manualBackdrop = null;
@@ -187,12 +205,11 @@ export class GameFormComponent {
     if (this.gameForm.valid) {
       const formValue = this.gameForm.value;
       const request: GameRequest = {
-        code: formValue.code,
         name: formValue.name,
-        price: Number(formValue.price),
+        slug: formValue.slug,
         imageUrl: formValue.imageUrl
       };
-      
+
       this.saveGame.emit(request);
       this.closeModal();
     } else {
@@ -204,9 +221,8 @@ export class GameFormComponent {
 
   resetForm(): void {
     this.gameForm.reset({
-      code: '',
       name: '',
-      price: 0,
+      slug: '',
       imageUrl: ''
     });
   }

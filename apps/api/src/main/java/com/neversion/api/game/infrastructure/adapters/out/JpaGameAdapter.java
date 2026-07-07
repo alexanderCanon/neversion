@@ -38,8 +38,8 @@ public class JpaGameAdapter implements GameRepositoryPort {
     }
 
     @Override
-    public Optional<Game> findByVendorIdAndCode(Long vendorId, String code) {
-        return repository.findByVendorIdAndCode(vendorId, code).map(mapper::toDomain);
+    public Optional<Game> findByVendorIdAndSlug(Long vendorId, String slug) {
+        return repository.findByVendorIdAndSlug(vendorId, slug).map(mapper::toDomain);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class JpaGameAdapter implements GameRepositoryPort {
     }
 
     @Override
-    public boolean existsByVendorIdAndCode(Long vendorId, String code) {
-        return repository.existsByVendorIdAndCode(vendorId, code);
+    public boolean existsByVendorIdAndSlug(Long vendorId, String slug) {
+        return repository.existsByVendorIdAndSlug(vendorId, slug);
     }
 }

@@ -11,17 +11,13 @@
 
 export interface GameRequest { 
     /**
-     * Game identifier code, e.g. ff-100
-     */
-    code?: string;
-    /**
-     * Game name, e.g. Free Fire 100 Diamonds
+     * Game name, e.g. Free Fire
      */
     name?: string;
     /**
-     * Price of the game item
+     * URL-friendly slug, unique per vendor
      */
-    price: number;
+    slug?: string;
     /**
      * Optional URL to the game logo/image
      */

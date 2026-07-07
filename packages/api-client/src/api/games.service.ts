@@ -38,8 +38,8 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Create a game item
-     * Creates a new game item in the caller vendor\&#39;s catalog.
+     * Create a game (parent)
+     * Creates a new game parent (e.g. Free Fire) in the caller vendor\&#39;s catalog.
      * @endpoint post /api/v1/games
      * @param gameRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -167,6 +167,70 @@ export class GamesApiService extends BaseService {
     }
 
     /**
+     * Get active game by slug - store view
+     * Returns an active game parent by its slug. No auth.
+     * @endpoint get /api/v1/games/store/{vendorUuid}/by-slug/{slug}
+     * @param vendorUuid 
+     * @param slug 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     * @param options additional options
+     */
+    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
+    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
+    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
+    public getActiveBySlugGame(vendorUuid: string, slug: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (vendorUuid === null || vendorUuid === undefined) {
+            throw new Error('Required parameter vendorUuid was null or undefined when calling getActiveBySlugGame.');
+        }
+        if (slug === null || slug === undefined) {
+            throw new Error('Required parameter slug was null or undefined when calling getActiveBySlugGame.');
+        }
+
+        let localVarHeaders = this.defaultHeaders;
+
+        // authentication (bearerAuth) required
+        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
+
+        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
+            'application/json'
+        ]);
+        if (localVarHttpHeaderAcceptSelected !== undefined) {
+            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
+        }
+
+        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
+
+        const localVarTransferCache: boolean = options?.transferCache ?? true;
+
+
+        let responseType_: 'text' | 'json' | 'blob' = 'json';
+        if (localVarHttpHeaderAcceptSelected) {
+            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
+                responseType_ = 'text';
+            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
+                responseType_ = 'json';
+            } else {
+                responseType_ = 'blob';
+            }
+        }
+
+        let localVarPath = `/api/v1/games/store/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/by-slug/${this.configuration.encodeParam({name: "slug", value: slug, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
+        const { basePath, withCredentials } = this.configuration;
+        return this.httpClient.request<GameResponse>('get', `${basePath}${localVarPath}`,
+            {
+                context: localVarHttpContext,
+                responseType: <any>responseType_,
+                ...(withCredentials ? { withCredentials } : {}),
+                headers: localVarHeaders,
+                observe: observe,
+                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Get game by UUID
      * @endpoint get /api/v1/games/{id}
      * @param id 
@@ -227,7 +291,7 @@ export class GamesApiService extends BaseService {
 
     /**
      * List active games - store view
-     * Returns active games for the given vendor. No auth.
+     * Returns active game parents for the given vendor. No auth.
      * @endpoint get /api/v1/games/store/{vendorUuid}
      * @param vendorUuid 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
@@ -474,8 +538,8 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Update a game item
-     * Updates editable fields of a game item. Caller must own the game.
+     * Update a game (parent)
+     * Updates editable fields of a game. Caller must own the game.
      * @endpoint put /api/v1/games/{id}
      * @param id 
      * @param gameRequest 

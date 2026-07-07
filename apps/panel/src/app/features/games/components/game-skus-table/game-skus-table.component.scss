@@ -1,12 +1,12 @@
-.game-row {
+.sku-row {
     transition: background-color 0.2s ease;
-    
+
     &:hover {
         background-color: var(--color-surface);
     }
 }
 
-.game-img-container {
+.sku-img-container {
     width: 52px;
     height: 52px;
     border-radius: 12px;
@@ -73,7 +73,7 @@
     &.activate {
         color: #16a34a;
         border-color: #bbf7d0;
-        
+
         &:hover {
             background-color: #16a34a;
             color: #ffffff;
@@ -84,7 +84,7 @@
     &.deactivate {
         color: #dc2626;
         border-color: #fecaca;
-        
+
         &:hover {
             background-color: #dc2626;
             color: #ffffff;
@@ -94,7 +94,7 @@
 
     &.delete {
         color: #64748b;
-        
+
         &:hover {
             background-color: #fee2e2;
             color: #ef4444;

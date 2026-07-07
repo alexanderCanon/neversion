@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,10 +60,9 @@ class GameServiceUT {
 
     private Game buildGameInput() {
         return Game.builder()
-                .code("ff-100")
-                .name("Free Fire 100 Diamonds")
-                .price(new BigDecimal("10.00"))
-                .imageUrl("https://image.url/ff100.png")
+                .name("Free Fire")
+                .slug("free-fire")
+                .imageUrl("https://image.url/ff.png")
                 .build();
     }
 
@@ -73,10 +71,9 @@ class GameServiceUT {
                 .id(1L)
                 .uuid(GAME_UUID)
                 .vendorId(vendorId)
-                .code("ff-100")
-                .name("Free Fire 100 Diamonds")
-                .price(new BigDecimal("10.00"))
-                .imageUrl("https://image.url/ff100.png")
+                .name("Free Fire")
+                .slug("free-fire")
+                .imageUrl("https://image.url/ff.png")
                 .isActive(true)
                 .build();
     }
@@ -92,7 +89,7 @@ class GameServiceUT {
             Game input = buildGameInput();
             Game saved = buildSavedGame(VENDOR_ID);
 
-            when(gameRepositoryPort.existsByVendorIdAndCode(VENDOR_ID, "ff-100")).thenReturn(false);
+            when(gameRepositoryPort.existsByVendorIdAndSlug(VENDOR_ID, "free-fire")).thenReturn(false);
             when(gameRepositoryPort.save(any())).thenReturn(saved);
 
             Game result = sut.create(input, EXTERNAL_ID);
@@ -103,16 +100,16 @@ class GameServiceUT {
         }
 
         @Test
-        @DisplayName("should throw BusinessRuleException when code already exists for vendor")
-        void create_shouldThrow_whenDuplicateCode() {
+        @DisplayName("should throw BusinessRuleException when slug already exists for vendor")
+        void create_shouldThrow_whenDuplicateSlug() {
             stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             Game input = buildGameInput();
 
-            when(gameRepositoryPort.existsByVendorIdAndCode(VENDOR_ID, "ff-100")).thenReturn(true);
+            when(gameRepositoryPort.existsByVendorIdAndSlug(VENDOR_ID, "free-fire")).thenReturn(true);
 
             assertThatThrownBy(() -> sut.create(input, EXTERNAL_ID))
                     .isInstanceOf(BusinessRuleException.class)
-                    .hasMessageContaining("ff-100");
+                    .hasMessageContaining("free-fire");
 
             verify(gameRepositoryPort, never()).save(any());
         }
@@ -128,21 +125,20 @@ class GameServiceUT {
             stubCallerChain(EXTERNAL_ID, USER_ID, VENDOR_ID);
             Game existing = buildSavedGame(VENDOR_ID);
             Game updatedInput = Game.builder()
-                    .code("ff-100-updated")
-                    .name("Updated Diamonds")
-                    .price(new BigDecimal("15.00"))
+                    .name("Free Fire Updated")
+                    .slug("free-fire-v2")
                     .imageUrl("https://new.url")
                     .build();
 
             when(gameRepositoryPort.findById(GAME_UUID)).thenReturn(Optional.of(existing));
-            when(gameRepositoryPort.existsByVendorIdAndCode(VENDOR_ID, "ff-100-updated")).thenReturn(false);
+            when(gameRepositoryPort.existsByVendorIdAndSlug(VENDOR_ID, "free-fire-v2")).thenReturn(false);
             when(gameRepositoryPort.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
             Game result = sut.update(GAME_UUID, updatedInput, EXTERNAL_ID);
 
-            assertThat(result.getCode()).isEqualTo("ff-100-updated");
-            assertThat(result.getName()).isEqualTo("Updated Diamonds");
-            assertThat(result.getPrice()).isEqualTo(new BigDecimal("15.00"));
+            assertThat(result.getSlug()).isEqualTo("free-fire-v2");
+            assertThat(result.getName()).isEqualTo("Free Fire Updated");
+            assertThat(result.getImageUrl()).isEqualTo("https://new.url");
         }
 
         @Test
@@ -178,6 +174,51 @@ class GameServiceUT {
             Game result = sut.toggleStatus(GAME_UUID, EXTERNAL_ID);
 
             assertThat(result.getIsActive()).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Get Active By Slug")
+    class GetActiveBySlugTests {
+
+        @Test
+        @DisplayName("should return game when slug exists and game is active")
+        void getActiveBySlug_shouldReturnGame_whenActive() {
+            Vendor vendor = Vendor.builder().id(VENDOR_ID).uuid(VENDOR_UUID).userId(USER_ID).build();
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            Game game = buildSavedGame(VENDOR_ID);
+            when(gameRepositoryPort.findByVendorIdAndSlug(VENDOR_ID, "free-fire"))
+                    .thenReturn(Optional.of(game));
+
+            Game result = sut.getActiveBySlug(VENDOR_UUID, "free-fire");
+
+            assertThat(result.getSlug()).isEqualTo("free-fire");
+        }
+
+        @Test
+        @DisplayName("should throw ResourceNotFoundException when game is inactive")
+        void getActiveBySlug_shouldThrow_whenInactive() {
+            Vendor vendor = Vendor.builder().id(VENDOR_ID).uuid(VENDOR_UUID).userId(USER_ID).build();
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            Game inactive = buildSavedGame(VENDOR_ID);
+            inactive.setIsActive(false);
+            when(gameRepositoryPort.findByVendorIdAndSlug(VENDOR_ID, "free-fire"))
+                    .thenReturn(Optional.of(inactive));
+
+            assertThatThrownBy(() -> sut.getActiveBySlug(VENDOR_UUID, "free-fire"))
+                    .isInstanceOf(ResourceNotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("should throw ResourceNotFoundException when slug does not exist")
+        void getActiveBySlug_shouldThrow_whenNotFound() {
+            Vendor vendor = Vendor.builder().id(VENDOR_ID).uuid(VENDOR_UUID).userId(USER_ID).build();
+            when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
+            when(gameRepositoryPort.findByVendorIdAndSlug(VENDOR_ID, "unknown"))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> sut.getActiveBySlug(VENDOR_UUID, "unknown"))
+                    .isInstanceOf(ResourceNotFoundException.class);
         }
     }
 
