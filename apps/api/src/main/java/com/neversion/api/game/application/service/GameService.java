@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Service implementation for Game operations.
+ * Service implementation for Game (parent) operations.
  * Enforces ownership validations and multi-tenancy rules.
  */
 @Service
@@ -40,16 +40,15 @@ public class GameService implements GameUseCase {
     public Game create(Game game, String callerExternalId) {
         Long vendorId = resolveVendorId(callerExternalId);
 
-        if (gameRepositoryPort.existsByVendorIdAndCode(vendorId, game.getCode())) {
+        if (gameRepositoryPort.existsByVendorIdAndSlug(vendorId, game.getSlug())) {
             throw new BusinessRuleException(
-                    "A game with code '" + game.getCode() + "' already exists for this vendor.");
+                    "A game with slug '" + game.getSlug() + "' already exists for this vendor.");
         }
 
         Game toSave = Game.builder()
                 .vendorId(vendorId)
-                .code(game.getCode())
                 .name(game.getName())
-                .price(game.getPrice())
+                .slug(game.getSlug())
                 .imageUrl(game.getImageUrl())
                 .isActive(true)
                 .build();
@@ -65,17 +64,16 @@ public class GameService implements GameUseCase {
 
         assertOwnership(existing, callerExternalId);
 
-        // Check code uniqueness if code changed
-        if (!existing.getCode().equalsIgnoreCase(updated.getCode())) {
-            if (gameRepositoryPort.existsByVendorIdAndCode(existing.getVendorId(), updated.getCode())) {
+        // Check slug uniqueness if slug changed
+        if (!existing.getSlug().equalsIgnoreCase(updated.getSlug())) {
+            if (gameRepositoryPort.existsByVendorIdAndSlug(existing.getVendorId(), updated.getSlug())) {
                 throw new BusinessRuleException(
-                        "A game with code '" + updated.getCode() + "' already exists for this vendor.");
+                        "A game with slug '" + updated.getSlug() + "' already exists for this vendor.");
             }
-            existing.setCode(updated.getCode());
+            existing.setSlug(updated.getSlug());
         }
 
         existing.setName(updated.getName());
-        existing.setPrice(updated.getPrice());
         existing.setImageUrl(updated.getImageUrl());
 
         return gameRepositoryPort.save(existing);
@@ -119,6 +117,23 @@ public class GameService implements GameUseCase {
                 .getId();
 
         return gameRepositoryPort.findActiveByVendorId(vendorId);
+    }
+
+    @Override
+    public Game getActiveBySlug(UUID vendorUuid, String slug) {
+        Long vendorId = vendorRepositoryPort.findByUuid(vendorUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid))
+                .getId();
+
+        Game game = gameRepositoryPort.findByVendorIdAndSlug(vendorId, slug)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Game not found for slug: " + slug));
+
+        if (!Boolean.TRUE.equals(game.getIsActive())) {
+            throw new ResourceNotFoundException("Game not found for slug: " + slug);
+        }
+
+        return game;
     }
 
     @Override

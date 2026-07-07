@@ -1,9 +1,9 @@
-package com.neversion.api.game.infrastructure.adapters.in.rest.controller;
+package com.neversion.api.gamesku.infrastructure.adapters.in.rest.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neversion.api.BaseIntegrationTest;
-import com.neversion.api.game.application.port.in.GameUseCase;
-import com.neversion.api.game.domain.model.Game;
+import com.neversion.api.gamesku.application.port.in.GameSkuUseCase;
+import com.neversion.api.gamesku.domain.model.GameSku;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -36,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@DisplayName("GameController IT")
-class GameControllerIT extends BaseIntegrationTest {
+@DisplayName("GameSkuController IT")
+class GameSkuControllerIT extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,11 +47,12 @@ class GameControllerIT extends BaseIntegrationTest {
     private ObjectMapper objectMapper;
 
     @MockitoBean
-    private GameUseCase gameUseCase;
+    private GameSkuUseCase gameSkuUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";
 
+    private static final UUID SKU_UUID = UUID.randomUUID();
     private static final UUID GAME_UUID = UUID.randomUUID();
     private static final UUID VENDOR_UUID = UUID.randomUUID();
 
@@ -68,13 +70,15 @@ class GameControllerIT extends BaseIntegrationTest {
         return jwt.serialize();
     }
 
-    private Game mockGame() {
-        return Game.builder()
+    private GameSku mockGameSku() {
+        return GameSku.builder()
                 .id(1L)
-                .uuid(GAME_UUID)
+                .uuid(SKU_UUID)
                 .vendorId(10L)
-                .name("Free Fire")
-                .slug("free-fire")
+                .gameId(5L)
+                .code("ff-110")
+                .name("Free Fire 110 Diamonds")
+                .price(BigDecimal.valueOf(10.00))
                 .imageUrl("https://example.com/image.png")
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
@@ -83,9 +87,11 @@ class GameControllerIT extends BaseIntegrationTest {
 
     private Map<String, Object> validRequestBody() {
         return Map.of(
-                "name", "Free Fire",
-                "slug", "free-fire",
-                "imageUrl", "https://example.com/image.png"
+                "code", "ff-110",
+                "name", "Free Fire 110 Diamonds",
+                "price", 10.00,
+                "imageUrl", "https://example.com/image.png",
+                "gameUuid", GAME_UUID.toString()
         );
     }
 
@@ -94,19 +100,19 @@ class GameControllerIT extends BaseIntegrationTest {
     class SecurityTests {
 
         @Test
-        @DisplayName("POST /api/v1/games - should return 401 Unauthorized when no token is provided")
+        @DisplayName("POST /api/v1/game-skus - should return 401 Unauthorized when no token is provided")
         void create_noToken_401() throws Exception {
-            mockMvc.perform(post("/api/v1/games")
+            mockMvc.perform(post("/api/v1/game-skus")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validRequestBody())))
                     .andExpect(status().isUnauthorized());
         }
 
         @Test
-        @DisplayName("POST /api/v1/games - should return 403 Forbidden with client role")
+        @DisplayName("POST /api/v1/game-skus - should return 403 Forbidden with client role")
         void create_clientRole_403() throws Exception {
             String token = buildJwt("client");
-            mockMvc.perform(post("/api/v1/games")
+            mockMvc.perform(post("/api/v1/game-skus")
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validRequestBody())))
@@ -114,19 +120,19 @@ class GameControllerIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("POST /api/v1/games - should return 201 Created with vendor role")
+        @DisplayName("POST /api/v1/game-skus - should return 201 Created with vendor role")
         void create_vendorRole_201() throws Exception {
             String token = buildJwt("vendor");
-            when(gameUseCase.create(any(Game.class), anyString())).thenReturn(mockGame());
+            when(gameSkuUseCase.create(any(GameSku.class), anyString())).thenReturn(mockGameSku());
 
-            mockMvc.perform(post("/api/v1/games")
+            mockMvc.perform(post("/api/v1/game-skus")
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(validRequestBody())))
                     .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.id").value(GAME_UUID.toString()))
-                    .andExpect(jsonPath("$.slug").value("free-fire"))
-                    .andExpect(jsonPath("$.name").value("Free Fire"));
+                    .andExpect(jsonPath("$.id").value(SKU_UUID.toString()))
+                    .andExpect(jsonPath("$.code").value("ff-110"))
+                    .andExpect(jsonPath("$.name").value("Free Fire 110 Diamonds"));
         }
     }
 
@@ -135,15 +141,16 @@ class GameControllerIT extends BaseIntegrationTest {
     class ValidationTests {
 
         @Test
-        @DisplayName("POST /api/v1/games - should return 400 Bad Request if fields are invalid")
+        @DisplayName("POST /api/v1/game-skus - should return 400 Bad Request if fields are invalid")
         void create_invalidFields_400() throws Exception {
             String token = buildJwt("vendor");
             Map<String, Object> invalidBody = Map.of(
+                    "code", "",
                     "name", "",
-                    "slug", "Invalid Slug With Spaces"
+                    "price", -5.00
             );
 
-            mockMvc.perform(post("/api/v1/games")
+            mockMvc.perform(post("/api/v1/game-skus")
                             .header("Authorization", "Bearer " + token)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(invalidBody)))
@@ -156,35 +163,25 @@ class GameControllerIT extends BaseIntegrationTest {
     class PublicLookupTests {
 
         @Test
-        @DisplayName("GET /api/v1/games/store/{vendorUuid} - should return 200 and allow public access")
-        void storeCatalog_public_200() throws Exception {
-            when(gameUseCase.listActive(any(UUID.class))).thenReturn(List.of(mockGame()));
-
-            mockMvc.perform(get("/api/v1/games/store/" + VENDOR_UUID))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].id").value(GAME_UUID.toString()));
-        }
-
-        @Test
-        @DisplayName("GET /api/v1/games/store/{vendorUuid}/by-slug/{slug} - should return 200 and allow public access")
+        @DisplayName("GET /api/v1/game-skus/store/{vendorUuid}?gameSlug=free-fire - should return 200 and allow public access")
         void storeBySlug_public_200() throws Exception {
-            when(gameUseCase.getActiveBySlug(eq(VENDOR_UUID), eq("free-fire")))
-                    .thenReturn(mockGame());
+            when(gameSkuUseCase.listActiveByGameSlug(eq(VENDOR_UUID), eq("free-fire")))
+                    .thenReturn(List.of(mockGameSku()));
 
-            mockMvc.perform(get("/api/v1/games/store/" + VENDOR_UUID + "/by-slug/free-fire"))
+            mockMvc.perform(get("/api/v1/game-skus/store/" + VENDOR_UUID)
+                            .param("gameSlug", "free-fire"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(GAME_UUID.toString()))
-                    .andExpect(jsonPath("$.slug").value("free-fire"));
+                    .andExpect(jsonPath("$[0].id").value(SKU_UUID.toString()));
         }
 
         @Test
-        @DisplayName("GET /api/v1/games/{id} - should return 200 and allow public access")
+        @DisplayName("GET /api/v1/game-skus/{id} - should return 200 and allow public access")
         void getById_public_200() throws Exception {
-            when(gameUseCase.getById(any(UUID.class))).thenReturn(mockGame());
+            when(gameSkuUseCase.getById(any(UUID.class))).thenReturn(mockGameSku());
 
-            mockMvc.perform(get("/api/v1/games/" + GAME_UUID))
+            mockMvc.perform(get("/api/v1/game-skus/" + SKU_UUID))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(GAME_UUID.toString()));
+                    .andExpect(jsonPath("$.id").value(SKU_UUID.toString()));
         }
     }
 }

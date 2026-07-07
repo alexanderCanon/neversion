@@ -14,7 +14,7 @@ public interface GameRepositoryPort {
 
     Optional<Game> findByInternalId(Long id);
 
-    Optional<Game> findByVendorIdAndCode(Long vendorId, String code);
+    Optional<Game> findByVendorIdAndSlug(Long vendorId, String slug);
 
     List<Game> findAllByVendorId(Long vendorId);
 
@@ -22,5 +22,5 @@ public interface GameRepositoryPort {
 
     List<Game> findAll();
 
-    boolean existsByVendorIdAndCode(Long vendorId, String code);
+    boolean existsByVendorIdAndSlug(Long vendorId, String slug);
 }

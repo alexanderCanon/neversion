@@ -38,6 +38,8 @@ export * from './expiringSubscriptionsKpiResult';
 export * from './financialSnapshot';
 export * from './gameRequest';
 export * from './gameResponse';
+export * from './gameSkuRequest';
+export * from './gameSkuResponse';
 export * from './grandTotal';
 export * from './grossProfitKpiResult';
 export * from './inventoryAvailabilityResult';

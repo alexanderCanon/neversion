@@ -9,18 +9,26 @@
  */
 
 
-export interface GameRequest { 
+export interface GameSkuRequest { 
     /**
-     * Game name, e.g. Free Fire
+     * SKU identifier code, e.g. ff-110
+     */
+    code?: string;
+    /**
+     * SKU name, e.g. Free Fire 110 Diamonds
      */
     name?: string;
     /**
-     * URL-friendly slug, unique per vendor
+     * Price of the SKU
      */
-    slug?: string;
+    price: number;
     /**
-     * Optional URL to the game logo/image
+     * Optional URL to the SKU image
      */
     imageUrl?: string;
+    /**
+     * UUID of the parent game this SKU belongs to
+     */
+    gameUuid?: string;
 }
 

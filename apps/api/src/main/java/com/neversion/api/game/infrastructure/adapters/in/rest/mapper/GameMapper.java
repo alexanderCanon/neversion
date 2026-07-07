@@ -11,9 +11,8 @@ public class GameMapper {
     public Game toDomain(GameRequest request) {
         if (request == null) return null;
         return Game.builder()
-                .code(request.code())
                 .name(request.name())
-                .price(request.price())
+                .slug(request.slug())
                 .imageUrl(request.imageUrl())
                 .build();
     }
@@ -22,9 +21,8 @@ public class GameMapper {
         if (game == null) return null;
         return GameResponse.builder()
                 .id(game.getUuid())
-                .code(game.getCode())
                 .name(game.getName())
-                .price(game.getPrice())
+                .slug(game.getSlug())
                 .imageUrl(game.getImageUrl())
                 .isActive(game.getIsActive())
                 .createdAt(game.getCreatedAt())

@@ -1,34 +1,38 @@
-package com.neversion.api.game.infrastructure.adapters.out.mapper;
+package com.neversion.api.gamesku.infrastructure.adapters.out.mapper;
 
-import com.neversion.api.game.domain.model.Game;
-import com.neversion.api.game.infrastructure.adapters.out.GameEntity;
+import com.neversion.api.gamesku.domain.model.GameSku;
+import com.neversion.api.gamesku.infrastructure.adapters.out.GameSkuEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GamePersistenceMapper {
+public class GameSkuPersistenceMapper {
 
-    public Game toDomain(GameEntity entity) {
+    public GameSku toDomain(GameSkuEntity entity) {
         if (entity == null) return null;
-        return Game.builder()
+        return GameSku.builder()
                 .id(entity.getId())
                 .uuid(entity.getUuid())
                 .vendorId(entity.getVendorId())
+                .gameId(entity.getGameId())
+                .code(entity.getCode())
                 .name(entity.getName())
-                .slug(entity.getSlug())
+                .price(entity.getPrice())
                 .imageUrl(entity.getImageUrl())
                 .isActive(entity.getIsActive())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
 
-    public GameEntity toEntity(Game domain) {
+    public GameSkuEntity toEntity(GameSku domain) {
         if (domain == null) return null;
-        return GameEntity.builder()
+        return GameSkuEntity.builder()
                 .id(domain.getId())
                 .uuid(domain.getUuid())
                 .vendorId(domain.getVendorId())
+                .gameId(domain.getGameId())
+                .code(domain.getCode())
                 .name(domain.getName())
-                .slug(domain.getSlug())
+                .price(domain.getPrice())
                 .imageUrl(domain.getImageUrl())
                 .isActive(domain.getIsActive())
                 .createdAt(domain.getCreatedAt())

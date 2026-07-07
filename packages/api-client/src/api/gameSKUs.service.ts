@@ -17,9 +17,9 @@ import { Observable }                                        from 'rxjs';
 import { OpenApiHttpParams, QueryParamStyle } from '../query.params';
 
 // @ts-ignore
-import { GameRequest } from '../model/gameRequest';
+import { GameSkuRequest } from '../model/gameSkuRequest';
 // @ts-ignore
-import { GameResponse } from '../model/gameResponse';
+import { GameSkuResponse } from '../model/gameSkuResponse';
 
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -31,27 +31,27 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class GamesApiService extends BaseService {
+export class GameSKUsApiService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
     }
 
     /**
-     * Create a game (parent)
-     * Creates a new game parent (e.g. Free Fire) in the caller vendor\&#39;s catalog.
-     * @endpoint post /api/v1/games
-     * @param gameRequest 
+     * Create a game SKU
+     * Creates a new SKU (e.g. Free Fire 110 Diamonds) in the caller vendor\&#39;s catalog.
+     * @endpoint post /api/v1/game-skus
+     * @param gameSkuRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public createGame(gameRequest: GameRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
-    public createGame(gameRequest: GameRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
-    public createGame(gameRequest: GameRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
-    public createGame(gameRequest: GameRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (gameRequest === null || gameRequest === undefined) {
-            throw new Error('Required parameter gameRequest was null or undefined when calling createGame.');
+    public createGameSku(gameSkuRequest: GameSkuRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameSkuResponse>;
+    public createGameSku(gameSkuRequest: GameSkuRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameSkuResponse>>;
+    public createGameSku(gameSkuRequest: GameSkuRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameSkuResponse>>;
+    public createGameSku(gameSkuRequest: GameSkuRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+        if (gameSkuRequest === null || gameSkuRequest === undefined) {
+            throw new Error('Required parameter gameSkuRequest was null or undefined when calling createGameSku.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -91,12 +91,12 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games`;
+        let localVarPath = `/api/v1/game-skus`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GameResponse>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GameSkuResponse>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: gameRequest,
+                body: gameSkuRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -108,20 +108,20 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Soft-deactivate a game
-     * Logically deactivates a game. Caller must own the game.
-     * @endpoint delete /api/v1/games/{id}
+     * Soft-deactivate a game SKU
+     * Logically deactivates a SKU. Caller must own the SKU.
+     * @endpoint delete /api/v1/game-skus/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public deleteGame(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
-    public deleteGame(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
-    public deleteGame(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
-    public deleteGame(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public deleteGameSku(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any>;
+    public deleteGameSku(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<any>>;
+    public deleteGameSku(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<any>>;
+    public deleteGameSku(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: undefined, context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling deleteGame.');
+            throw new Error('Required parameter id was null or undefined when calling deleteGameSku.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -151,7 +151,7 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/game-skus/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
         return this.httpClient.request<any>('delete', `${basePath}${localVarPath}`,
             {
@@ -167,83 +167,19 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Get active game by slug - store view
-     * Returns an active game parent by its slug. No auth.
-     * @endpoint get /api/v1/games/store/{vendorUuid}/by-slug/{slug}
-     * @param vendorUuid 
-     * @param slug 
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     * @param options additional options
-     */
-    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
-    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
-    public getActiveBySlugGame(vendorUuid: string, slug: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
-    public getActiveBySlugGame(vendorUuid: string, slug: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
-        if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling getActiveBySlugGame.');
-        }
-        if (slug === null || slug === undefined) {
-            throw new Error('Required parameter slug was null or undefined when calling getActiveBySlugGame.');
-        }
-
-        let localVarHeaders = this.defaultHeaders;
-
-        // authentication (bearerAuth) required
-        localVarHeaders = this.configuration.addCredentialToHeaders('bearerAuth', 'Authorization', localVarHeaders, 'Bearer ');
-
-        const localVarHttpHeaderAcceptSelected: string | undefined = options?.httpHeaderAccept ?? this.configuration.selectHeaderAccept([
-            'application/json'
-        ]);
-        if (localVarHttpHeaderAcceptSelected !== undefined) {
-            localVarHeaders = localVarHeaders.set('Accept', localVarHttpHeaderAcceptSelected);
-        }
-
-        const localVarHttpContext: HttpContext = options?.context ?? new HttpContext();
-
-        const localVarTransferCache: boolean = options?.transferCache ?? true;
-
-
-        let responseType_: 'text' | 'json' | 'blob' = 'json';
-        if (localVarHttpHeaderAcceptSelected) {
-            if (localVarHttpHeaderAcceptSelected.startsWith('text')) {
-                responseType_ = 'text';
-            } else if (this.configuration.isJsonMime(localVarHttpHeaderAcceptSelected)) {
-                responseType_ = 'json';
-            } else {
-                responseType_ = 'blob';
-            }
-        }
-
-        let localVarPath = `/api/v1/games/store/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/by-slug/${this.configuration.encodeParam({name: "slug", value: slug, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: undefined})}`;
-        const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GameResponse>('get', `${basePath}${localVarPath}`,
-            {
-                context: localVarHttpContext,
-                responseType: <any>responseType_,
-                ...(withCredentials ? { withCredentials } : {}),
-                headers: localVarHeaders,
-                observe: observe,
-                ...(localVarTransferCache !== undefined ? { transferCache: localVarTransferCache } : {}),
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * Get game by UUID
-     * @endpoint get /api/v1/games/{id}
+     * Get game SKU by UUID
+     * @endpoint get /api/v1/game-skus/{id}
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public getByIdGame(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
-    public getByIdGame(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
-    public getByIdGame(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
-    public getByIdGame(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public getByIdGameSku(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameSkuResponse>;
+    public getByIdGameSku(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameSkuResponse>>;
+    public getByIdGameSku(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameSkuResponse>>;
+    public getByIdGameSku(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getByIdGame.');
+            throw new Error('Required parameter id was null or undefined when calling getByIdGameSku.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -274,9 +210,9 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/game-skus/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GameResponse>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GameSkuResponse>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -290,21 +226,36 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * List active games - store view
-     * Returns active game parents for the given vendor. No auth.
-     * @endpoint get /api/v1/games/store/{vendorUuid}
+     * List active game SKUs by game slug - store view
+     * Returns active SKUs for a game identified by slug. No auth.
+     * @endpoint get /api/v1/game-skus/store/{vendorUuid}
      * @param vendorUuid 
+     * @param gameSlug 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listActiveGame(vendorUuid: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameResponse>>;
-    public listActiveGame(vendorUuid: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameResponse>>>;
-    public listActiveGame(vendorUuid: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameResponse>>>;
-    public listActiveGame(vendorUuid: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listActiveByGameSlugGameSku(vendorUuid: string, gameSlug: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameSkuResponse>>;
+    public listActiveByGameSlugGameSku(vendorUuid: string, gameSlug: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameSkuResponse>>>;
+    public listActiveByGameSlugGameSku(vendorUuid: string, gameSlug: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameSkuResponse>>>;
+    public listActiveByGameSlugGameSku(vendorUuid: string, gameSlug: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listActiveGame.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listActiveByGameSlugGameSku.');
         }
+        if (gameSlug === null || gameSlug === undefined) {
+            throw new Error('Required parameter gameSlug was null or undefined when calling listActiveByGameSlugGameSku.');
+        }
+
+        let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'gameSlug',
+            <any>gameSlug,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -334,11 +285,12 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/store/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/game-skus/store/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GameResponse>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<GameSkuResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
+                params: localVarQueryParameters.toHttpParams(),
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,
@@ -350,24 +302,34 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * List vendor games - panel view
-     * Returns all games for the given vendor. Owner only.
-     * @endpoint get /api/v1/games/vendor/{vendorUuid}
+     * List vendor game SKUs - panel view
+     * Returns all SKUs for the given vendor, optionally filtered by game. Owner only.
+     * @endpoint get /api/v1/game-skus/vendor/{vendorUuid}
      * @param vendorUuid 
+     * @param gameUuid 
      * @param isActive 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listByVendorGame(vendorUuid: string, isActive?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameResponse>>;
-    public listByVendorGame(vendorUuid: string, isActive?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameResponse>>>;
-    public listByVendorGame(vendorUuid: string, isActive?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameResponse>>>;
-    public listByVendorGame(vendorUuid: string, isActive?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listByVendorGameSku(vendorUuid: string, gameUuid?: string, isActive?: boolean, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameSkuResponse>>;
+    public listByVendorGameSku(vendorUuid: string, gameUuid?: string, isActive?: boolean, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameSkuResponse>>>;
+    public listByVendorGameSku(vendorUuid: string, gameUuid?: string, isActive?: boolean, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameSkuResponse>>>;
+    public listByVendorGameSku(vendorUuid: string, gameUuid?: string, isActive?: boolean, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (vendorUuid === null || vendorUuid === undefined) {
-            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendorGame.');
+            throw new Error('Required parameter vendorUuid was null or undefined when calling listByVendorGameSku.');
         }
 
         let localVarQueryParameters = new OpenApiHttpParams(this.encoder);
+
+        localVarQueryParameters = this.addToHttpParams(
+            localVarQueryParameters,
+            'gameUuid',
+            <any>gameUuid,
+            QueryParamStyle.Form,
+            true,
+        );
+
 
         localVarQueryParameters = this.addToHttpParams(
             localVarQueryParameters,
@@ -406,9 +368,9 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/vendor/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/game-skus/vendor/${this.configuration.encodeParam({name: "vendorUuid", value: vendorUuid, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GameResponse>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<GameSkuResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 params: localVarQueryParameters.toHttpParams(),
@@ -423,16 +385,16 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * List all games (SUPER_ADMIN)
-     * @endpoint get /api/v1/games
+     * List all game SKUs (SUPER_ADMIN)
+     * @endpoint get /api/v1/game-skus
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public listGame(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameResponse>>;
-    public listGame(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameResponse>>>;
-    public listGame(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameResponse>>>;
-    public listGame(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public listGameSku(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<Array<GameSkuResponse>>;
+    public listGameSku(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<Array<GameSkuResponse>>>;
+    public listGameSku(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<Array<GameSkuResponse>>>;
+    public listGameSku(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
 
@@ -462,9 +424,9 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games`;
+        let localVarPath = `/api/v1/game-skus`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<Array<GameResponse>>('get', `${basePath}${localVarPath}`,
+        return this.httpClient.request<Array<GameSkuResponse>>('get', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -478,20 +440,20 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Toggle game active status
-     * Toggles active status. Caller must own the game.
-     * @endpoint patch /api/v1/games/{id}/status
+     * Toggle game SKU active status
+     * Toggles active status. Caller must own the SKU.
+     * @endpoint patch /api/v1/game-skus/{id}/status
      * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public toggleStatusGame(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
-    public toggleStatusGame(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
-    public toggleStatusGame(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
-    public toggleStatusGame(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public toggleStatusGameSku(id: string, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameSkuResponse>;
+    public toggleStatusGameSku(id: string, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameSkuResponse>>;
+    public toggleStatusGameSku(id: string, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameSkuResponse>>;
+    public toggleStatusGameSku(id: string, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling toggleStatusGame.');
+            throw new Error('Required parameter id was null or undefined when calling toggleStatusGameSku.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -522,9 +484,9 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/status`;
+        let localVarPath = `/api/v1/game-skus/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}/status`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GameResponse>('patch', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GameSkuResponse>('patch', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -538,24 +500,24 @@ export class GamesApiService extends BaseService {
     }
 
     /**
-     * Update a game (parent)
-     * Updates editable fields of a game. Caller must own the game.
-     * @endpoint put /api/v1/games/{id}
+     * Update a game SKU
+     * Updates editable fields of a SKU. Caller must own the SKU.
+     * @endpoint put /api/v1/game-skus/{id}
      * @param id 
-     * @param gameRequest 
+     * @param gameSkuRequest 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      * @param options additional options
      */
-    public updateGame(id: string, gameRequest: GameRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameResponse>;
-    public updateGame(id: string, gameRequest: GameRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameResponse>>;
-    public updateGame(id: string, gameRequest: GameRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameResponse>>;
-    public updateGame(id: string, gameRequest: GameRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
+    public updateGameSku(id: string, gameSkuRequest: GameSkuRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<GameSkuResponse>;
+    public updateGameSku(id: string, gameSkuRequest: GameSkuRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<GameSkuResponse>>;
+    public updateGameSku(id: string, gameSkuRequest: GameSkuRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<GameSkuResponse>>;
+    public updateGameSku(id: string, gameSkuRequest: GameSkuRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'application/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling updateGame.');
+            throw new Error('Required parameter id was null or undefined when calling updateGameSku.');
         }
-        if (gameRequest === null || gameRequest === undefined) {
-            throw new Error('Required parameter gameRequest was null or undefined when calling updateGame.');
+        if (gameSkuRequest === null || gameSkuRequest === undefined) {
+            throw new Error('Required parameter gameSkuRequest was null or undefined when calling updateGameSku.');
         }
 
         let localVarHeaders = this.defaultHeaders;
@@ -595,12 +557,12 @@ export class GamesApiService extends BaseService {
             }
         }
 
-        let localVarPath = `/api/v1/games/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
+        let localVarPath = `/api/v1/game-skus/${this.configuration.encodeParam({name: "id", value: id, in: "path", style: "simple", explode: false, dataType: "string", dataFormat: "uuid"})}`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<GameResponse>('put', `${basePath}${localVarPath}`,
+        return this.httpClient.request<GameSkuResponse>('put', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
-                body: gameRequest,
+                body: gameSkuRequest,
                 responseType: <any>responseType_,
                 ...(withCredentials ? { withCredentials } : {}),
                 headers: localVarHeaders,

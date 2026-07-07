@@ -21,7 +21,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/v1/games", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "Games", description = "Game catalog management for app store")
+@Tag(name = "Games", description = "Game parent catalog management (groups GameSkus)")
 public class GameController {
 
     private final GameUseCase gameUseCase;
@@ -34,10 +34,9 @@ public class GameController {
 
     @PostMapping
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Create a game item", description = "Creates a new game item in the caller vendor's catalog.")
+    @Operation(summary = "Create a game (parent)", description = "Creates a new game parent (e.g. Free Fire) in the caller vendor's catalog.")
     @ApiResponse(responseCode = "201", description = "Game created")
-    @ApiResponse(responseCode = "400", description = "Validation or duplicate code error")
-    @ApiResponse(responseCode = "430", description = "Not a vendor")
+    @ApiResponse(responseCode = "400", description = "Validation or duplicate slug error")
     public ResponseEntity<GameResponse> create(
             @Valid @RequestBody GameRequest request,
             @AuthenticationPrincipal Jwt jwt) {
@@ -48,7 +47,7 @@ public class GameController {
 
     @PutMapping("/{id}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Update a game item", description = "Updates editable fields of a game item. Caller must own the game.")
+    @Operation(summary = "Update a game (parent)", description = "Updates editable fields of a game. Caller must own the game.")
     @ApiResponse(responseCode = "200", description = "Game updated")
     @ApiResponse(responseCode = "403", description = "Access denied")
     @ApiResponse(responseCode = "404", description = "Game not found")
@@ -88,11 +87,22 @@ public class GameController {
     }
 
     @GetMapping("/store/{vendorUuid}")
-    @Operation(summary = "List active games - store view", description = "Returns active games for the given vendor. No auth.")
+    @Operation(summary = "List active games - store view", description = "Returns active game parents for the given vendor. No auth.")
     @ApiResponse(responseCode = "200", description = "Active game list")
     public ResponseEntity<List<GameResponse>> listActive(@PathVariable UUID vendorUuid) {
         var list = gameUseCase.listActive(vendorUuid);
         return ResponseEntity.ok(list.stream().map(gameMapper::toResponse).toList());
+    }
+
+    @GetMapping("/store/{vendorUuid}/by-slug/{slug}")
+    @Operation(summary = "Get active game by slug - store view", description = "Returns an active game parent by its slug. No auth.")
+    @ApiResponse(responseCode = "200", description = "Game found")
+    @ApiResponse(responseCode = "404", description = "Game not found")
+    public ResponseEntity<GameResponse> getActiveBySlug(
+            @PathVariable UUID vendorUuid,
+            @PathVariable String slug) {
+        var game = gameUseCase.getActiveBySlug(vendorUuid, slug);
+        return ResponseEntity.ok(gameMapper.toResponse(game));
     }
 
     @GetMapping("/{id}")
