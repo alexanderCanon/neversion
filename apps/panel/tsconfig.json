@@ -9,7 +9,7 @@
       "tslib": ["node_modules/tslib/tslib.d.ts"],
       "@neversion/models": ["../../packages/models/src/index.ts"],
       "@neversion/utils": ["../../packages/utils/src/index.ts"],
-      "@neversion/api-client": ["../../packages/api-client/src/index.ts"]
+      "@neversion/api-client": ["../../packages/api-client/dist"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
