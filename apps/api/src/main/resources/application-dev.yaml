@@ -58,3 +58,7 @@ neversion:
   notification-service:
     host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:localhost}
     port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
+  reservation-service:
+    enabled: ${NEVERSION_RESERVATION_SERVICE_ENABLED:true}
+    host: ${NEVERSION_RESERVATION_SERVICE_HOST:localhost}
+    port: ${NEVERSION_RESERVATION_SERVICE_PORT:50052}

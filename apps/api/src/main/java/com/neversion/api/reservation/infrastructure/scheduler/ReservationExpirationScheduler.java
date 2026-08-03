@@ -2,6 +2,7 @@ package com.neversion.api.reservation.infrastructure.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +16,13 @@ import com.neversion.api.reservation.domain.port.out.ReservationRepositoryPort;
  * EXPIRED ≠ CANCELLED — EXPIRED is a system timeout,
  * CANCELLED is a manual action by admin or customer.
  * </p>
+ * <p>
+ * Note: When reservation-service (Rust) is active, background expiration is handled
+ * by the Tokio worker in Rust. Enable this property only if running in monolith-only mode.
+ * </p>
  */
 @Component
+@ConditionalOnProperty(name = "neversion.cron.reservation-expiry.enabled", havingValue = "true", matchIfMissing = false)
 public class ReservationExpirationScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(ReservationExpirationScheduler.class);

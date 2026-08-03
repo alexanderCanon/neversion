@@ -30,6 +30,10 @@ neversion:
       enabled: false
     renewal-reminders:
       enabled: false
+    reservation-expiry:
+      enabled: true
+  reservation-service:
+    enabled: false
   email:
     resend:
       api-key: re_test_placeholder

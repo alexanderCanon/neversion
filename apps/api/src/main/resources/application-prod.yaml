@@ -73,6 +73,10 @@ neversion:
   notification-service:
     host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:notification-service}
     port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
+  reservation-service:
+    enabled: ${NEVERSION_RESERVATION_SERVICE_ENABLED:true}
+    host: ${NEVERSION_RESERVATION_SERVICE_HOST:reservation-service}
+    port: ${NEVERSION_RESERVATION_SERVICE_PORT:50052}
 
 springdoc:
   api-docs:

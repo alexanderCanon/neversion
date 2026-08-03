@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package neversion.reservation;
+
+option java_multiple_files = true;
+option java_package = "com.neversion.api.reservation.infrastructure.adapters.out.grpc";
+
+service ReservationService {
+    rpc CreateReservation (CreateReservationRequest) returns (ReservationResponse);
+    rpc GetReservationByUuid (GetReservationByUuidRequest) returns (ReservationResponse);
+    rpc GetReservationById (GetReservationByIdRequest) returns (ReservationResponse);
+    rpc UpdateReservationStatus (UpdateReservationStatusRequest) returns (ReservationResponse);
+    rpc CheckActiveRenewal (CheckActiveRenewalRequest) returns (CheckActiveRenewalResponse);
+    rpc ExpirePendingReservations (ExpirePendingReservationsRequest) returns (ExpirePendingReservationsResponse);
+}
+
+enum ReservationStatus {
+    RESERVATION_STATUS_UNSPECIFIED = 0;
+    PENDING = 1;
+    UPLOADED = 2;
+    VALIDATED = 3;
+    REJECTED = 4;
+    EXPIRED = 5;
+    CANCELLED = 6;
+}
+
+message ReservationDetailItem {
+    int64 id = 1;
+    string uuid = 2;
+    int64 service_id = 3;
+    int32 qty = 4;
+    string unit_price = 5;
+    string subtotal = 6;
+}
+
+message CreateReservationRequest {
+    int64 client_id = 1;
+    string client_uuid = 2;
+    int64 vendor_id = 3;
+    string discount = 4;
+    string total = 5;
+    string payment_method = 6;
+    string account_preference = 7;
+    string notes = 8;
+    int64 renewal_subscription_id = 9;
+    string renewal_subscription_uuid = 10;
+    int64 points_redeemed = 11;
+    string points_discount = 12;
+    repeated ReservationDetailItem details = 13;
+}
+
+message GetReservationByUuidRequest {
+    string uuid = 1;
+}
+
+message GetReservationByIdRequest {
+    int64 id = 1;
+}
+
+message UpdateReservationStatusRequest {
+    string uuid = 1;
+    ReservationStatus status = 2;
+    string receipt_url = 3;
+    string notes = 4;
+}
+
+message CheckActiveRenewalRequest {
+    int64 subscription_id = 1;
+}
+
+message CheckActiveRenewalResponse {
+    bool active = 1;
+}
+
+message ExpirePendingReservationsRequest {
+    int32 expiration_minutes = 1;
+}
+
+message ExpirePendingReservationsResponse {
+    int32 expired_count = 1;
+}
+
+message ReservationResponse {
+    bool success = 1;
+    string message = 2;
+    int64 id = 3;
+    string uuid = 4;
+    int64 client_id = 5;
+    string client_uuid = 6;
+    int64 vendor_id = 7;
+    string discount = 8;
+    string total = 9;
+    string receipt_url = 10;
+    string payment_method = 11;
+    ReservationStatus status = 12;
+    string account_preference = 13;
+    string expiration_date = 14;
+    string created_at = 15;
+    string notes = 16;
+    int64 renewal_subscription_id = 17;
+    string renewal_subscription_uuid = 18;
+    repeated ReservationDetailItem details = 19;
+    int64 points_redeemed = 20;
+    string points_discount = 21;
+}
