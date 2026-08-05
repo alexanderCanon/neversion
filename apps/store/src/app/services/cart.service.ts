@@ -32,6 +32,34 @@ export class CartService {
   items$ = this.itemsSubject.asObservable();
 
   private static readonly MAX_PROFILES = 4;
+  private static readonly STORAGE_KEY = 'neversion_store_cart';
+
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(CartService.STORAGE_KEY);
+      if (stored) {
+        const items: CartItem[] = JSON.parse(stored);
+        if (Array.isArray(items)) {
+          this.itemsSubject.next(items);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load cart from localStorage:', err);
+    }
+  }
+
+  private updateItems(items: CartItem[]): void {
+    this.itemsSubject.next(items);
+    try {
+      localStorage.setItem(CartService.STORAGE_KEY, JSON.stringify(items));
+    } catch (err) {
+      console.error('Failed to save cart to localStorage:', err);
+    }
+  }
 
   addToCart(
     service: ServiceResponse,
@@ -48,7 +76,7 @@ export class CartService {
           message: 'Una cuenta completa no puede combinarse con otros servicios en el mismo pedido.'
         };
       }
-      this.itemsSubject.next([{ service, quantity: 1, type }]);
+      this.updateItems([{ service, quantity: 1, type }]);
       return { ok: true };
     }
 
@@ -80,7 +108,7 @@ export class CartService {
       };
     }
 
-    this.itemsSubject.next([...currentItems, { service, quantity: 1, type }]);
+    this.updateItems([...currentItems, { service, quantity: 1, type }]);
     return { ok: true };
   }
 
@@ -93,13 +121,13 @@ export class CartService {
     const item = currentItems.find(i => i.service.id === serviceId && i.type === type);
     if (item) {
       item.quantity = quantity;
-      this.itemsSubject.next([...currentItems]);
+      this.updateItems([...currentItems]);
     }
   }
 
   removeFromCart(serviceId: string, type: 'PROFILE' | 'COMPLETE'): void {
     const currentItems = this.itemsSubject.value;
-    this.itemsSubject.next(currentItems.filter(item => !(item.service.id === serviceId && item.type === type)));
+    this.updateItems(currentItems.filter(item => !(item.service.id === serviceId && item.type === type)));
   }
 
   /**
@@ -111,12 +139,17 @@ export class CartService {
     const item = currentItems.find(i => i.service.id === serviceId && i.type === 'PROFILE');
     if (item) {
       item.spotifyAccountPreference = preference;
-      this.itemsSubject.next([...currentItems]);
+      this.updateItems([...currentItems]);
     }
   }
 
   clearCart(): void {
     this.itemsSubject.next([]);
+    try {
+      localStorage.removeItem(CartService.STORAGE_KEY);
+    } catch (err) {
+      console.error('Failed to clear cart from localStorage:', err);
+    }
   }
 
   /**

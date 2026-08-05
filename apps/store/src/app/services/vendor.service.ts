@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { VendorsPublicApiService, VendorPublicResponse } from '@neversion/api-client';
+import { BehaviorSubject, Observable, from, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { VendorPublicResponse } from '@neversion/api-client';
+import { SupabaseService } from './supabase.service';
 import { runtimeConfig } from '../config/runtime-config';
 
 export interface DiscountTier {
@@ -20,7 +21,7 @@ export interface DiscountConfig {
   providedIn: 'root'
 })
 export class VendorService {
-  private readonly vendorsPublicApi = inject(VendorsPublicApiService);
+  private readonly supabase = inject(SupabaseService);
 
   private vendorSubject = new BehaviorSubject<VendorPublicResponse | null>(null);
   vendor$ = this.vendorSubject.asObservable();
@@ -30,20 +31,37 @@ export class VendorService {
 
   private loaded = false;
 
-  /** Loads vendor public info (including discountCfg) once at app init. */
+  /** Loads vendor public info (including discountCfg) once at app init via v_store_vendors view. */
   loadVendor(): Observable<VendorPublicResponse | null> {
     if (this.loaded) {
       return of(this.vendorSubject.value);
     }
 
-    return this.vendorsPublicApi.getByUuidVendorPublic(runtimeConfig.storeVendorUuid).pipe(
+    const promise = this.supabase.client
+      .from('v_store_vendors')
+      .select('*')
+      .eq('vendor_uuid', runtimeConfig.storeVendorUuid)
+      .maybeSingle();
+
+    return from(promise).pipe(
+      map(({ data, error }) => {
+        if (error) throw error;
+        if (!data) return null;
+        return {
+          uuid: data.vendor_uuid,
+          storeName: data.store_name,
+          logoUrl: data.logo_url,
+          bankDetails: typeof data.bank_details === 'string' ? data.bank_details : JSON.stringify(data.bank_details),
+          discountCfg: typeof data.discount_cfg === 'string' ? data.discount_cfg : JSON.stringify(data.discount_cfg)
+        } as VendorPublicResponse;
+      }),
       tap(vendor => {
         this.vendorSubject.next(vendor);
         this.discountCfgSubject.next(this.parseDiscountCfg(vendor?.discountCfg));
         this.loaded = true;
       }),
       catchError(err => {
-        console.error('Error loading vendor info:', err);
+        console.error('Error loading vendor info from Supabase view:', err);
         this.loaded = true;
         return of(null);
       })
