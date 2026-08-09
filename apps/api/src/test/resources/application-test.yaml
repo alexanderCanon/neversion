@@ -19,12 +19,10 @@ spring:
 auth:
   api-url: http://localhost:8000
   admin-key: test-service-role-key-placeholder
-  jwt:
-    secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
 
 neversion:
-  monitoring:
-    scrape-token: test-prometheus-scrape-token
+  gateway:
+    secret: ${NEVERSION_GATEWAY_SECRET:test-gateway-secret-change-in-prod}
   renewal:
     grace-period-days: 2
   cron:

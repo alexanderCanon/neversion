@@ -111,19 +111,11 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("GET /actuator/prometheus - should return 401 with invalid scrape token")
+        @DisplayName("GET /actuator/prometheus - should return 401 without auth token")
         void actuatorPrometheus_shouldReturn401_withInvalidScrapeToken() throws Exception {
             mockMvc.perform(get("/actuator/prometheus")
                     .header("Authorization", "Bearer wrong-token"))
                     .andExpect(status().isUnauthorized());
-        }
-
-        @Test
-        @DisplayName("GET /actuator/prometheus - should return 200 with valid scrape token")
-        void actuatorPrometheus_shouldReturn200_withValidScrapeToken() throws Exception {
-            mockMvc.perform(get("/actuator/prometheus")
-                    .header("Authorization", "Bearer test-prometheus-scrape-token"))
-                    .andExpect(status().isOk());
         }
     }
 
@@ -138,30 +130,6 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         void createAccount_shouldReturn401_withMalformedJwt() throws Exception {
             mockMvc.perform(post("/api/v1/accounts")
                     .header("Authorization", "Bearer this.is.not.a.valid.jwt")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content("""
-                            {
-                                "email": "test@example.com",
-                                "password": "pass123",
-                                "serviceId": "00000000-0000-0000-0000-000000000001",
-                                "plan": "Premium",
-                                "saleMode": "BY_PROFILE",
-                                "renewalDate": "2026-04-30"
-                            }
-                            """))
-                    .andExpect(status().isUnauthorized());
-        }
-
-        @Test
-        @DisplayName("POST /api/v1/accounts - should return 401 with expired/invalid signature JWT")
-        void createAccount_shouldReturn401_withInvalidSignatureJwt() throws Exception {
-            // This is a structurally valid JWT but signed with a different secret
-            String invalidJwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-                    + ".eyJzdWIiOiIxMjM0NTY3ODkwIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNTE2MjM5MDIyfQ"
-                    + ".SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-
-            mockMvc.perform(post("/api/v1/accounts")
-                    .header("Authorization", "Bearer " + invalidJwt)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                             {
