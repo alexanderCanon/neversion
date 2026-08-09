@@ -97,9 +97,9 @@ class SecurityFilterChainIT extends BaseIntegrationTest {
         }
 
         @Test
-        @DisplayName("GET /api/v1/dashboard/products - should return 401 without token (admin-only)")
-        void dashboard_shouldReturn401_withoutToken() throws Exception {
-            mockMvc.perform(get("/api/v1/dashboard/products"))
+        @DisplayName("GET /api/v1/clients - should return 401 without token (admin-only)")
+        void clients_shouldReturn401_withoutToken() throws Exception {
+            mockMvc.perform(get("/api/v1/clients"))
                     .andExpect(status().isUnauthorized());
         }
 

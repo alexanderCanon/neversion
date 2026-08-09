@@ -15,12 +15,14 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+
 /**
  * gRPC adapter for NotificationLogPort.
- * Delegates all notification operations to the external Node.js gRPC service.
+ * Delegates all notification operations to the external gRPC service if enabled.
  */
 @Component
-@Primary
+@ConditionalOnProperty(name = "neversion.grpc.notification-service.enabled", havingValue = "true", matchIfMissing = false)
 public class GrpcNotificationLogAdapter implements NotificationLogPort, InitializingBean, DisposableBean {
 
     private static final Logger log = LoggerFactory.getLogger(GrpcNotificationLogAdapter.class);

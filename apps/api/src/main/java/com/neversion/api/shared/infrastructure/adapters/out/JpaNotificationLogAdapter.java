@@ -8,12 +8,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.neversion.api.shared.port.out.NotificationLogPort;
 
+import org.springframework.context.annotation.Primary;
+
 /**
  * JPA adapter implementing the NotificationLogPort outbound port.
  * Always inserts with status='pending'.
  * NotificationWorker is responsible for processing and updating status.
  */
 @Component
+@Primary
 public class JpaNotificationLogAdapter implements NotificationLogPort {
 
     private final SpringDataNotificationLogRepository repository;

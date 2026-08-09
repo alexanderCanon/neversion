@@ -42,12 +42,12 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
 
 auth:
-  jwt:
-    secret: ${AUTH_JWT_SECRET:your-dev-jwt-secret}
   api-url: ${AUTH_API_URL:http://localhost:9999}
   admin-key: ${AUTH_ADMIN_KEY:your-dev-service-role-key}
 
 neversion:
+  gateway:
+    secret: ${NEVERSION_GATEWAY_SECRET:dev-gateway-secret-change-in-prod}
   renewal:
     grace-period-days: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:2}
   cron:

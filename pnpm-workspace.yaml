@@ -9,3 +9,4 @@ allowBuilds:
   nice-napi: true
   protobufjs: true
   sharp: true
+  workerd: true
