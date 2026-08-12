@@ -343,26 +343,26 @@ export class MasterDashboardService {
     return from(promise).pipe(
       map(({ data, error }) => {
         if (error) throw error;
-        const accounts = (data || []).map((row: any) => ({
-          accountId: row.account_id,
-          email: row.email,
-          serviceName: row.service_name,
-          saleMode: row.sale_mode,
-          accountCost: Number(row.account_cost || 0),
-          maxProfiles: Number(row.max_profiles || 1),
-          profilesSold: Number(row.profiles_sold || 0),
-          newRevenue: Number(row.new_revenue || 0),
-          renewalRevenue: Number(row.renewal_revenue || 0),
-          totalRevenue: Number(row.total_revenue || 0),
-          totalDiscount: Number(row.total_discount || 0),
-          allocatedCost: Number(row.allocated_cost || 0),
-          profit: Number(row.profit || 0),
-          profitMarginPct: Number(row.profit_margin_pct || 0)
+        const accounts = (data || []).map((row: Record<string, unknown>) => ({
+          accountId: String(row['account_id'] || ''),
+          email: String(row['email'] || ''),
+          serviceName: String(row['service_name'] || ''),
+          saleMode: String(row['sale_mode'] || ''),
+          accountCost: Number(row['account_cost'] || 0),
+          maxProfiles: Number(row['max_profiles'] || 1),
+          profilesSold: Number(row['profiles_sold'] || 0),
+          newRevenue: Number(row['new_revenue'] || 0),
+          renewalRevenue: Number(row['renewal_revenue'] || 0),
+          totalRevenue: Number(row['total_revenue'] || 0),
+          totalDiscount: Number(row['total_discount'] || 0),
+          allocatedCost: Number(row['allocated_cost'] || 0),
+          profit: Number(row['profit'] || 0),
+          profitMarginPct: Number(row['profit_margin_pct'] || 0)
         }));
 
-        const totalRevenue = accounts.reduce((sum: number, acc: any) => sum + acc.totalRevenue, 0);
-        const totalAllocatedCost = accounts.reduce((sum: number, acc: any) => sum + acc.allocatedCost, 0);
-        const totalProfit = accounts.reduce((sum: number, acc: any) => sum + acc.profit, 0);
+        const totalRevenue = accounts.reduce((sum: number, acc: { totalRevenue: number }) => sum + acc.totalRevenue, 0);
+        const totalAllocatedCost = accounts.reduce((sum: number, acc: { allocatedCost: number }) => sum + acc.allocatedCost, 0);
+        const totalProfit = accounts.reduce((sum: number, acc: { profit: number }) => sum + acc.profit, 0);
         const overallMarginPct = totalRevenue > 0 ? Number(((totalProfit / totalRevenue) * 100).toFixed(2)) : 0;
 
         return {

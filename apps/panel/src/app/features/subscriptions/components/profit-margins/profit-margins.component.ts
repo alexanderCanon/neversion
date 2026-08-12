@@ -82,7 +82,7 @@ export class ProfitMarginsComponent implements OnInit {
         this.data.set(result);
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Error al cargar los márgenes de ganancia');
         this.isLoading.set(false);
       }

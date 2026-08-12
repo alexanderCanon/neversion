@@ -73,7 +73,11 @@
               ],
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              }
             }
           },
           "defaultConfiguration": "production"
@@ -130,6 +134,10 @@
   },
   "cli": {
     "analytics": false,
+    "cache": {
+      "enabled": true,
+      "environment": "all"
+    },
     "schematicCollections": [
       "angular-eslint"
     ]

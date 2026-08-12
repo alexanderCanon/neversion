@@ -112,11 +112,11 @@ export class ProfileListComponent implements OnInit, OnChanges {
     if (!this.accountId) return;
 
     this.accountsApi.getDetailAccount(this.accountId).subscribe({
-      next: (data) => {
+      next: () => {
         const clientsMap: Record<string, { id: string; name: string; phone?: string }> = {};
         this.profileClients = clientsMap;
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         console.error('Error fetching account details:', err);
       }
     });

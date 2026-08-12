@@ -70,7 +70,7 @@ export class DiscountConfigComponent implements OnInit {
           }
         }
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         this.isLoading.set(false);
         this.toastService.error('Error al cargar la configuración de descuentos');
         console.error(err);
@@ -130,13 +130,14 @@ export class DiscountConfigComponent implements OnInit {
 
     this.isSaving.set(true);
     this.vendorsApi.updateDiscountConfigVendor({ discountCfg: JSON.stringify(cfg) }).subscribe({
-      next: (_response: string) => {
+      next: () => {
         this.isSaving.set(false);
         this.toastService.success('Configuración de descuentos guardada correctamente');
       },
-      error: (err: any) => {
+      error: (err: unknown) => {
         this.isSaving.set(false);
-        const msg = err?.error?.message || 'Error al guardar la configuración';
+        const errorObj = err as { error?: { message?: string } };
+        const msg = errorObj?.error?.message || 'Error al guardar la configuración';
         this.toastService.error(msg);
         console.error(err);
       }

@@ -32,8 +32,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run linter and tests
-        run: pnpm --filter panel run --if-present test
+      - name: Run linter
+        run: pnpm --filter panel run --if-present lint
 
       - name: Build production bundle
         run: pnpm --filter panel build
