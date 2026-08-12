@@ -143,8 +143,26 @@ public class AccountController {
 
     // ─── US-024: List by vendor ───────────────────────────────────────────────
 
-    @GetMapping("/vendor/{vendorUuid}")
+    @GetMapping
     @Operation(summary = "List vendor accounts (US-024)",
+            description = "Returns all accounts for the authenticated vendor with optional filters.")
+    @ApiResponse(responseCode = "200", description = "Account list")
+    public ResponseEntity<List<AccountResponse>> listAccounts(
+            @RequestParam(required = false) UUID serviceUuid,
+            @RequestParam(required = false) AccountStatus status,
+            JwtAuthenticationToken token) {
+        List<Account> accounts = listAccountsUseCase.listAccounts(
+                serviceUuid, status, extractExternalId(token));
+        List<AccountResponse> response = accounts.stream()
+                .map(account -> accountMapper.toResponse(
+                        account,
+                        profileUseCase.findByAccountId(account.getId())))
+                .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/vendor/{vendorUuid}")
+    @Operation(summary = "List vendor accounts by vendor UUID (US-024, Legacy)",
             description = "Returns all accounts for the given vendor with optional filters.")
     @ApiResponse(responseCode = "200", description = "Account list")
     @ApiResponse(responseCode = "404", description = "Vendor not found")
@@ -162,6 +180,7 @@ public class AccountController {
                 .toList();
         return ResponseEntity.ok(response);
     }
+
 
     // ─── US-025: Generate profiles ────────────────────────────────────────────
 

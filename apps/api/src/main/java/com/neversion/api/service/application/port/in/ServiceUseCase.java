@@ -24,6 +24,9 @@ public interface ServiceUseCase {
     /** US-020: List all services for the vendor panel (active + inactive, with optional filters). */
     List<Service> listByVendor(UUID vendorUuid, CategoryType category, Boolean isActive, String callerExternalId);
 
+    List<Service> listByVendor(CategoryType category, Boolean isActive, String callerExternalId);
+
+
     /** US-021: List only active services for a vendor's public store. */
     List<Service> listActive(UUID vendorUuid);
 

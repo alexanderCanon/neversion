@@ -22,8 +22,11 @@ public abstract class BaseIntegrationTest {
     static {
         DockerImageName myImage = DockerImageName.parse("mirror.gcr.io/library/postgres:16-alpine").asCompatibleSubstituteFor("postgres");
         POSTGRES = new PostgreSQLContainer<>(myImage)
-                .withCommand("postgres", "-c", "max_connections=200");
+                .withCommand("postgres", "-c", "max_connections=200")
+                .withTmpFs(java.util.Map.of("/var/lib/postgresql/data", "rw"));
         POSTGRES.start();
+
+
     }
 
     @DynamicPropertySource

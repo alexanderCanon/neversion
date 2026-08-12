@@ -75,9 +75,10 @@ public class RegisterVendorService implements RegisterVendorUseCase {
                 "vendor", vendor.getId(), "welcome");
 
         return new RegisterVendorResult(
-                user.getUuid(),
+                user.getExternalId(),
                 vendor.getUuid(),
                 vendor.getStoreName(),
                 command.email());
     }
 }
+

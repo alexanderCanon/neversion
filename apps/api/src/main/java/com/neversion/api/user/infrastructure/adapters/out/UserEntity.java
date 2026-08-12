@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * JPA entity for the users table.
@@ -28,9 +27,6 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private UUID uuid;
-
     /** External auth provider subject claim (ADR-06 / ADR-09). */
     @Column(name = "external_id", nullable = false, unique = true, updatable = false)
     private String externalId;
@@ -43,11 +39,5 @@ public class UserEntity {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @PrePersist
-    void prePersist() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID();
-        }
-    }
 }
+

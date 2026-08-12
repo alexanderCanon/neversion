@@ -64,10 +64,11 @@ public class RegisterClientService implements RegisterClientUseCase {
                                 "Client record missing for authenticated user: " + command.externalId()));
 
                 return new RegisterClientResult(
-                        existingUser.get().getUuid(),
+                        existingUser.get().getExternalId(),
                         client.getUuid(),
                         client.getName(),
                         client.getEmail());
+
             }
         }
 
@@ -147,10 +148,11 @@ public class RegisterClientService implements RegisterClientUseCase {
                 "client", client.getId(), "welcome");
 
         return new RegisterClientResult(
-                user.getUuid(),
+                user.getExternalId(),
                 client.getUuid(),
                 client.getName(),
                 normalizedEmail);
+
     }
 
     private boolean hasText(String value) {

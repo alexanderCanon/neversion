@@ -113,8 +113,23 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionMapper.toBatchResponse(result));
     }
 
-    @GetMapping("/vendor/{vendorUuid}")
+    @GetMapping
     @Operation(summary = "List vendor subscriptions (US-043)",
+            description = "Returns subscriptions owned by the authenticated vendor.")
+    @ApiResponse(responseCode = "200", description = "Subscription list")
+    public ResponseEntity<List<SubscriptionResponse>> listSubscriptions(
+            @RequestParam(required = false) UUID serviceId,
+            @RequestParam(required = false) SubStatus status,
+            JwtAuthenticationToken token) {
+
+        List<SubscriptionListView> views = listSubscriptionsUseCase.listViews(
+                serviceId, status, extractExternalId(token));
+
+        return ResponseEntity.ok(views.stream().map(subscriptionMapper::toListResponse).toList());
+    }
+
+    @GetMapping("/vendor/{vendorUuid}")
+    @Operation(summary = "List vendor subscriptions by vendor UUID (US-043, Legacy)",
             description = "Returns subscriptions owned by the authenticated vendor. "
                     + "Optional filters: serviceId (UUID) and status. "
                     + "Default sort: paymentDueDate ascending.")
@@ -132,6 +147,7 @@ public class SubscriptionController {
 
         return ResponseEntity.ok(views.stream().map(subscriptionMapper::toListResponse).toList());
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Get subscription detail (US-044)",

@@ -144,6 +144,34 @@ public class GameSkuService implements GameSkuUseCase {
     }
 
     @Override
+    public List<GameSku> listByVendor(UUID gameUuid, Boolean isActive, String callerExternalId) {
+        Long callerVendorId = resolveVendorId(callerExternalId);
+
+        Long gameId = null;
+        if (gameUuid != null) {
+            gameId = gameRepositoryPort.findById(gameUuid)
+                    .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + gameUuid))
+                    .getId();
+        }
+
+        List<GameSku> skus;
+        if (gameId != null) {
+            skus = gameSkuRepositoryPort.findByVendorIdAndGameId(callerVendorId, gameId);
+        } else {
+            skus = gameSkuRepositoryPort.findAllByVendorId(callerVendorId);
+        }
+
+        if (isActive != null) {
+            return skus.stream()
+                    .filter(s -> s.getIsActive().equals(isActive))
+                    .toList();
+        }
+
+        return skus;
+    }
+
+
+    @Override
     public List<GameSku> listActiveByGameSlug(UUID vendorUuid, String gameSlug) {
         Long vendorId = vendorRepositoryPort.findByUuid(vendorUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid))
@@ -190,7 +218,7 @@ public class GameSkuService implements GameSkuUseCase {
                         "User not found for externalId: " + callerExternalId));
         return vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()))
+                        "Vendor record not found for user: " + user.getExternalId()))
                 .getId();
     }
 

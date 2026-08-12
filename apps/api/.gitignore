@@ -33,3 +33,4 @@ build/
 
 ### Enviroment files ###
 .env
+.env.local

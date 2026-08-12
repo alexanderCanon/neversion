@@ -33,9 +33,10 @@ public final class RegisterClientRequestMapper {
      */
     public static RegisterClientResponse toResponse(RegisterClientResult result) {
         return new RegisterClientResponse(
-                result.userUuid(),
+                result.externalId(),
                 result.clientUuid(),
                 result.name(),
                 result.email());
     }
+
 }

@@ -11,8 +11,8 @@ import java.util.UUID;
  */
 public record RegisterClientResponse(
 
-        @Schema(description = "Public UUID of the created platform user")
-        UUID userUuid,
+        @Schema(description = "External Supabase subject linked to the platform user")
+        String externalId,
 
         @Schema(description = "Public UUID of the created client record")
         UUID clientUuid,
@@ -24,3 +24,4 @@ public record RegisterClientResponse(
         String email
 ) {
 }
+

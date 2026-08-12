@@ -11,9 +11,9 @@
 
 export interface RegisterVendorResponse { 
     /**
-     * Public UUID of the created platform user
+     * External Supabase subject linked to the platform user
      */
-    userUuid?: string;
+    externalId?: string;
     /**
      * Public UUID of the created vendor record
      */

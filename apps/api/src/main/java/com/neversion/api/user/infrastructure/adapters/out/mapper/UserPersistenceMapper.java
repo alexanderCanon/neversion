@@ -14,7 +14,6 @@ public class UserPersistenceMapper {
     public static User toDomain(UserEntity entity) {
         return User.builder()
                 .id(entity.getId())
-                .uuid(entity.getUuid())
                 .externalId(entity.getExternalId())
                 .role(entity.getRole())
                 .createdAt(entity.getCreatedAt())
@@ -24,9 +23,9 @@ public class UserPersistenceMapper {
     public static UserEntity toEntity(User domain) {
         return UserEntity.builder()
                 .id(domain.getId())
-                .uuid(domain.getUuid())
                 .externalId(domain.getExternalId())
                 .role(domain.getRole())
                 .build();
     }
 }
+

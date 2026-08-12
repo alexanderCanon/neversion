@@ -16,7 +16,7 @@ type VerifyResult =
 	| { ok: false; error: string };
 
 /**
- * Verifies a Supabase GoTrue HS256 JWT using Web Crypto HMAC-SHA256.
+ * Verifies a Auth Provider HS256 JWT using Web Crypto HMAC-SHA256.
  *
  * Steps:
  * 1. Split the compact token into header / payload / signature.

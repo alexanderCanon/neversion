@@ -6,7 +6,7 @@ const TRUSTED_HEADERS = ["X-User-Id", "X-User-Role", "X-Gateway-Secret"] as cons
 
 /** Paths that skip JWT verification entirely. */
 const PUBLIC_PATHS: readonly string[] = [
-	"/api/v1/auth/clients",      // US-013: client self-registration (public)
+	"/api/v1/auth/clients",
 ];
 
 /**

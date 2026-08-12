@@ -16,13 +16,12 @@ services:
       NEVERSION_RENEWAL_GRACE_PERIOD_DAYS: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:-2}
       NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_ENABLED:-true}
       NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:-true}
-      NEVERSION_NOTIFICATION_SERVICE_HOST: ${NEVERSION_NOTIFICATION_SERVICE_HOST:-notification-service}
-      NEVERSION_NOTIFICATION_SERVICE_PORT: ${NEVERSION_NOTIFICATION_SERVICE_PORT:-50051}
     network_mode: "host"
+
     deploy:
       resources:
         limits:
-          memory: 768m
+          memory: 512M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s

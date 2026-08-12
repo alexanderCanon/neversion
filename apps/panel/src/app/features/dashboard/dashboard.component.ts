@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import {
   MasterDashboardService,
   VendorDashboardKpis,
-  VendorKpiMetrics
+  VendorKpiMetrics,
+  ExpiringSubscriptionResult,
+  ExpiringAccountResult
 } from './services/master-dashboard.service';
 import { DashboardMetricsComponent } from './components/dashboard-metrics/dashboard-metrics.component';
-import { ExpiringSubscriptionResult, ExpiringAccountResult } from '@neversion/api-client';
+
 
 interface ExpiringSection {
   title: string;

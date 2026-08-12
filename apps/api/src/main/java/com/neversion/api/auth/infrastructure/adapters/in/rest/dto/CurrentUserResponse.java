@@ -6,9 +6,6 @@ import java.util.UUID;
 
 public record CurrentUserResponse(
 
-        @Schema(description = "Public UUID of the internal platform user")
-        UUID userUuid,
-
         @Schema(description = "External Supabase subject linked to the platform user")
         String externalId,
 
@@ -22,3 +19,4 @@ public record CurrentUserResponse(
         String storeName
 ) {
 }
+

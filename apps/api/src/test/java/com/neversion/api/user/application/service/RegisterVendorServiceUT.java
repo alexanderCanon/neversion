@@ -66,7 +66,6 @@ class RegisterVendorServiceUT {
 
         User savedUser = User.builder()
                 .id(USER_ID)
-                .uuid(USER_UUID)
                 .externalId("supabase-uuid-abc123")
                 .role(UserRole.VENDOR)
                 .build();
@@ -89,8 +88,9 @@ class RegisterVendorServiceUT {
         RegisterVendorResult result = sut.register(command);
 
         // Assert — result fields
-        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.externalId()).isEqualTo("supabase-uuid-abc123");
         assertThat(result.vendorUuid()).isEqualTo(VENDOR_UUID);
+
         assertThat(result.storeName()).isEqualTo("Mi Tienda");
         assertThat(result.email()).isEqualTo("vendor@test.com");
 
@@ -108,7 +108,7 @@ class RegisterVendorServiceUT {
     void register_savedUser_shouldHaveRoleVendor() {
         // Arrange
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("supabase-uuid-vendor-001").role(UserRole.VENDOR).build();
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("x").build();
@@ -133,7 +133,7 @@ class RegisterVendorServiceUT {
     void register_savedVendor_shouldLinkToUserId() {
         // Arrange
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("pending_x").role(UserRole.VENDOR).build();
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("Mi Tienda").build();
@@ -158,7 +158,7 @@ class RegisterVendorServiceUT {
     void register_notificationPayload_shouldContainEmailAndStoreName() {
         // Arrange
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("pending_x").role(UserRole.VENDOR).build();
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("Mi Tienda").build();
@@ -186,10 +186,11 @@ class RegisterVendorServiceUT {
     void register_generatedPasswords_shouldBeUnique() {
         // Arrange
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("pending_x").role(UserRole.VENDOR).build();
         Vendor savedVendor = Vendor.builder()
                 .id(1L).uuid(VENDOR_UUID).userId(USER_ID).storeName("x").build();
+
 
         when(authServicePort.createUser(anyString(), anyString(), any())).thenReturn("pending_x");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
@@ -200,9 +201,10 @@ class RegisterVendorServiceUT {
         RegisterVendorResult r2 = sut.register(buildCommand());
 
         // Assert
-        assertThat(r1.userUuid()).isNotNull();
-        assertThat(r2.userUuid()).isNotNull();
-        assertThat(r1.userUuid()).isEqualTo(r2.userUuid()); // same mock stub
+        assertThat(r1.externalId()).isNotNull();
+        assertThat(r2.externalId()).isNotNull();
+        assertThat(r1.externalId()).isEqualTo(r2.externalId()); // same mock stub
+
     }
 
     // ─── helpers ─────────────────────────────────────────────────────────────

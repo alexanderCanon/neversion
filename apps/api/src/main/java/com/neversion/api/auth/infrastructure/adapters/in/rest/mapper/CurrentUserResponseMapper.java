@@ -12,10 +12,10 @@ public final class CurrentUserResponseMapper {
 
     public static CurrentUserResponse toResponse(CurrentUserContextResult result) {
         return new CurrentUserResponse(
-                result.userUuid(),
                 result.externalId(),
                 result.role().name().toLowerCase(Locale.ROOT),
                 result.vendorUuid(),
                 result.storeName());
     }
+
 }

@@ -61,13 +61,30 @@ public class ListAccountsService implements ListAccountsUseCase {
         return accountRepositoryPort.findByVendorIdFiltered(vendor.getId(), serviceId, status);
     }
 
+    @Override
+    public List<Account> listAccounts(UUID serviceUuid, AccountStatus status, String callerExternalId) {
+        Long vendorId = resolveVendorId(callerExternalId);
+        Long serviceId = null;
+        if (serviceUuid != null) {
+            serviceId = serviceRepositoryPort.findById(serviceUuid)
+                    .orElseThrow(() -> new ResourceNotFoundException("Service not found: " + serviceUuid))
+                    .getId();
+        }
+
+        if (serviceId == null && status == null) {
+            return accountRepositoryPort.findByVendorId(vendorId);
+        }
+        return accountRepositoryPort.findByVendorIdFiltered(vendorId, serviceId, status);
+    }
+
+
     private Long resolveVendorId(String callerExternalId) {
         var user = userRepositoryPort.findByExternalId(callerExternalId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found for externalId: " + callerExternalId));
         return vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()))
+                        "Vendor record not found for user: " + user.getExternalId()))
                 .getId();
     }
 }

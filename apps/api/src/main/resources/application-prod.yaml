@@ -70,13 +70,7 @@ neversion:
       schedule: ${NEVERSION_CRON_SUBSCRIPTION_EXPIRY_SCHEDULE:0 0 8 * * *}
     renewal-reminders:
       enabled: ${NEVERSION_CRON_RENEWAL_REMINDERS_ENABLED:true}
-  notification-service:
-    host: ${NEVERSION_NOTIFICATION_SERVICE_HOST:notification-service}
-    port: ${NEVERSION_NOTIFICATION_SERVICE_PORT:50051}
-  reservation-service:
-    enabled: ${NEVERSION_RESERVATION_SERVICE_ENABLED:true}
-    host: ${NEVERSION_RESERVATION_SERVICE_HOST:reservation-service}
-    port: ${NEVERSION_RESERVATION_SERVICE_PORT:50052}
+
 
 springdoc:
   api-docs:

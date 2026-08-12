@@ -34,16 +34,11 @@ import com.neversion.api.reservation.application.port.in.CreateRenewalReservatio
 import com.neversion.api.reservation.domain.model.Reservation;
 import com.neversion.api.reservation.domain.model.enums.ReservationStatus;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("ReservationController IT — EPIC-09 / US-061")
-class ReservationControllerIT extends BaseIntegrationTest {
+class ReservationControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
-    private CreateRenewalReservationUseCase createRenewalReservationUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

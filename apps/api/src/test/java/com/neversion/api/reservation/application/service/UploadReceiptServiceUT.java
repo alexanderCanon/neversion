@@ -90,10 +90,10 @@ class UploadReceiptServiceUT {
     private User buildUser() {
         return User.builder()
                 .id(USER_ID)
-                .uuid(UUID.randomUUID())
                 .externalId("supabase-id-123")
                 .build();
     }
+
 
     private Client buildClient() {
         return Client.builder()

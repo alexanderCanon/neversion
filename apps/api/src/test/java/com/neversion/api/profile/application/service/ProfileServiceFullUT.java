@@ -83,7 +83,7 @@ class ProfileServiceFullUT {
     }
 
     private void stubOwnership(Account account) {
-        User user = User.builder().id(USER_ID).uuid(UUID.randomUUID()).externalId(EXTERNAL_ID).build();
+        User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
         Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
         when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.of(account));
         when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
@@ -91,7 +91,8 @@ class ProfileServiceFullUT {
     }
 
     private void stubProfileOwnership(Profile p) {
-        User user = User.builder().id(USER_ID).uuid(UUID.randomUUID()).externalId(EXTERNAL_ID).build();
+        User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
+
         Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
         when(profileRepositoryPort.findById(PROFILE_UUID)).thenReturn(Optional.of(p));
         when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
@@ -144,7 +145,7 @@ class ProfileServiceFullUT {
                     .vendorId(OTHER_VENDOR).serviceId(SERVICE_ID)
                     .saleMode(SaleMode.BY_PROFILE).build();
 
-            User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).uuid(UUID.randomUUID()).build();
+            User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
             Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
             when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.of(foreignAccount));
             when(userRepositoryPort.findByExternalId(EXTERNAL_ID)).thenReturn(Optional.of(user));
@@ -196,7 +197,8 @@ class ProfileServiceFullUT {
                     .id(ACCOUNT_ID).vendorId(OTHER_VENDOR)
                     .saleMode(SaleMode.BY_PROFILE).build();
 
-            User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).uuid(UUID.randomUUID()).build();
+            User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
+
             Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
 
             when(profileRepositoryPort.findById(PROFILE_UUID)).thenReturn(Optional.of(foreignProfile));

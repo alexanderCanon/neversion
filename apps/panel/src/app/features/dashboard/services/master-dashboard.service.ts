@@ -8,14 +8,92 @@ import {
   ProfileSubscription,
   ProfileCustomer
 } from '@neversion/models';
-import {
-  ExpiringSubscriptionResult,
-  ExpiringAccountResult,
-  ExpiringAccountsKpiResult,
-  NotificationsApiService,
-  ProfitMarginsResult
-} from '@neversion/api-client';
+import { NotificationsApiService } from '@neversion/api-client';
 import { SupabaseService } from '../../../core/services/supabase.service';
+
+export interface ExpiringSubscriptionResult {
+  subscriptionId?: string;
+  clientName?: string;
+  clientPhone?: string;
+  serviceName?: string;
+  profileName?: string;
+  paymentDueDate?: string;
+  status?: string;
+  vendorExternalId?: string;
+}
+
+export interface ExpiringAccountResult {
+  accountId?: string;
+  email?: string;
+  accountEmail?: string;
+  serviceName?: string;
+  activeProfilesCount?: number;
+  maxProfiles?: number;
+  renewalDate?: string;
+  status?: string;
+  vendorExternalId?: string;
+}
+
+
+export interface ExpiringAccountsKpiResult {
+  totalAccounts?: number;
+  expiring3Days?: number;
+  expiring7Days?: number;
+  today?: ExpiringAccountResult[];
+  tomorrow?: ExpiringAccountResult[];
+  thisWeek?: ExpiringAccountResult[];
+  accounts?: ExpiringAccountResult[];
+}
+
+export interface ServiceProfitSummaryResult {
+  serviceId?: string;
+  serviceName?: string;
+  activeAccounts?: number;
+  activeAccountsCount?: number;
+  totalProfilesSold?: number;
+  totalRevenue?: number;
+  totalCost?: number;
+  totalAllocatedCost?: number;
+  profit?: number;
+  totalProfit?: number;
+  marginPct?: number;
+  avgMarginPct?: number;
+}
+
+export interface AccountProfitMarginResult {
+  accountUuid?: string;
+  accountId?: string;
+  email?: string;
+  serviceName?: string;
+  profilesSold?: number;
+  maxProfiles?: number;
+  saleMode?: string;
+  totalRevenue?: number;
+  totalDiscount?: number;
+  allocatedCost?: number;
+  accountCost?: number;
+  profit?: number;
+  marginPct?: number;
+}
+
+export interface ProfitMarginsResult {
+  grandTotal?: {
+    totalRevenue?: number;
+    totalDiscount?: number;
+    allocatedCost?: number;
+    totalAllocatedCost?: number;
+    profit?: number;
+    totalProfit?: number;
+    marginPct?: number;
+    avgMarginPct?: number;
+  };
+  serviceSummaries?: ServiceProfitSummaryResult[];
+  accountMargins?: AccountProfitMarginResult[];
+}
+
+
+
+
 
 export interface VendorKpiMetrics {
   activeClientsCount: number;

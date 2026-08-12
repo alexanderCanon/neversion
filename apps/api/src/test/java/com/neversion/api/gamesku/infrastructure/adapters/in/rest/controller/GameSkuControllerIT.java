@@ -35,19 +35,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("GameSkuController IT")
-class GameSkuControllerIT extends BaseIntegrationTest {
+class GameSkuControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private GameSkuUseCase gameSkuUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

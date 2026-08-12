@@ -104,6 +104,13 @@ public class ClientService implements ClientUseCase {
         return clientRepositoryPort.findByVendorId(vendor.getId(), name, phone, email);
     }
 
+    @Override
+    public List<Client> listClients(String name, String phone, String email, String callerExternalId) {
+        Long vendorId = resolveVendorId(callerExternalId);
+        return clientRepositoryPort.findByVendorId(vendorId, name, phone, email);
+    }
+
+
     // ── US-030 — Detalle de cliente ────────────────────────────────────────
 
     /**

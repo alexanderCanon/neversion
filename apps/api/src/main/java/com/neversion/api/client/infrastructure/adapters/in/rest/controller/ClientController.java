@@ -59,8 +59,34 @@ public class ClientController {
 
     // ── US-029 — Listar clientes del vendor ────────────────────────────────
 
-    @GetMapping("/vendor/{vendorUuid}")
+    @GetMapping
     @Operation(summary = "List vendor clients (US-029)",
+            description = "Returns all clients of the authenticated vendor with optional filters.")
+    @ApiResponse(responseCode = "200", description = "Client list")
+    public ResponseEntity<List<ClientResponse>> listClients(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String email,
+            JwtAuthenticationToken token) {
+
+        List<Client> clients = clientUseCase.listClients(
+                name, phone, email, extractExternalId(token));
+
+        List<ClientResponse> response = clients.stream()
+                .map(c -> {
+                    long activeCount = subscriptionRepositoryPort.findByClientId(c.getId())
+                            .stream()
+                            .filter(s -> SubStatus.ACTIVE.equals(s.getStatus()))
+                            .count();
+                    return clientMapper.toResponse(c, activeCount);
+                })
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/vendor/{vendorUuid}")
+    @Operation(summary = "List vendor clients by vendor UUID (US-029, Legacy)",
             description = "Returns all clients of the vendor with optional filters. "
                     + "Only the authenticated vendor can list their own clients.")
     @ApiResponse(responseCode = "200", description = "Client list")
@@ -88,6 +114,7 @@ public class ClientController {
 
         return ResponseEntity.ok(response);
     }
+
 
     // ── US-030 — Detalle de cliente ────────────────────────────────────────
 

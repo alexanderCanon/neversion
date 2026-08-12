@@ -53,9 +53,9 @@ public class GatewayHeaderAuthenticationFilter extends OncePerRequestFilter {
             "/swagger-ui.html",
             "/actuator/health",
             "/api/v1/auth/clients",
-            "/api/v1/vendors/public/**",
-            "/api/v1/notifications/health"
+            "/api/v1/vendors/public/**"
     );
+
 
     private static final Logger log = LoggerFactory.getLogger(GatewayHeaderAuthenticationFilter.class);
 

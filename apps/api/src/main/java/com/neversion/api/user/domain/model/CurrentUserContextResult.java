@@ -9,10 +9,10 @@ import java.util.UUID;
  * Exposes only public UUIDs to REST adapters.
  */
 public record CurrentUserContextResult(
-        UUID userUuid,
         String externalId,
         UserRole role,
         UUID vendorUuid,
         String storeName
 ) {
 }
+

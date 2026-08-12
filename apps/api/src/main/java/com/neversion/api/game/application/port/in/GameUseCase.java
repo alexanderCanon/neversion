@@ -15,6 +15,9 @@ public interface GameUseCase {
 
     List<Game> listByVendor(UUID vendorUuid, Boolean isActive, String callerExternalId);
 
+    List<Game> listByVendor(Boolean isActive, String callerExternalId);
+
+
     List<Game> listActive(UUID vendorUuid);
 
     Game getActiveBySlug(UUID vendorUuid, String slug);

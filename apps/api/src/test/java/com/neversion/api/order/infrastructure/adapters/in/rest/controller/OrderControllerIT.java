@@ -46,21 +46,11 @@ import com.neversion.api.user.domain.port.out.UserRepositoryPort;
 import com.neversion.api.vendor.domain.model.Vendor;
 import com.neversion.api.vendor.domain.port.out.VendorRepositoryPort;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("OrderController and OrderGetController Web Integration Tests")
-class OrderControllerIT extends BaseIntegrationTest {
+class OrderControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean private ChangeOrderStatusUseCase changeOrderStatusUseCase;
-    @MockitoBean private GetOrderUseCase getOrderUseCase;
-    @MockitoBean private ListOrdersUseCase listOrdersUseCase;
-    @MockitoBean private ReservationRepositoryPort reservationRepositoryPort;
-    @MockitoBean private OrderStatusHistoryPort orderStatusHistoryPort;
-    @MockitoBean private UserRepositoryPort userRepositoryPort;
-    @MockitoBean private VendorRepositoryPort vendorRepositoryPort;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

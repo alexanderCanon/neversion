@@ -32,14 +32,13 @@ class UserRepositoryIT extends BaseIntegrationTest {
     // ─── save ────────────────────────────────────────────────────────────────
 
     @Test
-    @DisplayName("save - should persist user and generate uuid and id")
-    void save_shouldPersistUser_withGeneratedUuidAndId() {
+    @DisplayName("save - should persist user and generate id")
+    void save_shouldPersistUser_withGeneratedId() {
         User user = buildUser("auth|abc123", UserRole.VENDOR);
 
         User saved = userRepositoryPort.save(user);
 
         assertThat(saved.getId()).isNotNull();
-        assertThat(saved.getUuid()).isNotNull();
         assertThat(saved.getExternalId()).isEqualTo("auth|abc123");
         assertThat(saved.getRole()).isEqualTo(UserRole.VENDOR);
         assertThat(saved.getCreatedAt()).isNotNull();
@@ -51,31 +50,10 @@ class UserRepositoryIT extends BaseIntegrationTest {
         User saved = userRepositoryPort.save(buildUser("auth|super1", UserRole.SUPER_ADMIN));
 
         // Re-fetch to confirm DB round-trip
-        Optional<User> found = userRepositoryPort.findByUuid(saved.getUuid());
+        Optional<User> found = userRepositoryPort.findByExternalId(saved.getExternalId());
 
         assertThat(found).isPresent();
         assertThat(found.get().getRole()).isEqualTo(UserRole.SUPER_ADMIN);
-    }
-
-    // ─── findByUuid ──────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("findByUuid - should return user when found")
-    void findByUuid_shouldReturnUser_whenFound() {
-        User saved = userRepositoryPort.save(buildUser("auth|find1", UserRole.CLIENT));
-
-        Optional<User> found = userRepositoryPort.findByUuid(saved.getUuid());
-
-        assertThat(found).isPresent();
-        assertThat(found.get().getExternalId()).isEqualTo("auth|find1");
-    }
-
-    @Test
-    @DisplayName("findByUuid - should return empty when not found")
-    void findByUuid_shouldReturnEmpty_whenNotFound() {
-        Optional<User> found = userRepositoryPort.findByUuid(java.util.UUID.randomUUID());
-
-        assertThat(found).isEmpty();
     }
 
     // ─── findByExternalId ────────────────────────────────────────────────────
@@ -106,17 +84,5 @@ class UserRepositoryIT extends BaseIntegrationTest {
     void existsByExternalId_shouldReturnFalse_whenNotExists() {
         assertThat(userRepositoryPort.existsByExternalId("auth|nonexistent")).isFalse();
     }
-
-    // ─── deleteByUuid ────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("deleteByUuid - should remove user")
-    void deleteByUuid_shouldRemoveUser() {
-        User saved = userRepositoryPort.save(buildUser("auth|delete1", UserRole.CLIENT));
-
-        userRepositoryPort.deleteByUuid(saved.getUuid());
-
-        Optional<User> found = userRepositoryPort.findByUuid(saved.getUuid());
-        assertThat(found).isEmpty();
-    }
 }
+

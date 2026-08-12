@@ -48,21 +48,11 @@ import com.neversion.api.subscription.application.port.in.UpdateSubscriptionUseC
 import com.neversion.api.subscription.domain.model.Subscription;
 import com.neversion.api.subscription.domain.model.enums.SubStatus;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("SubscriptionController Web Integration Tests")
-class SubscriptionControllerIT extends BaseIntegrationTest {
+class SubscriptionControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean private CreateManualSubscriptionUseCase createManualSubscriptionUseCase;
-    @MockitoBean private UpdateSubscriptionUseCase updateSubscriptionUseCase;
-    @MockitoBean private ListSubscriptionsUseCase listSubscriptionsUseCase;
-    @MockitoBean private GetSubscriptionDetailUseCase getSubscriptionDetailUseCase;
-    @MockitoBean private RenewSubscriptionUseCase renewSubscriptionUseCase;
-    @MockitoBean private RevokeSubscriptionUseCase revokeSubscriptionUseCase;
-    @MockitoBean private DetectExpiredSubscriptionsUseCase detectExpiredSubscriptionsUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

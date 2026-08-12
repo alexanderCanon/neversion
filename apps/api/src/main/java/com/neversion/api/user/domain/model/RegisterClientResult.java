@@ -14,9 +14,10 @@ import java.util.UUID;
  * @param email      Client's email address.
  */
 public record RegisterClientResult(
-        UUID userUuid,
+        String externalId,
         UUID clientUuid,
         String name,
         String email
 ) {
 }
+

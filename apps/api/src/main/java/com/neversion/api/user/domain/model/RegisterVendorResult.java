@@ -14,9 +14,10 @@ import java.util.UUID;
  * @param email      Vendor's email address.
  */
 public record RegisterVendorResult(
-        UUID userUuid,
+        String externalId,
         UUID vendorUuid,
         String storeName,
         String email
 ) {
 }
+
