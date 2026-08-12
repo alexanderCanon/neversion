@@ -8,3 +8,4 @@
 * .yaml text eol=lf
 * .bat text eol=lf
 * .cmd text eol=lf
+*.deb binary
