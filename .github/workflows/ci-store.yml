@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run linter and tests
-        run: pnpm --filter neversion-site tests --if-present
+        run: pnpm --filter store run --if-present test
 
       - name: Build SPA bundle
         run: pnpm --filter store build
