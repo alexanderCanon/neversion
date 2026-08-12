@@ -99,7 +99,8 @@ class ProfileServiceUT {
     }
 
     private void stubOwnership(Account account) {
-        User user = User.builder().id(USER_ID).uuid(UUID.randomUUID()).externalId(EXTERNAL_ID).build();
+        User user = User.builder().id(USER_ID).externalId(EXTERNAL_ID).build();
+
         Vendor vendor = Vendor.builder().id(VENDOR_ID).userId(USER_ID).uuid(UUID.randomUUID()).build();
 
         when(accountRepositoryPort.findById(ACCOUNT_UUID)).thenReturn(Optional.of(account));

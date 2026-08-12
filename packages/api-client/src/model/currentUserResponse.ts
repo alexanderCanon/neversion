@@ -11,10 +11,6 @@
 
 export interface CurrentUserResponse { 
     /**
-     * Public UUID of the internal platform user
-     */
-    userUuid?: string;
-    /**
      * External Supabase subject linked to the platform user
      */
     externalId?: string;

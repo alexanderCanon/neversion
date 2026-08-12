@@ -1,0 +1,33 @@
+/**
+ * Neversion API Gateway — Cloudflare Worker configuration.
+ *
+ * Secrets (JWT_HMAC_SECRET, GATEWAY_SECRET) must be set via:
+ *   wrangler secret put JWT_HMAC_SECRET
+ *   wrangler secret put GATEWAY_SECRET
+ *
+ * For full configuration options:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "neversion-api-gateway",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-06-02",
+	"observability": {
+		"enabled": true
+	},
+	"vars": {
+		"UPSTREAM_URL": "https://internal-api.neversion.com",
+		"JWT_ISSUER": "https://ujadaoctohwplnhiwgrm.supabase.co/auth/v1",
+		"JWT_AUDIENCE": "authenticated"
+	},
+	/*
+	 * Custom domain routing using Cloudflare Custom Domains.
+	 */
+	"routes": [
+		{
+			"pattern": "api.neversion.com",
+			"custom_domain": true
+		}
+	]
+}

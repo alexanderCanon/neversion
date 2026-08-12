@@ -51,22 +51,11 @@ import com.neversion.api.subscription.domain.port.out.SubscriptionRepositoryPort
  * to isolate the HTTP + Security layer from DB.
  * JWT built with Nimbus (on classpath via oauth2-resource-server).
  */
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("ClientController IT — EPIC-04")
-class ClientControllerIT extends BaseIntegrationTest {
+class ClientControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private ClientUseCase clientUseCase;
-
-    @MockitoBean
-    private SubscriptionRepositoryPort subscriptionRepositoryPort;
 
     // Must match application-test.yaml supabase.jwt.secret
     private static final String JWT_SECRET =

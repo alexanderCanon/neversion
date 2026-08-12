@@ -1,24 +1,18 @@
 package com.neversion.api.config;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 
@@ -26,7 +20,8 @@ import java.util.List;
  * Global security configuration.
  * <p>
  * Handles cross-cutting security concerns only (stateless sessions, CSRF,
- * CORS, JWT decoder, public docs endpoints). Per-feature RBAC rules are
+ * CORS, public docs endpoints). JWT validation is now handled by the
+ * Cloudflare API Gateway. Per-feature RBAC rules are
  * contributed by {@link HttpSecurityCustomizer} beans in each module's
  * {@code infrastructure/config} package.
  * </p>
@@ -35,25 +30,16 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${auth.jwt.secret}")
-    private String jwtSecret;
-
     @Value("${cors.allowed-origins:*}")
     private String allowedOrigins;
 
-    private final AuthJwtRoleConverter authJwtRoleConverter;
-    private final MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver;
-    private final MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter;
+    private final GatewayHeaderAuthenticationFilter gatewayHeaderAuthenticationFilter;
     private final List<HttpSecurityCustomizer> securityCustomizers;
 
     public SecurityConfig(
-            AuthJwtRoleConverter authJwtRoleConverter,
-            MonitoringAwareBearerTokenResolver monitoringAwareBearerTokenResolver,
-            MonitoringScrapeTokenAuthenticationFilter monitoringScrapeTokenAuthenticationFilter,
+            GatewayHeaderAuthenticationFilter gatewayHeaderAuthenticationFilter,
             List<HttpSecurityCustomizer> securityCustomizers) {
-        this.authJwtRoleConverter = authJwtRoleConverter;
-        this.monitoringAwareBearerTokenResolver = monitoringAwareBearerTokenResolver;
-        this.monitoringScrapeTokenAuthenticationFilter = monitoringScrapeTokenAuthenticationFilter;
+        this.gatewayHeaderAuthenticationFilter = gatewayHeaderAuthenticationFilter;
         this.securityCustomizers = securityCustomizers;
     }
 
@@ -63,21 +49,16 @@ public class SecurityConfig {
             // Disable CSRF for stateless REST API
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exceptions -> exceptions
+                    .authenticationEntryPoint(new org.springframework.security.web.authentication.HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED)));
 
-        // Add Prometheus monitoring token auth filter before standard Spring Security filters
-        http.addFilterBefore(monitoringScrapeTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(gatewayHeaderAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Public docs, health probe (load balancer), and protected actuator
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/actuator/prometheus").access((authentication, context) -> {
-                    boolean granted = authentication.get().getAuthorities().stream()
-                            .anyMatch(authority -> "ROLE_SUPER_ADMIN".equals(authority.getAuthority())
-                                    || MonitoringScrapeTokenAuthenticationFilter.SCRAPER_ROLE.equals(authority.getAuthority()));
-                    return new AuthorizationDecision(granted);
-                })
                 .requestMatchers("/actuator/**").hasRole("SUPER_ADMIN"));
 
         // -- Delegate per-feature RBAC rules --
@@ -87,13 +68,6 @@ public class SecurityConfig {
 
         // -- Catch-all: everything else requires authentication --
         http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-
-        // -- OAuth2 Resource Server: validate JWTs with our custom converter --
-        http.oauth2ResourceServer(oauth2 -> oauth2
-                .bearerTokenResolver(monitoringAwareBearerTokenResolver)
-                .jwt(jwt -> jwt
-                        .decoder(jwtDecoder())
-                        .jwtAuthenticationConverter(authJwtRoleConverter)));
 
         // -- HTTP Security Headers (second line of defense after Traefik) --
         http.headers(headers -> headers
@@ -114,16 +88,6 @@ public class SecurityConfig {
                         response.setHeader("X-XSS-Protection", "0")));
 
         return http.build();
-    }
-
-    /**
-     * Decodes JWTs using the project's HS256 secret key.
-     */
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        byte[] secretBytes = jwtSecret.getBytes();
-        SecretKey secretKey = new SecretKeySpec(secretBytes, "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKey).build();
     }
 
     /**

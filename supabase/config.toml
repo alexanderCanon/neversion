@@ -1,0 +1,5 @@
+project_id = "neversion"
+
+[functions.send-renewal-reminders]
+verify_jwt = false
+schedule = "0 8 * * *"

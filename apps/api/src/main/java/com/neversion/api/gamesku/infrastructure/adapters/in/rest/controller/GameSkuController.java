@@ -74,9 +74,21 @@ public class GameSkuController {
         return ResponseEntity.ok(gameSkuMapper.toResponse(toggled));
     }
 
+    @GetMapping("/vendor")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "List vendor game SKUs - panel view", description = "Returns all SKUs for the authenticated vendor, optionally filtered by game.")
+    @ApiResponse(responseCode = "200", description = "Game SKU list")
+    public ResponseEntity<List<GameSkuResponse>> listVendorGameSkus(
+            @RequestParam(required = false) UUID gameUuid,
+            @RequestParam(required = false) Boolean isActive,
+            @AuthenticationPrincipal Jwt jwt) {
+        var list = gameSkuUseCase.listByVendor(gameUuid, isActive, jwt.getSubject());
+        return ResponseEntity.ok(list.stream().map(gameSkuMapper::toResponse).toList());
+    }
+
     @GetMapping("/vendor/{vendorUuid}")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "List vendor game SKUs - panel view", description = "Returns all SKUs for the given vendor, optionally filtered by game. Owner only.")
+    @Operation(summary = "List vendor game SKUs by vendor UUID - panel view (Legacy)", description = "Returns all SKUs for the given vendor, optionally filtered by game. Owner only.")
     @ApiResponse(responseCode = "200", description = "Game SKU list")
     @ApiResponse(responseCode = "403", description = "Access denied")
     public ResponseEntity<List<GameSkuResponse>> listByVendor(
@@ -87,6 +99,7 @@ public class GameSkuController {
         var list = gameSkuUseCase.listByVendor(vendorUuid, gameUuid, isActive, jwt.getSubject());
         return ResponseEntity.ok(list.stream().map(gameSkuMapper::toResponse).toList());
     }
+
 
     @GetMapping("/store/{vendorUuid}")
     @Operation(summary = "List active game SKUs by game slug - store view", description = "Returns active SKUs for a game identified by slug. No auth.")

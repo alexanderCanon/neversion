@@ -70,7 +70,7 @@ export class ProfileService {
    */
   changeStatus(id: string, request: ChangeProfileStatusRequest): Observable<ProfileResponse> {
       const apiRequest: ApiStatusRequest = {
-          status: request.status as any
+          status: request.status as unknown as ApiStatusRequest['status']
       };
       return this.profilesApi.changeStatusProfile(id, apiRequest).pipe(
           map((api: ApiProfileResponse) => this.mapToModel(api)),

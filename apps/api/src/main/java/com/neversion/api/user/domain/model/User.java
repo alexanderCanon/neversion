@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 /**
  * Domain model representing an internal platform user.
@@ -17,11 +16,8 @@ import java.util.UUID;
 @Builder
 public class User {
 
-    /** Internal surrogate key — never exposed in API responses (NFR-01). */
+    /** Internal surrogate key — used for database foreign keys. */
     private final Long id;
-
-    /** Public identifier — the only ID exposed through the API (NFR-01). */
-    private final UUID uuid;
 
     /**
      * Subject claim (sub) from the external auth provider JWT (ADR-06 / ADR-09).
@@ -36,3 +32,4 @@ public class User {
 
     private final Instant createdAt;
 }
+

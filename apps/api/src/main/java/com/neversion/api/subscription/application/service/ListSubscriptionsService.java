@@ -57,6 +57,15 @@ public class ListSubscriptionsService implements ListSubscriptionsUseCase {
         return subscriptionRepositoryPort.findVendorSubscriptionViews(vendor.getId(), serviceId, status);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubscriptionListView> listViews(UUID serviceUuid, SubStatus status, String callerExternalId) {
+        Long callerVendorId = vendorSecurityService.resolveVendorId(callerExternalId);
+        Long serviceId = resolveServiceId(serviceUuid);
+        return subscriptionRepositoryPort.findVendorSubscriptionViews(callerVendorId, serviceId, status);
+    }
+
+
     /**
      * Resolves the route vendor and enforces ADR-02: the authenticated caller
      * can only access its own vendor.

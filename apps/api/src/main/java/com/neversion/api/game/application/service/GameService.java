@@ -111,6 +111,18 @@ public class GameService implements GameUseCase {
     }
 
     @Override
+    public List<Game> listByVendor(Boolean isActive, String callerExternalId) {
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (isActive != null) {
+            return gameRepositoryPort.findAllByVendorId(callerVendorId).stream()
+                    .filter(g -> g.getIsActive().equals(isActive))
+                    .toList();
+        }
+        return gameRepositoryPort.findAllByVendorId(callerVendorId);
+    }
+
+
+    @Override
     public List<Game> listActive(UUID vendorUuid) {
         Long vendorId = vendorRepositoryPort.findByUuid(vendorUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Vendor not found: " + vendorUuid))
@@ -166,7 +178,7 @@ public class GameService implements GameUseCase {
                         "User not found for externalId: " + callerExternalId));
         return vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()))
+                        "Vendor record not found for user: " + user.getExternalId()))
                 .getId();
     }
 

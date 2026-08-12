@@ -71,4 +71,23 @@ public class ListOrdersService implements ListOrdersUseCase {
         // 4. Query filtered orders
         return orderRepositoryPort.findByVendorIdFiltered(targetVendor.getId(), clientId, status);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Order> listOrders(UUID clientUuid, OrderStatus status, String callerExternalId) {
+        User caller = userRepositoryPort.findByExternalId(callerExternalId)
+                .orElseThrow(() -> new ResourceNotFoundException("Caller user not found"));
+        Vendor callerVendor = vendorRepositoryPort.findByUserId(caller.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Vendor profile not found for caller"));
+
+        Long clientId = null;
+        if (clientUuid != null) {
+            clientId = clientRepositoryPort.findById(clientUuid)
+                    .map(Client::getId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + clientUuid));
+        }
+
+        return orderRepositoryPort.findByVendorIdFiltered(callerVendor.getId(), clientId, status);
+    }
 }
+

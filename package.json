@@ -1,6 +1,7 @@
 {
   "name": "neversion",
   "private": true,
+  "packageManager": "pnpm@11.21.0",
   "scripts": {
     "clean": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + && find . -name 'pnpm-lock.yaml' -type f -delete",
     "build": "pnpm -r build",
@@ -19,12 +20,8 @@
     "@typescript-eslint/parser": "^8.59.0",
     "angular-eslint": "21.0.1",
     "eslint": "^9.39.4",
+    "supabase": "^2.111.0",
     "tslib": "^2.3.0",
     "typescript-eslint": "8.46.4"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
   }
 }

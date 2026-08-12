@@ -12,4 +12,7 @@ import com.neversion.api.order.domain.model.enums.OrderStatus;
 public interface ListOrdersUseCase {
 
     List<Order> listByVendor(UUID vendorUuid, UUID clientUuid, OrderStatus status, String callerExternalId);
+
+    List<Order> listOrders(UUID clientUuid, OrderStatus status, String callerExternalId);
 }
+

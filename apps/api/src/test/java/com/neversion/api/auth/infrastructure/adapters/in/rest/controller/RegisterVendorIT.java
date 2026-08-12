@@ -40,27 +40,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * JWT generation uses Nimbus JOSE (already on classpath via
  * spring-boot-starter-oauth2-resource-server) — no extra dependencies.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("AuthController IT — POST /api/v1/auth/vendors")
-class RegisterVendorIT extends BaseIntegrationTest {
+class RegisterVendorIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    /** MockBean isolates from DB — only the web + security layer is tested. */
-    @MockitoBean
-    private RegisterVendorUseCase registerVendorUseCase;
-
-    /** AuthController now depends on both use cases — mock to satisfy DI. */
-    @MockitoBean
-    private RegisterClientUseCase registerClientUseCase;
-
-    @MockitoBean
-    private GetCurrentUserContextUseCase getCurrentUserContextUseCase;
 
     // Must match application-test.yaml supabase.jwt.secret
     private static final String JWT_SECRET =
@@ -196,11 +180,12 @@ class RegisterVendorIT extends BaseIntegrationTest {
         @DisplayName("should return 201 with vendor details when SUPER_ADMIN registers vendor")
         void registerVendor_shouldReturn201_whenSuperAdminRegisters() throws Exception {
             RegisterVendorResult mockResult = new RegisterVendorResult(
-                    UUID.randomUUID(),
+                    "auth-vendor-123",
                     UUID.randomUUID(),
                     "Mi Tienda Digital",
                     "newvendor@tienda.com"
             );
+
             when(registerVendorUseCase.register(any())).thenReturn(mockResult);
 
             mockMvc.perform(post("/api/v1/auth/vendors")
@@ -209,9 +194,10 @@ class RegisterVendorIT extends BaseIntegrationTest {
                             .content(validBody()))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.vendorUuid").isNotEmpty())
-                    .andExpect(jsonPath("$.userUuid").isNotEmpty())
+                    .andExpect(jsonPath("$.externalId").isNotEmpty())
                     .andExpect(jsonPath("$.storeName").value("Mi Tienda Digital"))
                     .andExpect(jsonPath("$.email").value("newvendor@tienda.com"));
+
         }
     }
 }

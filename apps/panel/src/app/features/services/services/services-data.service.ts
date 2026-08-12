@@ -33,7 +33,7 @@ export class ServicesDataService {
     this._isLoading.set(true);
     return this.servicesApi.listByVendorService(
       vendorUuid,
-      filter?.category as any,
+      filter?.category as unknown as Parameters<typeof this.servicesApi.listByVendorService>[1],
       filter?.isActive,
       'body',
       false,
@@ -53,7 +53,7 @@ export class ServicesDataService {
   createService(service: ServiceRequest): Observable<ServiceResponse> {
     const apiRequest: ApiServiceRequest = {
       ...service,
-      category: service.category as any
+      category: service.category as unknown as ApiServiceRequest['category']
     };
 
     return this.servicesApi.createService(apiRequest).pipe(
@@ -67,7 +67,7 @@ export class ServicesDataService {
   updateService(id: string, service: ServiceRequest): Observable<ServiceResponse> {
     const apiRequest: ApiServiceRequest = {
       ...service,
-      category: service.category as any
+      category: service.category as unknown as ApiServiceRequest['category']
     };
 
     return this.servicesApi.updateService(id, apiRequest).pipe(
@@ -118,7 +118,7 @@ export class ServicesDataService {
     return {
       id: api.id || '',
       name: api.name || '',
-      category: api.category as any || 'streaming',
+      category: (api.category as unknown as ServiceResponse['category']) || 'streaming',
       priceProfile: api.priceProfile || 0,
       priceComplete: api.priceComplete || 0,
       durationDays: api.durationDays || 30,

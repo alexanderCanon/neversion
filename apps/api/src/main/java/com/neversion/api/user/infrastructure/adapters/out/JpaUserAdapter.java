@@ -6,7 +6,6 @@ import com.neversion.api.user.infrastructure.adapters.out.mapper.UserPersistence
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * JPA adapter implementing the UserRepositoryPort outbound port.
@@ -35,12 +34,6 @@ public class JpaUserAdapter implements UserRepositoryPort {
     }
 
     @Override
-    public Optional<User> findByUuid(UUID uuid) {
-        return repository.findByUuid(uuid)
-                .map(UserPersistenceMapper::toDomain);
-    }
-
-    @Override
     public Optional<User> findByExternalId(String externalId) {
         return repository.findByExternalId(externalId)
                 .map(UserPersistenceMapper::toDomain);
@@ -50,9 +43,5 @@ public class JpaUserAdapter implements UserRepositoryPort {
     public boolean existsByExternalId(String externalId) {
         return repository.existsByExternalId(externalId);
     }
-
-    @Override
-    public void deleteByUuid(UUID uuid) {
-        repository.deleteByUuid(uuid);
-    }
 }
+

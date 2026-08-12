@@ -36,17 +36,11 @@ import com.neversion.api.assignment.application.port.in.SuggestAssignmentUseCase
 import com.neversion.api.assignment.application.port.in.dto.AssignmentResult;
 import com.neversion.api.assignment.application.port.in.dto.AssignmentSuggestion;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("AssignmentController Web Integration Tests")
-class AssignmentControllerIT extends BaseIntegrationTest {
+class AssignmentControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean private SuggestAssignmentUseCase suggestAssignmentUseCase;
-    @MockitoBean private ConfirmAssignmentUseCase confirmAssignmentUseCase;
-    @MockitoBean private ManualAssignmentUseCase manualAssignmentUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

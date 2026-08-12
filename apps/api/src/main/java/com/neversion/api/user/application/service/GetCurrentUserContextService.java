@@ -33,7 +33,6 @@ public class GetCurrentUserContextService implements GetCurrentUserContextUseCas
 
         if (user.getRole() != UserRole.VENDOR) {
             return new CurrentUserContextResult(
-                    user.getUuid(),
                     user.getExternalId(),
                     user.getRole(),
                     null,
@@ -42,13 +41,14 @@ public class GetCurrentUserContextService implements GetCurrentUserContextUseCas
 
         Vendor vendor = vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()));
+                        "Vendor record not found for user: " + user.getExternalId()));
 
         return new CurrentUserContextResult(
-                user.getUuid(),
                 user.getExternalId(),
                 user.getRole(),
                 vendor.getUuid(),
                 vendor.getStoreName());
+
     }
 }
+

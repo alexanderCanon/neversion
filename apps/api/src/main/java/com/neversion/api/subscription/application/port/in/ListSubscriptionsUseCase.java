@@ -27,4 +27,8 @@ public interface ListSubscriptionsUseCase {
      */
     List<SubscriptionListView> listViewsByVendor(UUID vendorUuid, UUID serviceUuid, SubStatus status,
             String callerExternalId);
+
+    List<SubscriptionListView> listViews(UUID serviceUuid, SubStatus status,
+            String callerExternalId);
 }
+

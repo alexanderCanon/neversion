@@ -39,9 +39,10 @@ public final class RegisterVendorRequestMapper {
      */
     public static RegisterVendorResponse toResponse(RegisterVendorResult result) {
         return new RegisterVendorResponse(
-                result.userUuid(),
+                result.externalId(),
                 result.vendorUuid(),
                 result.storeName(),
                 result.email());
     }
+
 }

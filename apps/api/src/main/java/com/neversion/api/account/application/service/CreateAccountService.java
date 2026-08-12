@@ -103,7 +103,7 @@ public class CreateAccountService implements CreateAccountUseCase {
                         "User not found for externalId: " + callerExternalId));
         return vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()))
+                        "Vendor record not found for user: " + user.getExternalId()))
                 .getId();
     }
 }

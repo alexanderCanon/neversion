@@ -81,10 +81,12 @@ class RegisterClientServiceUT {
         RegisterClientResult result = sut.register(command);
 
         // Assert — result fields
-        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.externalId()).isEqualTo("supabase-uuid-abc123");
         assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
+
         assertThat(result.name()).isEqualTo("Juan Pérez");
         assertThat(result.email()).isEqualTo("cliente@correo.com");
+
 
         // Assert — interactions
         verify(vendorRepositoryPort, times(1)).findByUuid(VENDOR_UUID);
@@ -141,7 +143,7 @@ class RegisterClientServiceUT {
         when(clientRepositoryPort.findByVendorIdAndPhone(VENDOR_ID, "50255551234"))
                 .thenReturn(Optional.of(manualClient));
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("supabase-uuid-abc123").role(UserRole.CLIENT).build();
         when(authServicePort.createUser("cliente@correo.com", "secret123", UserRole.CLIENT))
                 .thenReturn("supabase-uuid-abc123");
@@ -229,7 +231,7 @@ class RegisterClientServiceUT {
                 "cliente@correo.com", null, "Juan Pérez", "+502 5555-1234", VENDOR_UUID, externalId);
 
         User existingUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID).externalId(externalId).role(UserRole.CLIENT).build();
+                .id(USER_ID).externalId(externalId).role(UserRole.CLIENT).build();
         Client existingClient = Client.builder()
                 .id(1L).uuid(CLIENT_UUID).userId(USER_ID).vendorId(VENDOR_ID)
                 .name("Juan Pérez").email("cliente@correo.com").phone("50255551234").build();
@@ -241,7 +243,7 @@ class RegisterClientServiceUT {
         RegisterClientResult result = sut.register(command);
 
         // Assert
-        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.externalId()).isEqualTo(externalId);
         assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
         assertThat(result.name()).isEqualTo("Juan Pérez");
         assertThat(result.email()).isEqualTo("cliente@correo.com");
@@ -266,7 +268,7 @@ class RegisterClientServiceUT {
         when(userRepositoryPort.findByExternalId(externalId)).thenReturn(Optional.empty());
 
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID).externalId(externalId).role(UserRole.CLIENT).build();
+                .id(USER_ID).externalId(externalId).role(UserRole.CLIENT).build();
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);
 
         Client savedClient = Client.builder()
@@ -278,7 +280,8 @@ class RegisterClientServiceUT {
         RegisterClientResult result = sut.register(command);
 
         // Assert
-        assertThat(result.userUuid()).isEqualTo(USER_UUID);
+        assertThat(result.externalId()).isEqualTo(externalId);
+
         assertThat(result.clientUuid()).isEqualTo(CLIENT_UUID);
 
         // OAuth path: createUser() must NOT be called (Supabase already owns the account),
@@ -328,8 +331,9 @@ class RegisterClientServiceUT {
         when(vendorRepositoryPort.findByUuid(VENDOR_UUID)).thenReturn(Optional.of(vendor));
 
         User savedUser = User.builder()
-                .id(USER_ID).uuid(USER_UUID)
+                .id(USER_ID)
                 .externalId("supabase-uuid-abc123").role(UserRole.CLIENT).build();
+
         when(authServicePort.createUser(anyString(), anyString(), any(UserRole.class)))
                 .thenReturn("supabase-uuid-abc123");
         when(userRepositoryPort.save(any(User.class))).thenReturn(savedUser);

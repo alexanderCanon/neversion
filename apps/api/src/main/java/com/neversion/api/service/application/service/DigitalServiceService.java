@@ -134,6 +134,17 @@ public class DigitalServiceService implements ServiceUseCase {
         return serviceRepositoryPort.findByVendorIdAndFilters(vendor.getId(), category, isActive);
     }
 
+    @Override
+    public List<com.neversion.api.service.domain.model.Service> listByVendor(
+            CategoryType category, Boolean isActive, String callerExternalId) {
+        Long callerVendorId = resolveVendorId(callerExternalId);
+        if (category == null && isActive == null) {
+            return serviceRepositoryPort.findAllByVendorId(callerVendorId);
+        }
+        return serviceRepositoryPort.findByVendorIdAndFilters(callerVendorId, category, isActive);
+    }
+
+
     // ─── US-021: Public store catalog (active only) ──────────────────────────
 
     @Override
@@ -177,7 +188,7 @@ public class DigitalServiceService implements ServiceUseCase {
                         "User not found for externalId: " + callerExternalId));
         return vendorRepositoryPort.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Vendor record not found for user: " + user.getUuid()))
+                        "Vendor record not found for user: " + user.getExternalId()))
                 .getId();
     }
 

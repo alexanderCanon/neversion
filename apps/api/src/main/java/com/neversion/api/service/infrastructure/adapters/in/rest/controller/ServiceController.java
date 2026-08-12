@@ -103,9 +103,23 @@ public class ServiceController {
 
     // ─── US-020: Vendor panel list ───────────────────────────────────────────
 
-    @GetMapping("/vendor/{vendorUuid}")
+    @GetMapping("/vendor")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "List vendor services — panel view (US-020)",
+            description = "Returns all services (active and inactive) for the authenticated vendor.")
+    @ApiResponse(responseCode = "200", description = "Service list")
+    public ResponseEntity<List<ServiceResponse>> listVendorServices(
+            @RequestParam(required = false) CategoryType category,
+            @RequestParam(required = false) Boolean isActive,
+            @AuthenticationPrincipal Jwt jwt) {
+
+        var services = serviceUseCase.listByVendor(category, isActive, jwt.getSubject());
+        return ResponseEntity.ok(services.stream().map(serviceMapper::toResponse).toList());
+    }
+
+    @GetMapping("/vendor/{vendorUuid}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "List vendor services by vendor UUID — panel view (US-020, Legacy)",
             description = "Returns all services (active and inactive) for the given vendor. " +
                     "Supports optional filters: category and isActive.")
     @ApiResponse(responseCode = "200", description = "Service list")
@@ -119,6 +133,7 @@ public class ServiceController {
         var services = serviceUseCase.listByVendor(vendorUuid, category, isActive, jwt.getSubject());
         return ResponseEntity.ok(services.stream().map(serviceMapper::toResponse).toList());
     }
+
 
     // ─── US-021: Public store catalog ────────────────────────────────────────
 

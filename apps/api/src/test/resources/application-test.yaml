@@ -2,7 +2,7 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 2
+      maximum-pool-size: 10
   jpa:
     hibernate:
       ddl-auto: validate
@@ -15,22 +15,18 @@ spring:
 auth:
   api-url: http://localhost:8000
   admin-key: test-service-role-key-placeholder
-  jwt:
-    secret: test-secret-key-for-testing-purposes-only-min-256-bits!!
 
 neversion:
-  monitoring:
-    scrape-token: test-prometheus-scrape-token
+  gateway:
+    secret: ${NEVERSION_GATEWAY_SECRET:test-gateway-secret-change-in-prod}
   renewal:
     grace-period-days: 2
   cron:
     subscription-expiry:
       enabled: false
-    notification-worker:
-      enabled: false
     renewal-reminders:
       enabled: false
-  email:
-    resend:
-      api-key: re_test_placeholder
-    from: "Test <test@neversion.com>"
+    reservation-expiry:
+      enabled: false
+    inventory-reconciliation:
+      enabled: false

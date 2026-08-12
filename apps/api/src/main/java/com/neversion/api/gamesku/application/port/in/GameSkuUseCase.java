@@ -15,6 +15,9 @@ public interface GameSkuUseCase {
 
     List<GameSku> listByVendor(UUID vendorUuid, UUID gameUuid, Boolean isActive, String callerExternalId);
 
+    List<GameSku> listByVendor(UUID gameUuid, Boolean isActive, String callerExternalId);
+
+
     List<GameSku> listActiveByGameSlug(UUID vendorUuid, String gameSlug);
 
     GameSku getById(UUID uuid);

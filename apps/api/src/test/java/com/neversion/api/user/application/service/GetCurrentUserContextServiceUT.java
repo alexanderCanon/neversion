@@ -57,9 +57,9 @@ class GetCurrentUserContextServiceUT {
 
         CurrentUserContextResult result = service.get(EXTERNAL_ID);
 
-        assertThat(result.userUuid()).isEqualTo(USER_UUID);
         assertThat(result.externalId()).isEqualTo(EXTERNAL_ID);
         assertThat(result.role()).isEqualTo(UserRole.VENDOR);
+
         assertThat(result.vendorUuid()).isEqualTo(VENDOR_UUID);
         assertThat(result.storeName()).isEqualTo("Mi Tienda");
     }
@@ -89,9 +89,9 @@ class GetCurrentUserContextServiceUT {
     private User buildUser(UserRole role) {
         return User.builder()
                 .id(USER_ID)
-                .uuid(USER_UUID)
                 .externalId(EXTERNAL_ID)
                 .role(role)
                 .build();
     }
 }
+

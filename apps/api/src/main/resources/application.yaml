@@ -23,8 +23,6 @@ logging:
     root: INFO
 
 auth:
-  jwt:
-    secret: ${AUTH_JWT_SECRET}
   api-url: ${AUTH_API_URL}
   admin-key: ${AUTH_ADMIN_KEY}
 
@@ -32,8 +30,8 @@ cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:*}
 
 neversion:
-  monitoring:
-    scrape-token: ${NEVERSION_MONITORING_SCRAPE_TOKEN:}
+  gateway:
+    secret: ${NEVERSION_GATEWAY_SECRET}
   renewal:
     grace-period-days: ${NEVERSION_RENEWAL_GRACE_PERIOD_DAYS:2}
   cron:

@@ -1,6 +1,12 @@
 # env #
 .env
+*.env
+.env.*
+supabase/functions/.env
 node_modules
+dist
+dist/
+target/
 .angular
 .vscode
 get-jwt.mjs
@@ -8,4 +14,3 @@ get-jwt.mjs
 CLAUDE.md
 
 /assets
-

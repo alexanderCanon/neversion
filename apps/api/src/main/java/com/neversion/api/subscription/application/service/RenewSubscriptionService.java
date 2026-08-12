@@ -52,7 +52,7 @@ public class RenewSubscriptionService implements RenewSubscriptionUseCase {
             SubscriptionRenewalDomainService renewalDomainService,
             VendorSecurityService vendorSecurityService,
             Clock clock,
-            @Value("${neversion.renewal.grace-period-days}") int gracePeriodDays) {
+            @Value("${neversion.renewal.grace-period-days:2}") int gracePeriodDays) {
         this.subscriptionRepositoryPort = subscriptionRepositoryPort;
         this.profileRepositoryPort = profileRepositoryPort;
         this.accountRepositoryPort = accountRepositoryPort;

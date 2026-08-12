@@ -6,9 +6,11 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } 
 import { ProfileService } from '../../services/profile.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { DashboardApiService, CreateManualSubscriptionRequest } from '@neversion/api-client';
+import { AccountsApiService, CreateManualSubscriptionRequest } from '@neversion/api-client';
 import { Router } from '@angular/router';
+
 import { SubscriptionsService } from '../../../subscriptions/services/subscriptions.service';
+
 
 interface BootstrapModal {
   show(): void;
@@ -55,9 +57,10 @@ export class ProfileListComponent implements OnInit, OnChanges {
   private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
-  private readonly dashboardApi = inject(DashboardApiService);
+  private readonly accountsApi = inject(AccountsApiService);
 
   profileClients: Record<string, { id: string; name: string; phone?: string }> = {};
+
 
   readonly profileForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -108,27 +111,17 @@ export class ProfileListComponent implements OnInit, OnChanges {
   loadProfilesClientData(): void {
     if (!this.accountId) return;
 
-    this.dashboardApi.getProfilesByAccountDashboard(this.accountId).subscribe({
-      next: (data: any) => {
+    this.accountsApi.getDetailAccount(this.accountId).subscribe({
+      next: () => {
         const clientsMap: Record<string, { id: string; name: string; phone?: string }> = {};
-        if (data && Array.isArray(data)) {
-          data.forEach(item => {
-            if (item.profileId && item.subscription?.customer) {
-              clientsMap[item.profileId] = {
-                id: item.subscription.customer.id || '',
-                name: item.subscription.customer.name || '',
-                phone: item.subscription.customer.phone || ''
-              };
-            }
-          });
-        }
         this.profileClients = clientsMap;
       },
-      error: (err: any) => {
-        console.error('Error fetching client profiles:', err);
+      error: (err: unknown) => {
+        console.error('Error fetching account details:', err);
       }
     });
   }
+
 
   viewClient(clientId: string): void {
     if (clientId) {

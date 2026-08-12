@@ -1,12 +1,13 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MasterDashboardService } from '../../../dashboard/services/master-dashboard.service';
 import {
+  MasterDashboardService,
   ProfitMarginsResult,
   AccountProfitMarginResult,
   ServiceProfitSummaryResult
-} from '@neversion/api-client';
+} from '../../../dashboard/services/master-dashboard.service';
+
 
 @Component({
   selector: 'app-profit-margins',
@@ -81,7 +82,7 @@ export class ProfitMarginsComponent implements OnInit {
         this.data.set(result);
         this.isLoading.set(false);
       },
-      error: (err) => {
+      error: () => {
         this.error.set('Error al cargar los márgenes de ganancia');
         this.isLoading.set(false);
       }

@@ -150,8 +150,24 @@ public class OrderGetController {
 
     // ── US-037: List Orders by Vendor ────────────────────────────────────────
 
+    @GetMapping
+    @Operation(summary = "List vendor orders", description = "US-037: Retrieve orders for the authenticated vendor. Supports filtering by client and status.")
+    @ApiResponse(responseCode = "200", description = "List of orders")
+    public ResponseEntity<List<OrderResponse>> listOrders(
+            @Parameter(description = "Optional Client UUID filter") @RequestParam(required = false) UUID clientUuid,
+            @Parameter(description = "Optional Status filter") @RequestParam(required = false) OrderStatus status,
+            JwtAuthenticationToken token) {
+
+        List<Order> orders = listOrdersUseCase.listOrders(clientUuid, status, extractExternalId(token));
+        List<OrderResponse> response = orders.stream()
+                .map(orderRestMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/vendor/{vendorUuid}")
-    @Operation(summary = "List orders by vendor", description = "US-037: Retrieve orders for a vendor. Supports filtering by client and status. Restricted to the owner vendor.")
+    @Operation(summary = "List orders by vendor UUID (US-037, Legacy)", description = "US-037: Retrieve orders for a vendor. Supports filtering by client and status. Restricted to the owner vendor.")
     @ApiResponse(responseCode = "200", description = "List of orders")
     @ApiResponse(responseCode = "403", description = "Caller does not own this vendor account")
     @ApiResponse(responseCode = "404", description = "Vendor or Client not found")
@@ -168,6 +184,7 @@ public class OrderGetController {
 
         return ResponseEntity.ok(response);
     }
+
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 

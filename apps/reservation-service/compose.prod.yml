@@ -1,0 +1,27 @@
+services:
+  reservation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      PORT: 50052
+      DATABASE_PATH: reservations.db
+      EXPIRATION_CHECK_INTERVAL_SECS: 60
+    ports:
+      - "50052:50052"
+    volumes:
+      - reservation_data:/app/data
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    networks:
+      - neversion-network
+
+volumes:
+  reservation_data:
+
+networks:
+  neversion-network:
+    external: true

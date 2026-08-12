@@ -30,26 +30,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This endpoint is public — no JWT required.
  * Use cases are mocked to isolate the web + security layer.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("AuthController IT — POST /api/v1/auth/clients")
-class RegisterClientIT extends BaseIntegrationTest {
+class RegisterClientIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    /** Mock both use cases since AuthController depends on both. */
-    @MockitoBean
-    private RegisterClientUseCase registerClientUseCase;
-
-    @MockitoBean
-    private RegisterVendorUseCase registerVendorUseCase;
-
-    @MockitoBean
-    private GetCurrentUserContextUseCase getCurrentUserContextUseCase;
 
     // ─── 400: validation ─────────────────────────────────────────────────────
 
@@ -121,11 +106,12 @@ class RegisterClientIT extends BaseIntegrationTest {
         @DisplayName("should return 201 without any JWT token (public endpoint)")
         void registerClient_shouldReturn201_withoutToken() throws Exception {
             RegisterClientResult mockResult = new RegisterClientResult(
-                    UUID.randomUUID(),
+                    "auth-uid-123",
                     UUID.randomUUID(),
                     "Juan Pérez",
                     "cliente@correo.com"
             );
+
             when(registerClientUseCase.register(any())).thenReturn(mockResult);
 
             UUID vendorUuid = UUID.randomUUID();
@@ -142,9 +128,10 @@ class RegisterClientIT extends BaseIntegrationTest {
                             .content(body))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.clientUuid").isNotEmpty())
-                    .andExpect(jsonPath("$.userUuid").isNotEmpty())
+                    .andExpect(jsonPath("$.externalId").isNotEmpty())
                     .andExpect(jsonPath("$.name").value("Juan Pérez"))
                     .andExpect(jsonPath("$.email").value("cliente@correo.com"));
+
         }
     }
 }

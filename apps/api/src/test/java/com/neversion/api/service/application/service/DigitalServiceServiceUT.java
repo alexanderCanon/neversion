@@ -250,8 +250,9 @@ class DigitalServiceServiceUT {
 
     private void stubCallerChain(String externalId, Long userId, Long vendorId) {
         User user = User.builder()
-                .id(userId).uuid(UUID.randomUUID())
+                .id(userId)
                 .externalId(externalId).role(UserRole.VENDOR).build();
+
         Vendor vendor = buildVendor(VENDOR_UUID, vendorId);
         when(userRepositoryPort.findByExternalId(externalId)).thenReturn(Optional.of(user));
         when(vendorRepositoryPort.findByUserId(userId)).thenReturn(Optional.of(vendor));

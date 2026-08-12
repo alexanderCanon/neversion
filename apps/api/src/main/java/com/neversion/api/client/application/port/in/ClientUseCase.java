@@ -31,6 +31,9 @@ public interface ClientUseCase {
     List<Client> listByVendor(UUID vendorUuid, String name, String phone, String email,
             String callerExternalId);
 
+    List<Client> listClients(String name, String phone, String email, String callerExternalId);
+
+
     // ── US-030 — Detalle de cliente ────────────────────────────────────
     /**
      * Returns full client data. Ownership check: 403 if caller does not own the client.

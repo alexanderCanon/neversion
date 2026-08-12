@@ -39,19 +39,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Verifies RBAC, validation, and happy paths.
  * ServiceUseCase is mocked via @MockBean.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
+import com.neversion.api.BaseWebIntegrationTest;
+
 @DisplayName("ServiceController IT — EPIC-02")
-class ServiceControllerIT extends BaseIntegrationTest {
+class ServiceControllerIT extends BaseWebIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private ServiceUseCase serviceUseCase;
 
     private static final String JWT_SECRET =
             "test-secret-key-for-testing-purposes-only-min-256-bits!!";

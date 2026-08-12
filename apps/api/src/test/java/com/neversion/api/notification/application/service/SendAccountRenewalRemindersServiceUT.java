@@ -186,9 +186,9 @@ class SendAccountRenewalRemindersServiceUT {
     private User buildUser() {
         return User.builder()
                 .id(100L)
-                .uuid(UUID.randomUUID())
                 .externalId("supabase-vendor-id")
                 .role(UserRole.VENDOR)
                 .build();
     }
+
 }

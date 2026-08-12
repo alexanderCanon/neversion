@@ -51,7 +51,8 @@ class GameServiceUT {
     }
 
     private void stubCallerChain(String extId, Long userId, Long vendorId) {
-        User user = User.builder().id(userId).uuid(UUID.randomUUID()).externalId(extId).build();
+        User user = User.builder().id(userId).externalId(extId).build();
+
         Vendor vendor = Vendor.builder().id(vendorId).uuid(VENDOR_UUID).userId(userId).build();
 
         when(userRepositoryPort.findByExternalId(extId)).thenReturn(Optional.of(user));
