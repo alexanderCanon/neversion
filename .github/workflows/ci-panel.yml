@@ -7,20 +7,31 @@ on:
     paths:
       - 'apps/panel/**'
       - 'packages/**'
+      - 'package.json'
+      - 'eslint.config.js'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-panel-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: Build
+    name: Lint & Build
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Enable Corepack
-        run: corepack enable
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Set up Node.js 24
         uses: actions/setup-node@v4
@@ -37,3 +48,20 @@ jobs:
 
       - name: Build production bundle
         run: pnpm --filter panel build
+
+  sca-security:
+    name: Dependency Vulnerability Scan (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: 'apps/panel'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+          format: 'table'
+          exit-code: 1

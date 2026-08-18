@@ -7,10 +7,20 @@ on:
     paths:
       - 'apps/api/**'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-api-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     name: Build & Test
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
 
     steps:
       - name: Checkout code
@@ -22,11 +32,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'maven'
+          cache-dependency-path: apps/api/pom.xml
 
       - name: Make Maven wrapper executable
-        working-directory: apps/api
         run: chmod +x mvnw
 
       - name: Build and run tests
-        working-directory: apps/api
         run: ./mvnw verify -B
+
+  sca-security:
+    name: Dependency Vulnerability Scan (SCA)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: 'apps/api'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+          format: 'table'
+          exit-code: 1

@@ -1,8 +1,6 @@
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${IMAGE_URI}
     restart: unless-stopped
     environment:
       SPRING_PROFILES_ACTIVE: prod
@@ -21,7 +19,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 256M
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
