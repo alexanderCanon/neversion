@@ -1,8 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { VendorsApiService, VendorsPublicApiService, VendorPublicResponse } from '@neversion/api-client';
-import { AuthService } from '../../../../core/services/auth.service';
+import { VendorsApiService, VendorProfileResponse } from '@neversion/api-client';
 import { ToastService } from '../../../../core/services/toast.service';
 
 interface RewardsConfig {
@@ -20,8 +19,6 @@ interface RewardsConfig {
 export class RewardsConfigComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly vendorsApi = inject(VendorsApiService);
-  private readonly vendorsPublicApi = inject(VendorsPublicApiService);
-  private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
 
   readonly isLoading = signal<boolean>(false);
@@ -42,15 +39,9 @@ export class RewardsConfigComponent implements OnInit {
   }
 
   private loadConfig(): void {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) {
-      this.toastService.error('No se pudo identificar el vendedor actual');
-      return;
-    }
-
     this.isLoading.set(true);
-    this.vendorsPublicApi.getByUuidVendorPublic(vendorUuid).subscribe({
-      next: (vendor: VendorPublicResponse) => {
+    this.vendorsApi.meVendor().subscribe({
+      next: (vendor: VendorProfileResponse) => {
         this.isLoading.set(false);
         if (vendor.rewardsCfg) {
           try {

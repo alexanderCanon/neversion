@@ -1,12 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of } from 'rxjs';
+import { Observable, tap, finalize, map } from 'rxjs';
 import {
     GamesApiService,
     GameRequest as ApiGameRequest,
     GameResponse as ApiGameResponse
 } from '@neversion/api-client';
 import { GameRequest, GameResponse } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 interface ApiGamesPageResponse {
   content?: ApiGameResponse[];
@@ -15,7 +14,6 @@ interface ApiGamesPageResponse {
 @Injectable({ providedIn: 'root' })
 export class GamesDataService {
   private readonly gamesApi = inject(GamesApiService);
-  private readonly authService = inject(AuthService);
 
   private readonly _games = signal<GameResponse[]>([]);
   readonly games = this._games.asReadonly();
@@ -27,12 +25,8 @@ export class GamesDataService {
    * List games (parents) for the current authenticated vendor
    */
   getGames(isActive?: boolean): Observable<GameResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
     this._isLoading.set(true);
-    return this.gamesApi.listByVendorGame(
-      vendorUuid,
+    return this.gamesApi.listVendorGamesGame(
       isActive,
       'body',
       false

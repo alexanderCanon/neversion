@@ -91,6 +91,7 @@ model/updateDiscountConfigRequest.ts
 model/updateRewardsConfigRequest.ts
 model/uploadReceiptRequest.ts
 model/validateReservationRequest.ts
+model/vendorProfileResponse.ts
 model/vendorPublicResponse.ts
 param.ts
 provide-api.ts

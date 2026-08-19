@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../core/services/auth.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { ToastService } from '../../core/services/toast.service';
+import { VendorsApiService, VendorProfileResponse } from '@neversion/api-client';
 
 @Component({
   selector: 'app-settings',
@@ -15,6 +16,7 @@ import { ToastService } from '../../core/services/toast.service';
 export class SettingsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly supabaseService = inject(SupabaseService);
+  private readonly vendorsApi = inject(VendorsApiService);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
@@ -31,17 +33,26 @@ export class SettingsComponent implements OnInit {
   isSubmitting = signal<boolean>(false);
 
   ngOnInit(): void {
-    // Load current user profile from context
-    const context = this.authService.currentContext();
     const user = this.authService.currentUser();
+    const role = this.authService.userRole();
     
-    if (context) {
-      this.storeName.set(context.storeName || 'Mi Tienda');
-      this.userRole.set(context.role === 'super_admin' ? 'Super Administrador' : 'Vendedor / Distribuidor');
-    }
+    this.userRole.set(role === 'super_admin' ? 'Super Administrador' : 'Vendedor / Distribuidor');
     
     if (user) {
       this.userEmail.set(user.email || '');
+    }
+
+    if (role === 'vendor') {
+      this.vendorsApi.meVendor().subscribe({
+        next: (profile: VendorProfileResponse) => {
+          if (profile.storeName) {
+            this.storeName.set(profile.storeName);
+          }
+        },
+        error: (err: unknown) => {
+          console.error('Error loading vendor profile in settings:', err);
+        }
+      });
     }
 
     // Initialize password form
@@ -58,13 +69,20 @@ export class SettingsComponent implements OnInit {
   }
 
   // Change active section
-  selectSection(section: 'profile' | 'security'): void {
+  selectSection(section: 'profile' | 'security') {
     this.activeSection.set(section);
   }
 
-  // Update password in Supabase
-  onUpdatePassword(): void {
-    if (this.passwordForm.invalid) return;
+  setSection(section: 'profile' | 'security') {
+    this.activeSection.set(section);
+  }
+
+  // Update password method
+  onUpdatePassword() {
+    if (this.passwordForm.invalid) {
+      this.passwordForm.markAllAsTouched();
+      return;
+    }
 
     this.isSubmitting.set(true);
     const newPassword = this.passwordForm.get('newPassword')?.value;
@@ -73,16 +91,16 @@ export class SettingsComponent implements OnInit {
       .then(({ error }) => {
         this.isSubmitting.set(false);
         if (error) {
-          this.toastService.error(`Error al actualizar contraseña: ${error.message}`);
+          this.toastService.error(error.message || 'Error al actualizar contraseña');
         } else {
           this.toastService.success('Contraseña actualizada correctamente');
           this.passwordForm.reset();
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         this.isSubmitting.set(false);
-        this.toastService.error('Ocurrió un error inesperado al actualizar la contraseña');
-        console.error(err);
+        const message = err instanceof Error ? err.message : 'Error inesperado';
+        this.toastService.error(message);
       });
   }
 }

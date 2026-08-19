@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of } from 'rxjs';
+import { Observable, tap, finalize, map } from 'rxjs';
 import {
   ClientsApiService,
   ClientDetailResponse as ApiClientDetailResponse,
@@ -9,12 +9,10 @@ import {
   UpdateClientRequest as ApiUpdateClientRequest
 } from '@neversion/api-client';
 import { ClientsFilter, ClientRequest, ClientResponse, ClientDetail } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ClientsService {
   private readonly clientsApi = inject(ClientsApiService);
-  private readonly authService = inject(AuthService);
 
   private readonly _clients = signal<ClientResponse[]>([]);
   readonly clients = this._clients.asReadonly();
@@ -23,12 +21,8 @@ export class ClientsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getClients(filter?: ClientsFilter): Observable<ClientResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
     this._isLoading.set(true);
-    return this.clientsApi.listByVendorClient(
-      vendorUuid,
+    return this.clientsApi.listClientsClient(
       filter?.name,
       filter?.phone,
       filter?.email,
@@ -63,8 +57,8 @@ export class ClientsService {
 
     return this.clientsApi.createClient(apiRequest).pipe(
       map(api => this.mapToModel(api)),
-      tap((newClient) => {
-        this._clients.update((current) => [...current, newClient]);
+      tap(newClient => {
+        this._clients.update(current => [newClient, ...current]);
       })
     );
   }
@@ -77,12 +71,12 @@ export class ClientsService {
     };
 
     return this.clientsApi.updateClient(id, apiRequest).pipe(
-        map(api => this.mapToModel(api)),
-        tap((updatedClient) => {
-            this._clients.update(current => 
-                current.map(c => c.id === id ? updatedClient : c)
-            );
-        })
+      map(api => this.mapToModel(api)),
+      tap(updatedClient => {
+        this._clients.update(current =>
+          current.map(c => (c.id === id ? updatedClient : c))
+        );
+      })
     );
   }
 
@@ -90,10 +84,14 @@ export class ClientsService {
     return this.clientsApi.checkDeletionClient(id);
   }
 
+  checkClientDeletion(id: string): Observable<ClientDeletionCheckResponse> {
+    return this.clientsApi.checkDeletionClient(id);
+  }
+
   deleteClient(id: string): Observable<void> {
     return this.clientsApi.deleteClient(id).pipe(
       tap(() => {
-        this._clients.update((current) => current.filter((c) => c.id !== id));
+        this._clients.update(current => current.filter(c => c.id !== id));
       })
     );
   }
@@ -115,19 +113,29 @@ export class ClientsService {
   }
 
   private mapDetailToModel(api: ApiClientDetailResponse): ClientDetail {
+    const client = api.client ? this.mapToModel(api.client) : {
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      notes: '',
+      activeSubscriptionCount: 0,
+      createdAt: ''
+    };
+
     return {
-      client: api.client ? this.mapToModel(api.client) : {} as ClientResponse,
-      activeSubscriptions: (api.activeSubscriptions ?? []).map(s => ({
+      client,
+      orderHistory: (api.orderHistory || []).map(o => ({
+        id: o.id || '',
+        status: o.status || 'PENDING',
+        createdAt: o.createdAt || ''
+      })),
+      activeSubscriptions: (api.activeSubscriptions || []).map(s => ({
         id: s.id || '',
         serviceName: s.serviceName || '',
         profileName: s.profileName || '',
-        paymentDueDate: s.paymentDueDate || '',
-        status: s.status || ''
-      })),
-      orderHistory: (api.orderHistory ?? []).map(o => ({
-        id: o.id || '',
-        status: o.status || '',
-        createdAt: o.createdAt || ''
+        status: s.status || 'PENDING',
+        paymentDueDate: s.paymentDueDate || ''
       }))
     };
   }

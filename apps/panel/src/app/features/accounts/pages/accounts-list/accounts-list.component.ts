@@ -1,18 +1,17 @@
-import { Component, OnInit, inject, signal, computed, ViewChild, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AccountsService } from '../../services/accounts.service';
-import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
-import { copyToClipboard } from '@neversion/utils';
+import { ToastService } from '../../../../core/services/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { ServicesDataService } from '../../../services/services/services-data.service';
 import { AccountFormComponent } from '../../components/account-form/account-form.component';
 import { AccountWithSubscriptionFormComponent } from '../../components/account-with-subscription-form/account-with-subscription-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
-import { ToastService } from '../../../../core/services/toast.service';
+import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
 import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
-import { AuthService } from '../../../../core/services/auth.service';
-import { ServicesDataService } from '../../../services/services/services-data.service';
-
-import { ActivatedRoute, Router } from '@angular/router';
+import { copyToClipboard } from '@neversion/utils';
 
 interface AccountServiceGroup {
   key: string;
@@ -29,7 +28,7 @@ interface AccountServiceGroup {
   imports: [CommonModule, FormsModule, AccountFormComponent, AccountWithSubscriptionFormComponent, ProfileListComponent],
   templateUrl: './accounts-list.component.html',
   styleUrl: './accounts-list.component.scss'
-  })
+})
 export class AccountsListComponent implements OnInit {
   @ViewChild('accountForm') accountForm!: AccountFormComponent;
   @ViewChild('unifiedForm') unifiedForm!: AccountWithSubscriptionFormComponent;
@@ -40,14 +39,12 @@ export class AccountsListComponent implements OnInit {
   private readonly servicesDataService = inject(ServicesDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private lastLoadedVendorUuid: string | null = null;
 
   readonly serviceUuidParam = signal<string | null>(null);
   readonly currentService = signal<ServiceResponse | null>(null);
 
   readonly accounts = this.accountsService.accounts;
   readonly isLoading = this.accountsService.isLoading;
-  readonly vendorUuid = computed(() => this.authService.currentVendorUuid());
   readonly isSuperAdmin = this.authService.isSuperAdmin;
   readonly hasRequestedAccounts = signal(false);
   readonly loadError = signal(false);
@@ -108,17 +105,6 @@ export class AccountsListComponent implements OnInit {
   currentPage = signal(1);
   pageSize = 5;
 
-  constructor() {
-    effect(() => {
-      const vendorUuid = this.vendorUuid();
-      if (!vendorUuid || this.lastLoadedVendorUuid === vendorUuid) {
-        return;
-      }
-      this.lastLoadedVendorUuid = vendorUuid;
-      this.loadAccounts();
-    }, { allowSignalWrites: true });
-  }
-
   readonly paginatedAccounts = computed(() => {
     const start = (this.currentPage() - 1) * this.pageSize;
     return this.filteredAccounts().slice(start, start + this.pageSize);
@@ -144,14 +130,11 @@ export class AccountsListComponent implements OnInit {
             this.filterType.set(params['filter'] as AccountStatus);
         }
     });
+
+    this.loadAccounts();
   }
 
   loadAccounts(): void {
-    const vendorUuid = this.vendorUuid();
-    if (!vendorUuid) {
-      return;
-    }
-
     this.hasRequestedAccounts.set(true);
     this.loadError.set(false);
 
@@ -293,6 +276,4 @@ export class AccountsListComponent implements OnInit {
   private unresolvedServiceLabel(account: AccountResponse): string {
     return account.serviceId ? `Servicio no resuelto #${account.serviceId}` : 'Servicio no resuelto';
   }
-
-
 }

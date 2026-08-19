@@ -23,10 +23,9 @@ export class OrdersService {
     );
   }
 
-  getOrdersByVendor(vendorUuid: string, status?: string): Observable<OrderResponse[]> {
-    return this.ordersApi.listByVendorOrderGet(
-      vendorUuid,
-      undefined,
+  getOrders(status?: string, clientUuid?: string): Observable<OrderResponse[]> {
+    return this.ordersApi.listOrdersOrderGet(
+      clientUuid,
       status as 'VALIDATED' | 'COMPLETED' | 'REJECTED' | 'CANCELLED' | 'PENDING' | undefined,
       'body',
       false,

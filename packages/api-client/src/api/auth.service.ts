@@ -44,8 +44,8 @@ export class AuthApiService extends BaseService {
     }
 
     /**
-     * Get authenticated platform context
-     * Resolves the Supabase JWT subject to the internal platform user and vendor context.
+     * Get authenticated user platform context
+     * Resolves the Supabase JWT subject to the internal platform user context (externalId and role).
      * @endpoint get /api/v1/auth/me
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.

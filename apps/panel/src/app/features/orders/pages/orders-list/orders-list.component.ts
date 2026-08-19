@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
-import { AuthService } from '../../../../core/services/auth.service';
 import { OrderResponse, OrderStatus } from '@neversion/models';
 import { getOrderStatusLabel, getOrderStatusClass } from '@neversion/utils';
 
@@ -16,7 +15,6 @@ import { getOrderStatusLabel, getOrderStatusClass } from '@neversion/utils';
 })
 export class OrdersListComponent implements OnInit {
   private readonly ordersService = inject(OrdersService);
-  private readonly authService = inject(AuthService);
 
   private readonly _orders = signal<OrderResponse[]>([]);
   readonly isLoading = signal(false);
@@ -59,11 +57,8 @@ export class OrdersListComponent implements OnInit {
   }
 
   loadOrders(): void {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return;
-
     this.isLoading.set(true);
-    this.ordersService.getOrdersByVendor(vendorUuid).subscribe({
+    this.ordersService.getOrders().subscribe({
       next: (data) => {
         this._orders.set(data);
         this.isLoading.set(false);
