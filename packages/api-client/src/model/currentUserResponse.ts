@@ -18,13 +18,5 @@ export interface CurrentUserResponse {
      * Platform role in lowercase
      */
     role?: string;
-    /**
-     * Public UUID of the vendor record when the caller is a vendor
-     */
-    vendorUuid?: string;
-    /**
-     * Vendor store display name when the caller is a vendor
-     */
-    storeName?: string;
 }
 

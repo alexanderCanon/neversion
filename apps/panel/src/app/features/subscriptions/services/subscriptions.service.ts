@@ -1,21 +1,23 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, of, map, catchError } from 'rxjs';
+import { Observable, tap, finalize, map, catchError } from 'rxjs';
 import {
   SubscriptionsApiService,
+  ProfilesApiService,
   SubscriptionResponse,
   SubscriptionDetailResponse,
   CreateManualSubscriptionRequest,
   BatchCreateManualSubscriptionRequest,
   BatchCreateSubscriptionsResponse,
-  DetectExpiredSubscriptionsResponse
+  DetectExpiredSubscriptionsResponse,
+  ProfileResponse,
+  ChangeProfileStatusRequest
 } from '@neversion/api-client';
 import { SubscriptionsFilter } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionsService {
   private readonly subscriptionsApi = inject(SubscriptionsApiService);
-  private readonly authService = inject(AuthService);
+  private readonly profilesApi = inject(ProfilesApiService);
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
@@ -24,12 +26,8 @@ export class SubscriptionsService {
   readonly isLoading = this._isLoading.asReadonly();
 
   getSubscriptions(filter?: SubscriptionsFilter): Observable<SubscriptionResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
     this._isLoading.set(true);
-    return this.subscriptionsApi.listByVendorSubscription(
-      vendorUuid,
+    return this.subscriptionsApi.listSubscriptionsSubscription(
       filter?.serviceId,
       filter?.status as 'ACTIVE' | 'PENDING' | 'SUSPENDED' | 'CANCELLED',
       'body',
@@ -62,34 +60,43 @@ export class SubscriptionsService {
   }
 
   renewSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.renewSubscription(id);
+    return this.subscriptionsApi.renewSubscription(id).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
   }
 
   cancelSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.cancelSubscription(id);
+    return this.subscriptionsApi.cancelSubscription(id).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
   }
 
   suspendSubscription(id: string): Observable<SubscriptionResponse> {
-    return this.subscriptionsApi.suspendSubscription(id);
+    return this.subscriptionsApi.suspendSubscription(id).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
+  }
+
+  changeProfileStatus(profileId: string, status: ChangeProfileStatusRequest.StatusEnum): Observable<ProfileResponse> {
+    return this.profilesApi.changeStatusProfile(profileId, { status }).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
   }
 
   detectExpiredSubscriptions(): Observable<DetectExpiredSubscriptionsResponse> {
-    return this.subscriptionsApi.detectExpiredSubscription();
+    return this.subscriptionsApi.detectExpiredSubscription().pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
   }
 
   refreshSubscriptions(): Observable<SubscriptionResponse[]> {
     return this.getSubscriptions();
   }
 
-  private normalizeSubscriptionsResponse(response: unknown): SubscriptionResponse[] {
+  private normalizeSubscriptionsResponse(response: SubscriptionResponse[] | { content?: SubscriptionResponse[] }): SubscriptionResponse[] {
     if (Array.isArray(response)) {
       return response;
     }
-
-    if (response && typeof response === 'object' && Array.isArray((response as { content?: unknown }).content)) {
-      return (response as { content: SubscriptionResponse[] }).content;
-    }
-
-    return [];
+    return response.content ?? [];
   }
 }

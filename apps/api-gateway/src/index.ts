@@ -1,87 +1,98 @@
 import { verifyJwt } from "./jwt";
+import { isAuthMutationPath, isPublicPath } from "./public-paths";
+import { rateLimiter, RATE_LIMIT_PROFILES } from "./rate-limiter";
+import {
+	applySecurityHeaders,
+	CORS_PREFLIGHT_HEADERS,
+	createErrorResponse,
+	TRUSTED_HEADERS,
+} from "./security";
 import type { Env } from "./types";
-
-/** Headers that only the gateway is allowed to set. */
-const TRUSTED_HEADERS = ["X-User-Id", "X-User-Role", "X-Gateway-Secret"] as const;
-
-/** Paths that skip JWT verification entirely. */
-const PUBLIC_PATHS: readonly string[] = [
-	"/api/v1/auth/clients",
-];
-
-/**
- * Returns `true` when the request path matches any entry in {@link PUBLIC_PATHS}.
- *
- * Comparison is case-insensitive and ignores trailing slashes so that
- * `/api/v1/auth/clients/` is treated the same as `/api/v1/auth/clients`.
- */
-function isPublicPath(pathname: string): boolean {
-	const normalized = pathname.replace(/\/+$/, "").toLowerCase();
-	return PUBLIC_PATHS.some((p) => normalized === p.toLowerCase());
-}
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
 
-		/* ── CORS preflight ───────────────────────────────────────── */
+		/* ── 1. CORS Preflight ─────────────────────────────────────── */
 		if (request.method === "OPTIONS") {
 			return new Response(null, {
 				status: 204,
-				headers: {
-					"Access-Control-Allow-Origin": "*",
-					"Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-					"Access-Control-Allow-Headers": "*",
-					"Access-Control-Max-Age": "86400",
-				},
+				headers: CORS_PREFLIGHT_HEADERS,
 			});
 		}
 
-		/* ── Health probe ─────────────────────────────────────────── */
+		/* ── 2. Health Probe ───────────────────────────────────────── */
 		if (url.pathname === "/__gateway/health") {
-			return new Response("ok", { status: 200 });
+			return new Response("ok", {
+				status: 200,
+				headers: { "Content-Type": "text/plain; charset=utf-8" },
+			});
 		}
 
-		/* ── Strip trusted headers from the incoming request ────── */
+		/* ── 3. Edge Rate Limiting ─────────────────────────────────── */
+		const clientIp =
+			request.headers.get("CF-Connecting-IP") ||
+			request.headers.get("X-Forwarded-For") ||
+			"global";
+
+		if (isAuthMutationPath(url.pathname, request.method)) {
+			const limitKey = `auth:${clientIp}`;
+			const rateCheck = rateLimiter.check(limitKey, RATE_LIMIT_PROFILES.AUTH_MUTATION);
+			if (!rateCheck.allowed) {
+				return createErrorResponse(
+					"Too Many Requests",
+					`Too many registration attempts. Please try again in ${rateCheck.resetSeconds} seconds.`,
+					429,
+					{
+						"Retry-After": String(rateCheck.resetSeconds),
+						"RateLimit-Limit": String(rateCheck.limit),
+						"RateLimit-Remaining": "0",
+						"RateLimit-Reset": String(rateCheck.resetSeconds),
+					},
+				);
+			}
+		}
+
+		/* ── 4. Strip spoofed trusted headers from incoming request ─ */
 		const upstreamHeaders = new Headers(request.headers);
 		for (const h of TRUSTED_HEADERS) {
 			upstreamHeaders.delete(h);
 		}
 
-		/* ── Public paths: forward without JWT verification ─────── */
+		/* ── 5. Public Paths: forward without JWT verification ───── */
 		if (isPublicPath(url.pathname)) {
 			return proxyToUpstream(request, url, upstreamHeaders, env);
 		}
 
-		/* ── Extract Bearer token ─────────────────────────────────── */
+		/* ── 6. Extract Bearer Token ──────────────────────────────── */
 		const authHeader = request.headers.get("Authorization");
 		if (!authHeader?.startsWith("Bearer ")) {
-			return Response.json(
-				{ error: "Missing or malformed Authorization header" },
-				{ status: 401 },
+			return createErrorResponse(
+				"Unauthorized",
+				"Missing or malformed Authorization header",
+				401,
 			);
 		}
 		const token = authHeader.slice(7);
 
-		/* ── Verify JWT ───────────────────────────────────────────── */
+		/* ── 7. Verify JWT ─────────────────────────────────────────── */
 		const result = await verifyJwt(token, env);
 		if (!result.ok) {
-			return Response.json({ error: result.error }, { status: 401 });
+			return createErrorResponse("Unauthorized", result.error, 401);
 		}
 
-		/* ── Inject identity headers ──────────────────────────────── */
+		/* ── 8. Inject Trusted Identity Headers ───────────────────── */
 		upstreamHeaders.set("X-User-Id", result.payload.sub);
 		upstreamHeaders.set("X-User-Role", result.payload.role);
 		upstreamHeaders.set("X-Gateway-Secret", env.GATEWAY_SECRET);
 
-		/* ── Proxy to upstream ────────────────────────────────────── */
+		/* ── 9. Proxy to Upstream ──────────────────────────────────── */
 		return proxyToUpstream(request, url, upstreamHeaders, env);
 	},
 } satisfies ExportedHandler<Env>;
 
 /**
- * Forwards the request to the upstream Spring Boot API, attaching
- * CORS headers to the response.
+ * Forwards the request to the upstream Spring Boot API with timeout and security headers.
  */
 async function proxyToUpstream(
 	request: Request,
@@ -97,11 +108,11 @@ async function proxyToUpstream(
 				method: request.method,
 				headers,
 				body: ["GET", "HEAD"].includes(request.method) ? null : request.body,
+				signal: AbortSignal.timeout(15_000), // 15-second upstream timeout
 			}),
 		);
 
-		const responseHeaders = new Headers(upstreamResponse.headers);
-		responseHeaders.set("Access-Control-Allow-Origin", "*");
+		const responseHeaders = applySecurityHeaders(new Headers(upstreamResponse.headers));
 
 		return new Response(upstreamResponse.body, {
 			status: upstreamResponse.status,
@@ -109,10 +120,19 @@ async function proxyToUpstream(
 			headers: responseHeaders,
 		});
 	} catch (err: unknown) {
+		if (err instanceof Error && err.name === "TimeoutError") {
+			return createErrorResponse(
+				"Gateway Timeout",
+				"The upstream service timed out while processing your request.",
+				504,
+			);
+		}
+
 		const message = err instanceof Error ? err.message : "Unknown error";
-		return Response.json(
-			{ error: "Bad Gateway", message: `Failed to connect to upstream: ${message}` },
-			{ status: 502 },
+		return createErrorResponse(
+			"Bad Gateway",
+			`Failed to connect to upstream service: ${message}`,
+			502,
 		);
 	}
 }

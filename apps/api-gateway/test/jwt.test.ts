@@ -23,8 +23,8 @@ describe("Gateway — JWT verification", () => {
 		await waitOnExecutionContext(ctx);
 
 		expect(response.status).toBe(401);
-		const body = (await response.json()) as { error: string };
-		expect(body.error).toContain("Authorization");
+		const body = (await response.json()) as { error: string; message: string };
+		expect(body.message).toContain("Authorization");
 	});
 
 	it("returns 200 for /__gateway/health", async () => {

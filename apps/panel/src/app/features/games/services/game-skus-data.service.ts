@@ -1,12 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of } from 'rxjs';
+import { Observable, tap, finalize, map } from 'rxjs';
 import {
     GameSKUsApiService,
     GameSkuRequest as ApiGameSkuRequest,
     GameSkuResponse as ApiGameSkuResponse
 } from '@neversion/api-client';
 import { GameSkuRequest, GameSkuResponse } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 export interface GameSkusFilter {
   gameUuid?: string;
@@ -16,7 +15,6 @@ export interface GameSkusFilter {
 @Injectable({ providedIn: 'root' })
 export class GameSkusDataService {
   private readonly gameSkusApi = inject(GameSKUsApiService);
-  private readonly authService = inject(AuthService);
 
   private readonly _gameSkus = signal<GameSkuResponse[]>([]);
   readonly gameSkus = this._gameSkus.asReadonly();
@@ -28,12 +26,8 @@ export class GameSkusDataService {
    * List game SKUs for the current authenticated vendor, optionally filtered by game
    */
   getGameSkus(filter?: GameSkusFilter): Observable<GameSkuResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
     this._isLoading.set(true);
-    return this.gameSkusApi.listByVendorGameSku(
-      vendorUuid,
+    return this.gameSkusApi.listVendorGameSkusGameSku(
       filter?.gameUuid,
       filter?.isActive,
       'body',
@@ -78,12 +72,12 @@ export class GameSkusDataService {
     };
 
     return this.gameSkusApi.updateGameSku(id, apiRequest).pipe(
-        map(api => this.mapToModel(api)),
-        tap((updatedSku) => {
-            this._gameSkus.update(current =>
-                current.map(s => s.id === id ? updatedSku : s)
-            );
-        })
+      map(api => this.mapToModel(api)),
+      tap((updatedSku) => {
+        this._gameSkus.update((current) =>
+          current.map((s) => (s.id === id ? updatedSku : s))
+        );
+      })
     );
   }
 
@@ -92,12 +86,12 @@ export class GameSkusDataService {
    */
   toggleGameSkuStatus(id: string): Observable<GameSkuResponse> {
     return this.gameSkusApi.toggleStatusGameSku(id).pipe(
-        map(api => this.mapToModel(api)),
-        tap((updatedSku) => {
-            this._gameSkus.update(current =>
-                current.map(s => s.id === id ? updatedSku : s)
-            );
-        })
+      map(api => this.mapToModel(api)),
+      tap((updatedSku) => {
+        this._gameSkus.update((current) =>
+          current.map((s) => (s.id === id ? updatedSku : s))
+        );
+      })
     );
   }
 
@@ -109,28 +103,26 @@ export class GameSkusDataService {
     );
   }
 
-  refreshGameSkus(): Observable<GameSkuResponse[]> {
-    return this.getGameSkus();
+  refreshGameSkus(filter?: GameSkusFilter): Observable<GameSkuResponse[]> {
+    return this.getGameSkus(filter);
   }
 
-  private normalizeResponse(response: ApiGameSkuResponse[]): ApiGameSkuResponse[] {
+  private normalizeResponse(response: ApiGameSkuResponse[] | { content?: ApiGameSkuResponse[] }): ApiGameSkuResponse[] {
     if (Array.isArray(response)) {
       return response;
     }
-    return [];
+    return response.content ?? [];
   }
 
   private mapToModel(api: ApiGameSkuResponse): GameSkuResponse {
     return {
       id: api.id || '',
+      gameUuid: api.gameUuid || '',
       code: api.code || '',
       name: api.name || '',
       price: api.price || 0,
       imageUrl: api.imageUrl || '',
       isActive: api.isActive ?? true,
-      gameUuid: api.gameUuid || '',
-      gameSlug: api.gameSlug || '',
-      gameName: api.gameName || '',
       createdAt: api.createdAt || ''
     };
   }

@@ -1,12 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of } from 'rxjs';
+import { Observable, tap, finalize, map } from 'rxjs';
 import { 
     ServicesApiService, 
     ServiceRequest as ApiServiceRequest, 
     ServiceResponse as ApiServiceResponse 
 } from '@neversion/api-client';
 import { ServiceRequest, ServiceResponse, ServicesFilter } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 interface ApiServicesPageResponse {
   content?: ApiServiceResponse[];
@@ -15,7 +14,6 @@ interface ApiServicesPageResponse {
 @Injectable({ providedIn: 'root' })
 export class ServicesDataService {
   private readonly servicesApi = inject(ServicesApiService);
-  private readonly authService = inject(AuthService);
 
   private readonly _services = signal<ServiceResponse[]>([]);
   readonly services = this._services.asReadonly();
@@ -27,13 +25,9 @@ export class ServicesDataService {
    * List services for the current authenticated vendor (US-020)
    */
   getServices(filter?: ServicesFilter): Observable<ServiceResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
     this._isLoading.set(true);
-    return this.servicesApi.listByVendorService(
-      vendorUuid,
-      filter?.category as unknown as Parameters<typeof this.servicesApi.listByVendorService>[1],
+    return this.servicesApi.listVendorServicesService(
+      filter?.category as unknown as Parameters<typeof this.servicesApi.listVendorServicesService>[0],
       filter?.isActive,
       'body',
       false,

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap, finalize, map, of, shareReplay } from 'rxjs';
+import { Observable, tap, finalize, map, shareReplay } from 'rxjs';
 import { 
     AccountsApiService, 
     AccountRequest as ApiAccountRequest, 
@@ -9,7 +9,6 @@ import {
     CreateAccountWithSubscriptionResult
 } from '@neversion/api-client';
 import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
-import { AuthService } from '../../../core/services/auth.service';
 
 interface ApiAccountsPageResponse {
   content?: ApiAccountResponse[];
@@ -23,7 +22,6 @@ type AccountCredentialResponse = ApiAccountResponse & {
 @Injectable({ providedIn: 'root' })
 export class AccountsService {
   private readonly accountsApi = inject(AccountsApiService);
-  private readonly authService = inject(AuthService);
   private readonly inFlightRequests = new Map<string, Observable<AccountResponse[]>>();
 
   private readonly _accounts = signal<AccountResponse[]>([]);
@@ -36,19 +34,14 @@ export class AccountsService {
    * List accounts for the current authenticated vendor (US-024)
    */
   getAccounts(filter?: AccountsFilter): Observable<AccountResponse[]> {
-    const vendorUuid = this.authService.currentVendorUuid();
-    if (!vendorUuid) return of([]);
-
-    const requestKey = `${vendorUuid}:${filter?.serviceId ?? ''}:${filter?.status ?? ''}`;
+    const requestKey = `${filter?.serviceId ?? ''}:${filter?.status ?? ''}`;
     const cachedRequest = this.inFlightRequests.get(requestKey);
     if (cachedRequest) {
       return cachedRequest;
     }
 
     this._isLoading.set(true);
-    // listByVendorAccount(vendorUuid, serviceUuid, status)
-    const request$ = this.accountsApi.listByVendorAccount(
-      vendorUuid,
+    const request$ = this.accountsApi.listAccountsAccount(
       filter?.serviceId,
       filter?.status as 'AVAILABLE' | 'PARTIAL' | 'FULL' | 'EXPIRED',
       'body',

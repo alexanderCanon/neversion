@@ -66,4 +66,5 @@ export * from './updateDiscountConfigRequest';
 export * from './updateRewardsConfigRequest';
 export * from './uploadReceiptRequest';
 export * from './validateReservationRequest';
+export * from './vendorProfileResponse';
 export * from './vendorPublicResponse';
