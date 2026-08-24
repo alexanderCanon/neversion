@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PlatformService } from '../../services/platform.service';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']

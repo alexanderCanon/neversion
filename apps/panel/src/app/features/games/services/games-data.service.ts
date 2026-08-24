@@ -4,7 +4,7 @@ import {
     GamesApiService,
     GameRequest as ApiGameRequest,
     GameResponse as ApiGameResponse
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { GameRequest, GameResponse } from '@neversion/models';
 
 interface ApiGamesPageResponse {

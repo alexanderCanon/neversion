@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
-import { VendorPublicResponse } from '@neversion/api-client';
+import { VendorPublicResponse } from '@alexandercanon/api-client-angular';
 import { SupabaseService } from './supabase.service';
 import { runtimeConfig } from '../config/runtime-config';
 

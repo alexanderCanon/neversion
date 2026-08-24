@@ -4,7 +4,7 @@ import {
     GameSKUsApiService,
     GameSkuRequest as ApiGameSkuRequest,
     GameSkuResponse as ApiGameSkuResponse
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { GameSkuRequest, GameSkuResponse } from '@neversion/models';
 
 export interface GameSkusFilter {

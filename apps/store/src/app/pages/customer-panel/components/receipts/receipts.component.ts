@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ClientsApiService, ClientReservationStatusResponse } from '@neversion/api-client';
+import { ClientsApiService, ClientReservationStatusResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-receipts',
   templateUrl: './receipts.component.html',
   styleUrls: []

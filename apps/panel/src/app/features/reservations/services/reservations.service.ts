@@ -4,7 +4,7 @@ import {
   ReservationsApiService,
   ReservationResponse as ApiReservationResponse, 
   ReservationRequest as ApiReservationRequest,
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import {
   CreateReservationRequest,
   ReservationsFilter,

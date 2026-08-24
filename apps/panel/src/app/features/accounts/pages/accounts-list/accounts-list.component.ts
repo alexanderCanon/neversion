@@ -10,7 +10,7 @@ import { AccountFormComponent } from '../../components/account-form/account-form
 import { AccountWithSubscriptionFormComponent } from '../../components/account-with-subscription-form/account-with-subscription-form.component';
 import { ProfileListComponent } from '../../components/profile-list/profile-list.component';
 import { AccountResponse, AccountStatus, ProfileResponse, ProfileStatus, ServiceResponse } from '@neversion/models';
-import { AccountDetailResponse, ProfileSummaryResponse } from '@neversion/api-client';
+import { AccountDetailResponse, ProfileSummaryResponse } from '@alexandercanon/api-client-angular';
 import { copyToClipboard } from '@neversion/utils';
 
 interface AccountServiceGroup {

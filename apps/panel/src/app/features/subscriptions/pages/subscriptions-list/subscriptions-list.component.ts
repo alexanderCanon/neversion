@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin, of, catchError } from 'rxjs';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
-import { SubscriptionResponse } from '@neversion/api-client';
+import { SubscriptionResponse } from '@alexandercanon/api-client-angular';
 import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { BatchSubscriptionFormComponent } from '../../components/batch-subscription-form/batch-subscription-form.component';

@@ -1,8 +1,9 @@
 import { Component, Input, inject } from '@angular/core';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 import { ImageService } from '../../services/image.service';
 
 @Component({
+  standalone: false,
   selector: 'app-service-card',
   templateUrl: './service-card.component.html',
   styleUrls: ['./service-card.component.css']

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { AuthService, RegisterFormData, PendingOAuthUser } from '../../services/auth.service';
 
 @Component({
+  standalone: false,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']

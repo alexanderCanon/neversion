@@ -11,7 +11,7 @@ import {
   DetectExpiredSubscriptionsResponse,
   ProfileResponse,
   ChangeProfileStatusRequest
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { SubscriptionsFilter } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })

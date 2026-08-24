@@ -5,7 +5,7 @@ import { User as SupaUser, Session, AuthResponse } from '@supabase/supabase-js';
 import { Observable, from, of } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
 import { User, AuthResult, UserRole, RegisterVendorRequest } from '@neversion/models';
-import { AuthApiService, RegisterVendorRequest as ApiVendorRequest } from '@neversion/api-client';
+import { AuthApiService, RegisterVendorRequest as ApiVendorRequest } from '@alexandercanon/api-client-angular';
 
 @Injectable({
     providedIn: 'root'

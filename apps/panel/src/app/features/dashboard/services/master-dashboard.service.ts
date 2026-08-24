@@ -8,7 +8,7 @@ import {
   ProfileSubscription,
   ProfileCustomer
 } from '@neversion/models';
-import { NotificationsApiService } from '@neversion/api-client';
+import { NotificationsApiService } from '@alexandercanon/api-client-angular';
 import { SupabaseService } from '../../../core/services/supabase.service';
 
 export interface ExpiringSubscriptionResult {

@@ -7,7 +7,7 @@ import { forkJoin, of, switchMap, catchError } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { AccountsApiService, CreateManualSubscriptionRequest } from '@neversion/api-client';
+import { AccountsApiService, CreateManualSubscriptionRequest } from '@alexandercanon/api-client-angular';
 import { Router } from '@angular/router';
 
 import { SubscriptionsService } from '../../../subscriptions/services/subscriptions.service';

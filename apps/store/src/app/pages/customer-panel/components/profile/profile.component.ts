@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ClientsApiService, ClientResponse, UpdateClientProfileRequest } from '@neversion/api-client';
+import { ClientsApiService, ClientResponse, UpdateClientProfileRequest } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-profile',
   templateUrl: './profile.component.html',
   styleUrls: []

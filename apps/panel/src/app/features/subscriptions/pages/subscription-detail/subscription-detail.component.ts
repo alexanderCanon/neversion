@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { SubscriptionsService } from '../../services/subscriptions.service';
-import { SubscriptionDetailResponse } from '@neversion/api-client';
+import { SubscriptionDetailResponse } from '@alexandercanon/api-client-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 import { copyToClipboard, getSubscriptionStatusLabel, getSubscriptionStatusClass } from '@neversion/utils';
 

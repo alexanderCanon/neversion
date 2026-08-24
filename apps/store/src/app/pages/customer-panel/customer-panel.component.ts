@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 type CustomerPanelTab = 'accesses' | 'orders' | 'receipts' | 'profile' | 'points';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-panel',
   template: `
     <div class="container py-4 py-md-5 mt-3 mt-md-4">

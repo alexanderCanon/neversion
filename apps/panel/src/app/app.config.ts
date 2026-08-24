@@ -8,7 +8,7 @@ import { routes } from './app.routes';
 import { AuthService } from './core/services/auth.service';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { httpErrorInterceptor } from './core/interceptors/http-error.interceptor';
-import { provideApi } from '@neversion/api-client';
+import { provideApi } from '@alexandercanon/api-client-angular';
 import { runtimeConfig } from './core/config/runtime-config';
 
 registerLocaleData(localeEs, 'es');

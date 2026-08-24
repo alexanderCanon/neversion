@@ -6,9 +6,10 @@ import { ImageService } from '../../services/image.service';
 import { ToastService } from '../../services/toast.service';
 import { Observable, combineLatest } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-platforms',
   templateUrl: './platforms.component.html',
   styleUrls: ['./platforms.component.css'],

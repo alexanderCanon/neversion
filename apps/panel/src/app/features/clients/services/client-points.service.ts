@@ -6,7 +6,7 @@ import {
   PointsMovementsPageResponse,
   PointsMovementResponse,
   AdjustPointsRequest
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 
 @Injectable({ providedIn: 'root' })
 export class ClientPointsService {

@@ -4,7 +4,7 @@ import {
   OrdersApiService,
   OrderResponse as ApiOrderResponse,
   OrderDetailResponse as ApiOrderDetailResponse
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { OrderResponse, OrderStatus } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })

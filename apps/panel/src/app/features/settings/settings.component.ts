@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../../core/services/auth.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { ToastService } from '../../core/services/toast.service';
-import { VendorsApiService, VendorProfileResponse } from '@neversion/api-client';
+import { VendorsApiService, VendorProfileResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
   selector: 'app-settings',

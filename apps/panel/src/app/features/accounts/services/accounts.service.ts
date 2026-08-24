@@ -7,7 +7,7 @@ import {
     AccountDetailResponse as ApiAccountDetailResponse,
     AccountWithSubscriptionRequest,
     CreateAccountWithSubscriptionResult
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { AccountsFilter, AccountRequest, AccountResponse, SaleMode, AccountStatus } from '@neversion/models';
 
 interface ApiAccountsPageResponse {

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output, ViewChild, ElementRef, OnInit, inject,
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { SaleMode, ClientResponse } from '@neversion/models';
-import { AccountWithSubscriptionRequest } from '@neversion/api-client';
+import { AccountWithSubscriptionRequest } from '@alexandercanon/api-client-angular';
 import { AccountsService } from '../../services/accounts.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
