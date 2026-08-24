@@ -31,6 +31,12 @@
         border-color: #dbeafe;
     }
 
+    &.renew:hover {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border-color: #bbf7d0;
+    }
+
     &.suspend:hover {
         background-color: #fffbeb;
         color: #f59e0b;

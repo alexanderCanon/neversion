@@ -157,20 +157,67 @@
                 </a>
               </div>
             } @else {
+              <!-- Batch Actions Bar -->
+              <div class="p-3 bg-light border-bottom d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="form-check mb-0">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      id="selectAllClientSubs"
+                      [checked]="isAllSubsSelected()"
+                      [indeterminate]="isSomeSubsSelected()"
+                      (change)="toggleAllSubs($any($event.target).checked)"
+                    />
+                    <label class="form-check-label small fw-semibold text-dark" for="selectAllClientSubs">
+                      Seleccionar todas
+                    </label>
+                  </div>
+                  <span class="badge bg-white text-secondary border px-2 py-1 small">
+                    {{ selectedSubIds().size }} de {{ clientDetail()?.activeSubscriptions?.length }} seleccionadas
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm px-3 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm"
+                  [disabled]="selectedSubIds().size === 0 || isRenewing()"
+                  (click)="renewSelectedSubs()"
+                >
+                  @if (isRenewing()) {
+                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                    <span>Renovando...</span>
+                  } @else {
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span>Renovar en 1 clic ({{ selectedSubIds().size }})</span>
+                  }
+                </button>
+              </div>
+
               <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 border-0">
                   <thead>
                     <tr>
-                      <th class="ps-4">Servicio Digital</th>
+                      <th style="width: 40px;" class="ps-4"></th>
+                      <th>Servicio Digital</th>
                       <th>Perfil Asignado</th>
                       <th>Próximo Vencimiento</th>
                       <th>Estado Actual</th>
+                      <th class="text-end pe-4">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     @for (sub of clientDetail()?.activeSubscriptions; track sub.id) {
-                      <tr class="detail-row">
-                        <td class="ps-4 py-3">
+                      <tr class="detail-row" (click)="toggleSubSelection(sub.id)" style="cursor: pointer;">
+                        <td class="ps-4" (click)="$event.stopPropagation()">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [checked]="isSubSelected(sub.id)"
+                            (change)="toggleSubSelection(sub.id)"
+                          />
+                        </td>
+                        <td class="py-3">
                           <div class="fw-bold text-dark" style="font-size: 0.95rem;">{{ sub.serviceName }}</div>
                           <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ sub.id.substring(0, 8) }}</span>
                         </td>
@@ -204,6 +251,21 @@
                           <span [class]="getStatusClass(sub.status!)">
                             {{ getStatusLabel(sub.status!) }}
                           </span>
+                        </td>
+                        <td class="text-end pe-4" (click)="$event.stopPropagation()">
+                          <div class="d-flex justify-content-end gap-2">
+                            <button
+                              type="button"
+                              class="btn btn-action-sm renew"
+                              (click)="renewSingleSub(sub.id)"
+                              title="Renovar Suscripción"
+                            >
+                              <i class="bi bi-arrow-repeat text-primary"></i>
+                            </button>
+                            <a class="btn-action-sm view" [routerLink]="['/subscriptions', sub.id]" title="Ver Detalle">
+                              <i class="bi bi-eye"></i>
+                            </a>
+                          </div>
                         </td>
                       </tr>
                     }

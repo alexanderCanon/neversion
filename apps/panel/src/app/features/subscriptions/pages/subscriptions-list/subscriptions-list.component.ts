@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin, of, catchError } from 'rxjs';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 import { SubscriptionResponse } from '@neversion/api-client';
@@ -64,6 +65,10 @@ export class SubscriptionsListComponent implements OnInit {
   groupMode = signal<GroupMode>('service');
   collapsedGroups = signal<Set<string>>(new Set());
   pageMode = signal<PageMode>('subscriptions');
+
+  selectedTableSubIds = signal<Set<string>>(new Set());
+  isRenewingBatch = signal<boolean>(false);
+  renewingClientGroupKey = signal<string | null>(null);
 
   readonly filteredSubscriptions = computed(() => {
     let result = this.subscriptions();
@@ -263,6 +268,142 @@ export class SubscriptionsListComponent implements OnInit {
 
   onManualAssignmentCreated(): void {
     this.loadSubscriptions();
+  }
+
+  renewSubscription(subscription: SubscriptionResponse): void {
+    if (!subscription.id) return;
+    if (confirm(`¿Deseas renovar la suscripción de ${subscription.clientName || 'este cliente'} (${subscription.serviceName})?`)) {
+      this.subscriptionsService.renewSubscription(subscription.id).subscribe({
+        next: () => {
+          this.toastService.success('Suscripción renovada con éxito');
+          this.loadSubscriptions();
+        },
+        error: () => this.toastService.error('Error al renovar la suscripción')
+      });
+    }
+  }
+
+  renewClientGroup(group: SubscriptionGroup, event: MouseEvent): void {
+    event.stopPropagation();
+    const renewableSubs = group.items.filter(s => s.status !== 'CANCELLED' && s.id);
+    if (renewableSubs.length === 0) {
+      this.toastService.error('No hay suscripciones activas para renovar en este grupo.');
+      return;
+    }
+
+    if (!confirm(`¿Deseas renovar todas las (${renewableSubs.length}) suscripciones del cliente "${group.label}"?`)) {
+      return;
+    }
+
+    this.renewingClientGroupKey.set(group.key);
+    const renewRequests = renewableSubs.map(s =>
+      this.subscriptionsService.renewSubscription(s.id!).pipe(
+        catchError(err => {
+          console.error(`Error renewing sub ${s.id}:`, err);
+          return of(null);
+        })
+      )
+    );
+
+    forkJoin(renewRequests).subscribe({
+      next: (results) => {
+        this.renewingClientGroupKey.set(null);
+        const successCount = results.filter(r => r !== null).length;
+        if (successCount === renewableSubs.length) {
+          this.toastService.success(`Se renovaron ${successCount} suscripciones de ${group.label} con éxito.`);
+        } else if (successCount > 0) {
+          this.toastService.warning(`Se renovaron ${successCount} de ${renewableSubs.length} suscripciones.`);
+        } else {
+          this.toastService.error('No se pudo renovar ninguna suscripción.');
+        }
+        this.loadSubscriptions();
+      },
+      error: (err) => {
+        this.renewingClientGroupKey.set(null);
+        console.error('Error renewing client group:', err);
+        this.toastService.error('Error al renovar suscripciones del grupo.');
+      }
+    });
+  }
+
+  toggleTableSub(subId: string): void {
+    const current = new Set(this.selectedTableSubIds());
+    if (current.has(subId)) {
+      current.delete(subId);
+    } else {
+      current.add(subId);
+    }
+    this.selectedTableSubIds.set(current);
+  }
+
+  isTableSubSelected(subId: string): boolean {
+    return this.selectedTableSubIds().has(subId);
+  }
+
+  toggleAllTableSubs(checked: boolean): void {
+    if (checked) {
+      const renewableIds = this.paginatedSubscriptions()
+        .filter(s => s.status !== 'CANCELLED' && s.id)
+        .map(s => s.id!);
+      this.selectedTableSubIds.set(new Set(renewableIds));
+    } else {
+      this.selectedTableSubIds.set(new Set());
+    }
+  }
+
+  isAllTableSubsSelected(): boolean {
+    const subs = this.paginatedSubscriptions().filter(s => s.status !== 'CANCELLED');
+    if (subs.length === 0) return false;
+    return subs.every(s => s.id && this.selectedTableSubIds().has(s.id));
+  }
+
+  isSomeTableSubsSelected(): boolean {
+    const subs = this.paginatedSubscriptions().filter(s => s.status !== 'CANCELLED');
+    const count = subs.filter(s => s.id && this.selectedTableSubIds().has(s.id)).length;
+    return count > 0 && count < subs.length;
+  }
+
+  renewSelectedTableSubs(): void {
+    const ids = Array.from(this.selectedTableSubIds());
+    if (ids.length === 0) {
+      this.toastService.error('Selecciona al menos una suscripción.');
+      return;
+    }
+
+    if (!confirm(`¿Deseas renovar las ${ids.length} suscripciones seleccionadas?`)) {
+      return;
+    }
+
+    this.isRenewingBatch.set(true);
+    const requests = ids.map(id =>
+      this.subscriptionsService.renewSubscription(id).pipe(
+        catchError(err => {
+          console.error(`Error renewing sub ${id}:`, err);
+          return of(null);
+        })
+      )
+    );
+
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        this.isRenewingBatch.set(false);
+        const successCount = results.filter(r => r !== null).length;
+        if (successCount === ids.length) {
+          this.toastService.success(`Se renovaron ${successCount} suscripciones con éxito.`);
+        } else if (successCount > 0) {
+          this.toastService.warning(`Se renovaron ${successCount} de ${ids.length} suscripciones.`);
+        } else {
+          this.toastService.error('No se pudo renovar ninguna de las suscripciones seleccionadas.');
+        }
+        this.selectedTableSubIds.set(new Set());
+        this.loadSubscriptions();
+      },
+      error: (err) => {
+        this.isRenewingBatch.set(false);
+        console.error('Error renewing table subs:', err);
+        this.toastService.error('Error al renovar suscripciones seleccionadas.');
+      }
+    });
   }
 
   cancelSubscription(subscription: SubscriptionResponse): void {

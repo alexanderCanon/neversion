@@ -167,6 +167,21 @@
                     <span class="group-count-badge">{{ group.items.length }}</span>
                   </div>
                   <div class="group-header-right">
+                    @if (groupMode() === 'client' && (group.stats.active > 0 || group.stats.suspended > 0 || group.stats.expired > 0)) {
+                      <button 
+                        type="button"
+                        class="btn btn-primary btn-sm px-2 py-1 small fw-semibold d-inline-flex align-items-center gap-1 shadow-sm"
+                        (click)="renewClientGroup(group, $event)"
+                        [disabled]="renewingClientGroupKey() === group.key"
+                        title="Renovar todas las suscripciones de este cliente en 1 clic">
+                        @if (renewingClientGroupKey() === group.key) {
+                          <span class="spinner-border spinner-border-sm" role="status"></span>
+                        } @else {
+                          <i class="bi bi-arrow-repeat"></i>
+                        }
+                        <span>Renovar todas</span>
+                      </button>
+                    }
                     <div class="group-mini-stats">
                       @if (group.stats.active > 0) {
                         <span class="mini-stat mini-active" title="Activas">
@@ -228,6 +243,9 @@
                           </div>
                         </div>
                         <div class="sub-item-actions">
+                          <button class="btn-action-sm renew" (click)="renewSubscription(sub)" title="Renovar suscripción">
+                            <i class="bi bi-arrow-repeat"></i>
+                          </button>
                           <a class="btn-action-sm view" [routerLink]="['/subscriptions', sub.id]" title="Ver detalle">
                             <i class="bi bi-eye"></i>
                           </a>
@@ -252,12 +270,43 @@
         </div>
       } @else {
         <!-- ===== TABLE VIEW ===== -->
+        @if (selectedTableSubIds().size > 0) {
+          <div class="p-3 bg-white rounded-4 border shadow-sm mb-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+            <span class="fw-semibold small text-dark">
+              {{ selectedTableSubIds().size }} suscripción(es) seleccionada(s)
+            </span>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm px-3 fw-semibold d-inline-flex align-items-center gap-2 shadow-sm"
+              [disabled]="isRenewingBatch()"
+              (click)="renewSelectedTableSubs()"
+            >
+              @if (isRenewingBatch()) {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span>Renovando...</span>
+              } @else {
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Renovar seleccionadas ({{ selectedTableSubIds().size }})</span>
+              }
+            </button>
+          </div>
+        }
+
         <div class="table-container bg-white rounded-4 shadow-sm overflow-hidden border">
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 border-0">
               <thead>
                 <tr>
-                  <th class="ps-4">Servicio & ID</th>
+                  <th style="width: 40px;" class="ps-4">
+                    <input
+                      type="checkbox"
+                      class="form-check-input"
+                      [checked]="isAllTableSubsSelected()"
+                      [indeterminate]="isSomeTableSubsSelected()"
+                      (change)="toggleAllTableSubs($any($event.target).checked)"
+                    />
+                  </th>
+                  <th>Servicio & ID</th>
                   <th>Cliente</th>
                   <th>Perfil</th>
                   <th>Inicio</th>
@@ -268,8 +317,16 @@
               </thead>
               <tbody>
                 @for (sub of paginatedSubscriptions(); track trackBySubscriptionId($index, sub)) {
-                  <tr class="subscription-row">
-                    <td class="ps-4 py-3">
+                  <tr class="subscription-row" (click)="toggleTableSub(sub.id!)" style="cursor: pointer;">
+                    <td class="ps-4" (click)="$event.stopPropagation()">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        [checked]="isTableSubSelected(sub.id!)"
+                        (change)="toggleTableSub(sub.id!)"
+                      />
+                    </td>
+                    <td class="py-3">
                       <div class="d-flex flex-column gap-1">
                         <span class="fw-bold text-dark" style="font-size: 0.95rem;">{{ sub.serviceName }}</span>
                         <span class="font-monospace text-muted fw-semibold" style="font-size: 0.8rem;">#{{ sub.id?.substring(0, 8) }}</span>
@@ -312,8 +369,11 @@
                         {{ getStatusLabel(sub.status!) }}
                       </span>
                     </td>
-                    <td class="text-end pe-4">
+                    <td class="text-end pe-4" (click)="$event.stopPropagation()">
                       <div class="d-flex justify-content-end gap-2">
+                        <button class="btn-action-sm renew" (click)="renewSubscription(sub)" title="Renovar suscripción">
+                          <i class="bi bi-arrow-repeat"></i>
+                        </button>
                         <a class="btn-action-sm view" [routerLink]="['/subscriptions', sub.id]" title="Ver detalle">
                           <i class="bi bi-eye"></i>
                         </a>
