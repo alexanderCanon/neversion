@@ -3,45 +3,76 @@
   @if (canGenerateProfiles) {
     <div class="card border-0 mb-4 shadow-none bg-white rounded-4 overflow-hidden border">
       <div class="card-body p-3">
-        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
           <div class="flex-grow-1">
-            <h6 class="mb-1 fw-bold text-dark">Genere perfiles si es necesario</h6>
+            <h6 class="mb-1 fw-bold text-dark">Gestión de Perfiles</h6>
             @if (isLimitReached) {
               <p class="small mb-0 fw-semibold">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i>
                 La cuenta alcanzó el limite de perfiles ({{ currentProfileCount }}/{{ maxProfiles }})
               </p>
             } @else {
-              <p class="text-muted extra-small mb-0">Crea múltiples perfiles automáticamente para esta cuenta.</p>
+              <p class="text-muted extra-small mb-0">Crea múltiples perfiles automáticamente o restablece los perfiles existentes.</p>
             }
           </div>
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
             <div class="input-group input-group-sm" style="width: 140px;">
                 <span class="input-group-text bg-light border-end-0 text-muted fw-bold">Cantidad</span>
                 <input type="number" class="form-control border-start-0 text-center fw-bold" [(ngModel)]="generateCount" min="1" max="10" [disabled]="isLimitReached">
             </div>
-              <button 
+            <button 
               class="btn btn-sm btn-outline-primary fw-medium d-inline-flex align-items-center gap-2" 
               (click)="onGenerateProfiles()" 
-              [disabled]="isSubmitting || isLimitReached">
-  
+              [disabled]="isSubmitting || isCleaning || isLimitReached">
               @if (isSubmitting) {
-              <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-              } @else {
-              
+                <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
               }
               <span>Generar</span>
             </button>
+            @if (profiles.length > 0) {
+              <button 
+                type="button"
+                class="btn btn-sm btn-outline-danger fw-medium d-inline-flex align-items-center gap-1" 
+                (click)="onCleanProfiles()" 
+                [disabled]="isCleaning || isSubmitting"
+                title="Resetear nombres por defecto, borrar PINs y liberar clientes asignados">
+                @if (isCleaning) {
+                  <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                  <span>Limpiando...</span>
+                } @else {
+                  <i class="bi bi-brush"></i>
+                  <span>Limpiar perfiles</span>
+                }
+              </button>
+            }
           </div>
         </div>
       </div>
     </div>
   } @else {
-    <div class="alert alert-indigo-subtle d-flex align-items-center gap-3 border-0 mb-4 rounded-4 px-4 py-3">
-      <i class="bi bi-info-circle-fill fs-4"></i>
-      <div class="small fw-medium">
-        Esta cuenta está configurada como <strong>Cuenta Completa</strong>. Los accesos se gestionan de forma integral y no permiten la creación de perfiles individuales.
+    <div class="alert alert-indigo-subtle d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 border-0 mb-4 rounded-4 px-4 py-3">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-info-circle-fill fs-4"></i>
+        <div class="small fw-medium">
+          Esta cuenta está configurada como <strong>Cuenta Completa</strong>. Los accesos se gestionan de forma integral y no permiten la creación de perfiles individuales.
+        </div>
       </div>
+      @if (profiles.length > 0) {
+        <button 
+          type="button"
+          class="btn btn-sm btn-outline-danger fw-medium d-inline-flex align-items-center gap-1 text-nowrap align-self-start align-self-md-center" 
+          (click)="onCleanProfiles()" 
+          [disabled]="isCleaning || isSubmitting"
+          title="Resetear nombres por defecto, borrar PINs y liberar clientes asignados">
+          @if (isCleaning) {
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span>Limpiando...</span>
+          } @else {
+            <i class="bi bi-brush"></i>
+            <span>Limpiar perfiles</span>
+          }
+        </button>
+      }
     </div>
   }
 

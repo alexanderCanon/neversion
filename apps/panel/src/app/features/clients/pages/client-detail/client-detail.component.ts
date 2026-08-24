@@ -2,8 +2,10 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe, Location } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, of, catchError } from 'rxjs';
 import { ClientsService } from '../../services/clients.service';
 import { ClientPointsService } from '../../services/client-points.service';
+import { SubscriptionsService } from '../../../subscriptions/services/subscriptions.service';
 import { ClientDetail } from '@neversion/models';
 import { PointsSummaryResponse, PointsMovementResponse } from '@neversion/api-client';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
@@ -26,6 +28,7 @@ export class ClientDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly clientsService = inject(ClientsService);
   private readonly clientPointsService = inject(ClientPointsService);
+  private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly toastService = inject(ToastService);
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
@@ -34,6 +37,9 @@ export class ClientDetailComponent implements OnInit {
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
   activeTab = signal<'INFO' | 'SUBS' | 'ORDERS' | 'POINTS'>('INFO');
+
+  selectedSubIds = signal<Set<string>>(new Set());
+  isRenewing = signal<boolean>(false);
 
   pointsSummary = signal<PointsSummaryResponse | null>(null);
   pointsMovements = signal<PointsMovementResponse[]>([]);
@@ -68,6 +74,11 @@ export class ClientDetailComponent implements OnInit {
     this.clientsService.getClientDetail(id).subscribe({
       next: (detail) => {
         this.clientDetail.set(detail);
+        // Pre-select all renewable subscriptions by default
+        const renewableIds = (detail.activeSubscriptions || [])
+          .filter(s => s.status !== 'CANCELLED' && s.id)
+          .map(s => s.id!);
+        this.selectedSubIds.set(new Set(renewableIds));
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -76,6 +87,108 @@ export class ClientDetailComponent implements OnInit {
         this.toastService.error('Error al cargar detalles del cliente');
         this.isLoading.set(false);
       }
+    });
+  }
+
+  isSubSelected(subId: string): boolean {
+    return this.selectedSubIds().has(subId);
+  }
+
+  toggleSubSelection(subId: string): void {
+    const current = new Set(this.selectedSubIds());
+    if (current.has(subId)) {
+      current.delete(subId);
+    } else {
+      current.add(subId);
+    }
+    this.selectedSubIds.set(current);
+  }
+
+  toggleAllSubs(checked: boolean): void {
+    if (checked) {
+      const renewableIds = (this.clientDetail()?.activeSubscriptions || [])
+        .filter(s => s.status !== 'CANCELLED' && s.id)
+        .map(s => s.id!);
+      this.selectedSubIds.set(new Set(renewableIds));
+    } else {
+      this.selectedSubIds.set(new Set());
+    }
+  }
+
+  isAllSubsSelected(): boolean {
+    const subs = (this.clientDetail()?.activeSubscriptions || []).filter(s => s.status !== 'CANCELLED');
+    if (subs.length === 0) return false;
+    return subs.every(s => s.id && this.selectedSubIds().has(s.id));
+  }
+
+  isSomeSubsSelected(): boolean {
+    const subs = (this.clientDetail()?.activeSubscriptions || []).filter(s => s.status !== 'CANCELLED');
+    const selectedCount = subs.filter(s => s.id && this.selectedSubIds().has(s.id)).length;
+    return selectedCount > 0 && selectedCount < subs.length;
+  }
+
+  renewSelectedSubs(): void {
+    const idsToRenew = Array.from(this.selectedSubIds());
+    if (idsToRenew.length === 0) {
+      this.toastService.error('Selecciona al menos una suscripción para renovar.');
+      return;
+    }
+
+    const subCount = idsToRenew.length;
+    const clientName = this.clientDetail()?.client?.name || 'este cliente';
+    if (!confirm(`¿Deseas renovar las ${subCount} suscripción(es) seleccionada(s) de ${clientName}?`)) {
+      return;
+    }
+
+    this.isRenewing.set(true);
+    const renewRequests = idsToRenew.map(id =>
+      this.subscriptionsService.renewSubscription(id).pipe(
+        catchError(err => {
+          console.error(`Error renewing subscription ${id}:`, err);
+          return of(null);
+        })
+      )
+    );
+
+    forkJoin(renewRequests).subscribe({
+      next: (results) => {
+        this.isRenewing.set(false);
+        const successCount = results.filter(r => r !== null).length;
+        if (successCount === subCount) {
+          this.toastService.success(`Se renovaron exitosamente ${successCount} suscripción(es).`);
+        } else if (successCount > 0) {
+          this.toastService.warning(`Se renovaron ${successCount} de ${subCount} suscripciones.`);
+        } else {
+          this.toastService.error('No se pudo renovar ninguna de las suscripciones seleccionadas.');
+        }
+
+        const clientId = this.clientDetail()?.client?.id;
+        if (clientId) {
+          this.loadClientDetail(clientId);
+        }
+      },
+      error: (err) => {
+        this.isRenewing.set(false);
+        console.error('Error in batch renewal:', err);
+        this.toastService.error('Error al renovar las suscripciones.');
+      }
+    });
+  }
+
+  renewSingleSub(subId: string): void {
+    if (!confirm('¿Deseas renovar esta suscripción por un periodo adicional?')) {
+      return;
+    }
+
+    this.subscriptionsService.renewSubscription(subId).subscribe({
+      next: () => {
+        this.toastService.success('Suscripción renovada con éxito.');
+        const clientId = this.clientDetail()?.client?.id;
+        if (clientId) {
+          this.loadClientDetail(clientId);
+        }
+      },
+      error: () => this.toastService.error('Error al renovar la suscripción.')
     });
   }
 

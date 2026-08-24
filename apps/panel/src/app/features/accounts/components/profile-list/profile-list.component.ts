@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ProfileRequest, ProfileResponse, ProfileStatus, ClientResponse } from '@neversion/models';
 import { copyToClipboard } from '@neversion/utils';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { forkJoin, of, switchMap, catchError } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -91,7 +92,78 @@ export class ProfileListComponent implements OnInit, OnChanges {
   selectedRenewalDate = '';
   isSubmitting = false;
   isLoading = false;
+  isCleaning = false;
   generateCount = 1;
+
+  onCleanProfiles(): void {
+    if (this.profiles.length === 0) return;
+
+    if (!confirm('¿Deseas limpiar todos los perfiles de esta cuenta?\n\n- Se restablecerán los nombres a "Perfil 1, Perfil 2...".\n- Se eliminarán todos los PINs y notas.\n- Se cancelarán las suscripciones activas vinculadas para liberar a los clientes.')) {
+      return;
+    }
+
+    this.isCleaning = true;
+
+    // 1. Fetch current subscriptions to find any active/suspended subscriptions on these profiles
+    this.subscriptionsService.getSubscriptions().subscribe({
+      next: (allSubs) => {
+        const profileIds = new Set(this.profiles.map(p => p.id));
+        const activeSubsToCancel = allSubs.filter(
+          s => s.profileId && profileIds.has(s.profileId) && s.status !== 'CANCELLED'
+        );
+
+        const cancelObservables = activeSubsToCancel.map(s => 
+          this.subscriptionsService.cancelSubscription(s.id!).pipe(catchError(() => of(null)))
+        );
+
+        const executeProfileResets = () => {
+          const updateObservables = this.profiles.map((p, index) => {
+            const defaultName = `Perfil ${index + 1}`;
+            const updateReq: ProfileRequest = {
+              accountId: this.accountId,
+              name: defaultName,
+              pin: '',
+              notes: '',
+              isOwner: p.isOwner
+            };
+            return this.profileService.updateProfile(p.id, updateReq).pipe(
+              switchMap(() => this.profileService.changeStatus(p.id, { status: ProfileStatus.AVAILABLE })),
+              catchError(() => of(null))
+            );
+          });
+
+          forkJoin(updateObservables).subscribe({
+            next: () => {
+              this.isCleaning = false;
+              this.toastService.success('Perfiles limpiados y clientes desvinculados exitosamente.');
+              this.profilesChanged.emit();
+              this.loadProfilesClientData();
+            },
+            error: (err) => {
+              this.isCleaning = false;
+              console.error('Error cleaning profiles:', err);
+              this.toastService.error('Ocurrió un error al limpiar los perfiles.');
+              this.profilesChanged.emit();
+            }
+          });
+        };
+
+        if (cancelObservables.length > 0) {
+          forkJoin(cancelObservables).subscribe({
+            next: () => executeProfileResets(),
+            error: () => executeProfileResets()
+          });
+        } else {
+          executeProfileResets();
+        }
+      },
+      error: (err) => {
+        this.isCleaning = false;
+        console.error('Error fetching subscriptions for cleanup:', err);
+        this.toastService.error('Error al consultar suscripciones para limpieza.');
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.assignForm.get('clientSearch')?.valueChanges.subscribe(value => {
