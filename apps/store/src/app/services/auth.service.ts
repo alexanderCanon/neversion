@@ -4,7 +4,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { SupabaseService } from './supabase.service';
 import { AuthResponse, User as SupabaseUser } from '@supabase/supabase-js';
 import { User, AuthResult, UserRole } from '@neversion/models';
-import { AuthApiService, RegisterClientRequest } from '@neversion/api-client';
+import { AuthApiService, RegisterClientRequest } from '@alexandercanon/api-client-angular';
 import { runtimeConfig } from '../config/runtime-config';
 
 export interface RegisterFormData {

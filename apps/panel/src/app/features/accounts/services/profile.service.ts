@@ -6,7 +6,7 @@ import {
     ProfileRequest as ApiProfileRequest, 
     ProfileResponse as ApiProfileResponse,
     ChangeProfileStatusRequest as ApiStatusRequest
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { ProfileRequest, ProfileResponse, ProfileStatus, ChangeProfileStatusRequest } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })

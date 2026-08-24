@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
-import { OrderDetailResponse, SuggestAssignmentResponse } from '@neversion/api-client';
+import { OrderDetailResponse, SuggestAssignmentResponse } from '@alexandercanon/api-client-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ReceiptImageService } from '../../../../core/services/receipt-image.service';
 import { AssignmentsService } from '../../../assignments/services/assignments.service';

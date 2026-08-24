@@ -2,9 +2,10 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { ImageService } from '../../services/image.service';
-import { GameResponse, GameSkuResponse } from '@neversion/api-client';
+import { GameResponse, GameSkuResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-game-detail',
   templateUrl: './game-detail.component.html',
   styleUrls: ['./game-detail.component.css']

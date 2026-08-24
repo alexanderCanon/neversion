@@ -7,7 +7,7 @@ import { ClientsService } from '../../services/clients.service';
 import { ClientPointsService } from '../../services/client-points.service';
 import { SubscriptionsService } from '../../../subscriptions/services/subscriptions.service';
 import { ClientDetail } from '@neversion/models';
-import { PointsSummaryResponse, PointsMovementResponse } from '@neversion/api-client';
+import { PointsSummaryResponse, PointsMovementResponse } from '@alexandercanon/api-client-angular';
 import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 import { ToastService } from '../../../../core/services/toast.service';
 import {

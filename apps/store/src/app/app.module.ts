@@ -7,7 +7,7 @@ import {
   withFetch,
   withInterceptorsFromDi
 } from '@angular/common/http';
-import { BASE_PATH } from '@neversion/api-client';
+import { BASE_PATH } from '@alexandercanon/api-client-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';

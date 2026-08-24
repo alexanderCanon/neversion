@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ClientsApiService, ClientOrderHistoryResponse } from '@neversion/api-client';
+import { ClientsApiService, ClientOrderHistoryResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-orders',
   templateUrl: './orders.component.html',
   styleUrls: []

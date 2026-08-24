@@ -8,8 +8,7 @@
     "paths": {
       "tslib": ["node_modules/tslib/tslib.d.ts"],
       "@neversion/models": ["../../packages/models/src/index.ts"],
-      "@neversion/utils": ["../../packages/utils/src/index.ts"],
-      "@neversion/api-client": ["../../packages/api-client/src/index.ts"]
+      "@neversion/utils": ["../../packages/utils/src/index.ts"]
     },
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
@@ -20,7 +19,7 @@
     "sourceMap": true,
     "declaration": false,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",

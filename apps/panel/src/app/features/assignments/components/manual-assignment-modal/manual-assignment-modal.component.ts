@@ -7,7 +7,7 @@ import { ClientsService } from '../../../clients/services/clients.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { ClientResponse, AccountResponse, ProfileResponse, ServiceResponse } from '@neversion/models';
-import { ManualAssignmentRequest } from '@neversion/api-client';
+import { ManualAssignmentRequest } from '@alexandercanon/api-client-angular';
 
 interface BootstrapModal {
   show(): void;

@@ -4,11 +4,12 @@ import { ImageService } from '../../services/image.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
 import { VendorService } from '../../services/vendor.service';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-offers',
   templateUrl: './offers.component.html',
   styleUrls: ['./offers.component.css']

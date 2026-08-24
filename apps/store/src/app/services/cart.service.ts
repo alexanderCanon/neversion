@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 import { VendorService } from './vendor.service';
 
 export interface CartItem {

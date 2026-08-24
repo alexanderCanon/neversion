@@ -4,7 +4,7 @@ import {
     ServicesApiService, 
     ServiceRequest as ApiServiceRequest, 
     ServiceResponse as ApiServiceResponse 
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { ServiceRequest, ServiceResponse, ServicesFilter } from '@neversion/models';
 
 interface ApiServicesPageResponse {

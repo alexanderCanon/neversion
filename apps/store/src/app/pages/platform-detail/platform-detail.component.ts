@@ -4,10 +4,11 @@ import { PlatformService } from '../../services/platform.service';
 import { ImageService } from '../../services/image.service';
 import { CartService } from '../../services/cart.service';
 import { ToastService } from '../../services/toast.service';
-import { ServiceResponse } from '@neversion/api-client';
+import { ServiceResponse } from '@alexandercanon/api-client-angular';
 import { switchMap, finalize } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-platform-detail',
   templateUrl: './platform-detail.component.html',
   styleUrls: ['./platform-detail.component.css']

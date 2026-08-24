@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { VendorsApiService, VendorProfileResponse } from '@neversion/api-client';
+import { VendorsApiService, VendorProfileResponse } from '@alexandercanon/api-client-angular';
 import { ToastService } from '../../../../core/services/toast.service';
 
 interface DiscountTier {

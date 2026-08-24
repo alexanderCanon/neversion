@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, from, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { GameResponse, GameSkuResponse } from '@neversion/api-client';
+import { GameResponse, GameSkuResponse } from '@alexandercanon/api-client-angular';
 import { SupabaseService } from './supabase.service';
 import { runtimeConfig } from '../config/runtime-config';
 

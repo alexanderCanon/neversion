@@ -2,10 +2,11 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { GameService } from '../../services/game.service';
 import { ImageService } from '../../services/image.service';
-import { GameResponse } from '@neversion/api-client';
+import { GameResponse } from '@alexandercanon/api-client-angular';
 import { Observable } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-games',
   templateUrl: './games.component.html',
   styleUrls: ['./games.component.css']

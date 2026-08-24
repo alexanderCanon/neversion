@@ -7,7 +7,7 @@ import {
   ConfirmAssignmentRequest,
   ManualAssignmentRequest,
   ManualAssignmentResponse
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 
 @Injectable({ providedIn: 'root' })
 export class AssignmentsService {

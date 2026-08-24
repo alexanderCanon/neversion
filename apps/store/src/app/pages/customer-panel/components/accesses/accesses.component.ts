@@ -5,11 +5,12 @@ import {
   ClientAccessResponse,
   CreateRenewalReservationRequest,
   ReservationsApiService
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { AuthService } from '../../../../services/auth.service';
 import { ToastService } from '../../../../services/toast.service';
 
 @Component({
+  standalone: false,
   selector: 'app-customer-accesses',
   templateUrl: './accesses.component.html',
   styleUrls: []

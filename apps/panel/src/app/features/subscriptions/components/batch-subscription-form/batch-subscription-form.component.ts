@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BatchCreateManualSubscriptionRequest, BatchItem } from '@neversion/api-client';
+import { BatchCreateManualSubscriptionRequest, BatchItem } from '@alexandercanon/api-client-angular';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
 import { ClientsService } from '../../../clients/services/clients.service';

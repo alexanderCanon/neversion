@@ -2,14 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CartService, CartItem } from '../../services/cart.service';
-import { LoyaltyPointsApiService } from '@neversion/api-client';
-import { ReservationsApiService, ReservationRequest, ReservationItemRequest } from '@neversion/api-client';
+import { LoyaltyPointsApiService } from '@alexandercanon/api-client-angular';
+import { ReservationsApiService, ReservationRequest, ReservationItemRequest } from '@alexandercanon/api-client-angular';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']

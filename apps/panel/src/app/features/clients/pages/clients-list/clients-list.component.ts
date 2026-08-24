@@ -9,7 +9,7 @@ import { PhonePipe } from '../../../../shared/pipes/phone.pipe';
 import { AuthService } from '../../../../core/services/auth.service';
 
 import { RouterModule } from '@angular/router';
-import { ClientDeletionCheckResponse } from '@neversion/api-client';
+import { ClientDeletionCheckResponse } from '@alexandercanon/api-client-angular';
 
 @Component({
   selector: 'app-clients-list',

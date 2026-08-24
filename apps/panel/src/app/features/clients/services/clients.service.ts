@@ -7,7 +7,7 @@ import {
   ClientRequest as ApiClientRequest,
   ClientResponse as ApiClientResponse,
   UpdateClientRequest as ApiUpdateClientRequest
-} from '@neversion/api-client';
+} from '@alexandercanon/api-client-angular';
 import { ClientsFilter, ClientRequest, ClientResponse, ClientDetail } from '@neversion/models';
 
 @Injectable({ providedIn: 'root' })

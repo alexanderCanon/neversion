@@ -23,5 +23,8 @@
     "supabase": "^2.111.0",
     "tslib": "^2.3.0",
     "typescript-eslint": "8.46.4"
+  },
+  "dependencies": {
+    "@alexandercanon/api-client-angular": "1.0.0"
   }
 }
