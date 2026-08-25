@@ -6,24 +6,35 @@
 
 ```
 apps/
-  api/        # Spring Boot 3 / Java 17 — Hexagonal + DDD
-  panel/      # Angular 17 — Admin UI (standalone components + Signals)
-  store/      # Angular 17 — Client storefront (SPA)
+  panel/                # Angular 21 — Admin UI (standalone components + Signals)
+  store/                # Angular 21 — Client storefront (SPA)
+  api-gateway/          # Cloudflare Worker — Edge API Gateway & Auth router
+  notification-service/ # Rust — Transactional email service (gRPC / Resend)
+  reservation-service/  # Rust — Service reservation manager (gRPC / SQLite)
+  db/                   # PostgreSQL 17 configuration & compose
+  monitoring/           # Observability stack (Grafana, Alloy, Prometheus)
+  www/                  # Marketing landing site (Astro)
 packages/
-  api-client/ # Generated TypeScript Angular services (OpenAPI)
-  models/     # Shared TypeScript interfaces
-  utils/      # Shared Angular utilities
+  api-client/           # Generated TypeScript Angular services (OpenAPI)
+  models/               # Shared TypeScript interfaces
+  utils/                # Shared Angular utilities
 docs/
-  agents/           # Agent protocols (authoritative)
-  domain/           # Ubiquitous language, business rules (Spanish)
-  architecture/     # ADRs, ER diagram, NFRs
-  backlog/          # Epics + per-epic story files
-  implementation/   # Historical implementation logs (read-only for agents)
+  agents/               # Agent protocols (authoritative)
+  domain/               # Ubiquitous language, business rules (Spanish)
+  architecture/         # ADRs, ER diagram, NFRs
+  backlog/              # Epics + per-epic story files
+  implementation/       # Historical implementation logs (read-only for agents)
 ```
 
 ---
 
 ## Core Rules (Non-Negotiable)
+
+### Session Start & Git Branch Protocol
+- At the start of **every session**, before writing code or making modifications, the agent must:
+  1. Verify the current git branch (`git branch --show-current` / `git status`).
+  2. If not on a dedicated new feature branch, proactively suggest switching to `main`, pulling the latest changes (`git checkout main && git pull origin main`), and branching off a new descriptive branch (e.g., `feat/<description>`, `fix/<description>`, `chore/<description>`).
+  3. **Every Pull Request must have its own isolated, descriptive branch** branched off the updated `main`.
 
 ### Work Together, Assume Nothing
 - You are a collaborator, not an autonomous executor. Never make product, business, or architectural decisions on your own.
