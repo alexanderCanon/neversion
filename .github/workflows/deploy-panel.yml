@@ -41,15 +41,13 @@ jobs:
       - name: Build Panel for Cloudflare
         run: pnpm --filter panel run build:cloudflare
         env:
-          PANEL_API_URL: ${{ secrets.PANEL_API_URL || vars.PANEL_API_URL }}
+          API_URL: ${{ secrets.API_URL || vars.API_URL || secrets.PANEL_API_URL || vars.PANEL_API_URL }}
           GRAFANA_URL: ${{ secrets.GRAFANA_URL || vars.GRAFANA_URL }}
-          PANEL_SUPABASE_URL: ${{ secrets.PANEL_SUPABASE_URL || vars.PANEL_SUPABASE_URL }}
-          PANEL_SUPABASE_KEY: ${{ secrets.PANEL_SUPABASE_KEY || vars.PANEL_SUPABASE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || vars.SUPABASE_URL || secrets.PANEL_SUPABASE_URL || vars.PANEL_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || vars.SUPABASE_KEY || secrets.PANEL_SUPABASE_KEY || vars.PANEL_SUPABASE_KEY }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiAuthenticationType: apiToken
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/panel/dist/panel/browser --project-name=neversion --branch=main
+        run: pnpm --filter panel exec wrangler pages deploy dist/panel/browser --project-name=neversion --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -4,16 +4,16 @@ import { dirname, resolve } from 'node:path';
 const outputPath = resolve('src/assets/runtime-config.js');
 
 const config = {
-  apiUrl: process.env.PANEL_API_URL ?? '',
+  apiUrl: process.env.API_URL ?? process.env.PANEL_API_URL ?? '',
   grafanaUrl: process.env.GRAFANA_URL ?? '',
-  supabaseUrl: process.env.PANEL_SUPABASE_URL ?? '',
-  supabaseKey: process.env.PANEL_SUPABASE_KEY ?? '',
+  supabaseUrl: process.env.SUPABASE_URL ?? process.env.PANEL_SUPABASE_URL ?? '',
+  supabaseKey: process.env.SUPABASE_KEY ?? process.env.PANEL_SUPABASE_KEY ?? '',
 };
 
 const missing = Object.entries({
-  PANEL_API_URL: config.apiUrl,
-  PANEL_SUPABASE_URL: config.supabaseUrl,
-  PANEL_SUPABASE_KEY: config.supabaseKey,
+  API_URL: config.apiUrl,
+  SUPABASE_URL: config.supabaseUrl,
+  SUPABASE_KEY: config.supabaseKey,
 }).filter(([, value]) => !value);
 
 if (missing.length > 0) {
