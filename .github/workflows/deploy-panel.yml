@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
-          apiAuthenticationType: apiToken
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/panel/dist/panel/browser --project-name=neversion --branch=main
+          workingDirectory: 'apps/panel'
+          command: pages deploy dist/panel/browser --project-name=neversion --branch=main
