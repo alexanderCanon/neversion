@@ -1,0 +1,55 @@
+name: Deploy Store to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/store/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/deploy-store.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy Store
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@alexandercanon'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Build Store for Cloudflare
+        run: pnpm --filter store run build:cloudflare
+        env:
+          STORE_API_URL: ${{ secrets.STORE_API_URL || vars.STORE_API_URL }}
+          STORE_SUPABASE_URL: ${{ secrets.STORE_SUPABASE_URL || vars.STORE_SUPABASE_URL }}
+          STORE_SUPABASE_KEY: ${{ secrets.STORE_SUPABASE_KEY || vars.STORE_SUPABASE_KEY }}
+          STORE_VENDOR_UUID: ${{ secrets.STORE_VENDOR_UUID || vars.STORE_VENDOR_UUID }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiAuthenticationType: apiToken
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/store/dist/store/browser --project-name=neversion-store --branch=main
