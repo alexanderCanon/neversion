@@ -4,16 +4,16 @@ import { dirname, resolve } from 'node:path';
 const outputPath = resolve('src/assets/runtime-config.js');
 
 const config = {
-  apiUrl: process.env.STORE_API_URL ?? '',
-  supabaseUrl: process.env.STORE_SUPABASE_URL ?? '',
-  supabaseKey: process.env.STORE_SUPABASE_KEY ?? '',
+  apiUrl: process.env.API_URL ?? process.env.STORE_API_URL ?? '',
+  supabaseUrl: process.env.SUPABASE_URL ?? process.env.STORE_SUPABASE_URL ?? '',
+  supabaseKey: process.env.SUPABASE_KEY ?? process.env.STORE_SUPABASE_KEY ?? '',
   storeVendorUuid: process.env.STORE_VENDOR_UUID ?? '',
 };
 
 const missing = Object.entries({
-  STORE_API_URL: config.apiUrl,
-  STORE_SUPABASE_URL: config.supabaseUrl,
-  STORE_SUPABASE_KEY: config.supabaseKey,
+  API_URL: config.apiUrl,
+  SUPABASE_URL: config.supabaseUrl,
+  SUPABASE_KEY: config.supabaseKey,
   STORE_VENDOR_UUID: config.storeVendorUuid,
 }).filter(([, value]) => !value);
 

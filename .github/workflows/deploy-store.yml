@@ -41,15 +41,13 @@ jobs:
       - name: Build Store for Cloudflare
         run: pnpm --filter store run build:cloudflare
         env:
-          STORE_API_URL: ${{ secrets.STORE_API_URL || vars.STORE_API_URL }}
-          STORE_SUPABASE_URL: ${{ secrets.STORE_SUPABASE_URL || vars.STORE_SUPABASE_URL }}
-          STORE_SUPABASE_KEY: ${{ secrets.STORE_SUPABASE_KEY || vars.STORE_SUPABASE_KEY }}
+          API_URL: ${{ secrets.API_URL || vars.API_URL || secrets.STORE_API_URL || vars.STORE_API_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || vars.SUPABASE_URL || secrets.STORE_SUPABASE_URL || vars.STORE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY || vars.SUPABASE_KEY || secrets.STORE_SUPABASE_KEY || vars.STORE_SUPABASE_KEY }}
           STORE_VENDOR_UUID: ${{ secrets.STORE_VENDOR_UUID || vars.STORE_VENDOR_UUID }}
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiAuthenticationType: apiToken
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/store/dist/store/browser --project-name=neversion-store --branch=main
+        run: pnpm --filter store exec wrangler pages deploy dist/store/browser --project-name=neversion-store --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

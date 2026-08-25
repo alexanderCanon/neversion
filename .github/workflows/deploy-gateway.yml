@@ -21,10 +21,10 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Set up Node.js 22
+      - name: Set up Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 
@@ -35,9 +35,7 @@ jobs:
         run: pnpm --filter neversion-api-gateway test
 
       - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiAuthenticationType: apiToken
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'apps/api-gateway'
+        run: pnpm --filter neversion-api-gateway exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -1,5 +1,3 @@
-import { environment } from '../../../environments/environment';
-
 interface NeversionRuntimeConfig {
   apiUrl?: string;
   supabaseUrl?: string;
@@ -18,8 +16,8 @@ const browserConfig = typeof window !== 'undefined'
   : undefined;
 
 export const runtimeConfig = {
-  apiUrl: browserConfig?.apiUrl ?? environment.apiUrl,
-  supabaseUrl: browserConfig?.supabaseUrl ?? environment.supabaseUrl,
-  supabaseKey: browserConfig?.supabaseKey ?? environment.supabaseKey,
-  grafanaUrl: browserConfig?.grafanaUrl ?? environment.grafanaUrl
+  apiUrl: browserConfig?.apiUrl ?? 'http://localhost:8080',
+  supabaseUrl: browserConfig?.supabaseUrl ?? 'https://your-project.supabase.co',
+  supabaseKey: browserConfig?.supabaseKey ?? 'your-anon-key',
+  grafanaUrl: browserConfig?.grafanaUrl ?? ''
 };

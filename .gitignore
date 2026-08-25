@@ -1,16 +1,49 @@
-# env #
+# ── Environment & Secrets ──────────────────────────
 .env
 *.env
 .env.*
 supabase/functions/.env
-node_modules
-dist
+get-jwt.mjs
+runtime-config.js
+**/src/assets/runtime-config.js
+
+# ── Dependencies & Build Outputs ───────────────────
+node_modules/
 dist/
 target/
-.angular
-.vscode
-get-jwt.mjs
+.angular/
+.astro/
+apps/www/.astro/
+coverage/
+
+# ── Databases & Local Storage ──────────────────────
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+apps/reservation-service/reservations.db
+
+# ── Supabase CLI & Metadata ────────────────────────
+supabase/.temp/
+supabase/.branches/
+
+# ── IDEs, OS & Tools ───────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.local.json
+.claude/settings.local.json
+.claude/channels/
 .antigravitycli
 CLAUDE.md
 
+# ── Logs ───────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Miscellaneous ──────────────────────────────────
 /assets

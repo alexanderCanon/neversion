@@ -1,6 +1,0 @@
-window.__NEVERSION_CONFIG__ = {
-  apiUrl: 'https://api.neversion.com',
-  supabaseUrl: 'https://ujadaoctohwplnhiwgrm.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqYWRhb2N0b2h3cGxuaGl3Z3JtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5MDg5MjAsImV4cCI6MjA4MTQ4NDkyMH0.EwOPfi-fp-hFkEZZhGD4adzwpNPzn25ZPoN4HAECaNE',
-  storeVendorUuid: '32143372-55a8-4400-b4e2-f68145381771'
-};
