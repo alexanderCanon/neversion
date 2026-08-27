@@ -11,6 +11,10 @@ import { Wholesalers } from './pages/Wholesalers'
 import { Contact } from './pages/Contact'
 import { Support } from './pages/Support'
 import { GameDetail } from './pages/GameDetail'
+import { Platforms } from './pages/Platforms'
+import { PlatformDetail } from './pages/PlatformDetail'
+import { Games } from './pages/Games'
+import { Combo } from './pages/Combo'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GuestRoute } from './components/auth/GuestRoute'
 
@@ -24,8 +28,24 @@ export const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: 'platforms',
+        element: <Platforms />,
+      },
+      {
+        path: 'platforms/:platformId',
+        element: <PlatformDetail />,
+      },
+      {
+        path: 'games',
+        element: <Games />,
+      },
+      {
         path: 'games/:slug',
         element: <GameDetail />,
+      },
+      {
+        path: 'combo',
+        element: <Combo />,
       },
       {
         path: 'login',
