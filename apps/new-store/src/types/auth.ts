@@ -1,13 +1,7 @@
-export type UserRole = 'client' | 'admin' | 'superadmin'
+// Domain types — re-exported from shared monorepo package
+export type { User, UserRole, AuthResult } from '@neversion/models'
 
-export interface User {
-  id: string
-  email: string
-  role: UserRole
-  name?: string
-  lastname?: string
-  phone?: string
-}
+// Store-specific types (UI form state, OAuth onboarding)
 
 export interface RegisterFormData {
   name: string
@@ -23,10 +17,4 @@ export interface PendingOAuthUser {
   supabaseUid: string
   email: string
   name: string
-}
-
-export interface AuthResult {
-  success: boolean
-  user: User | null
-  error: string | null
 }

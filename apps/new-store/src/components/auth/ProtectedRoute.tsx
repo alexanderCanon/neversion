@@ -2,8 +2,14 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 import { OnboardingModal } from './OnboardingModal'
+import type { UserRole } from '../../types/auth'
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode
+  allowedRoles?: UserRole[]
+}
+
+export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isRestoring, needsOnboarding } = useAuth()
   const location = useLocation()
 
@@ -22,6 +28,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) {
     return <Navigate to={`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`} replace />
+  }
+
+  // Role-based access control: redirect unauthorized roles to home
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />
   }
 
   return <>{children}</>

@@ -62,7 +62,7 @@ export const router = createBrowserRouter([
       {
         path: 'customer-panel',
         element: (
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['client']}>
             <CustomerPanel />
           </ProtectedRoute>
         ),

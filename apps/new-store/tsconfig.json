@@ -7,7 +7,8 @@
     "skipLibCheck": true,
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@neversion/models": ["../../packages/models/src/index.ts"]
     },
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
