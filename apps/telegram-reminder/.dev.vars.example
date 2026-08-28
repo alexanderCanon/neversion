@@ -1,0 +1,14 @@
+# Telegram Bot credentials
+TELEGRAM_BOT_TOKEN="your_bot_token_here"
+TELEGRAM_CHAT_ID="your_chat_id_here"
+
+# Supabase Credentials
+SUPABASE_URL="https://your-project.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="your_service_role_key_here"
+
+# Resend API Credentials (para envío manual de correos)
+RESEND_API_KEY="re_123456789"
+SENDER_EMAIL="Neversion <notificaciones@neversion.com>"
+
+# Optional: HTTP Secret to protect manual triggers
+CRON_SECRET="your_custom_secret_key_here"
