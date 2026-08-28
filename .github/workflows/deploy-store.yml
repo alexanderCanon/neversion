@@ -43,6 +43,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
 
+      - name: Cache Vite build cache
+        uses: actions/cache@v4
+        with:
+          path: apps/store/node_modules/.vite
+          key: vite-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'apps/store/src/**') }}
+          restore-keys: |
+            vite-store-${{ runner.os }}-
+
       - name: Build Store for Cloudflare
         run: pnpm --filter store run build:cloudflare
         env:
