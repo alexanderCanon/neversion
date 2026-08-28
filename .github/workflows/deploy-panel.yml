@@ -38,6 +38,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
 
+      - name: Cache Angular build cache
+        uses: actions/cache@v4
+        with:
+          path: apps/panel/.angular/cache
+          key: angular-panel-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml', 'apps/panel/src/**') }}
+          restore-keys: |
+            angular-panel-${{ runner.os }}-
+
       - name: Build Panel for Cloudflare
         run: pnpm --filter panel run build:cloudflare
         env:
