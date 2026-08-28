@@ -34,114 +34,158 @@ async function handleTelegramCallbackQuery(
 	env: Env,
 	callbackQuery: any
 ): Promise<Response> {
-	const callbackId = callbackQuery.id;
-	const data = callbackQuery.data as string;
-	const fromId = String(callbackQuery.from?.id);
+	const callbackId = callbackQuery?.id;
+	if (!callbackId) {
+		return Response.json({ ok: false, error: "No callback_query id" }, { status: 400 });
+	}
+
+	const data = String(callbackQuery.data || "");
+	const fromId = String(callbackQuery.from?.id || "");
 	const message = callbackQuery.message;
 	const chatId = message?.chat?.id || callbackQuery.from?.id;
 
-	// Validación básica de seguridad por chat ID si está configurado
-	if (env.TELEGRAM_CHAT_ID && fromId !== String(env.TELEGRAM_CHAT_ID) && String(chatId) !== String(env.TELEGRAM_CHAT_ID)) {
-		await answerCallbackQuery(env, callbackId, "⛔ No estás autorizado para realizar esta acción.", true);
-		return Response.json({ ok: false, error: "Unauthorized" }, { status: 403 });
-	}
+	try {
+		// 🔒 Validación de seguridad por chat/user ID (limpiando comillas y espacios)
+		const configuredChatId = env.TELEGRAM_CHAT_ID
+			? String(env.TELEGRAM_CHAT_ID).trim().replace(/^["']|["']$/g, "")
+			: "";
 
-	if (!data || data === "noop") {
-		await answerCallbackQuery(env, callbackId, "ℹ️ Esta acción ya fue completada.");
-		return Response.json({ ok: true, message: "Noop" });
-	}
-
-	if (data.startsWith("send:")) {
-		const parts = data.split(":");
-		const subscriptionId = parseInt(parts[1], 10);
-
-		if (isNaN(subscriptionId)) {
-			await answerCallbackQuery(env, callbackId, "❌ ID de suscripción inválido.", true);
-			return Response.json({ ok: false, error: "Invalid subscription ID" });
-		}
-
-		// 1. Obtener la suscripción y datos del cliente
-		const sub = await getSubscriptionById(env, subscriptionId);
-		if (!sub) {
-			await answerCallbackQuery(env, callbackId, "❌ Suscripción no encontrada en la base de datos.", true);
-			return Response.json({ ok: false, error: "Subscription not found" });
-		}
-
-		if (!sub.clientEmail) {
+		if (
+			configuredChatId &&
+			fromId !== configuredChatId &&
+			String(chatId) !== configuredChatId
+		) {
+			console.warn(`Unauthorized callback_query from: ${fromId}, chat: ${chatId}, expected: ${configuredChatId}`);
 			await answerCallbackQuery(
 				env,
 				callbackId,
-				`⚠️ ${sub.clientName} no tiene correo electrónico registrado.`,
+				"⛔ No estás autorizado para realizar esta acción.",
 				true
-			);
-			return Response.json({ ok: false, error: "Client has no email" });
+			).catch(() => {});
+			return Response.json({ ok: false, error: "Unauthorized" }, { status: 403 });
 		}
 
-		// 2. Enviar correo vía Resend
-		const emailResult = await sendRenewalEmail(env, sub);
-		const stage = `reminder_${sub.daysRemaining}d_client`;
-		const notificationType =
-			sub.daysRemaining === 0 ? "RENEWAL_REMINDER_DUE" : `RENEWAL_REMINDER_${sub.daysRemaining}D`;
+		if (!data || data === "noop") {
+			await answerCallbackQuery(env, callbackId, "ℹ️ Esta acción ya fue completada.").catch(() => {});
+			return Response.json({ ok: true, message: "Noop" });
+		}
 
-		// 3. Registrar auditoría en notification_log
-		await logNotification(env, {
-			type: notificationType,
-			recipientEmail: sub.clientEmail,
-			payload: {
-				subscriptionId: sub.uuid,
-				clientName: sub.clientName,
-				serviceName: sub.serviceName,
-				paymentDueDate: sub.paymentDueDate,
-				daysRemaining: sub.daysRemaining,
-			},
-			status: emailResult.ok ? "sent" : "failed",
-			entityType: "subscription",
-			entityId: sub.id,
-			stage,
-		});
+		if (data.startsWith("send:")) {
+			const parts = data.split(":");
+			const subscriptionId = parseInt(parts[1], 10);
 
-		if (!emailResult.ok) {
+			if (isNaN(subscriptionId)) {
+				await answerCallbackQuery(env, callbackId, "❌ ID de suscripción inválido.", true).catch(() => {});
+				return Response.json({ ok: false, error: "Invalid subscription ID" });
+			}
+
+			// 1. Obtener la suscripción y datos del cliente
+			const sub = await getSubscriptionById(env, subscriptionId);
+			if (!sub) {
+				await answerCallbackQuery(
+					env,
+					callbackId,
+					"❌ Suscripción no encontrada en la base de datos.",
+					true
+				).catch(() => {});
+				return Response.json({ ok: false, error: "Subscription not found" });
+			}
+
+			if (!sub.clientEmail) {
+				await answerCallbackQuery(
+					env,
+					callbackId,
+					`⚠️ ${sub.clientName} no tiene correo electrónico registrado.`,
+					true
+				).catch(() => {});
+				return Response.json({ ok: false, error: "Client has no email" });
+			}
+
+			// 2. Enviar correo vía Resend
+			const emailResult = await sendRenewalEmail(env, sub);
+			const stage = `reminder_${sub.daysRemaining}d_client`;
+			const notificationType =
+				sub.daysRemaining === 0 ? "RENEWAL_REMINDER_DUE" : `RENEWAL_REMINDER_${sub.daysRemaining}D`;
+
+			// 3. Registrar auditoría en notification_log (no bloqueante si falla)
+			try {
+				await logNotification(env, {
+					type: notificationType,
+					recipientEmail: sub.clientEmail,
+					payload: {
+						subscriptionId: sub.uuid,
+						clientName: sub.clientName,
+						serviceName: sub.serviceName,
+						paymentDueDate: sub.paymentDueDate,
+						daysRemaining: sub.daysRemaining,
+					},
+					status: emailResult.ok ? "sent" : "failed",
+					entityType: "subscription",
+					entityId: sub.id,
+					stage,
+				});
+			} catch (logErr) {
+				console.error("Error al registrar auditoría en notification_log:", logErr);
+			}
+
+			if (!emailResult.ok) {
+				const errorMsg = emailResult.error || "Error al enviar correo con Resend";
+				await answerCallbackQuery(
+					env,
+					callbackId,
+					`❌ ${errorMsg}`,
+					true
+				).catch(() => {});
+				return Response.json({ ok: false, error: emailResult.error });
+			}
+
+			// 4. Confirmar a Telegram con popup toast
 			await answerCallbackQuery(
 				env,
 				callbackId,
-				`❌ Error al enviar correo: ${emailResult.error}`,
-				true
-			);
-			return Response.json({ ok: false, error: emailResult.error });
+				`✅ Correo enviado a ${sub.clientEmail} (${sub.serviceName})`
+			).catch(() => {});
+
+			// 5. Actualizar el teclado inline para marcar el botón como enviado
+			if (message && message.reply_markup && message.reply_markup.inline_keyboard) {
+				try {
+					const currentMarkup = message.reply_markup as InlineKeyboardMarkup;
+					const updatedKeyboard = currentMarkup.inline_keyboard.map((row) =>
+						row.map((btn) => {
+							if (btn.callback_data === data) {
+								return {
+									text: `✅ ${sub.clientName} (Correo Enviado)`,
+									callback_data: "noop",
+								};
+							}
+							return btn;
+						})
+					);
+
+					await editMessageReplyMarkup(env, chatId, message.message_id, {
+						inline_keyboard: updatedKeyboard,
+					});
+				} catch (editErr) {
+					console.error("No se pudo actualizar el botón en Telegram:", editErr);
+				}
+			}
+
+			return Response.json({ ok: true, emailSent: true });
 		}
 
-		// 4. Confirmar a Telegram con popup toast
+		await answerCallbackQuery(env, callbackId, "Acción no reconocida.").catch(() => {});
+		return Response.json({ ok: true });
+	} catch (err: any) {
+		console.error("Error no controlado en handleTelegramCallbackQuery:", err);
+		// SIEMPRE responder al callback query para que Telegram no deje el botón cargando
 		await answerCallbackQuery(
 			env,
 			callbackId,
-			`✅ Correo enviado a ${sub.clientEmail} (${sub.serviceName})`
-		);
-
-		// 5. Actualizar el teclado inline para marcar el botón como enviado
-		if (message && message.reply_markup && message.reply_markup.inline_keyboard) {
-			const currentMarkup = message.reply_markup as InlineKeyboardMarkup;
-			const updatedKeyboard = currentMarkup.inline_keyboard.map((row) =>
-				row.map((btn) => {
-					if (btn.callback_data === data) {
-						return {
-							text: `✅ ${sub.clientName} (Correo Enviado)`,
-							callback_data: "noop",
-						};
-					}
-					return btn;
-				})
-			);
-
-			await editMessageReplyMarkup(env, chatId, message.message_id, {
-				inline_keyboard: updatedKeyboard,
-			});
-		}
-
-		return Response.json({ ok: true, emailSent: true });
+			`❌ Error: ${err?.message || "Error interno procesando acción"}`,
+			true
+		).catch(() => {});
+		return Response.json({ ok: false, error: err?.message || "Internal error" }, { status: 500 });
 	}
-
-	await answerCallbackQuery(env, callbackId, "Acción no reconocida.");
-	return Response.json({ ok: true });
 }
 
 export default {
