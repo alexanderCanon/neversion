@@ -8,7 +8,7 @@ SUPABASE_SERVICE_ROLE_KEY="your_service_role_key_here"
 
 # Resend API Credentials (para envío manual de correos)
 RESEND_API_KEY="re_123456789"
-SENDER_EMAIL="Neversion <notificaciones@neversion.com>"
+SENDER_EMAIL="Neversion <notificaciones@mail.neversion.com>"
 
 # Optional: HTTP Secret to protect manual triggers
 CRON_SECRET="your_custom_secret_key_here"
