@@ -1,0 +1,45 @@
+name: Deploy Notification Worker to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/notification-worker/**'
+      - '.github/workflows/deploy-notification-worker.yml'
+  workflow_dispatch:
+
+jobs:
+  test-and-deploy:
+    name: Test & Deploy Notification Worker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@alexandercanon'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --filter neversion-notification-worker...
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Run Notification Worker Tests
+        run: pnpm --filter neversion-notification-worker test
+
+      - name: Deploy to Cloudflare Workers
+        run: pnpm --filter neversion-notification-worker exec wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
