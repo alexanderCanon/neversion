@@ -43,6 +43,8 @@ describe("Resend Email Service", () => {
 				expect(body.to).toEqual(["alex@example.com"]);
 				expect(body.subject).toContain("3 días");
 				expect(body.html).toContain("Spotify Family");
+				expect(body.text).toContain("Spotify Family");
+				expect(body.reply_to).toBeDefined();
 				return new Response(JSON.stringify({ id: "resend_msg_123" }), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
