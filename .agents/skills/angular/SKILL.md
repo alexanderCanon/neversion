@@ -1,6 +1,6 @@
 ---
 name: angular
-description: Canonical Angular skill for Neversion. Use for Angular 17 (`apps/store` and `apps/panel`) development, refactors, testing, routing, forms, accessibility, and CLI workflows.
+description: Canonical Angular skill for Neversion. Use for Angular 21 (`apps/panel`) development, refactors, testing, routing, forms, accessibility, and CLI workflows.
 ---
 
 # Angular for Neversion
@@ -9,15 +9,13 @@ Use this skill for all Angular work in this repo. It is the only Angular skill a
 
 ## Version scope
 
-- `apps/store` uses Angular 17 SPA.
-- `apps/panel` uses Angular 17 with standalone components and signals.
-- Both applications use Angular 17.
+- `apps/panel` uses Angular 21 with standalone components and signals.
 
 ## Defaults
 
 - Follow the existing style of the target app before introducing new patterns.
 - Use `inject()` when the codebase already follows it.
-- Use standalone components in `apps/panel`; match the current structure in `apps/store`.
+- Use standalone components in `apps/panel`.
 - Keep code and comments in English.
 - Keep UI labels and visible copy in Spanish.
 - Prefer interfaces and typed models over `any`.

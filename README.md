@@ -6,12 +6,13 @@ Multi-tenant digital services management platform and client storefront monorepo
 
 ## 🚀 Tech Stack
 
-* **Frontend:** Angular 21 (Standalone Components, Signals, Bootstrap 5, SCSS)
+* **Frontend Admin (Panel):** Angular 21 (Standalone Components, Signals, Bootstrap 5, SCSS)
+* **Frontend Storefront (Store):** React 19 + Vite 8 + Tailwind CSS v4 + Bun Runtime (SPA)
 * **Backend API Gateway:** Cloudflare Workers (TypeScript, Vitest, Wrangler)
 * **Microservices:** Rust (gRPC, Tonic, Prost, SQLite)
 * **Website:** Astro
 * **Observability:** Grafana, Grafana Alloy, Prometheus
-* **Package Management & Tooling:** PNPM Workspaces, ESLint, TypeScript 5.9, OpenAPI Generator
+* **Package Management & Tooling:** PNPM Workspaces, Bun, ESLint, TypeScript 5.9, OpenAPI Generator
 * **Deployment & Hosting:** Cloudflare Pages, Cloudflare Workers, Docker Compose
 
 ---
@@ -22,7 +23,7 @@ Multi-tenant digital services management platform and client storefront monorepo
 neversion/
 ├── apps/
 │   ├── panel/                # Admin Management UI (Angular 21 SPA)
-│   ├── store/                # Customer Storefront (Angular 21 SPA)
+│   ├── store/                # Customer Storefront (React 19 + Vite 8 + Bun SPA)
 │   ├── api-gateway/          # Cloudflare Worker API Gateway & Auth router
 │   ├── notification-service/ # Rust gRPC transactional notification service (Resend)
 │   ├── reservation-service/  # Rust gRPC temporary reservation service
@@ -75,8 +76,9 @@ pnpm --filter panel start
 
 #### Store (Customer Storefront)
 ```bash
-# Starts development server on http://localhost:4200
-pnpm --filter store start
+# Starts development server on http://localhost:4000
+cd apps/store && bun dev
+# or from root: pnpm --filter store dev
 ```
 
 #### API Gateway (Cloudflare Worker)
@@ -129,7 +131,7 @@ pnpm api:sync
 Applications and edge services in this monorepo are continuously deployed via GitHub Actions workflows:
 
 * **Panel:** Deployed to Cloudflare Pages (`apps/panel/dist/panel/browser`)
-* **Store:** Deployed to Cloudflare Pages (`apps/store/dist/store/browser`)
+* **Store:** Deployed to Cloudflare Pages (`apps/store/dist`)
 * **API Gateway:** Deployed to Cloudflare Workers (`apps/api-gateway`)
 
 Runtime configuration is injected during the build step via `write-runtime-config.mjs` using GitHub Secrets and Cloudflare environmental variables.
