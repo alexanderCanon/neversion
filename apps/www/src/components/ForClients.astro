@@ -1,0 +1,177 @@
+---
+// src/components/ForClients.astro
+---
+
+<section id="que-es" class="for-clients">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Para Clientes & Usuarios</span>
+      <h2>Acceso simple, guiado y seguro a tus servicios digitales favoritos</h2>
+      <p>
+        Neversion nace para eliminar las barreras en el comercio digital. Ya no necesitas tarjetas internacionales ni lidiar con plataformas complejas para disfrutar de tus suscripciones.
+      </p>
+    </div>
+
+    <div class="pillars-grid">
+      <div class="pillar-card reveal">
+        <div class="icon-box green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+        </div>
+        <h3>Sin barreras de pago</h3>
+        <p>Accede a streaming, recargas y gift cards usando métodos locales de pago y transferencias, sin requerir tarjetas de crédito tradicionales.</p>
+      </div>
+
+      <div class="pillar-card reveal">
+        <div class="icon-box blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>Acompañamiento personalizado</h3>
+        <p>Una experiencia de compra guiada y asistida. Siempre cuentas con atención clara para activar y configurar tus servicios paso a paso.</p>
+      </div>
+
+      <div class="pillar-card reveal">
+        <div class="icon-box purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </div>
+        <h3>Transparencia y garantía</h3>
+        <p>Perfiles personales o cuentas completas con PIN propio y vigencia exacta garantizada. Sin sorpresas ni cortes inesperados.</p>
+      </div>
+    </div>
+
+    <!-- How it works for clients -->
+    <div class="client-flow reveal">
+      <h3 class="flow-title">¿Cómo es la experiencia de compra?</h3>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <span class="step-badge">01</span>
+          <h4>Elige en la tienda</h4>
+          <p>Explora el catálogo del vendedor y selecciona el servicio o duración deseada.</p>
+        </div>
+        <div class="flow-step">
+          <span class="step-badge">02</span>
+          <h4>Sube tu comprobante</h4>
+          <p>Realiza tu pago local y adjunta la evidencia directamente en el sistema.</p>
+        </div>
+        <div class="flow-step">
+          <span class="step-badge">03</span>
+          <h4>Recibe tus accesos</h4>
+          <p>En cuanto se valida, tu perfil asignado y credenciales aparecen en tu panel privado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .for-clients {
+    padding: 88px 0;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--ink) 0%, var(--ink-soft) 100%);
+  }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 56px;
+  }
+
+  .pillar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 28px 24px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .pillar-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-highlight);
+  }
+
+  .icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .icon-box.green { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+  .icon-box.blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
+  .icon-box.purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); }
+
+  .pillar-card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+
+  .pillar-card p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .client-flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 36px 32px;
+  }
+
+  .flow-title {
+    font-size: 1.25rem;
+    margin-bottom: 28px;
+    color: var(--text);
+    text-align: center;
+  }
+
+  .flow-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    position: relative;
+  }
+
+  .flow-step {
+    position: relative;
+    padding-left: 0;
+  }
+
+  .step-badge {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--brand-accent-light);
+    background: rgba(96, 165, 250, 0.12);
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+
+  .flow-step h4 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .flow-step p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 860px) {
+    .pillars-grid {
+      grid-template-columns: 1fr;
+    }
+    .flow-steps {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>

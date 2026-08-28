@@ -1,0 +1,217 @@
+---
+// src/components/TimelineCard.astro
+---
+
+<div class="timeline-card">
+  <div class="timeline-head">
+    <div>
+      <span class="label">Rastreador de Vencimientos</span>
+      <span class="sublabel">Tiempo real & Alertas automáticas</span>
+    </div>
+    <span class="month">AGO 2026</span>
+  </div>
+
+  <div class="timeline-track">
+    <div class="t-fill"></div>
+    <div class="t-dot done" title="3 ago - Renovada"></div>
+    <div class="t-dot done2" title="12 ago - Renovada"></div>
+    <div class="t-dot now" title="Hoy - Alerta enviada"></div>
+    <div class="t-dot pending" title="29 ago - Próximo vencimiento"></div>
+  </div>
+
+  <div class="status-rows">
+    <div class="status-row warning-border">
+      <div class="client-info">
+        <span class="client-name">M. Rodríguez</span>
+        <span class="client-service">Streaming Familiar (Perfil 02)</span>
+      </div>
+      <div class="status-meta">
+        <span class="date">Hoy</span>
+        <span class="badge pronto">Por vencer</span>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="client-info">
+        <span class="client-name">D. Herrera</span>
+        <span class="client-service">Gift Card Digital</span>
+      </div>
+      <div class="status-meta">
+        <span class="date">14 días</span>
+        <span class="badge activa">Activa</span>
+      </div>
+    </div>
+
+    <div class="status-row danger-border">
+      <div class="client-info">
+        <span class="client-name">C. Aguilar</span>
+        <span class="client-service">Cuenta Completa</span>
+      </div>
+      <div class="status-meta">
+        <span class="date">Ayer</span>
+        <span class="badge vencida">Vencida</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-footer">
+    <span class="ping-indicator"></span>
+    <span>Worker <code>telegram-reminder</code> sincronizado con Supabase</span>
+  </div>
+</div>
+
+<style>
+  .timeline-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .timeline-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+
+  .timeline-head .label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .timeline-head .sublabel {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .timeline-head span.month {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--brand-accent-light);
+    background: rgba(96, 165, 250, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+  }
+
+  .timeline-track {
+    position: relative;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 4px;
+    margin: 10px 4px 28px;
+  }
+
+  .t-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 65%;
+    background: linear-gradient(90deg, var(--brand-accent), var(--accent-cyan));
+    border-radius: 4px;
+  }
+
+  .t-dot {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+  }
+
+  .t-dot.done { background: var(--brand-accent); left: 15%; }
+  .t-dot.done2 { background: var(--brand-accent); left: 38%; }
+  .t-dot.now {
+    background: var(--accent-cyan);
+    left: 65%;
+    width: 16px;
+    height: 16px;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  .t-dot.pending { background: var(--surface-2); border-color: var(--border); left: 88%; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25); }
+    50% { box-shadow: 0 0 0 8px rgba(56, 189, 248, 0.1); }
+  }
+
+  .status-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid transparent;
+  }
+
+  .status-row.warning-border { border-left-color: var(--accent-amber); }
+  .status-row.danger-border { border-left-color: var(--accent-rose); }
+
+  .client-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .client-name {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .client-service {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .status-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .date {
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    font-size: 0.78rem;
+  }
+
+  .timeline-footer {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+
+  .timeline-footer code {
+    font-family: var(--font-mono);
+    color: var(--brand-accent-light);
+  }
+
+  .ping-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-emerald);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+</style>
