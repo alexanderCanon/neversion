@@ -9,7 +9,7 @@ apps/
   panel/                # Angular 21 — Admin UI (standalone components + Signals)
   store/                # React 19 + Vite 8 + Bun — Client storefront (SPA)
   api-gateway/          # Cloudflare Worker — Edge API Gateway & Auth router
-  notification-service/ # Rust — Transactional email service (gRPC / Resend)
+  notification-worker/  # Cloudflare Worker — Transactional email worker (Resend / Supabase Webhook)
   reservation-service/  # Rust — Service reservation manager (gRPC / SQLite)
   db/                   # PostgreSQL 17 configuration & compose
   monitoring/           # Observability stack (Grafana, Alloy, Prometheus)

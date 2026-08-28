@@ -1,0 +1,24 @@
+/**
+ * Neversion Notification Worker — Cloudflare Worker for transactional email notifications.
+ *
+ * Consumes Supabase Database Webhook events on `notification_log` table inserts
+ * and dispatches emails via Resend Templates.
+ *
+ * Secrets to configure via Wrangler CLI:
+ *   wrangler secret put RESEND_API_KEY
+ *   wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+ *   wrangler secret put WEBHOOK_SECRET
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "neversion-notification-worker",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-06-02",
+	"observability": {
+		"enabled": true
+	},
+	"vars": {
+		"FROM_EMAIL": "Neversion <noreply@mail.neversion.com>",
+		"SUPABASE_URL": "https://ujadaoctohwplnhiwgrm.supabase.co"
+	}
+}
