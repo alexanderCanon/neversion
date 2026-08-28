@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@neversion/models': path.resolve(__dirname, '../../packages/models/src/index.ts'),
+      '@': path.resolve(import.meta.dirname, './src'),
+      '@neversion/models': path.resolve(import.meta.dirname, '../../packages/models/src/index.ts'),
     },
   },
   test: {

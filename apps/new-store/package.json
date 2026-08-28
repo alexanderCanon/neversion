@@ -4,12 +4,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 4000",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "eslint src/",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "dev": "bun run vite --host 0.0.0.0 --port 4000",
+    "build": "bun run vite build",
+    "preview": "bun run vite preview",
+    "lint": "bun run eslint src/",
+    "test": "bun run vitest run",
+    "test:watch": "bun run vitest",
     "format": "oxfmt"
   },
   "dependencies": {

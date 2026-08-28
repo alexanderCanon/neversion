@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useGames } from '../hooks/useQueries'
-import { SectionHeader } from '../components/ui/SectionHeader'
 import { PlatformBadge } from '../components/ui/PlatformBadge'
 import { resolveServiceImageUrl } from '../lib/image'
 import { Loader2, AlertCircle, Gamepad2, ChevronRight } from 'lucide-react'

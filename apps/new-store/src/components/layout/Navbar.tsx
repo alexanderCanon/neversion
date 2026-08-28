@@ -9,7 +9,6 @@ import {
   LogOut,
   Menu,
   X,
-  Sparkles,
   LayoutDashboard,
 } from 'lucide-react'
 
