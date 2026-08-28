@@ -7,7 +7,7 @@
 ```
 apps/
   panel/                # Angular 21 — Admin UI (standalone components + Signals)
-  store/                # Angular 21 — Client storefront (SPA)
+  store/                # React 19 + Vite 8 + Bun — Client storefront (SPA)
   api-gateway/          # Cloudflare Worker — Edge API Gateway & Auth router
   notification-service/ # Rust — Transactional email service (gRPC / Resend)
   reservation-service/  # Rust — Service reservation manager (gRPC / SQLite)
@@ -161,8 +161,8 @@ cd apps/panel && pnpm start                  # Dev server → http://localhost:4
 cd apps/panel && pnpm test                   # All Karma tests
 
 # Store (apps/store)
-cd apps/store && pnpm start                  # Dev server
-cd apps/store && pnpm build                  # SPA production build
+cd apps/store && bun dev                  # Dev server → http://localhost:4000
+cd apps/store && bun build                # SPA production build
 ```
 ---
 

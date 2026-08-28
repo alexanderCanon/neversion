@@ -1,13 +1,29 @@
-// @ts-check
-const baseConfig = require("../../eslint.config.js");
+import eslint from '@eslint/js'
+import tseslint from 'typescript-eslint'
+import reactHooks from 'eslint-plugin-react-hooks'
 
-module.exports = [
-  ...baseConfig,
+export default tseslint.config(
   {
-    files: ["**/*.ts"],
-    rules: {
-      // The Store keeps NgModules while modernizing its build infrastructure.
-      "@angular-eslint/prefer-standalone": "off"
-    },
+    ignores: ['dist/**', 'node_modules/**'],
   },
-];
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommended,
+    ],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      // React hooks rules
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      // TypeScript
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      // General
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  }
+)
