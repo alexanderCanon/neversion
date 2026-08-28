@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom'
 import { queryClient } from './lib/queryClient'
 import { AuthProvider } from './context/AuthContext'
 import { CartProvider } from './context/CartContext'
+import { ToastProvider } from './context/ToastContext'
 import { router } from './router'
 
 export default function App() {
@@ -10,9 +11,12 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <RouterProvider router={router} />
+          <ToastProvider>
+            <RouterProvider router={router} />
+          </ToastProvider>
         </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   )
 }
+

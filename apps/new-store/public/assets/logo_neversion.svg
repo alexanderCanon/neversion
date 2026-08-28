@@ -1,0 +1,43 @@
+<svg width="320" height="80" viewBox="60 40 380 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <filter id="neon-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+      <feColorMatrix in="blur" type="matrix" values="
+        0 0 0 0 0
+        0 0 0 0 0.8
+        0 0 0 0 1
+        0 0 0 1 0" result="coloredBlur" />
+      <feMerge>
+        <feMergeNode in="coloredBlur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    
+    <style>
+      .text-main { font-family: 'Inter', 'Arial', sans-serif; font-weight: bold; fill: #ffffff; letter-spacing: 2px; }
+      .text-sub { font-family: 'Inter', 'Arial', sans-serif; font-weight: normal; fill: #ffffff; letter-spacing: 8px; }
+    </style>
+  </defs>
+
+  <g transform="translate(250, 140)" filter="url(#neon-glow)">
+    <path d="M -60 20 A 70 70 0 1 1 50 60" 
+          fill="none" 
+          stroke="#00C2FF" 
+          stroke-width="12" 
+          stroke-linecap="round" />
+
+    <circle cx="-55" cy="50" r="8" fill="#00C2FF" />
+    <circle cx="-25" cy="70" r="10" fill="#00C2FF" />
+    <circle cx="15" cy="75" r="12" fill="#00C2FF" />
+
+    <!-- N centrada en el círculo -->
+    <path d="M -25 -35 L -25 35 L -18 35 L 18 -20 L 18 35 L 25 35 L 25 -35 L 18 -35 L -18 20 L -18 -35 Z" 
+          fill="#FFFFFF"
+          transform="translate(5, 5) scale(-1, 1)" />
+  </g>
+
+  <g text-anchor="middle">
+    <text x="250" y="280" font-size="52" class="text-main" filter="url(#neon-glow)">NEVERSION</text>
+    <text x="250" y="308" font-size="24" class="text-sub">DIGITAL</text>
+  </g>
+</svg>

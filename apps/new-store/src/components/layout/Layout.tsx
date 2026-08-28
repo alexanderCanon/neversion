@@ -2,6 +2,8 @@ import { Outlet } from 'react-router-dom'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
 import { CartSidebar } from './CartSidebar'
+import { FloatingWhatsApp } from './FloatingWhatsApp'
+import { ToastContainer } from '../ui/ToastContainer'
 import { useAuth } from '../../hooks/useAuth'
 import { OnboardingModal } from '../auth/OnboardingModal'
 
@@ -16,7 +18,10 @@ export function Layout() {
       </main>
       <Footer />
       <CartSidebar />
+      <ToastContainer />
+      <FloatingWhatsApp />
       {needsOnboarding && <OnboardingModal />}
     </div>
   )
 }
+
