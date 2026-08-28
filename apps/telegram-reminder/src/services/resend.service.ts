@@ -96,7 +96,7 @@ export async function sendRenewalEmail(
 		return { ok: false, error: `El cliente ${subscription.clientName} no tiene correo electrónico registrado.` };
 	}
 
-	const sender = env.SENDER_EMAIL || "Neversion <notificaciones@neversion.com>";
+	const sender = env.SENDER_EMAIL || "Neversion <notificaciones@mail.neversion.com>";
 	const subject = getEmailSubject(subscription.serviceName, subscription.daysRemaining);
 	const html = buildRenewalEmailHtml(subscription);
 
