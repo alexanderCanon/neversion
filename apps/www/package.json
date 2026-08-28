@@ -6,10 +6,15 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "build:cloudflare": "astro build",
+    "deploy": "wrangler pages deploy dist --project-name=neversion-www",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
     "astro": "^4.11.3"
+  },
+  "devDependencies": {
+    "wrangler": "catalog:"
   }
 }

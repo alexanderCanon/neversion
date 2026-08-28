@@ -1,0 +1,388 @@
+---
+// src/components/TechArchitecture.astro
+---
+
+<section id="arquitectura" class="tech-arch">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Arquitectura & Stack Técnico</span>
+      <h2>Diseñado para el Edge, impulsado por Serverless</h2>
+      <p>
+        Neversion corre sobre una arquitectura serverless-first, pensada para ser segura, de alta disponibilidad y de mínimo costo operativo.
+      </p>
+    </div>
+
+    <!-- Interactive Architecture Tabs -->
+    <div class="arch-container reveal">
+      <div class="arch-nav" role="tablist">
+        <button class="arch-tab active" data-tab="edge">
+          <span class="tab-badge">01</span>
+          <span>1. Edge & Seguridad</span>
+        </button>
+        <button class="arch-tab" data-tab="backend">
+          <span class="tab-badge">02</span>
+          <span>2. Core Backend</span>
+        </button>
+        <button class="arch-tab" data-tab="data">
+          <span class="tab-badge">03</span>
+          <span>3. Persistencia</span>
+        </button>
+        <button class="arch-tab" data-tab="devops">
+          <span class="tab-badge">04</span>
+          <span>4. CI/CD & DevOps</span>
+        </button>
+      </div>
+
+      <div class="arch-content">
+        <!-- Panel 1: Edge -->
+        <div class="arch-panel active" id="panel-edge">
+          <div class="panel-header">
+            <h3>Cloudflare Edge, Workers & Automatización</h3>
+            <span class="badge tech">Cloudflare Workers · TypeScript · Wrangler</span>
+          </div>
+          <p class="panel-intro">
+            Todo el tráfico entra por Cloudflare, que actúa como primera línea de defensa perimetral antes de que cualquier request toque el backend.
+          </p>
+          <div class="tech-cards-grid">
+            <div class="tech-card">
+              <h4>🛡️ CDN, WAF & Rate Limiting</h4>
+              <p>Filtrado perimetral contra tráfico abusivo, mitigación de DDoS y compresión global en el Edge.</p>
+            </div>
+            <div class="tech-card">
+              <h4>⚡ Edge API Gateway (Worker)</h4>
+              <p>Valida firmas JWT en microsegundos y transforma las respuestas en view models limpios para las aplicaciones cliente.</p>
+            </div>
+            <div class="tech-card highlight">
+              <h4>🤖 Worker <code>telegram-reminder</code></h4>
+              <p>Worker programado (CRON) que audita vencimientos directamente en la base de datos y despacha recordatorios automáticos por Telegram sin requerir servidores 24/7.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 2: Backend -->
+        <div class="arch-panel" id="panel-backend">
+          <div class="panel-header">
+            <h3>Core Backend DDD & Cómputo Especializado</h3>
+            <span class="badge tech">Spring Boot 3 · Java 17 · AWS Graviton · Rust</span>
+          </div>
+          <p class="panel-intro">
+            Lógica transaccional crítica modelada con Arquitectura Hexagonal y Domain-Driven Design (DDD).
+          </p>
+          <div class="tech-cards-grid">
+            <div class="tech-card">
+              <h4>☕ Spring Boot 3 Hexagonal</h4>
+              <p>Desacoplamiento total entre casos de uso del dominio, repositorios y controladores REST, garantizando transacciones seguras.</p>
+            </div>
+            <div class="tech-card">
+              <h4>🚀 AWS EC2 Graviton (ARM64)</h4>
+              <p>Instancias elegidas por eficiencia de cómputo y optimización de costos en la nube, no por costumbre.</p>
+            </div>
+            <div class="tech-card">
+              <h4>🦀 Microservicios en Rust (gRPC)</h4>
+              <p>Servicios complementarios de ultrabaja latencia para gestión de reservaciones y colas transaccionales de email.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Persistencia -->
+        <div class="arch-panel" id="panel-data">
+          <div class="panel-header">
+            <h3>Persistencia y Gestión de Datos</h3>
+            <span class="badge tech">PostgreSQL 17 · Supabase · Flyway</span>
+          </div>
+          <p class="panel-intro">
+            Gestión de esquemas estricta, consultas optimizadas y control de versiones de bases de datos.
+          </p>
+          <div class="tech-cards-grid">
+            <div class="tech-card">
+              <h4>🐘 PostgreSQL 17 en Supabase</h4>
+              <p>Base de datos relacional robusta con vistas especializadas para el Storefront y almacenamiento seguro de comprobantes.</p>
+            </div>
+            <div class="tech-card">
+              <h4>📜 Migraciones con Flyway</h4>
+              <p>Cada alteración de esquema o tabla está versionada en scripts SQL auditables, ejecutables y reproducibles en cualquier entorno.</p>
+            </div>
+            <div class="tech-card">
+              <h4>🔐 Aislamiento Multitenant</h4>
+              <p>Separación de datos entre vendedores mediante UUIDs y políticas de acceso a nivel de fila y vistas de solo lectura.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 4: CI/CD -->
+        <div class="arch-panel" id="panel-devops">
+          <div class="panel-header">
+            <h3>Infraestructura como Código & Pipeline CI/CD</h3>
+            <span class="badge tech">Terraform · GitHub Actions · OIDC · Trivy</span>
+          </div>
+          <p class="panel-intro">
+            Despliegues automatizados y reproducibles sin contraseñas ni claves estáticas almacenadas.
+          </p>
+          <div class="tech-cards-grid">
+            <div class="tech-card">
+              <h4>🏗️ Terraform (IaC)</h4>
+              <p>Toda la topología de red, zonas DNS, buckets y cómputo está descrita de forma declarativa.</p>
+            </div>
+            <div class="tech-card">
+              <h4>🔑 Autenticación OIDC con AWS</h4>
+              <p>GitHub Actions asume roles temporales en AWS mediante OpenID Connect; cero tokens fijos en repositorios.</p>
+            </div>
+            <div class="tech-card">
+              <h4>🛡️ Escaneo de Seguridad con Trivy</h4>
+              <p>Análisis automatizado de vulnerabilidades en imágenes y dependencias antes de cada despliegue.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Diagram Representation -->
+    <div class="diagram-box reveal">
+      <div class="diagram-header">
+        <span class="diagram-title">Flujo de Peticiones y Arquitectura Global</span>
+      </div>
+      <div class="diagram-flow">
+        <div class="diagram-node">
+          <span class="node-type">Cliente / Store / Panel</span>
+          <span class="node-name">Frontend Apps</span>
+        </div>
+        <div class="diagram-arrow">➔</div>
+        <div class="diagram-node highlight">
+          <span class="node-type">Cloudflare CDN + WAF</span>
+          <span class="node-name">API Gateway Worker</span>
+        </div>
+        <div class="diagram-arrow">➔</div>
+        <div class="diagram-node">
+          <span class="node-type">AWS EC2 Graviton</span>
+          <span class="node-name">Spring Boot 3 (DDD)</span>
+        </div>
+        <div class="diagram-arrow">➔</div>
+        <div class="diagram-node">
+          <span class="node-type">Supabase</span>
+          <span class="node-name">PostgreSQL 17</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tab switching logic for Tech Architecture
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.arch-tab');
+  const panels = document.querySelectorAll<HTMLDivElement>('.arch-panel');
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+      tabs.forEach((t) => t.classList.remove('active'));
+      panels.forEach((p) => p.classList.remove('active'));
+
+      tab.classList.add('active');
+      const targetPanel = document.getElementById(`panel-${target}`);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+    });
+  });
+</script>
+
+<style>
+  .tech-arch {
+    padding: 88px 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--ink-soft);
+  }
+
+  .arch-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .arch-nav {
+    display: flex;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .arch-tab {
+    flex: 1;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  .arch-tab:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .arch-tab.active {
+    color: var(--text);
+    background: var(--surface);
+    border-bottom: 2px solid var(--brand-accent-light);
+  }
+
+  .tab-badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+  }
+
+  .arch-tab.active .tab-badge {
+    background: var(--brand-accent);
+    color: #FFFFFF;
+  }
+
+  .arch-content {
+    padding: 32px 28px;
+  }
+
+  .arch-panel {
+    display: none;
+  }
+
+  .arch-panel.active {
+    display: block;
+    animation: fadeIn 0.25s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .panel-header h3 {
+    font-size: 1.35rem;
+    color: var(--text);
+  }
+
+  .panel-intro {
+    color: var(--text-muted);
+    font-size: 1rem;
+    max-width: 70ch;
+    margin-bottom: 28px;
+  }
+
+  .tech-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .tech-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 22px 18px;
+  }
+
+  .tech-card.highlight {
+    border-color: rgba(96, 165, 250, 0.4);
+    background: linear-gradient(180deg, rgba(96, 165, 250, 0.06) 0%, var(--surface-2) 100%);
+  }
+
+  .tech-card h4 {
+    font-size: 0.98rem;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .tech-card p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .diagram-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+  }
+
+  .diagram-header {
+    margin-bottom: 18px;
+  }
+
+  .diagram-title {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .diagram-flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .diagram-node {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    min-width: 170px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .diagram-node.highlight {
+    border-color: var(--brand-accent-light);
+    background: rgba(37, 99, 235, 0.12);
+  }
+
+  .node-type {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--brand-accent-light);
+    margin-bottom: 4px;
+  }
+
+  .node-name {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .diagram-arrow {
+    color: var(--brand-accent-light);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 860px) {
+    .tech-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

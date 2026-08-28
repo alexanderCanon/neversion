@@ -431,6 +431,10 @@ importers:
       astro:
         specifier: ^4.11.3
         version: 4.16.19(@types/node@20.19.43)(less@4.4.2)(rollup@4.63.0)(sass@1.97.3)(supports-color@10.2.2)(terser@5.46.0)(typescript@5.9.3)
+    devDependencies:
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.126.0(@cloudflare/workers-types@4.20250620.0)
 
   packages/api-client:
     dependencies:

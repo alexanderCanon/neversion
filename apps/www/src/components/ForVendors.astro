@@ -1,0 +1,207 @@
+---
+// src/components/ForVendors.astro
+---
+
+<section id="vendedores" class="for-vendors">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Para Vendedores & Revendedores</span>
+      <h2>Vender es fácil. El verdadero reto es no perder renovaciones.</h2>
+      <p>
+        Operar un negocio de servicios digitales con hojas de cálculo y notas en el móvil lleva a clientes insatisfechos y cobros tardíos. Neversion automatiza la gestión operativa completa.
+      </p>
+    </div>
+
+    <div class="comparison-grid">
+      <!-- Chaos Card -->
+      <div class="compare-card chaos reveal">
+        <div class="compare-header">
+          <span class="compare-tag red">Gestión Manual Tradicional</span>
+          <h3>El caos del día a día</h3>
+        </div>
+        <ul class="compare-list">
+          <li><span class="dot-red"></span><span>Múltiples hojas de Excel desactualizadas y notas dispersas.</span></li>
+          <li><span class="dot-red"></span><span>Recordatorios que se posponen y renovaciones que se vencen sin cobrar.</span></li>
+          <li><span class="dot-red"></span><span>Clientes molestos preguntando si su cuenta sigue activa.</span></li>
+          <li><span class="dot-red"></span><span>Cuentas compartidas asignadas dos veces por error.</span></li>
+        </ul>
+      </div>
+
+      <!-- Neversion Card -->
+      <div class="compare-card solution reveal">
+        <div class="compare-header">
+          <span class="compare-tag green">Con Neversion</span>
+          <h3>Control absoluto y automatizado</h3>
+        </div>
+        <ul class="compare-list">
+          <li><span class="dot-green"></span><span>Panel centralizado con fechas de vencimiento y estados en tiempo real.</span></li>
+          <li><span class="dot-green"></span><span>Alertas automáticas vía Edge Workers antes de cada fecha límite.</span></li>
+          <li><span class="dot-green"></span><span>Storefront propio e independiente para recibir órdenes sin fricción.</span></li>
+          <li><span class="dot-green"></span><span>Gestión granular de Cuentas, Perfiles y Suscripciones.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Vendor Feature Highlights -->
+    <div class="features-grid">
+      <div class="feature-box reveal">
+        <div class="f-num">01</div>
+        <h4>Tienda Propia por Vendedor</h4>
+        <p>Tu propia vitrina digital con tu catálogo, precios y configuración de métodos de pago.</p>
+      </div>
+
+      <div class="feature-box reveal">
+        <div class="f-num">02</div>
+        <h4>Panel de Vencimientos</h4>
+        <p>Visualiza qué vence hoy, esta semana o este mes con filtros instantáneos y control de gracia.</p>
+      </div>
+
+      <div class="feature-box reveal">
+        <div class="f-num">03</div>
+        <h4>Catálogo Multi-Producto</h4>
+        <p>Vende perfiles individuales, cuentas completas, gift cards y recargas en una sola plataforma.</p>
+      </div>
+
+      <div class="feature-box reveal">
+        <div class="f-num">04</div>
+        <h4>Validación de Comprobantes</h4>
+        <p>Ciclo formal de validación y asignación inmediata de accesos tras confirmar el pago.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .for-vendors {
+    padding: 88px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 56px;
+  }
+
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+  }
+
+  .compare-card.chaos {
+    border-color: rgba(244, 63, 94, 0.2);
+    background: linear-gradient(180deg, rgba(244, 63, 94, 0.03) 0%, var(--surface) 100%);
+  }
+
+  .compare-card.solution {
+    border-color: rgba(16, 185, 129, 0.25);
+    background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, var(--surface) 100%);
+  }
+
+  .compare-header {
+    margin-bottom: 24px;
+  }
+
+  .compare-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .compare-tag.red { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid rgba(244, 63, 94, 0.3); }
+  .compare-tag.green { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+  .compare-header h3 {
+    font-size: 1.3rem;
+    color: var(--text);
+  }
+
+  .compare-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .compare-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .dot-red, .dot-green {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: var(--accent-rose); box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2); }
+  .dot-green { background: var(--accent-emerald); box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  .feature-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    transition: border-color 0.2s ease;
+  }
+
+  .feature-box:hover {
+    border-color: var(--border-highlight);
+  }
+
+  .f-num {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--brand-accent-light);
+    margin-bottom: 12px;
+  }
+
+  .feature-box h4 {
+    font-size: 1.02rem;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .feature-box p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 900px) {
+    .comparison-grid {
+      grid-template-columns: 1fr;
+    }
+    .features-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

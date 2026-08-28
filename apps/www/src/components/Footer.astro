@@ -1,0 +1,96 @@
+---
+// src/components/Footer.astro
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">Neversion</span>
+      <p class="footer-desc">Plataforma multivendedor de servicios digitales y gestión de suscripciones.</p>
+    </div>
+
+    <div class="footer-meta">
+      <div class="footer-stack">
+        <span>Arquitectura:</span>
+        <span class="tech-tag">Astro</span>
+        <span class="tech-tag">Cloudflare Workers</span>
+        <span class="tech-tag">Spring Boot 3</span>
+        <span class="tech-tag">Supabase</span>
+      </div>
+      <div class="footer-copy">
+        <span>&copy; {new Date().getFullYear()} Neversion. Creado por Alexander Canon.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding: 48px 0 40px;
+    border-top: 1px solid var(--border);
+    background: var(--ink);
+  }
+
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .footer-brand {
+    max-width: 380px;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--text);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .footer-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .footer-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .footer-stack {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+
+  .tech-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--text);
+  }
+
+  .footer-copy {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 768px) {
+    .footer-meta {
+      align-items: flex-start;
+    }
+  }
+</style>
