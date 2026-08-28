@@ -400,6 +400,9 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.2.3(@types/debug@4.1.13)(@types/node@24.13.3)(jiti@2.7.0)(jsdom@26.1.0(supports-color@10.2.2))(less@4.4.2)(lightningcss@1.33.0)(sass@1.97.3)(supports-color@10.2.2)(terser@5.46.0)
+      wrangler:
+        specifier: 'catalog:'
+        version: 4.126.0(@cloudflare/workers-types@4.20250620.0)
 
   apps/telegram-reminder:
     dependencies:
