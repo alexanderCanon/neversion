@@ -6,6 +6,7 @@ supabase/functions/.env
 get-jwt.mjs
 runtime-config.js
 **/src/assets/runtime-config.js
+**/public/assets/runtime-config.js
 
 # ── Dependencies & Build Outputs ───────────────────
 node_modules/

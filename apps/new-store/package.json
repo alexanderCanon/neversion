@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun run vite --host 0.0.0.0 --port 4000",
     "build": "bun run vite build",
+    "build:cloudflare": "node scripts/write-runtime-config.mjs && bun run vite build",
     "preview": "bun run vite preview",
     "lint": "bun run eslint src/",
     "test": "bun run vitest run",

@@ -6,6 +6,7 @@ import { SectionHeader } from '../components/ui/SectionHeader'
 import { AmberBtn } from '../components/ui/AmberBtn'
 import { Badge } from '../components/ui/Badge'
 import { PlatformBadge } from '../components/ui/PlatformBadge'
+import { resolveServiceImageUrl } from '../lib/image'
 import {
   Sparkles,
   Check,
@@ -236,7 +237,17 @@ function ServiceCard({ service, onAdd }: { service: StoreServiceItem; onAdd: any
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start gap-3 mb-4">
-          <PlatformBadge letters={letters} color={color} />
+          {service.imageUrl ? (
+            <div className="w-14 h-14 rounded-xl bg-white/5 border border-[#252838] p-2 flex items-center justify-center shrink-0 overflow-hidden">
+              <img
+                src={resolveServiceImageUrl(service.imageUrl)}
+                alt={service.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <PlatformBadge letters={letters} color={color} />
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-white text-lg leading-tight truncate">
@@ -419,7 +430,17 @@ function ComboBuilderSection({ onAdd }: { onAdd: any }) {
                 }`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <PlatformBadge letters={letters} color={color} size={36} />
+                  {s.imageUrl ? (
+                    <div className="w-9 h-9 rounded-lg bg-white/5 border border-[#252838] p-1 flex items-center justify-center shrink-0 overflow-hidden">
+                      <img
+                        src={resolveServiceImageUrl(s.imageUrl)}
+                        alt={s.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <PlatformBadge letters={letters} color={color} size={36} />
+                  )}
                   <div
                     className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
                       isSelected
@@ -532,7 +553,17 @@ function GamesSection({ onAdd }: { onAdd: any }) {
                   >
                     <div>
                       <div className="flex items-start gap-3 mb-4">
-                        <PlatformBadge letters={getServiceInitials(game.name)} color="#107C10" />
+                        {game.imageUrl ? (
+                          <div className="w-14 h-14 rounded-xl bg-white/5 border border-[#252838] p-2 flex items-center justify-center shrink-0 overflow-hidden">
+                            <img
+                              src={resolveServiceImageUrl(game.imageUrl)}
+                              alt={game.name}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <PlatformBadge letters={getServiceInitials(game.name)} color="#107C10" />
+                        )}
                         <div>
                           <h3 className="font-bold text-white text-base leading-tight">{game.name}</h3>
                           <p className="text-[#7a7d90] text-xs mt-1">Slug: {game.slug}</p>

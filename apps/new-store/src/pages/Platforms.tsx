@@ -257,7 +257,17 @@ function PlatformCard({ service, onAdd }: { service: StoreServiceItem; onAdd: an
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start gap-3 mb-4">
-          <PlatformBadge letters={letters} color={color} />
+          {service.imageUrl ? (
+            <div className="w-14 h-14 rounded-xl bg-white/5 border border-[#252838] p-2 flex items-center justify-center shrink-0 overflow-hidden">
+              <img
+                src={resolveServiceImageUrl(service.imageUrl)}
+                alt={service.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          ) : (
+            <PlatformBadge letters={letters} color={color} />
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="font-bold text-white text-lg leading-tight truncate">{service.name}</h3>
