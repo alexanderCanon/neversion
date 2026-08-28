@@ -183,10 +183,11 @@ export async function getSubscriptionById(
 
 	// Calcular días restantes respecto a hoy en Guatemala
 	const todayStr = getGuatemalaDate(0);
-	const todayDate = new Date(`${todayStr}T00:00:00`);
-	const dueDate = new Date(`${sub.payment_due_date}T00:00:00`);
+	const dueDateRaw = String(sub.payment_due_date || "").split("T")[0];
+	const todayDate = new Date(`${todayStr}T12:00:00Z`);
+	const dueDate = new Date(`${dueDateRaw}T12:00:00Z`);
 	const diffTime = dueDate.getTime() - todayDate.getTime();
-	const daysRemaining = Math.round(diffTime / (1000 * 60 * 60 * 24));
+	const daysRemaining = isNaN(diffTime) ? 0 : Math.round(diffTime / (1000 * 60 * 60 * 24));
 
 	return mapSubscription(sub, daysRemaining);
 }

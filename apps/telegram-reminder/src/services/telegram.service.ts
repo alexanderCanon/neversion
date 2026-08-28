@@ -72,9 +72,10 @@ export async function answerCallbackQuery(
 	text?: string,
 	showAlert: boolean = false
 ) {
+	const safeText = text ? text.slice(0, 195) : undefined;
 	return callTelegramApi(env, "answerCallbackQuery", {
 		callback_query_id: callbackQueryId,
-		text,
+		text: safeText,
 		show_alert: showAlert,
 	});
 }
