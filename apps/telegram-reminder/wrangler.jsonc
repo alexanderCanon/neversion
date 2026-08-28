@@ -1,0 +1,21 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "neversion-telegram-reminder",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-20",
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"workers_dev": true,
+	"preview_urls": false,
+	"triggers": {
+		"crons": [
+			"0 14 * * *"
+		]
+	}
+}
