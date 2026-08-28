@@ -6,5 +6,6 @@ interface Env {
 	SUPABASE_SERVICE_ROLE_KEY: string;
 	RESEND_API_KEY?: string;
 	SENDER_EMAIL?: string;
+	REPLY_TO_EMAIL?: string;
 	CRON_SECRET?: string;
 }

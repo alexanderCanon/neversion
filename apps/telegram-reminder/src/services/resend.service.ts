@@ -14,9 +14,35 @@ function getEmailSubject(serviceName: string, daysRemaining: number): string {
 }
 
 /**
+ * Genera la versión en texto plano (Plain Text) del correo.
+ * Crucial para evitar filtros antispam (SpamAssassin / Gmail).
+ */
+export function buildRenewalEmailPlainText(sub: FormattedSubscription): string {
+	const dueNotice =
+		sub.daysRemaining === 0
+			? "vence hoy"
+			: sub.daysRemaining === 1
+			? "vence mañana"
+			: `vence en ${sub.daysRemaining} días`;
+
+	let text = `Hola ${sub.clientName},\n\n`;
+	text += `Te recordamos que tu suscripción a ${sub.serviceName} ${dueNotice} (${sub.paymentDueDate}).\n\n`;
+	text += `Detalles de tu servicio:\n`;
+	text += `- Servicio: ${sub.serviceName}${sub.profileName ? ` (${sub.profileName})` : ""}\n`;
+	text += `- Fecha de vencimiento: ${sub.paymentDueDate}\n`;
+	if (sub.price) {
+		text += `- Monto de renovación: Q ${sub.price}\n`;
+	}
+	text += `\nPara asegurar la continuidad de tu servicio sin interrupciones, por favor comunícate con nosotros para coordinar tu pago.\n\n`;
+	text += `¡Gracias por tu preferencia!\nNeversion`;
+
+	return text;
+}
+
+/**
  * Genera la plantilla HTML para el correo de renovación.
  */
-function buildRenewalEmailHtml(sub: FormattedSubscription): string {
+export function buildRenewalEmailHtml(sub: FormattedSubscription): string {
 	const dueNotice =
 		sub.daysRemaining === 0
 			? "vence <strong>hoy</strong>"
@@ -29,13 +55,14 @@ function buildRenewalEmailHtml(sub: FormattedSubscription): string {
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recordatorio de Renovación - Neversion</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b; margin: 0; padding: 20px; }
     .container { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
     .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: center; }
     .header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
-    .body { padding: 24px; }
+    .body { padding: 24px; font-size: 15px; line-height: 1.6; }
     .details-box { background: #f1f5f9; border-radius: 8px; padding: 16px; margin: 20px 0; }
     .details-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
     .details-row:last-child { margin-bottom: 0; }
@@ -73,7 +100,7 @@ function buildRenewalEmailHtml(sub: FormattedSubscription): string {
       <p>¡Gracias por tu preferencia!</p>
     </div>
     <div class="footer">
-      <p>Este es un mensaje automático de Neversion.</p>
+      <p>Este es un mensaje de notificación de Neversion.</p>
     </div>
   </div>
 </body>
@@ -97,8 +124,10 @@ export async function sendRenewalEmail(
 	}
 
 	const sender = env.SENDER_EMAIL || "Neversion <notificaciones@mail.neversion.com>";
+	const replyTo = env.REPLY_TO_EMAIL || "soporte@neversion.com";
 	const subject = getEmailSubject(subscription.serviceName, subscription.daysRemaining);
 	const html = buildRenewalEmailHtml(subscription);
+	const text = buildRenewalEmailPlainText(subscription);
 
 	try {
 		const response = await fetch("https://api.resend.com/emails", {
@@ -110,8 +139,10 @@ export async function sendRenewalEmail(
 			body: JSON.stringify({
 				from: sender,
 				to: [subscription.clientEmail],
+				reply_to: replyTo,
 				subject,
 				html,
+				text,
 			}),
 		});
 
