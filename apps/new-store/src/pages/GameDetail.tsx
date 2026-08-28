@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useGames, useGameSkus } from '../hooks/useQueries'
 import { SectionHeader } from '../components/ui/SectionHeader'
 import { getWhatsAppLink } from '../config/constants'
+import { resolveServiceImageUrl } from '../lib/image'
 import { ArrowLeft, MessageCircle, Loader2, AlertCircle, Sparkles, Gamepad2 } from 'lucide-react'
 
 export function GameDetail() {
@@ -40,8 +41,16 @@ export function GameDetail() {
         </div>
       ) : game ? (
         <div className="bg-[#131623] border border-[#252838] rounded-3xl p-8 shadow-2xl flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
-          <div className="w-24 h-24 rounded-2xl bg-[#107C10]/20 border border-[#107C10]/40 flex items-center justify-center text-[#107C10] font-bold text-3xl shrink-0">
-            <Gamepad2 className="w-12 h-12" />
+          <div className="w-24 h-24 rounded-2xl bg-white/5 border border-[#252838] p-2 flex items-center justify-center shrink-0 overflow-hidden">
+            {game.imageUrl ? (
+              <img
+                src={resolveServiceImageUrl(game.imageUrl)}
+                alt={game.name}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <Gamepad2 className="w-12 h-12 text-[#107C10]" />
+            )}
           </div>
 
           <div className="text-center sm:text-left">
@@ -107,6 +116,16 @@ export function GameDetail() {
                           {sku.code || 'SKU'}
                         </span>
                       </div>
+
+                      {sku.imageUrl && (
+                        <div className="w-full h-24 rounded-xl bg-white/5 border border-[#252838] p-2 mb-3 flex items-center justify-center overflow-hidden">
+                          <img
+                            src={resolveServiceImageUrl(sku.imageUrl)}
+                            alt={sku.name}
+                            className="max-h-full object-contain"
+                          />
+                        </div>
+                      )}
 
                       <h3 className="font-bold text-white text-base leading-tight mb-2">
                         {sku.name}
