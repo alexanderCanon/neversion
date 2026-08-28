@@ -15,6 +15,7 @@ import { Platforms } from './pages/Platforms'
 import { PlatformDetail } from './pages/PlatformDetail'
 import { Games } from './pages/Games'
 import { Combo } from './pages/Combo'
+import { Offers } from './pages/Offers'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { GuestRoute } from './components/auth/GuestRoute'
 
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
       {
         path: 'combo',
         element: <Combo />,
+      },
+      {
+        path: 'offers',
+        element: <Offers />,
       },
       {
         path: 'login',

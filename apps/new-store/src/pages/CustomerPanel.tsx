@@ -347,11 +347,16 @@ export function CustomerPanel() {
       {/* ─── Tab: COMPROBANTES ────────────────────────────────────── */}
       {activeTab === 'comprobantes' && (
         <div className="bg-[#131623] border border-[#252838] rounded-2xl p-8 text-center text-[#7a7d90] shadow-xl space-y-4">
-          <FileText className="w-12 h-12 mx-auto text-[#252838]" />
+          <div className="w-14 h-14 rounded-2xl bg-[#F5A623]/10 border border-[#F5A623]/20 flex items-center justify-center mx-auto text-[#F5A623]">
+            <FileText className="w-7 h-7" />
+          </div>
           <div>
-            <h3 className="font-bold text-white text-base">Comprobantes de Pago</h3>
-            <p className="text-xs mt-1 max-w-md mx-auto">
-              Los comprobantes adjuntados a tus reservaciones son procesados por el equipo administrativo y almacenados en Supabase Storage.
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F5A623]/10 text-[#F5A623] text-[11px] font-bold uppercase tracking-wider mb-2">
+              🛠️ Función en desarrollo
+            </span>
+            <h3 className="font-bold text-white text-lg">Comprobantes de Pago</h3>
+            <p className="text-xs text-[#b0b3c6] mt-2 max-w-md mx-auto leading-relaxed">
+              Próximamente podrás consultar tus comprobantes de pago y el estado de validación directamente desde aquí.
             </p>
           </div>
         </div>

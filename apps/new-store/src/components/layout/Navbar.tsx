@@ -22,10 +22,10 @@ export function Navbar() {
 
   const navLinks = [
     { label: 'Inicio', href: '/' },
-    { label: 'Plataformas', href: '/#plataformas' },
-    { label: 'Combos', href: '/#combos' },
-    { label: 'Juegos', href: '/#juegos' },
-    { label: 'Recargas', href: '/#recargas' },
+    { label: 'Plataformas', href: '/platforms' },
+    { label: 'Combos', href: '/combo' },
+    { label: 'Juegos', href: '/games' },
+    { label: 'Ofertas', href: '/offers' },
     { label: 'Mayoristas', href: '/wholesalers' },
   ]
 
