@@ -8,23 +8,22 @@
 apps/
   panel/                # Angular 21 — Admin UI (standalone components + Signals)
   store/                # React 19 + Vite 8 + Bun — Client storefront (SPA)
+  www/                  # Marketing landing site (Astro + Tailwind)
   api-gateway/          # Cloudflare Worker — Edge API Gateway & Auth router
   notification-worker/  # Cloudflare Worker — Transactional email worker (Resend / Supabase Webhook)
-  reservation-service/  # Rust — Service reservation manager (gRPC / SQLite)
+  telegram-reminder/    # Cloudflare Worker — Telegram Bot & Renewal reminders
   db/                   # PostgreSQL 17 configuration & compose
-  monitoring/           # Observability stack (Grafana, Alloy, Prometheus)
-  www/                  # Marketing landing site (Astro)
 packages/
-  api-client/           # Generated TypeScript Angular services (OpenAPI)
   models/               # Shared TypeScript interfaces
   utils/                # Shared Angular utilities
 docs/
-  agents/               # Agent protocols (authoritative)
   domain/               # Ubiquitous language, business rules (Spanish)
-  architecture/         # ADRs, ER diagram, NFRs
+  architecture/         # ADRs, ER diagram, NFRs, deployment
+  diagrams/             # Architectural & sequence diagrams (Mermaid)
   backlog/              # Epics + per-epic story files
   implementation/       # Historical implementation logs (read-only for agents)
 ```
+
 
 ---
 
@@ -148,22 +147,26 @@ Merges to `develop` and `main` are **Alex's responsibility**, not the agent's.
 # Root
 pnpm install            # Install all workspace dependencies
 pnpm -r build           # Build all packages
-pnpm api:sync           # Regenerate api-client from running backend
-
-# Backend (apps/api)
-cd apps/api && ./mvnw spring-boot:run        # Run with hot reload
-cd apps/api && ./mvnw test                   # All unit tests
-cd apps/api && ./mvnw test -Dtest=ClassName  # Single test class
-cd apps/api && ./mvnw verify                 # Unit + integration tests (Testcontainers)
 
 # Panel (apps/panel)
 cd apps/panel && pnpm start                  # Dev server → http://localhost:4200
 cd apps/panel && pnpm test                   # All Karma tests
 
 # Store (apps/store)
-cd apps/store && bun dev                  # Dev server → http://localhost:4000
-cd apps/store && bun build                # SPA production build
+cd apps/store && bun dev                     # Dev server → http://localhost:4000
+cd apps/store && bun run test                # Vitest unit tests
+cd apps/store && bun run build               # SPA production build
+
+# Marketing Landing (apps/www)
+cd apps/www && pnpm dev                      # Astro dev server
+cd apps/www && pnpm build                    # Astro production build
+
+# Workers (api-gateway, notification-worker, telegram-reminder)
+cd apps/api-gateway && pnpm test             # Vitest worker tests
+cd apps/notification-worker && pnpm test     # Vitest worker tests
+cd apps/telegram-reminder && pnpm test       # Vitest worker tests
 ```
+
 ---
 
 *Keep this file current as conventions evolve. Stale instructions cost sessions.*

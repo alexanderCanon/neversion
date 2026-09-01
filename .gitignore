@@ -2,7 +2,6 @@
 .env
 *.env
 .env.*
-supabase/functions/.env
 get-jwt.mjs
 runtime-config.js
 **/src/assets/runtime-config.js
@@ -23,10 +22,6 @@ coverage/
 *.sqlite
 *.sqlite3
 apps/reservation-service/reservations.db
-
-# ── Supabase CLI & Metadata ────────────────────────
-supabase/.temp/
-supabase/.branches/
 
 # ── IDEs, OS & Tools ───────────────────────────────
 .vscode/

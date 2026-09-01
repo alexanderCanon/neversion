@@ -4,61 +4,64 @@
 
 ```mermaid
 graph TD
-    Client[Internet]
+    Client[Usuarios / Clientes]
     
-    subgraph Frontend["Frontend (Angular)"]
-        SPA["Panel Admin + Tienda Cliente"]
+    subgraph Edge["Cloudflare Network"]
+        WWW["apps/www (Astro / Cloudflare Pages)"]
+        Store["apps/store (React 19 / Cloudflare Pages)"]
+        Panel["apps/panel (Angular 21 / Cloudflare Pages)"]
+        Gateway["apps/api-gateway (Cloudflare Worker)"]
+        NotifWorker["apps/notification-worker (Cloudflare Worker)"]
+        TelegramWorker["apps/telegram-reminder (Cloudflare Worker)"]
     end
 
-    subgraph Backend["API Backend (Spring Boot)"]
-        API["/api/v1/**"]
+    subgraph BackendServices["Backend & External Services"]
+        API["Backend API (Spring Boot / Servicio Desacoplado)"]
+        DB[(PostgreSQL 17 - Supabase / apps/db)]
+        Auth[Supabase Auth (JWT)]
+        ResendMail[Resend Email API]
+        TelegramAPI[Telegram Bot API]
     end
 
-    subgraph Servicios["Servicios y Persistencia"]
-        DB[(PostgreSQL - Supabase)]
-        Auth[Auth externo - Supabase Auth]
-        Mail[Mail Service - Resend]
-    end
-
-    Client --> SPA
-    Client --> API
-    SPA --> API
+    Client --> WWW
+    Client --> Store
+    Client --> Panel
+    
+    Store --> Gateway
+    Panel --> Gateway
+    Gateway --> API
+    
     API --> DB
     API --> Auth
-    API --> Mail
+    
+    DB -.->|Database Webhook| NotifWorker
+    NotifWorker --> ResendMail
+    
+    TelegramWorker -.->|Cron / Webhook| DB
+    TelegramWorker --> TelegramAPI
+    TelegramWorker --> ResendMail
 ```
 
 ---
 
 ## Componentes
 
-### Panel Admin + Tienda Cliente (Angular)
-- Aplicación SPA compilada como estático.
-- **Hosting recomendado:** Cloudflare Pages.
-- Consume el API backend vía HTTP.
-- Dos contextos en una sola app: panel del vendedor y tienda del cliente.
+### 1. Aplicaciones Web (Frontends en Cloudflare Pages)
+- **`apps/www` (Landing & Marketing):** Construido con **Astro** y Tailwind CSS. Alta optimización SEO y velocidad para captación de clientes.
+- **`apps/store` (Storefront del Cliente):** SPA en **React 19 + Vite 8 + Bun + Tailwind CSS v4**. Catálogo público de servicios, compras y checkout asistido.
+- **`apps/panel` (Panel Administrativo):** SPA en **Angular 21 (Standalone Components + Signals)** para gestión de inventario, cuentas, perfiles, clientes y órdenes por parte de los vendedores y super admins.
 
-### API Backend (Spring Boot)
-- Desplegado en **AWS EC2**.
-- Contenedor Docker publicado en **AWS ECR**.
-- Expone REST API bajo `/api/v1/`.
-- Incluye **Actuator** para health checks.
-- Documentación **OpenAPI** disponible en ambiente de desarrollo.
+### 2. Edge Workers (Cloudflare Workers)
+- **`apps/api-gateway`:** Enrutamiento perimetral, gestión CORS y validación temprana de JWTs.
+- **`apps/notification-worker`:** Worker reactivo a Webhooks de Supabase Database para despacho de correos transaccionales vía **Resend**.
+- **`apps/telegram-reminder`:** Bot y cron interactivo para alertas de renovación y recordatorios automáticos hacia Telegram y Email.
 
-### PostgreSQL (Supabase)
-- Base de datos principal.
-- Migraciones gestionadas con **Flyway desde el backend.
-- Acceso solo desde el backend — nunca directo desde el frontend.
-
-### Auth externo (Supabase Auth)
-- Proveedor de identidad integrado con Supabase.
-- Emite tokens **JWT** que el backend valida.
-- El backend mantiene control de roles y permisos internamente (**RBAC implícito**).
-
-### Mail Service (Resend)
-- Servicio de correo transaccional.
-- Triggered desde el backend en eventos de negocio definidos.
-- Todo envío queda registrado en `notification_log`.
+### 3. Backend Central & Persistencia
+- **API Backend:** Servicio central desacoplado que implementa lógica de dominio hexagonal, reglas de negocio y endpoints REST `/api/v1/**`.
+- **PostgreSQL 17 (`apps/db` / Supabase):** Base de datos relacional multi-tenant con partición lógica por `vendor_id`.
+- **Supabase Auth:** Proveedor de identidad y emisión de JWTs.
+- **Resend:** Proveedor de emails transaccionales.
+- **Telegram Bot API:** Canal interactivo de notificaciones operativas.
 
 ---
 
@@ -66,15 +69,15 @@ graph TD
 
 | Ambiente | Propósito | Infraestructura |
 | :--- | :--- | :--- |
-| **local** | Desarrollo individual | Docker local / DB local |
-| **develop** | Integración y pruebas | AWS Develop / Supabase Dev |
-| **production** | Operación real | AWS Prod / Supabase Prod |
+| **local** | Desarrollo individual | `apps/db` Compose local / Wrangler Dev / Vite & Angular Dev servers |
+| **preview / staging** | Integración continua y PRs | Cloudflare Pages Preview / Supabase Staging |
+| **production** | Operación real | Cloudflare Pages + Workers Prod / Supabase Prod |
 
 ---
 
 ## Flujo de despliegue
-`feature/xxx` → `develop` → `main` → `production`
+`feature/<scope>` → `develop` → `main`
 
-- Cada agente trabaja en su propia rama `feature/`.
-- Integración obligatoria en `develop` antes de tocar `main`.
-- `main` refleja siempre el estado actual de producción.
+- Cada agente y contribuidor trabaja en su rama de feature aislada.
+- Builds y pruebas automatizadas en GitHub Actions (Vite, Angular, Vitest, Wrangler).
+- Despliegue continuo hacia Cloudflare Pages y Workers.

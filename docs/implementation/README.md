@@ -1,8 +1,10 @@
 # Bitácoras de Implementación
 
-Este directorio contiene los registros de construcción del sistema, donde cada agente debe documentar su progreso, decisiones técnicas y cambios realizados.
+> [!NOTE]
+> **Registro Histórico:** Los documentos contenidos en este directorio representan bitácoras históricas inmutables del proceso de construcción inicial (abril–mayo 2026), incluyendo las migraciones de base de datos (`V1` a `V21`), endpoints originales de Spring Boot y el scaffolding inicial. Sirven como trazabilidad evolutiva de Neversion.
 
 ---
+
 
 ## Guía de Uso
 

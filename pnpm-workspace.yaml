@@ -16,7 +16,6 @@ catalog:
   zone.js: ~0.15.0
 allowBuilds:
   '@nestjs/core': true
-  '@openapitools/openapi-generator-cli': true
   '@parcel/watcher': true
   better-sqlite3: true
   esbuild: true
