@@ -15,7 +15,6 @@ apps/
   monitoring/           # Observability stack (Grafana, Alloy, Prometheus)
   www/                  # Marketing landing site (Astro)
 packages/
-  api-client/           # Generated TypeScript Angular services (OpenAPI)
   models/               # Shared TypeScript interfaces
   utils/                # Shared Angular utilities
 docs/
@@ -148,7 +147,6 @@ Merges to `develop` and `main` are **Alex's responsibility**, not the agent's.
 # Root
 pnpm install            # Install all workspace dependencies
 pnpm -r build           # Build all packages
-pnpm api:sync           # Regenerate api-client from running backend
 
 # Backend (apps/api)
 cd apps/api && ./mvnw spring-boot:run        # Run with hot reload

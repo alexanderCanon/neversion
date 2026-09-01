@@ -3,8 +3,7 @@
     "baseUrl": ".",
     "paths": {
       "@neversion/models": ["packages/models/src/index.ts"],
-      "@neversion/utils": ["packages/utils/src/index.ts"],
-      "@neversion/api-client": ["packages/api-client/src/index.ts"]
+      "@neversion/utils": ["packages/utils/src/index.ts"]
     },
     "module": "ESNext",
     "moduleResolution": "node",

@@ -1,19 +1,18 @@
 # Neversion
 
-Multi-tenant digital services management platform and client storefront monorepo — handling vendor operations, subscriptions, accounts, profiles, reservations, notifications, and client storefront.
+Multi-tenant digital services management platform and client storefront monorepo — handling vendor operations, subscriptions, accounts and profiles, notifications, and client storefront.
 
 ---
 
 ## 🚀 Tech Stack
 
-* **Frontend Admin (Panel):** Angular 21 (Standalone Components, Signals, Bootstrap 5, SCSS)
-* **Frontend Storefront (Store):** React 19 + Vite 8 + Tailwind CSS v4 + Bun Runtime (SPA)
-* **Backend API Gateway:** Cloudflare Workers (TypeScript, Vitest, Wrangler)
-* **Microservices:** Rust (gRPC, Tonic, Prost, SQLite)
-* **Website:** Astro
+* **Frontend Admin (Panel):** Angular 21 (Standalone Components, Signals, Bootstrap 5)
+* **Frontend Storefront (Store):** React 19 + Vite 8 + Tailwind CSS v4
+* **Backend API Gateway:** Cloudflare Workers (TypeScript)
+* **Website (www):** Astro
 * **Observability:** Grafana, Grafana Alloy, Prometheus
 * **Package Management & Tooling:** PNPM Workspaces, Bun, ESLint, TypeScript 5.9, OpenAPI Generator
-* **Deployment & Hosting:** Cloudflare Pages, Cloudflare Workers, Docker Compose
+* **Deployment & Hosting:** Cloudflare Network (Edge, Pages and Workers)
 
 ---
 
@@ -22,16 +21,13 @@ Multi-tenant digital services management platform and client storefront monorepo
 ```text
 neversion/
 ├── apps/
-│   ├── panel/                # Admin Management UI (Angular 21 SPA)
-│   ├── store/                # Customer Storefront (React 19 + Vite 8 + Bun SPA)
+│   ├── panel/                # Admin Management UI
+│   ├── store/                # Customer Storefront
 │   ├── api-gateway/          # Cloudflare Worker API Gateway & Auth router
-│   ├── notification-service/ # Rust gRPC transactional notification service (Resend)
-│   ├── reservation-service/  # Rust gRPC temporary reservation service
-│   ├── db/                   # PostgreSQL database configuration and compose definitions
+│   ├── db/                   # PostgreSQL database configuration for self-hosted
 │   ├── monitoring/           # Observability stack (Grafana, Alloy, Prometheus)
-│   └── www/                  # Marketing landing site (Astro)
+│   └── www/                  # Marketing landing site
 ├── packages/
-│   ├── api-client/           # Generated TypeScript Angular API client (OpenAPI)
 │   ├── models/               # Shared TypeScript domain models & interfaces
 │   └── utils/                # Shared Angular utilities & helpers
 └── docs/                     # Architecture Decision Records (ADR), domain models, and guides
@@ -42,9 +38,8 @@ neversion/
 ## 📋 Prerequisites
 
 * **Node.js 24+**
-* **pnpm 11+** (`corepack enable` or `npm install -g pnpm`)
-* **Rust & Cargo** (for building notification and reservation gRPC microservices)
-* **Docker & Docker Compose** (for database and local observability workflows)
+* **pnpm 11+** (don't use npm)
+* **Docker & Docker Compose** (optional for DB)
 
 ---
 
@@ -60,11 +55,12 @@ pnpm install
 
 ### 2. Build Workspace Packages
 
-Build all shared packages (`@neversion/models`, `@neversion/utils`, `@neversion/api-client`):
+Build all shared packages (`@neversion/models`, `@neversion/utils`):
 
 ```bash
 pnpm -r build
 ```
+(This maybe require 2GB free RAM)
 
 ### 3. Run Applications in Development
 
@@ -77,20 +73,13 @@ pnpm --filter panel start
 #### Store (Customer Storefront)
 ```bash
 # Starts development server on http://localhost:4000
-cd apps/store && bun dev
-# or from root: pnpm --filter store dev
+pnpm --filter store dev
 ```
 
 #### API Gateway (Cloudflare Worker)
 ```bash
 # Starts local development worker via Wrangler
 pnpm --filter neversion-api-gateway dev
-```
-
-#### Notification Service (Rust gRPC)
-```bash
-cd apps/notification-service
-cargo run
 ```
 
 ---
@@ -115,24 +104,13 @@ pnpm --filter store test
 
 ---
 
-## 📖 OpenAPI Client Synchronization
-
-To regenerate the Angular TypeScript API client from the running Spring Boot API docs:
-
-```bash
-# Ensure API is running on localhost:8080 or pass custom API_URL
-pnpm api:sync
-```
-
----
-
 ## 🚢 Deployment & CI/CD
 
 Applications and edge services in this monorepo are continuously deployed via GitHub Actions workflows:
 
 * **Panel:** Deployed to Cloudflare Pages (`apps/panel/dist/panel/browser`)
 * **Store:** Deployed to Cloudflare Pages (`apps/store/dist`)
-* **API Gateway:** Deployed to Cloudflare Workers (`apps/api-gateway`)
+* **API Gateway:** Deployed to Cloudflare Workers using wrangler(`apps/api-gateway`)
 
 Runtime configuration is injected during the build step via `write-runtime-config.mjs` using GitHub Secrets and Cloudflare environmental variables.
 
@@ -141,3 +119,5 @@ Runtime configuration is injected during the build step via `write-runtime-confi
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+And... thanks for reading! I always do my best to improve this.
