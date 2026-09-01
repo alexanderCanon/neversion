@@ -4,15 +4,30 @@ Multi-tenant digital services management platform and client storefront monorepo
 
 ---
 
+## 🌐 Ecosistema & Repositorios Relacionados
+
+La plataforma **Neversion** está dividida en los siguientes repositorios especializados:
+
+| Repositorio | Descripción | Tecnologías Clave |
+| :--- | :--- | :--- |
+| [**neversion**](https://github.com/alexanderCanon/neversion) *(este repo)* | Frontends (Panel Admin, Storefront, Landing), Edge Workers y DB local | Angular 21, React 19, Astro, Cloudflare Workers, PostgreSQL 17 |
+| [**neversion-api**](https://github.com/alexanderCanon/neversion-api) | Backend API Central (Lógica de dominio, contratos REST y persistencia) | Spring Boot 4, Java 21, Arquitectura Hexagonal, DDD, Flyway |
+| [**neversion-infra**](https://github.com/alexanderCanon/neversion-infra) | Aprovisionamiento de infraestructura en la nube y entornos de despliegue | Terraform, AWS |
+
+---
+
 ## 🚀 Tech Stack
 
-* **Frontend Admin (Panel):** Angular 21 (Standalone Components, Signals, Bootstrap 5)
-* **Frontend Storefront (Store):** React 19 + Vite 8 + Tailwind CSS v4
-* **Backend API Gateway:** Cloudflare Workers (TypeScript)
-* **Website (www):** Astro
-* **Observability:** Grafana, Grafana Alloy, Prometheus
-* **Package Management & Tooling:** PNPM Workspaces, Bun, ESLint, TypeScript 5.9, OpenAPI Generator
-* **Deployment & Hosting:** Cloudflare Network (Edge, Pages and Workers)
+* **Frontend Admin (Panel):** Angular 21 (Standalone Components, Signals)
+* **Frontend Storefront (Store):** React 19 + Vite 8 + Bun + Tailwind CSS v4
+* **Website (www):** Astro + Tailwind CSS
+* **Edge Workers & Services:** Cloudflare Workers (TypeScript, Wrangler, Vitest)
+  * `api-gateway`: Enrutamiento y validación JWT perimetral.
+  * `notification-worker`: Despacho de emails transaccionales con Resend vía Supabase Webhooks.
+  * `telegram-reminder`: Bot interactivo y cron de recordatorios de renovación por Telegram/Email.
+* **Database & Persistence:** PostgreSQL 17 (Supabase / Docker compose)
+* **Package Management & Tooling:** PNPM Workspaces, Bun, ESLint, TypeScript 5.9
+* **Deployment & Hosting:** Cloudflare Network (Cloudflare Pages y Cloudflare Workers)
 
 ---
 
@@ -21,16 +36,17 @@ Multi-tenant digital services management platform and client storefront monorepo
 ```text
 neversion/
 ├── apps/
-│   ├── panel/                # Admin Management UI
-│   ├── store/                # Customer Storefront
+│   ├── panel/                # Admin Management UI (Angular 21)
+│   ├── store/                # Customer Storefront (React 19)
+│   ├── www/                  # Marketing landing site (Astro)
 │   ├── api-gateway/          # Cloudflare Worker API Gateway & Auth router
-│   ├── db/                   # PostgreSQL database configuration for self-hosted
-│   ├── monitoring/           # Observability stack (Grafana, Alloy, Prometheus)
-│   └── www/                  # Marketing landing site
+│   ├── notification-worker/  # Cloudflare Worker for Resend transactional emails
+│   ├── telegram-reminder/    # Cloudflare Worker for Telegram bot & renewal alerts
+│   └── db/                   # PostgreSQL database configuration for self-hosted
 ├── packages/
 │   ├── models/               # Shared TypeScript domain models & interfaces
 │   └── utils/                # Shared Angular utilities & helpers
-└── docs/                     # Architecture Decision Records (ADR), domain models, and guides
+└── docs/                     # Architecture Decision Records (ADRs), domain models, and guides
 ```
 
 ---
@@ -38,8 +54,8 @@ neversion/
 ## 📋 Prerequisites
 
 * **Node.js 24+**
-* **pnpm 11+** (don't use npm)
-* **Docker & Docker Compose** (optional for DB)
+* **pnpm 10+** (or Bun for `apps/store`)
+* **Docker & Docker Compose** (optional for local DB)
 
 ---
 
@@ -60,7 +76,6 @@ Build all shared packages (`@neversion/models`, `@neversion/utils`):
 ```bash
 pnpm -r build
 ```
-(This maybe require 2GB free RAM)
 
 ### 3. Run Applications in Development
 
@@ -76,10 +91,18 @@ pnpm --filter panel start
 pnpm --filter store dev
 ```
 
-#### API Gateway (Cloudflare Worker)
+#### Marketing Landing (Website)
+```bash
+# Starts development server on http://localhost:4321
+pnpm --filter neversion-www dev
+```
+
+#### API Gateway & Workers
 ```bash
 # Starts local development worker via Wrangler
 pnpm --filter neversion-api-gateway dev
+pnpm --filter notification-worker dev
+pnpm --filter neversion-telegram-reminder dev
 ```
 
 ---
@@ -92,13 +115,15 @@ Run automated test suites and linting across the monorepo:
 # Run lint across all workspace packages
 pnpm lint
 
-# Run API Gateway tests
+# Run API Gateway and Workers tests (Vitest)
 pnpm --filter neversion-api-gateway test
+pnpm --filter notification-worker test
+pnpm --filter neversion-telegram-reminder test
 
 # Run Panel tests (Karma / Jasmine)
 pnpm --filter panel test
 
-# Run Store tests (Karma / Jasmine)
+# Run Store tests (Vitest)
 pnpm --filter store test
 ```
 
@@ -110,9 +135,11 @@ Applications and edge services in this monorepo are continuously deployed via Gi
 
 * **Panel:** Deployed to Cloudflare Pages (`apps/panel/dist/panel/browser`)
 * **Store:** Deployed to Cloudflare Pages (`apps/store/dist`)
-* **API Gateway:** Deployed to Cloudflare Workers using wrangler(`apps/api-gateway`)
+* **Website:** Deployed to Cloudflare Pages (`apps/www/dist`)
+* **Workers:** Deployed to Cloudflare Workers using Wrangler (`api-gateway`, `notification-worker`, `telegram-reminder`)
 
-Runtime configuration is injected during the build step via `write-runtime-config.mjs` using GitHub Secrets and Cloudflare environmental variables.
+Runtime configuration is injected during the build step via `write-runtime-config.mjs` using GitHub Secrets and Cloudflare environment variables.
+
 
 ---
 

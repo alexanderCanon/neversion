@@ -21,18 +21,26 @@ Resumen ejecutivo, visión del producto, alcance del MVP y objetivos estratégic
 *   [**Requerimientos No Funcionales (NFR)**](./architecture/nfr.md): Seguridad, rendimiento y escalabilidad.
 *   [**Visión de Despliegue**](./architecture/deployment.md): Topología del sistema y ambientes.
 
-### 4. Backlog
+### 4. Diagramas y Flujos
+*   [**Arquitectura de Alto Nivel**](./diagrams/architecture.md): Topología de frontends, workers edge y servicios.
+*   [**Flujo Principal (End-to-End)**](./diagrams/main-flow.md): Secuencia completa desde catálogo hasta entrega.
+*   [**Ciclo de Vida de Suscripciones**](./diagrams/subscription-lifecycle.md): Estados y transiciones de suscripciones.
+*   [**Sistema de Notificaciones**](./diagrams/notification-system.md): Arquitectura de despacho transaccional y recordatorios.
+*   [**API Gateway Edge**](./diagrams/api-gateway.md): Validación de tokens y balanceo perimetral.
+
+### 5. Backlog
 *   [**Épicas**](./backlog/epics.md): Listado de grandes bloques de trabajo.
 *   [**Historias de Usuario**](./backlog/stories/): Detalle de requerimientos funcionales por épica.
 *   [**Responsabilidades de Agentes**](./backlog/responsabilities.md): Reparto de tareas y reglas de trabajo.
 
-### 5. Seguimiento e Implementación
-*   [**Roadmap de Documentación**](./documentation-roadmap.md): Brechas y ambigüedades por resolver.
-*   [**Guía de Implementación**](./implementation/README.md): Instrucciones para la construcción de backend y frontend.
+### 6. Seguimiento e Implementación (Histórico)
+*   [**Roadmap de Documentación**](./documentation-roadmap.md): Brechas y ambigüedades resueltas.
+*   [**Bitácoras de Implementación**](./implementation/README.md): Registro histórico de construcción de backend, panel y storefront.
 
-### 6. Agents
-*   [**AGENTS.md**](./agents/AGENTS.md): Entry point for any AI agent working on this project.
-*   [**CLAUDE.md**](./agents/CLAUDE.md): Backend agent instructions.
+### 7. Protocolos de Agentes AI
+*   [**AGENTS.md**](../AGENTS.md): Reglas de colaboración, branch protocol y estándares para agentes.
+*   [**CLAUDE.md**](../CLAUDE.md): Directrices técnicas de desarrollo del monorepo.
 
 ---
-*Última actualización: Abril 2026*
+*Última actualización: Septiembre 2026*
+
