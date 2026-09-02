@@ -123,6 +123,12 @@ export const routes: Routes = [
                 canActivate: [roleGuard]
             },
             {
+                path: 'payment-methods-config',
+                loadComponent: () => import('./features/vendors/pages/payment-methods-config/payment-methods-config.component').then(m => m.PaymentMethodsConfigComponent),
+                data: { allowedRoles: ['vendor'] },
+                canActivate: [roleGuard]
+            },
+            {
                 path: 'help',
                 loadComponent: () => import('./features/help/help.component').then(m => m.HelpComponent),
                 data: { allowedRoles: ['vendor', 'super_admin'] },

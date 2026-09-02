@@ -8,3 +8,4 @@ export * from './reservation.model';
 export * from './subscription.model';
 export * from './auth.model';
 export * from './game.model';
+export * from './payment-method.model';

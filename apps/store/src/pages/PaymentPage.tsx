@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import { useReservation, useUploadReceipt, useVendorPublic } from '../hooks/useQueries'
 import { supabase } from '../lib/supabase'
 import { env } from '../config/env'
 import { REAL_BANK_ACCOUNTS } from '../data/catalog'
+import type { BankAccount } from '../types/store'
 import { getWhatsAppLink } from '../config/constants'
 import {
   Clock,
@@ -29,6 +30,22 @@ export function PaymentPage() {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const { data: vendor } = useVendorPublic()
+
+  const bankAccounts = useMemo<BankAccount[]>(() => {
+    if (vendor?.bankDetails) {
+      try {
+        const parsed = typeof vendor.bankDetails === 'string' ? JSON.parse(vendor.bankDetails) : vendor.bankDetails
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed as BankAccount[]
+        }
+      } catch (err) {
+        console.error('Error parsing vendor bank details:', err)
+      }
+    }
+    return REAL_BANK_ACCOUNTS
+  }, [vendor?.bankDetails])
 
   // Timer countdown
   useEffect(() => {
@@ -188,9 +205,9 @@ export function PaymentPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            {REAL_BANK_ACCOUNTS.map(acc => (
+            {bankAccounts.map((acc, idx) => (
               <div
-                key={acc.bank}
+                key={`${acc.bank}-${idx}`}
                 className="p-4 rounded-xl bg-[#1a1d2e] border border-[#252838] flex flex-col justify-between space-y-3"
               >
                 <div>

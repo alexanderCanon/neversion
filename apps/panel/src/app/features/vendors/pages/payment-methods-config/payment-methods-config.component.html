@@ -1,0 +1,198 @@
+<div class="container-fluid py-4 px-3 px-lg-4">
+    <!-- Header -->
+    <div class="mb-4">
+        <h3 class="fw-bold mb-1 text-dark">Métodos de Pago y Cuentas Bancarias</h3>
+        <p class="text-secondary small mb-0">
+            Configura las cuentas bancarias donde tus clientes podrán transferir o depositar para pagar sus pedidos. Los cambios se reflejarán inmediatamente en tu Storefront.
+        </p>
+    </div>
+
+    <!-- Loading -->
+    @if (isLoading()) {
+        <div class="d-flex justify-content-center align-items-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+        </div>
+    }
+
+    <!-- Content -->
+    @if (!isLoading()) {
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                    <div class="card-body p-4 p-md-5 bg-white">
+
+                        <!-- Info Alert -->
+                        <div class="alert alert-info border-0 rounded-4 p-4 mb-4 bg-light-blue text-dark-blue">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-bank fs-3"></i>
+                                <div>
+                                    <h6 class="fw-bold mb-1">Cuentas Oficiales para Depósito / Transferencia</h6>
+                                    <p class="mb-0 small opacity-90">
+                                        Estas cuentas bancarias se presentarán a tus compradores en la sección de <strong>Métodos de Pago</strong> y durante el proceso de <strong>Checkout</strong> para que realicen la transferencia y adjunten su boleta o comprobante.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form [formGroup]="form" (ngSubmit)="onSave()">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0">Cuentas Registradas ({{ accounts.length }})</h5>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary btn-sm rounded-3 px-3 d-flex align-items-center gap-1"
+                                    (click)="addAccount()">
+                                    <i class="bi bi-plus-lg"></i> Agregar Cuenta
+                                </button>
+                            </div>
+
+                            <p class="text-secondary small mb-4">
+                                Ingresa la información de cada cuenta bancaria o billetera digital que aceptas.
+                            </p>
+
+                            <div formArrayName="accounts">
+                                @for (account of accounts.controls; track i; let i = $index) {
+                                    <div [formGroupName]="i" class="account-card card border-0 shadow-sm rounded-4 mb-4">
+                                        <div class="card-header bg-light border-0 py-3 px-4 d-flex justify-content-between align-items-center rounded-top-4">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold">
+                                                    <i class="bi bi-credit-card-2-front me-1"></i> Cuenta {{ i + 1 }}
+                                                </span>
+                                                @if (account.get('bank')?.value) {
+                                                    <span class="fw-semibold text-dark small">{{ account.get('bank')?.value }}</span>
+                                                }
+                                            </div>
+                                            @if (accounts.length > 1) {
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-outline-danger btn-sm rounded-3 px-2 py-1"
+                                                    (click)="removeAccount(i)"
+                                                    title="Eliminar cuenta">
+                                                    <i class="bi bi-trash"></i> Eliminar
+                                                </button>
+                                            }
+                                        </div>
+
+                                        <div class="card-body p-4">
+                                            <div class="row g-3">
+                                                <!-- Banco -->
+                                                <div class="col-md-6 col-lg-3">
+                                                    <label [for]="'bank-' + i" class="form-label fw-semibold text-secondary small">
+                                                        Banco / Institución <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-modern"
+                                                        [id]="'bank-' + i"
+                                                        formControlName="bank"
+                                                        placeholder="Ej: Banco Industrial"
+                                                        list="banksList"
+                                                    />
+                                                    @if (account.get('bank')?.invalid && account.get('bank')?.touched) {
+                                                        <div class="text-danger x-small mt-1">El nombre del banco es requerido.</div>
+                                                    }
+                                                </div>
+
+                                                <!-- Tipo de Cuenta -->
+                                                <div class="col-md-6 col-lg-3">
+                                                    <label [for]="'accountType-' + i" class="form-label fw-semibold text-secondary small">
+                                                        Tipo de Cuenta <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-modern"
+                                                        [id]="'accountType-' + i"
+                                                        formControlName="accountType"
+                                                        placeholder="Ej: Ahorro en Quetzales"
+                                                        list="accountTypesList"
+                                                    />
+                                                    @if (account.get('accountType')?.invalid && account.get('accountType')?.touched) {
+                                                        <div class="text-danger x-small mt-1">El tipo de cuenta es requerido.</div>
+                                                    }
+                                                </div>
+
+                                                <!-- Número de Cuenta -->
+                                                <div class="col-md-6 col-lg-3">
+                                                    <label [for]="'accountNumber-' + i" class="form-label fw-semibold text-secondary small">
+                                                        Número de Cuenta <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-modern font-monospace"
+                                                        [id]="'accountNumber-' + i"
+                                                        formControlName="accountNumber"
+                                                        placeholder="Ej: 4426313592"
+                                                    />
+                                                    @if (account.get('accountNumber')?.invalid && account.get('accountNumber')?.touched) {
+                                                        <div class="text-danger x-small mt-1">Número de cuenta requerido.</div>
+                                                    }
+                                                </div>
+
+                                                <!-- Nombre del Titular -->
+                                                <div class="col-md-6 col-lg-3">
+                                                    <label [for]="'holder-' + i" class="form-label fw-semibold text-secondary small">
+                                                        Titular / Beneficiario <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        class="form-control form-control-modern"
+                                                        [id]="'holder-' + i"
+                                                        formControlName="holder"
+                                                        placeholder="Ej: Nombre Completo"
+                                                    />
+                                                    @if (account.get('holder')?.invalid && account.get('holder')?.touched) {
+                                                        <div class="text-danger x-small mt-1">Nombre del titular requerido.</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Datalists for autocompletion -->
+                            <datalist id="banksList">
+                                @for (b of popularBanks; track b) {
+                                    <option [value]="b"></option>
+                                }
+                            </datalist>
+
+                            <datalist id="accountTypesList">
+                                @for (t of accountTypes; track t) {
+                                    <option [value]="t"></option>
+                                }
+                            </datalist>
+
+                            @if (accounts.length === 0) {
+                                <div class="text-center py-5 border rounded-4 bg-light text-secondary mb-4">
+                                    <i class="bi bi-wallet2 fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                    <p class="mb-2 fw-semibold">No tienes métodos de pago configurados.</p>
+                                    <button type="button" class="btn btn-primary btn-sm rounded-3" (click)="addAccount()">
+                                        <i class="bi bi-plus-lg me-1"></i> Agregar mi primera cuenta
+                                    </button>
+                                </div>
+                            }
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary px-5 py-3 rounded-3"
+                                    [disabled]="form.invalid || isSaving()">
+                                    @if (isSaving()) {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                    } @else {
+                                        <i class="bi bi-check-lg me-1"></i>
+                                    }
+                                    Guardar Configuración
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
