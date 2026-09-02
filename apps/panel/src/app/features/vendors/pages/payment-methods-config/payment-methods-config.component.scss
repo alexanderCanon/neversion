@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.bg-light-blue {
+  background-color: #f0f7ff;
+}
+
+.text-dark-blue {
+  color: #0c4a6e;
+}
+
+.form-control-modern {
+  border-radius: 0.5rem;
+  border-color: #e2e8f0;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+}
+
+.account-card {
+  border: 1px solid #e2e8f0 !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+.x-small {
+  font-size: 0.75rem;
+}
