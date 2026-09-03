@@ -147,10 +147,6 @@ catalogs:
 importers:
 
   .:
-    dependencies:
-      '@alexandercanon/api-client-angular':
-        specifier: 1.0.1
-        version: 1.0.1(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
     devDependencies:
       '@angular-eslint/eslint-plugin':
         specifier: ^21.3.1
