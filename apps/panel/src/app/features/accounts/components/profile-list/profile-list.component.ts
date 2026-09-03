@@ -274,6 +274,24 @@ export class ProfileListComponent implements OnInit, OnChanges {
       });
   }
 
+  onDeleteProfile(profile: ProfileResponse): void {
+    if (profile.status !== ProfileStatus.AVAILABLE || profile.isOwner) {
+      this.toastService.error('Solo se pueden eliminar perfiles disponibles no propietarios.');
+      return;
+    }
+    if (!confirm(`¿Eliminar el Perfil "${profile.name || 'sin nombre'}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+    this.profileService.deleteProfile(profile.id).subscribe({
+      next: () => {
+        this.toastService.success('Perfil eliminado. Ahora puedes bajar el tope de la cuenta si lo deseas.');
+        this.profilesChanged.emit();
+        this.loadProfilesClientData();
+      },
+      error: () => this.toastService.error('No se pudo eliminar el Perfil.')
+    });
+  }
+
   copyAccess(profile: ProfileResponse): void {
     this.selectedProfileForAccess = profile;
     if (this.accountRenewalDate) {

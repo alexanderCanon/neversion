@@ -47,6 +47,13 @@ export class AccountWithSubscriptionFormComponent implements OnInit {
   readonly serviceOptions = signal<ServiceOption[]>([]);
   readonly clientOptions = signal<ClientResponse[]>([]);
 
+  /** BR-02 ceiling: max profiles allowed by the selected service. */
+  get serviceCeiling(): number | null {
+    const serviceId = this.unifiedForm?.get('serviceId')?.value;
+    const service = this.serviceOptions().find(s => s.id === serviceId);
+    return service ? service.maxProfiles : null;
+  }
+
   private readonly fb = inject(FormBuilder);
   private readonly accountsService = inject(AccountsService);
   private readonly clientsService = inject(ClientsService);
@@ -71,6 +78,7 @@ export class AccountWithSubscriptionFormComponent implements OnInit {
           displayName: s.name,
           maxProfiles: s.maxProfiles || 1
         })));
+        this.applyCeiling();
       },
       error: (err) => console.error('Failed to load services', err)
     });
@@ -117,8 +125,27 @@ export class AccountWithSubscriptionFormComponent implements OnInit {
         const serviceId = this.unifiedForm.get('serviceId')?.value;
         const service = this.serviceOptions().find(s => s.id === serviceId);
         maxProfilesCtrl?.setValue(service ? service.maxProfiles : 1);
+        this.applyCeiling();
       }
     });
+
+    this.unifiedForm.get('serviceId')?.valueChanges.subscribe(() => this.applyCeiling());
+  }
+
+  /** BR-02 ceiling: clamp maxProfiles to the selected service maximum. */
+  private applyCeiling(): void {
+    const ctrl = this.unifiedForm.get('maxProfiles');
+    if (!ctrl) return;
+    const ceiling = this.serviceCeiling;
+    const validators = [Validators.required, Validators.min(1)];
+    if (ceiling != null) {
+      validators.push(Validators.max(ceiling));
+    }
+    ctrl.setValidators(validators);
+    if (ceiling != null && ctrl.value != null && Number(ctrl.value) > ceiling) {
+      ctrl.setValue(ceiling);
+    }
+    ctrl.updateValueAndValidity({ emitEvent: false });
   }
 
   onServiceChange(serviceId: string): void {
@@ -126,6 +153,7 @@ export class AccountWithSubscriptionFormComponent implements OnInit {
     if (service && this.unifiedForm.get('saleMode')?.value === SaleMode.BY_PROFILE) {
       this.unifiedForm.patchValue({ maxProfiles: service.maxProfiles });
     }
+    this.applyCeiling();
   }
 
   openModal(): void {

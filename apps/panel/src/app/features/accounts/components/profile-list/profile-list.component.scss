@@ -172,6 +172,12 @@
         color: #ef4444;
         border-color: #fee2e2;
     }
+
+    &.delete:hover {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
 }
 
 .italic { font-style: italic; }
