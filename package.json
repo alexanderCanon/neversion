@@ -22,6 +22,6 @@
     "typescript-eslint": "8.46.4"
   },
   "dependencies": {
-    "@alexandercanon/api-client-angular": "1.0.0"
+    "@alexandercanon/api-client-angular": "1.0.1"
   }
 }

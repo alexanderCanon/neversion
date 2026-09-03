@@ -16,11 +16,10 @@ para el badge "fuera de gracia" y el input de fecha explícita. El backend lo ti
 `PUT /subscriptions/{id}/renew?newDueDate=` solo rechaza fechas pasadas. Acepta cualquier futuro,
 por lejano que sea. Decidir si se topa (ej. máx. +60/90 días) o se deja a criterio del vendedor.
 
-## TD-R3 — Camino paralelo al api-client
+## TD-R3 — Camino paralelo al api-client ✅ cerrado 2026-09-03
 
-El api-client publicado 1.0.0 no expone `newDueDate`, así que el panel llama por `HttpClient` crudo
-(`SubscriptionsService.renewSubscriptionToDate`). Al regenerar/publicar el cliente, migrar ese método
-al tipado generado y eliminar la URL manual.
+~~El api-client publicado 1.0.0 no expone `newDueDate`...~~ Cliente 1.0.1 publicado con el parámetro;
+panel migrado a `renewSubscription(id, newDueDate)` tipado y eliminado el `HttpClient` manual.
 
 ## TD-R4 — Default hoy+30 no preserva el día
 

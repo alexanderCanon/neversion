@@ -1,5 +1,4 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, tap, finalize, map, catchError } from 'rxjs';
 import {
   SubscriptionsApiService,
@@ -14,13 +13,11 @@ import {
   ChangeProfileStatusRequest
 } from '@alexandercanon/api-client-angular';
 import { SubscriptionsFilter } from '@neversion/models';
-import { runtimeConfig } from '../../../core/config/runtime-config';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionsService {
   private readonly subscriptionsApi = inject(SubscriptionsApiService);
   private readonly profilesApi = inject(ProfilesApiService);
-  private readonly http = inject(HttpClient);
 
   private readonly _subscriptions = signal<SubscriptionResponse[]>([]);
   readonly subscriptions = this._subscriptions.asReadonly();
@@ -70,12 +67,9 @@ export class SubscriptionsService {
 
   /**
    * Late renewal with an explicit due date (past grace).
-   * Calls PUT /subscriptions/{id}/renew?newDueDate= directly since the
-   * generated api-client 1.0.0 has no newDueDate parameter yet.
    */
   renewSubscriptionToDate(id: string, newDueDate: string): Observable<SubscriptionResponse> {
-    const url = `${runtimeConfig.apiUrl}/api/v1/subscriptions/${id}/renew?newDueDate=${newDueDate}`;
-    return this.http.put<SubscriptionResponse>(url, null).pipe(
+    return this.subscriptionsApi.renewSubscription(id, newDueDate).pipe(
       tap(() => this.refreshSubscriptions().subscribe())
     );
   }
