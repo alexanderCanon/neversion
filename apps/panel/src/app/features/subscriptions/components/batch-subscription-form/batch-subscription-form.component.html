@@ -14,8 +14,7 @@
 
           <!-- Client Section -->
           <div class="form-section mb-4">
-            <label class="form-label-custom">Cliente</label>
-            <div class="position-relative">
+            <label class="form-label-custom">Cliente</label>            <div class="position-relative">
               <label for="batchClientSearch" class="form-label small fw-medium text-muted">Buscar Comprador <span class="text-danger">*</span></label>
               <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-person-search"></i></span>
@@ -48,17 +47,57 @@
                   }
                 </div>
               }
+              @if (showClientDropdown && filteredClients.length === 0) {
+                <div class="border rounded-3 mt-1 p-3 bg-white shadow-sm">
+                  <p class="x-small text-muted mb-2">No se encontró el cliente.</p>
+                  <button type="button" class="btn btn-outline-success btn-sm rounded-3" (mousedown)="toggleNewClientForm()">
+                    <i class="bi bi-person-plus me-1"></i> Agregar cliente nuevo
+                  </button>
+                </div>
+              }
               @if (batchForm.get('clientSearch')?.touched && batchForm.get('clientId')?.errors?.['required']) {
                 <div class="text-danger x-small mt-1">Debes seleccionar un cliente de la lista.</div>
+              }
+              @if (showNewClientForm) {
+                <div class="border rounded-3 mt-2 p-3 bg-white shadow-sm" [formGroup]="newClientForm">
+                  <p class="small fw-bold mb-2">Nuevo cliente</p>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <label class="form-label x-small fw-medium text-muted">Nombre <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control form-control-modern form-control-sm" formControlName="name" placeholder="Nombre completo">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label x-small fw-medium text-muted">Teléfono <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control form-control-modern form-control-sm" formControlName="phone" placeholder="WhatsApp">
+                    </div>
+                    <div class="col-md-4">
+                      <label class="form-label x-small fw-medium text-muted">Correo (opcional)</label>
+                      <input type="email" class="form-control form-control-modern form-control-sm" formControlName="email" placeholder="correo@ejemplo.com">
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn btn-success btn-sm rounded-3" (click)="createAndSelectClient()" [disabled]="isCreatingClient">
+                      @if (isCreatingClient) { <span class="batch-spinner"></span> }
+                      Guardar y seleccionar
+                    </button>
+                    <button type="button" class="btn btn-link btn-sm text-muted" (click)="toggleNewClientForm()">Cancelar</button>
+                  </div>
+                </div>
               }
             </div>
           </div>
 
           <!-- Items Section -->
           <div class="form-section mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <label class="form-label-custom mb-0">Servicios a Asignar</label>
-              <button type="button" class="btn btn-outline-primary btn-sm rounded-3 px-3" (click)="addItem()">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+              <label class="form-label-custom mb-0">Servicios a Asignar ({{ items.length }})</label>
+              <div class="d-flex align-items-center gap-1">
+                <span class="x-small text-muted me-1">Slots:</span>
+                @for (n of quickSlotOptions; track n) {
+                  <button type="button" class="btn btn-sm rounded-3" [class.btn-primary]="items.length === n" [class.btn-outline-primary]="items.length !== n" (click)="setLineCount(n)">{{ n }}</button>
+                }
+              </div>
+              <button type="button" class="btn btn-outline-primary btn-sm rounded-3 px-3" (click)="addItem()" [disabled]="items.length >= maxSlots">
                 <i class="bi bi-plus-lg me-1"></i> Agregar servicio
               </button>
             </div>
@@ -157,7 +196,21 @@
                             }
                           </select>
                         </div>
+                        <div class="col-md-6">
+                          <label class="form-label x-small fw-medium text-muted">Nombre del Perfil</label>
+                          <input type="text" class="form-control form-control-modern form-control-sm" formControlName="profileName" placeholder="Ej. Juan Pérez" maxlength="100">
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label x-small fw-medium text-muted">PIN (opcional)</label>
+                          <input type="text" class="form-control form-control-modern form-control-sm" formControlName="profilePin" placeholder="PIN" maxlength="20">
+                        </div>
                       </div>
+                    }
+                    @if (!lineContexts[i].showOverride) {
+                      <p class="x-small text-muted mt-2 mb-0">
+                        <i class="bi bi-magic me-1"></i>
+                        Con asignación automática el Perfil se elige solo. Desactívala para elegir cuenta, Perfil y personalizar nombre/PIN.
+                      </p>
                     }
                   </div>
                 </div>
@@ -180,8 +233,9 @@
                 </div>
 
                 <div class="mb-0">
-                  <label for="batchPaymentDueDate" class="form-label small fw-medium text-muted">Próximo Pago <span class="text-danger">*</span></label>
+                  <label for="batchPaymentDueDate" class="form-label small fw-medium text-muted">Fecha de renovación (misma para todos) <span class="text-danger">*</span></label>
                   <input id="batchPaymentDueDate" type="date" class="form-control form-control-modern" formControlName="paymentDueDate" [min]="minDate">
+                  <p class="x-small text-muted mt-1 mb-0">Es la Fecha de vencimiento del Cliente, independiente de la cuenta maestra.</p>
                 </div>
               </div>
             </div>
