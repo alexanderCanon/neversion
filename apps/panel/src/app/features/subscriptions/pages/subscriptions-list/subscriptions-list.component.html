@@ -168,18 +168,13 @@
                   </div>
                   <div class="group-header-right">
                     @if (groupMode() === 'client' && (group.stats.active > 0 || group.stats.suspended > 0 || group.stats.expired > 0)) {
-                      <button 
+                      <button
                         type="button"
                         class="btn btn-primary btn-sm px-2 py-1 small fw-semibold d-inline-flex align-items-center gap-1 shadow-sm"
                         (click)="renewClientGroup(group, $event)"
-                        [disabled]="renewingClientGroupKey() === group.key"
-                        title="Renovar todas las suscripciones de este cliente en 1 clic">
-                        @if (renewingClientGroupKey() === group.key) {
-                          <span class="spinner-border spinner-border-sm" role="status"></span>
-                        } @else {
-                          <i class="bi bi-arrow-repeat"></i>
-                        }
-                        <span>Renovar todas</span>
+                        title="Elegir servicios a renovar de este cliente">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>Renovar</span>
                       </button>
                     }
                     <div class="group-mini-stats">
@@ -485,6 +480,51 @@
             <button type="button" class="btn btn-primary rounded-3" (click)="closeRevokeModal()">Cerrar</button>
           </div>
         }
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
+
+@if (isRenewOpen) {
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Renovar servicios de {{ renewGroupLabel }}</h5>
+          <button type="button" class="btn-close" (click)="closeRenewModal()" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          @for (sub of renewCandidates; track trackBySubscriptionId($index, sub)) {
+            <div class="form-check d-flex align-items-center gap-2 py-2 border-bottom">
+              <input class="form-check-input" type="checkbox" [id]="'renew-' + sub.id"
+                     [checked]="sub.id && renewChecked().has(sub.id)"
+                     (change)="sub.id && toggleRenewCheck(sub.id)">
+              <label class="form-check-label small flex-grow-1" [for]="'renew-' + sub.id">
+                <span class="fw-semibold">{{ sub.serviceName || 'Servicio' }}</span>
+                <span class="text-muted"> · vence {{ sub.paymentDueDate || 'sin fecha' }}</span>
+                @if (isBeyondGrace(sub)) {
+                  <span class="badge text-bg-warning ms-1">fuera de gracia</span>
+                }
+              </label>
+            </div>
+          }
+          @if (renewNeedsExplicitDate) {
+            <div class="alert alert-info rounded-3 small mt-3 mb-0">
+              <i class="bi bi-calendar-event me-1"></i>
+              Hay servicios fuera de gracia: elige la nueva fecha de renovación para esos.
+            </div>
+            <label class="form-label small fw-semibold text-muted mt-2" for="renewExplicitDate">Nueva fecha de renovación</label>
+            <input id="renewExplicitDate" type="date" class="form-control" [(ngModel)]="renewExplicitDate" [min]="renewMinDate">
+          }
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link text-muted" (click)="closeRenewModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary rounded-3" (click)="confirmRenewSelected()" [disabled]="isRenewingSelected">
+            @if (isRenewingSelected) { <span class="spinner-border spinner-border-sm me-1"></span> }
+            Renovar seleccionadas
+          </button>
+        </div>
       </div>
     </div>
   </div>

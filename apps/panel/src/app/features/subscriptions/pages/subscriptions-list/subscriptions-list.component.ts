@@ -71,7 +71,6 @@ export class SubscriptionsListComponent implements OnInit {
 
   selectedTableSubIds = signal<Set<string>>(new Set());
   isRenewingBatch = signal<boolean>(false);
-  renewingClientGroupKey = signal<string | null>(null);
 
   readonly filteredSubscriptions = computed(() => {
     let result = this.subscriptions();
@@ -287,43 +286,135 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   renewClientGroup(group: SubscriptionGroup, event: MouseEvent): void {
+    this.openRenewModal(group, event);
+  }
+
+  // --- Selective group renewal (checkboxes + explicit date past grace) ---
+
+  isRenewOpen = false;
+  renewGroupLabel = '';
+  renewCandidates: SubscriptionResponse[] = [];
+  renewChecked = signal<Set<string>>(new Set());
+  renewExplicitDate = '';
+  isRenewingSelected = false;
+
+  /** Grace window (days) mirroring backend BR-07. */
+  private readonly renewGraceDays = 2;
+
+  isBeyondGrace(sub: SubscriptionResponse): boolean {
+    if (!sub.paymentDueDate) return false;
+    const parts = sub.paymentDueDate.split('T')[0].split('-').map(Number);
+    if (parts.length < 3 || parts.some(isNaN)) return false;
+    const due = new Date(parts[0], parts[1] - 1, parts[2]);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const graceLimit = new Date(today);
+    graceLimit.setDate(graceLimit.getDate() - this.renewGraceDays);
+    return due < graceLimit;
+  }
+
+  get renewNeedsExplicitDate(): boolean {
+    return this.renewCandidates.some(
+      s => s.id && this.renewChecked().has(s.id) && this.isBeyondGrace(s));
+  }
+
+  get renewMinDate(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
+
+  openRenewModal(group: SubscriptionGroup, event: MouseEvent): void {
     event.stopPropagation();
-    const renewableSubs = group.items.filter(s => s.status !== 'CANCELLED' && s.id);
-    if (renewableSubs.length === 0) {
+    const candidates = group.items.filter(s => s.status !== 'CANCELLED' && s.id);
+    if (candidates.length === 0) {
       this.toastService.error('No hay suscripciones activas para renovar en este grupo.');
       return;
     }
+    // Pre-check the largest group sharing the same due date.
+    const counts = new Map<string, number>();
+    for (const s of candidates) {
+      const key = s.paymentDueDate || 'sin-fecha';
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    let modeKey = '';
+    let modeCount = -1;
+    counts.forEach((count, key) => {
+      if (count > modeCount) {
+        modeCount = count;
+        modeKey = key;
+      }
+    });
+    this.renewGroupLabel = group.label;
+    this.renewCandidates = candidates;
+    this.renewChecked.set(new Set(
+      candidates.filter(s => (s.paymentDueDate || 'sin-fecha') === modeKey).map(s => s.id!)));
+    const defaultDate = new Date();
+    defaultDate.setDate(defaultDate.getDate() + 30);
+    this.renewExplicitDate =
+      `${defaultDate.getFullYear()}-${String(defaultDate.getMonth() + 1).padStart(2, '0')}-${String(defaultDate.getDate()).padStart(2, '0')}`;
+    this.isRenewingSelected = false;
+    this.isRenewOpen = true;
+  }
 
-    if (!confirm(`¿Deseas renovar todas las (${renewableSubs.length}) suscripciones del cliente "${group.label}"?`)) {
+  closeRenewModal(): void {
+    this.isRenewOpen = false;
+    this.renewCandidates = [];
+    this.renewChecked.set(new Set());
+    this.isRenewingSelected = false;
+  }
+
+  toggleRenewCheck(subId: string): void {
+    const current = new Set(this.renewChecked());
+    if (current.has(subId)) {
+      current.delete(subId);
+    } else {
+      current.add(subId);
+    }
+    this.renewChecked.set(current);
+  }
+
+  confirmRenewSelected(): void {
+    const selected = this.renewCandidates.filter(s => s.id && this.renewChecked().has(s.id));
+    if (selected.length === 0) {
+      this.toastService.error('Selecciona al menos un servicio.');
       return;
     }
+    if (this.renewNeedsExplicitDate && !this.renewExplicitDate) {
+      this.toastService.error('Elige la nueva fecha de renovación.');
+      return;
+    }
+    const explicitDate = this.renewNeedsExplicitDate ? this.renewExplicitDate : '';
 
-    this.renewingClientGroupKey.set(group.key);
-    const renewRequests = renewableSubs.map(s =>
-      this.subscriptionsService.renewSubscription(s.id!).pipe(
+    this.isRenewingSelected = true;
+    const requests = selected.map(s => {
+      const request = explicitDate && this.isBeyondGrace(s)
+        ? this.subscriptionsService.renewSubscriptionToDate(s.id!, explicitDate)
+        : this.subscriptionsService.renewSubscription(s.id!);
+      return request.pipe(
         catchError(err => {
           console.error(`Error renewing sub ${s.id}:`, err);
           return of(null);
         })
-      )
-    );
+      );
+    });
 
-    forkJoin(renewRequests).subscribe({
+    forkJoin(requests).subscribe({
       next: (results) => {
-        this.renewingClientGroupKey.set(null);
+        this.isRenewingSelected = false;
         const successCount = results.filter(r => r !== null).length;
-        if (successCount === renewableSubs.length) {
-          this.toastService.success(`Se renovaron ${successCount} suscripciones de ${group.label} con éxito.`);
+        if (successCount === selected.length) {
+          this.toastService.success(`Se renovaron ${successCount} suscripciones de ${this.renewGroupLabel} con éxito.`);
         } else if (successCount > 0) {
-          this.toastService.warning(`Se renovaron ${successCount} de ${renewableSubs.length} suscripciones.`);
+          this.toastService.warning(`Se renovaron ${successCount} de ${selected.length} suscripciones.`);
         } else {
           this.toastService.error('No se pudo renovar ninguna suscripción.');
         }
+        this.closeRenewModal();
         this.loadSubscriptions();
       },
       error: (err) => {
-        this.renewingClientGroupKey.set(null);
-        console.error('Error renewing client group:', err);
+        this.isRenewingSelected = false;
+        console.error('Error renewing selected subs:', err);
         this.toastService.error('Error al renovar suscripciones del grupo.');
       }
     });
