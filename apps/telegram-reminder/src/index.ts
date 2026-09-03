@@ -1,5 +1,6 @@
 import {
 	getExpiringSubscriptionsByWindows,
+	getExpiringMasterAccountsByWindows,
 	getSubscriptionById,
 	logNotification,
 } from "./services/supabase.service";
@@ -13,17 +14,27 @@ import {
 import { sendRenewalEmail } from "./services/resend.service";
 
 /**
- * Orquesta la consulta de suscripciones por ventanas (3d, 1d, 0d) y el envío del reporte con botones a Telegram.
+ * Orquesta la consulta de suscripciones y cuentas maestras por ventanas y el envío del reporte consolidado a Telegram.
  */
 async function runDailyReminder(env: Env, targetBaseDate?: string) {
-	const groups = await getExpiringSubscriptionsByWindows(env, targetBaseDate);
-	const { text, replyMarkup, totalSubscriptions } = buildConsolidatedReport(groups);
+	const [groups, accountGroups] = await Promise.all([
+		getExpiringSubscriptionsByWindows(env, targetBaseDate),
+		getExpiringMasterAccountsByWindows(env, targetBaseDate),
+	]);
+
+	const { text, replyMarkup, totalSubscriptions, totalAccounts } = buildConsolidatedReport(
+		groups,
+		accountGroups
+	);
 
 	await sendTelegramMessage(env, text, replyMarkup);
 
 	return {
-		total: totalSubscriptions,
+		total: totalSubscriptions + totalAccounts,
+		totalSubscriptions,
+		totalAccounts,
 		groups,
+		accountGroups,
 	};
 }
 

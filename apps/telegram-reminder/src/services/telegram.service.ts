@@ -1,4 +1,8 @@
-import { FormattedSubscription, RenewalWindowGroup } from "../types/subscription";
+import {
+	FormattedSubscription,
+	RenewalWindowGroup,
+	MasterAccountWindowGroup,
+} from "../types/subscription";
 
 export interface InlineKeyboardButton {
 	text: string;
@@ -97,68 +101,120 @@ export async function editMessageReplyMarkup(
 }
 
 /**
- * Construye el reporte consolidado y los botones de acción para las suscripciones por vencer.
+ * Construye el reporte consolidado y los botones de acción para las suscripciones y cuentas maestras por vencer.
  */
-export function buildConsolidatedReport(groups: RenewalWindowGroup[]): {
+export function buildConsolidatedReport(
+	subscriptionGroups: RenewalWindowGroup[],
+	accountGroups: MasterAccountWindowGroup[] = []
+): {
 	text: string;
 	replyMarkup?: InlineKeyboardMarkup;
 	totalSubscriptions: number;
+	totalAccounts: number;
 } {
-	const totalSubscriptions = groups.reduce((acc, g) => acc + g.subscriptions.length, 0);
+	const totalSubscriptions = subscriptionGroups.reduce((acc, g) => acc + g.subscriptions.length, 0);
+	const totalAccounts = accountGroups.reduce((acc, g) => acc + g.accounts.length, 0);
 
-	if (totalSubscriptions === 0) {
+	if (totalSubscriptions === 0 && totalAccounts === 0) {
+		const emptyText =
+			accountGroups.length > 0
+				? "ℹ️ *Reporte diario Neversion*\n\nNo hay renovaciones de clientes ni cuentas maestras que venzan hoy o en las próximas ventanas."
+				: "ℹ️ *Reporte de suscripciones*\n\nNo hay suscripciones que venzan hoy ni en los próximos 3 días.";
+
 		return {
-			text: "ℹ️ *Reporte de suscripciones*\n\nNo hay suscripciones que venzan hoy ni en los próximos 3 días.",
+			text: emptyText,
 			totalSubscriptions: 0,
+			totalAccounts: 0,
 		};
 	}
 
-	let message = "🔔 *Reporte de Renovaciones de Clientes*\n──────────────────\n\n";
+	const sections: string[] = [];
 	const inlineKeyboard: InlineKeyboardButton[][] = [];
 
-	for (const group of groups) {
-		if (group.subscriptions.length === 0) continue;
+	// Sección 1: Renovaciones de Clientes
+	if (totalSubscriptions > 0) {
+		let clientMessage = "🔔 *Reporte de Renovaciones de Clientes*\n──────────────────\n";
 
-		message += `*${group.label}* (${group.subscriptions.length})\n`;
+		for (const group of subscriptionGroups) {
+			if (group.subscriptions.length === 0) continue;
 
-		group.subscriptions.forEach((sub, idx) => {
-			message += `*${idx + 1}. ${sub.clientName}*\n`;
-			message += `  📺 *Servicio:* ${sub.serviceName}${sub.profileName ? ` (${sub.profileName})` : ""}\n`;
-			if (sub.clientEmail) {
-				message += `  📧 *Email:* \`${sub.clientEmail}\`\n`;
-			}
-			if (sub.clientPhone) {
-				message += `  📞 *Teléfono:* \`${sub.clientPhone}\`\n`;
-			}
-			if (sub.price) {
-				message += `  💰 *Precio:* Q ${sub.price}\n`;
-			}
-			message += `  📅 *Vence:* \`${sub.paymentDueDate}\`\n\n`;
+			clientMessage += `\n*${group.label}* (${group.subscriptions.length})\n`;
 
-			// Crear botón inline para enviar recordatorio por correo
-			const dayTag = sub.daysRemaining === 0 ? "Hoy" : `${sub.daysRemaining}d`;
-			const buttonText = sub.clientEmail
-				? `📧 Enviar a ${sub.clientName} (${dayTag})`
-				: `⚠️ ${sub.clientName} (Sin email)`;
+			group.subscriptions.forEach((sub, idx) => {
+				clientMessage += `*${idx + 1}. ${sub.clientName}*\n`;
+				clientMessage += `  📺 *Servicio:* ${sub.serviceName}${sub.profileName ? ` (${sub.profileName})` : ""}\n`;
+				if (sub.clientEmail) {
+					clientMessage += `  📧 *Email:* \`${sub.clientEmail}\`\n`;
+				}
+				if (sub.clientPhone) {
+					clientMessage += `  📞 *Teléfono:* \`${sub.clientPhone}\`\n`;
+				}
+				if (sub.price) {
+					clientMessage += `  💰 *Precio:* Q ${sub.price}\n`;
+				}
+				clientMessage += `  📅 *Vence:* \`${sub.paymentDueDate}\`\n`;
 
-			// Si el cliente no tiene email, el botón puede mostrar alerta en el callback
-			const callbackData = `send:${sub.id}:${sub.daysRemaining}`;
+				const dayTag = sub.daysRemaining === 0 ? "Hoy" : `${sub.daysRemaining}d`;
+				const buttonText = sub.clientEmail
+					? `📧 Enviar a ${sub.clientName} (${dayTag})`
+					: `⚠️ ${sub.clientName} (Sin email)`;
 
-			inlineKeyboard.push([
-				{
-					text: buttonText,
-					callback_data: callbackData,
-				},
-			]);
-		});
+				const callbackData = `send:${sub.id}:${sub.daysRemaining}`;
+
+				inlineKeyboard.push([
+					{
+						text: buttonText,
+						callback_data: callbackData,
+					},
+				]);
+			});
+		}
+
+		sections.push(clientMessage);
 	}
 
-	message += `──────────────────\n📊 *Total:* ${totalSubscriptions} suscripción(es) encontrada(s).\n_Presiona un botón para enviar el correo al cliente._`;
+	// Sección 2: Cuentas Maestras por Renovar
+	if (totalAccounts > 0) {
+		let accountMessage = "🔑 *Cuentas Maestras por Renovar*\n──────────────────\n";
+
+		for (const group of accountGroups) {
+			if (group.accounts.length === 0) continue;
+
+			accountMessage += `\n*${group.label}* (${group.accounts.length})\n`;
+
+			group.accounts.forEach((acc, idx) => {
+				accountMessage += `*${idx + 1}. ${acc.serviceName}*\n`;
+				accountMessage += `  📧 *Email:* \`${acc.email}\`\n`;
+				accountMessage += `  🏢 *Proveedor:* \`${acc.source || "No especificado"}\`\n`;
+				accountMessage += `  📅 *Vence:* \`${acc.renewalDate}\`\n`;
+			});
+		}
+
+		sections.push(accountMessage);
+	}
+
+	// Footer con totales
+	let footer = "──────────────────\n";
+	const totals: string[] = [];
+	if (totalSubscriptions > 0) {
+		totals.push(`${totalSubscriptions} suscripción(es)`);
+	}
+	if (totalAccounts > 0) {
+		totals.push(`${totalAccounts} cuenta(s) maestra(s)`);
+	}
+	footer += `📊 *Total:* ${totals.join(" | ")}.`;
+
+	if (inlineKeyboard.length > 0) {
+		footer += "\n_Presiona un botón para enviar el correo al cliente._";
+	}
+
+	sections.push(footer);
 
 	return {
-		text: message,
-		replyMarkup: { inline_keyboard: inlineKeyboard },
+		text: sections.join("\n\n"),
+		replyMarkup: inlineKeyboard.length > 0 ? { inline_keyboard: inlineKeyboard } : undefined,
 		totalSubscriptions,
+		totalAccounts,
 	};
 }
 

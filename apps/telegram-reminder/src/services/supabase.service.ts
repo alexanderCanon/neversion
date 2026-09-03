@@ -1,5 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
-import { FormattedSubscription, RenewalWindowGroup } from "../types/subscription";
+import {
+	FormattedSubscription,
+	RenewalWindowGroup,
+	FormattedMasterAccount,
+	MasterAccountWindowGroup,
+} from "../types/subscription";
 import { firstObj } from "../utils/helpers";
 import { getGuatemalaDate } from "../utils/date";
 
@@ -140,6 +145,78 @@ export async function getExpiringSubscriptionsByWindows(
 			days: win.days,
 			label: win.label,
 			subscriptions: subsForWindow,
+		};
+	});
+}
+
+function mapMasterAccount(acc: any, daysRemaining: number): FormattedMasterAccount {
+	const service = firstObj(acc.services);
+	return {
+		id: acc.id,
+		uuid: acc.uuid,
+		serviceName: service?.name || "Servicio no especificado",
+		email: acc.email || "Sin correo",
+		source: acc.source || "No especificado",
+		renewalDate: acc.renewal_date,
+		daysRemaining,
+	};
+}
+
+/**
+ * Consulta Supabase para obtener las cuentas maestras activas agrupadas por ventanas (1 día, hoy).
+ */
+export async function getExpiringMasterAccountsByWindows(
+	env: Env,
+	baseDate?: string
+): Promise<MasterAccountWindowGroup[]> {
+	const supabase = getSupabaseClient(env);
+
+	const getTargetDateStr = (days: number): string => {
+		if (baseDate) {
+			const d = new Date(`${baseDate}T12:00:00Z`);
+			d.setUTCDate(d.getUTCDate() + days);
+			return d.toISOString().split("T")[0];
+		}
+		return getGuatemalaDate(days);
+	};
+
+	const windows = [
+		{ days: 1, label: "🟠 Vencen mañana (1 día)" },
+		{ days: 0, label: "🔴 Vencen hoy" },
+	];
+
+	const targetDates = windows.map((w) => getTargetDateStr(w.days));
+
+	const { data: rawAccounts, error } = await supabase
+		.from("accounts")
+		.select(`
+			id,
+			uuid,
+			email,
+			source,
+			renewal_date,
+			status,
+			services ( id, name )
+		`)
+		.in("status", ["active", "ACTIVE"])
+		.in("renewal_date", targetDates);
+
+	if (error) {
+		throw new Error(`Error consultando Supabase para cuentas maestras: ${error.message}`);
+	}
+
+	const allAccounts = rawAccounts || [];
+
+	return windows.map((win) => {
+		const targetStr = getTargetDateStr(win.days);
+		const accountsForWindow = allAccounts
+			.filter((acc: any) => acc.renewal_date === targetStr)
+			.map((acc: any) => mapMasterAccount(acc, win.days));
+
+		return {
+			days: win.days,
+			label: win.label,
+			accounts: accountsForWindow,
 		};
 	});
 }

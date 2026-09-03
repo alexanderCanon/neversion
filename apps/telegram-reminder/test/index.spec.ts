@@ -22,13 +22,31 @@ describe("Telegram Subscription Worker - End to End", () => {
 		},
 	];
 
+	const mockAccounts = [
+		{
+			id: 2,
+			uuid: "223e4567-e89b-12d3-a456-426614174001",
+			email: "master@disney.com",
+			source: "DigitalStore",
+			renewal_date: "2026-08-23",
+			status: "active",
+			services: { id: 2, name: "Disney+" },
+		},
+	];
+
 	it("processes GET request and sends consolidated telegram report with inline buttons", async () => {
 		let telegramSentBody: any = null;
 
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input: any, init: any) => {
 			const url = typeof input === "string" ? input : input.url;
-			if (url.includes("supabase.co") || url.includes("/rest/v1/")) {
+			if (url.includes("/subscriptions")) {
 				return new Response(JSON.stringify(mockSubs), {
+					status: 200,
+					headers: { "Content-Type": "application/json" },
+				});
+			}
+			if (url.includes("/accounts")) {
+				return new Response(JSON.stringify(mockAccounts), {
 					status: 200,
 					headers: { "Content-Type": "application/json" },
 				});
@@ -51,10 +69,14 @@ describe("Telegram Subscription Worker - End to End", () => {
 		expect(response.status).toBe(200);
 		const json = await response.json();
 		expect(json.ok).toBe(true);
-		expect(json.total).toBe(1);
+		expect(json.total).toBe(2);
+		expect(json.totalSubscriptions).toBe(1);
+		expect(json.totalAccounts).toBe(1);
 
 		expect(telegramSentBody).not.toBeNull();
 		expect(telegramSentBody.text).toContain("Carlos Perez");
+		expect(telegramSentBody.text).toContain("master@disney.com");
+		expect(telegramSentBody.text).toContain("DigitalStore");
 		expect(telegramSentBody.reply_markup.inline_keyboard[0][0].callback_data).toBe("send:1:0");
 
 		fetchSpy.mockRestore();
