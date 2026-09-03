@@ -67,7 +67,7 @@
                   <i class="bi bi-question-circle ms-1" title="Cantidad máxima de perfiles que puede tener esta cuenta. Se auto-completa del servicio, pero puedes personalizarlo."></i>
                 </label>
                 <input type="number" class="form-control form-control-modern" id="maxProfiles" formControlName="maxProfiles" min="1" [max]="serviceCeiling ?? 50">
-                @if (serviceCeiling != null) {
+                @if (serviceCeiling !== null) {
                   <div class="x-small text-muted mt-1">Máximo del servicio: {{ serviceCeiling }}</div>
                 }
                 @if (accountForm.get('maxProfiles')?.invalid && accountForm.get('maxProfiles')?.touched) {

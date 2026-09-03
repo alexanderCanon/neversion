@@ -383,23 +383,6 @@ export class BatchSubscriptionFormComponent implements OnInit {
       return;
     }
 
-    const formValue = this.batchForm.getRawValue();
-    const items: BatchItem[] = formValue.items.map((line: { serviceId: string; quantity: number; priceSold: number; useAutoAssign: boolean; profileId: string }) => ({
-      serviceId: line.serviceId,
-      quantity: line.quantity,
-      priceSold: line.priceSold,
-      profileId: line.useAutoAssign ? undefined : (line.profileId || undefined)
-    }));
-
-    const request: BatchCreateManualSubscriptionRequest = {
-      clientId: formValue.clientId,
-      items,
-      discountApplied: formValue.discountApplied || 0,
-      paymentDueDate: formValue.paymentDueDate,
-      sendNotification: formValue.sendNotification,
-      notes: formValue.notes || undefined
-    };
-
     this.isSubmitting = true;
     this.batchResult = null;
 
@@ -506,7 +489,7 @@ export class BatchSubscriptionFormComponent implements OnInit {
   }
 
   private mapDetailProfiles(
-    detail: { profiles?: Array<{ id?: string; name?: string; pin?: string; notes?: string; isOwner?: boolean; status?: string }> },
+    detail: { profiles?: { id?: string; name?: string; pin?: string; notes?: string; isOwner?: boolean; status?: string }[] },
     accountId: string
   ): ProfileResponse[] {
     return (detail.profiles ?? []).map(profile => ({
