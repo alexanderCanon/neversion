@@ -4,9 +4,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of, catchError } from 'rxjs';
 import { SubscriptionsService } from '../../services/subscriptions.service';
+import { AccountsService } from '../../../accounts/services/accounts.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 import { SubscriptionResponse } from '@alexandercanon/api-client-angular';
-import { SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
+import { AccountResponse, SaleMode, SubscriptionStatus, SubscriptionsFilter } from '@neversion/models';
+import { copyToClipboard } from '@neversion/utils';
 import { SubscriptionFormComponent } from '../../components/subscription-form/subscription-form.component';
 import { BatchSubscriptionFormComponent } from '../../components/batch-subscription-form/batch-subscription-form.component';
 import { ManualAssignmentModalComponent } from '../../../assignments/components/manual-assignment-modal/manual-assignment-modal.component';
@@ -47,6 +49,7 @@ export class SubscriptionsListComponent implements OnInit {
   @ViewChild('manualModal') manualModal!: ManualAssignmentModalComponent;
 
   private readonly subscriptionsService = inject(SubscriptionsService);
+  private readonly accountsService = inject(AccountsService);
   private readonly servicesService = inject(ServicesDataService);
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
@@ -407,14 +410,125 @@ export class SubscriptionsListComponent implements OnInit {
   }
 
   cancelSubscription(subscription: SubscriptionResponse): void {
-    if (confirm(`¿Está seguro de que desea revocar el acceso de la suscripción de ${subscription.clientName || 'este cliente'}?`)) {
-      this.subscriptionsService.cancelSubscription(subscription.id!).subscribe({
-        next: () => {
-          this.toastService.success('Suscripción revocada y perfil liberado');
-          this.loadSubscriptions();
-        },
+    this.openRevokeModal(subscription);
+  }
+
+  // --- Revoke with physical cut (password change optional) ---
+
+  isRevokeOpen = false;
+  revokeStep: 'confirm' | 'done' = 'confirm';
+  revokeTarget: SubscriptionResponse | null = null;
+  revokeAccount: AccountResponse | null = null;
+  changePasswordChecked = false;
+  newPassword = '';
+  isRevoking = false;
+  passwordChanged = false;
+  forwardMessage = '';
+
+  get canChangePassword(): boolean {
+    if (!this.revokeAccount) return false;
+    const isSpotify = (this.revokeTarget?.serviceName || '').toLowerCase() === 'spotify';
+    return !(isSpotify && this.revokeAccount.saleMode === SaleMode.BY_PROFILE);
+  }
+
+  openRevokeModal(subscription: SubscriptionResponse): void {
+    this.revokeTarget = subscription;
+    this.revokeStep = 'confirm';
+    this.revokeAccount = null;
+    this.changePasswordChecked = false;
+    this.newPassword = '';
+    this.isRevoking = false;
+    this.passwordChanged = false;
+    this.forwardMessage = '';
+    this.isRevokeOpen = true;
+
+    if (subscription.accountId) {
+      this.accountsService.getAccountById(subscription.accountId).subscribe({
+        next: (account) => (this.revokeAccount = account),
+        error: () => (this.revokeAccount = null)
       });
     }
+  }
+
+  closeRevokeModal(): void {
+    this.isRevokeOpen = false;
+    this.revokeTarget = null;
+    this.revokeAccount = null;
+    this.isRevoking = false;
+  }
+
+  confirmRevoke(): void {
+    if (!this.revokeTarget?.id || this.isRevoking) return;
+    if (this.changePasswordChecked && !this.newPassword.trim()) {
+      this.toastService.error('Escribe la nueva contraseña o desmarca la opción.');
+      return;
+    }
+    this.isRevoking = true;
+    const targetId = this.revokeTarget.id;
+
+    this.subscriptionsService.cancelSubscription(targetId).subscribe({
+      next: () => {
+        if (this.changePasswordChecked && this.revokeAccount && this.newPassword.trim()) {
+          this.updateAccountPassword();
+        } else {
+          this.finishRevoke(false);
+        }
+      },
+      error: () => {
+        this.isRevoking = false;
+        this.toastService.error('No se pudo revocar la suscripción.');
+      }
+    });
+  }
+
+  private updateAccountPassword(): void {
+    const account = this.revokeAccount;
+    if (!account) {
+      this.finishRevoke(false);
+      return;
+    }
+    const newPass = this.newPassword.trim();
+    this.accountsService.updateAccount(account.id, {
+      email: account.email,
+      password: newPass,
+      serviceId: account.serviceUuid || account.serviceId,
+      saleMode: account.saleMode,
+      renewalDate: account.renewalDate ? account.renewalDate.split('T')[0] : '',
+      cost: account.cost ?? 0,
+      source: account.source,
+      purchasedAt: account.purchasedAt ? account.purchasedAt.split('T')[0] : undefined,
+      plan: account.plan,
+      notes: account.notes,
+      maxProfiles: account.maxProfiles
+    }).subscribe({
+      next: () => this.finishRevoke(true, newPass),
+      error: () => {
+        this.toastService.error('Suscripción revocada, pero no se pudo cambiar la contraseña.');
+        this.finishRevoke(false);
+      }
+    });
+  }
+
+  private finishRevoke(withNewPassword: boolean, newPass = ''): void {
+    this.isRevoking = false;
+    this.passwordChanged = withNewPassword;
+    if (withNewPassword) {
+      const clientName = this.revokeTarget?.clientName || 'Hola';
+      const serviceName = this.revokeTarget?.serviceName || 'tu servicio';
+      this.forwardMessage =
+        `Hola ${clientName}, por seguridad actualicé la contraseña de ${serviceName}. ` +
+        `La nueva es: ${newPass}. Cualquier duda me avisas.`;
+    }
+    this.toastService.success('Suscripción revocada y perfil liberado');
+    this.loadSubscriptions();
+    this.revokeStep = 'done';
+  }
+
+  copyForwardMessage(): void {
+    if (!this.forwardMessage) return;
+    copyToClipboard(this.forwardMessage)
+      .then(() => this.toastService.success('Mensaje copiado para WhatsApp'))
+      .catch(() => this.toastService.error('No se pudo copiar el mensaje'));
   }
 
   suspendSubscription(subscription: SubscriptionResponse): void {

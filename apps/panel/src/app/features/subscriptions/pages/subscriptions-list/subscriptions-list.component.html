@@ -255,7 +255,7 @@
                             </button>
                           }
                           @if (sub.status !== 'CANCELLED') {
-                            <button class="btn-action-sm cancel" (click)="cancelSubscription(sub)" title="Revocar Acceso">
+                            <button class="btn-action-sm cancel" (click)="openRevokeModal(sub)" title="Revocar Acceso">
                               <i class="bi bi-x"></i>
                             </button>
                           }
@@ -424,3 +424,69 @@
 <app-subscription-form #subscriptionForm (subscriptionCreated)="onSubscriptionCreated()"></app-subscription-form>
 <app-batch-subscription-form #batchForm (batchCreated)="onBatchCreated()"></app-batch-subscription-form>
 <app-manual-assignment-modal #manualModal (assignmentCreated)="onManualAssignmentCreated()"></app-manual-assignment-modal>
+
+@if (isRevokeOpen) {
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold">Revocar acceso</h5>
+          <button type="button" class="btn-close" (click)="closeRevokeModal()" aria-label="Cerrar"></button>
+        </div>
+        @if (revokeStep === 'confirm') {
+          <div class="modal-body">
+            <div class="alert alert-warning rounded-3 small">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>
+              Revocar solo libera el inventario en el sistema, no cierra la sesión del cliente.
+              Asegúrate de haberlo sacado de la cuenta maestra (cambio de contraseña) antes de continuar.
+            </div>
+            <p class="small text-muted mb-3">
+              {{ revokeTarget?.clientName || 'Este cliente' }} · {{ revokeTarget?.serviceName || '' }}
+              @if (revokeTarget?.profileName) { · {{ revokeTarget?.profileName }} }
+            </p>
+            @if (canChangePassword) {
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" id="revokeChangePass" [(ngModel)]="changePasswordChecked">
+                <label class="form-check-label small fw-semibold" for="revokeChangePass">
+                  Cambiar la contraseña de la cuenta maestra
+                </label>
+              </div>
+              @if (changePasswordChecked) {
+                <input type="text" class="form-control mb-2" [(ngModel)]="newPassword" placeholder="Nueva contraseña" maxlength="100">
+                <p class="x-small text-danger fw-medium mb-0">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  Esto afecta a todos los perfiles de esta cuenta. Los demás clientes necesitarán la nueva contraseña.
+                </p>
+              }
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link text-muted" (click)="closeRevokeModal()">Cancelar</button>
+            <button type="button" class="btn btn-danger rounded-3" (click)="confirmRevoke()" [disabled]="isRevoking">
+              @if (isRevoking) { <span class="spinner-border spinner-border-sm me-1"></span> }
+              Revocar
+            </button>
+          </div>
+        } @else {
+          <div class="modal-body">
+            <div class="alert alert-success rounded-3 small mb-3">
+              <i class="bi bi-check-circle-fill me-1"></i>
+              Suscripción revocada y perfil liberado.
+            </div>
+            @if (passwordChanged) {
+              <label class="form-label small fw-semibold text-muted">Mensaje para reenviar a tus clientes</label>
+              <textarea class="form-control" rows="4" readonly>{{ forwardMessage }}</textarea>
+              <button type="button" class="btn btn-outline-success btn-sm rounded-3 mt-2" (click)="copyForwardMessage()">
+                <i class="bi bi-whatsapp me-1"></i> Copiar para WhatsApp
+              </button>
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary rounded-3" (click)="closeRevokeModal()">Cerrar</button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+}
