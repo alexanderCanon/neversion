@@ -1,9 +1,12 @@
 import { Component, EventEmitter, Output, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { BatchCreateManualSubscriptionRequest, BatchItem } from '@alexandercanon/api-client-angular';
 import { SubscriptionsService } from '../../services/subscriptions.service';
 import { AccountsService } from '../../../accounts/services/accounts.service';
+import { ProfileService } from '../../../accounts/services/profile.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ServicesDataService } from '../../../services/services/services-data.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -41,10 +44,19 @@ export class BatchSubscriptionFormComponent implements OnInit {
 
   batchResult: { success: number; failed: number; total: number } | null = null;
 
+  // WhatsApp xN flow: quick slot count selector (1-5) and inline client creation.
+  readonly minSlots = 1;
+  readonly maxSlots = 5;
+  readonly quickSlotOptions = [2, 3, 4, 5];
+  showNewClientForm = false;
+  isCreatingClient = false;
+  newClientForm!: FormGroup;
+
   private readonly fb = inject(FormBuilder);
   private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly servicesService = inject(ServicesDataService);
   private readonly accountsService = inject(AccountsService);
+  private readonly profileService = inject(ProfileService);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -89,6 +101,12 @@ export class BatchSubscriptionFormComponent implements OnInit {
       }
     });
 
+    this.newClientForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
+      phone: ['', [Validators.required, Validators.maxLength(50)]],
+      email: ['', [Validators.email, Validators.maxLength(255)]]
+    });
+
     this.addItem();
   }
 
@@ -97,13 +115,18 @@ export class BatchSubscriptionFormComponent implements OnInit {
   }
 
   addItem(): void {
+    if (this.items && this.items.length >= this.maxSlots) {
+      return;
+    }
     const line = this.fb.group({
       serviceId: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       priceSold: [0, [Validators.required, Validators.min(0)]],
       useAutoAssign: [true],
       accountId: [''],
-      profileId: ['']
+      profileId: [''],
+      profileName: ['', [Validators.maxLength(100)]],
+      profilePin: ['', [Validators.maxLength(20)]]
     });
 
     const index = this.items.length;
@@ -123,6 +146,55 @@ export class BatchSubscriptionFormComponent implements OnInit {
   removeItem(index: number): void {
     this.items.removeAt(index);
     this.lineContexts.splice(index, 1);
+  }
+
+  setLineCount(count: number): void {
+    const target = Math.min(Math.max(count, this.minSlots), this.maxSlots);
+    while (this.items.length < target) {
+      this.addItem();
+    }
+    while (this.items.length > target) {
+      this.removeItem(this.items.length - 1);
+    }
+  }
+
+  toggleNewClientForm(): void {
+    this.showNewClientForm = !this.showNewClientForm;
+    if (this.showNewClientForm) {
+      const searchTerm = this.batchForm.get('clientSearch')?.value || '';
+      if (searchTerm && !this.newClientForm.get('name')?.value) {
+        this.newClientForm.patchValue({ name: searchTerm });
+      }
+    }
+  }
+
+  createAndSelectClient(): void {
+    if (this.newClientForm.invalid) {
+      Object.keys(this.newClientForm.controls).forEach((key) => {
+        this.newClientForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+    this.isCreatingClient = true;
+    const formValue = this.newClientForm.value;
+    this.clientsService.createClient({
+      name: formValue.name,
+      phone: formValue.phone,
+      email: formValue.email || undefined
+    }).subscribe({
+      next: (created) => {
+        this.isCreatingClient = false;
+        this.clients = [created, ...this.clients];
+        this.selectClient(created);
+        this.showNewClientForm = false;
+        this.newClientForm.reset();
+        this.toastService.success('Cliente registrado correctamente.');
+      },
+      error: () => {
+        this.isCreatingClient = false;
+        this.toastService.error('No se pudo registrar el cliente.');
+      }
+    });
   }
 
   toggleOverride(index: number): void {
@@ -267,6 +339,9 @@ export class BatchSubscriptionFormComponent implements OnInit {
       paymentDueDate: '',
       notes: ''
     });
+    this.showNewClientForm = false;
+    this.isCreatingClient = false;
+    this.newClientForm?.reset();
     this.addItem();
     this.isSubmitting = false;
     this.batchResult = null;
@@ -335,7 +410,11 @@ export class BatchSubscriptionFormComponent implements OnInit {
     this.isSubmitting = true;
     this.batchResult = null;
 
-    this.subscriptionsService.createBatchSubscriptions(request).subscribe({
+    // Step 1: rename profiles with a custom name/PIN before assigning.
+    // If any rename fails, abort the batch to avoid partial assignments.
+    this.renameCustomizedProfiles().pipe(
+      switchMap(() => this.subscriptionsService.createBatchSubscriptions(request))
+    ).subscribe({
       next: (response) => {
         this.isSubmitting = false;
         this.batchResult = {
@@ -360,5 +439,38 @@ export class BatchSubscriptionFormComponent implements OnInit {
         this.toastService.error('Error al crear las suscripciones.');
       }
     });
+  }
+
+  private renameCustomizedProfiles() {
+    const renames = this.items.controls
+      .map((line, index) => {
+        const profileId = line.get('profileId')?.value;
+        const profileName = (line.get('profileName')?.value || '').trim();
+        const profilePin = (line.get('profilePin')?.value || '').trim();
+        const accountId = line.get('accountId')?.value;
+        if (!profileId || (!profileName && !profilePin)) {
+          return null;
+        }
+        const current = this.lineContexts[index]?.profiles.find(p => p.id === profileId);
+        return this.profileService.updateProfile(profileId, {
+          accountId,
+          name: profileName || current?.name || 'Perfil',
+          pin: profilePin || current?.pin || '',
+          notes: current?.notes ?? '',
+          isOwner: current?.isOwner ?? false
+        }).pipe(
+          map(() => true),
+          catchError(() => {
+            this.toastService.error('No se pudo nombrar un Perfil. Se canceló la asignación.');
+            throw new Error('profile-rename-failed');
+          })
+        );
+      })
+      .filter(op => op !== null);
+
+    if (renames.length === 0) {
+      return of(true);
+    }
+    return forkJoin(renames).pipe(map(() => true));
   }
 }
