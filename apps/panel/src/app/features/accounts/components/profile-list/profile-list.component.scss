@@ -161,6 +161,12 @@
         border-color: var(--color-border);
     }
 
+    &.edit:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     &.activate:hover {
         background-color: #f0fdf4;
         color: #22c55e;
@@ -171,6 +177,12 @@
         background-color: #fef2f2;
         color: #ef4444;
         border-color: #fee2e2;
+    }
+
+    &.delete:hover {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border-color: #fecaca;
     }
 }
 

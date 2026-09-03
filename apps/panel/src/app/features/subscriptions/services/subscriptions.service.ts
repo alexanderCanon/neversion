@@ -65,6 +65,15 @@ export class SubscriptionsService {
     );
   }
 
+  /**
+   * Late renewal with an explicit due date (past grace).
+   */
+  renewSubscriptionToDate(id: string, newDueDate: string): Observable<SubscriptionResponse> {
+    return this.subscriptionsApi.renewSubscription(id, newDueDate).pipe(
+      tap(() => this.refreshSubscriptions().subscribe())
+    );
+  }
+
   cancelSubscription(id: string): Observable<SubscriptionResponse> {
     return this.subscriptionsApi.cancelSubscription(id).pipe(
       tap(() => this.refreshSubscriptions().subscribe())

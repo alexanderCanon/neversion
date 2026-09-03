@@ -125,19 +125,14 @@ Never execute these without explicit instruction from Alex:
 ## Development Pipeline
 
 ```
-feature/backend  ──┐
-                   ├──> develop ──> main
-feature/panel    ──┤
-feature/store    ──┘
+feature/*  ──> main
 ```
 
-1. Backend agent completes and tests a module in `feature/backend`
-2. Alex reviews and merges into `develop`
-3. Frontend agents implement the UI in `feature/panel` / `feature/store`
-4. Alex does final review and merges into `develop`
-5. Repeat for next module
+1. Agent completes and tests a module in `feature/*`
+2. Alex reviews and merges into `main`
+3. Repeat for next module
 
-Merges to `develop` and `main` are **Alex's responsibility**, not the agent's.
+Merges to `main` are **Alex's responsibility**, not the agent's.
 
 ---
 

@@ -147,10 +147,6 @@ catalogs:
 importers:
 
   .:
-    dependencies:
-      '@alexandercanon/api-client-angular':
-        specifier: 1.0.0
-        version: 1.0.0(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
     devDependencies:
       '@angular-eslint/eslint-plugin':
         specifier: ^21.3.1
@@ -223,8 +219,8 @@ importers:
   apps/panel:
     dependencies:
       '@alexandercanon/api-client-angular':
-        specifier: 1.0.0
-        version: 1.0.0(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
+        specifier: 1.0.1
+        version: 1.0.1(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
       '@angular/animations':
         specifier: ^21.2.21
         version: 21.2.21(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))
@@ -477,8 +473,8 @@ packages:
   '@adobe/css-tools@4.5.0':
     resolution: {integrity: sha512-6OzddxPio9UiWTCemp4N8cYLV2ZN1ncRnV1cVGtve7dhPOtRkleRyx32GQCYSwDYgaHU3USMm84tNsvKzRCa1Q==}
 
-  '@alexandercanon/api-client-angular@1.0.0':
-    resolution: {integrity: sha512-pCvRfXRP8tokPNXNPvGJu3PPuIqIs10dEEdmWMHKk0HdwCZLA9h8OaW45/+ecSMhV+EWAJVy+5KK9eiU2V7uoA==, tarball: https://npm.pkg.github.com/download/@alexandercanon/api-client-angular/1.0.0/ecfe684f42be1a5056cc69f11b86ededa6c8113e}
+  '@alexandercanon/api-client-angular@1.0.1':
+    resolution: {integrity: sha512-R7+YXYdhafyi9QwMLYnrEY7duRY2Dyje42e76Iqczlywho8e2yeSCP/XWaowmhKATz1IkDQazD5jLlOHBZMxqA==, tarball: https://npm.pkg.github.com/download/@alexandercanon/api-client-angular/1.0.1/078f596470d59e344d51cd7acc03612082c17265}
     peerDependencies:
       '@angular/core': ^21.0.0
       rxjs: ^7.4.0
@@ -8228,7 +8224,7 @@ snapshots:
 
   '@adobe/css-tools@4.5.0': {}
 
-  '@alexandercanon/api-client-angular@1.0.0(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)':
+  '@alexandercanon/api-client-angular@1.0.1(@angular/core@21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)':
     dependencies:
       '@angular/core': 21.2.21(@angular/compiler@21.2.21)(rxjs@7.8.2)(zone.js@0.15.1)
       rxjs: 7.8.2

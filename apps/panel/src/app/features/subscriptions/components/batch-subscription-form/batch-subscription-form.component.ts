@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { BatchCreateManualSubscriptionRequest, BatchItem } from '@alexandercanon/api-client-angular';
 import { SubscriptionsService } from '../../services/subscriptions.service';
@@ -15,7 +15,6 @@ import { ProfileResponse, AccountResponse, ClientResponse, ServiceResponse } fro
 interface ServiceLineContext {
   accounts: AccountResponse[];
   profiles: ProfileResponse[];
-  showOverride: boolean;
   availableCount: number;
 }
 
@@ -130,7 +129,7 @@ export class BatchSubscriptionFormComponent implements OnInit {
     });
 
     const index = this.items.length;
-    this.lineContexts.push({ accounts: [], profiles: [], showOverride: false, availableCount: 0 });
+    this.lineContexts.push({ accounts: [], profiles: [], availableCount: 0 });
 
     line.get('serviceId')?.valueChanges.subscribe(serviceId => {
       this.onServiceChange(index, serviceId ?? '');
@@ -138,6 +137,15 @@ export class BatchSubscriptionFormComponent implements OnInit {
 
     line.get('accountId')?.valueChanges.subscribe(accountId => {
       this.onAccountChange(index, accountId ?? '');
+    });
+
+    // Single source of truth: the manual panel follows the switch.
+    // Switching back to auto clears the manual selection (name/PIN are kept).
+    line.get('useAutoAssign')?.valueChanges.subscribe(useAuto => {
+      if (useAuto) {
+        line.patchValue({ accountId: '', profileId: '' }, { emitEvent: false });
+        this.lineContexts[index].profiles = [];
+      }
     });
 
     this.items.push(line);
@@ -197,14 +205,8 @@ export class BatchSubscriptionFormComponent implements OnInit {
     });
   }
 
-  toggleOverride(index: number): void {
-    const ctx = this.lineContexts[index];
-    ctx.showOverride = !ctx.showOverride;
-    const line = this.items.at(index);
-    if (!ctx.showOverride) {
-      line.patchValue({ accountId: '', profileId: '' });
-      ctx.profiles = [];
-    }
+  isManual(index: number): boolean {
+    return !this.items.at(index).get('useAutoAssign')?.value;
   }
 
   private onServiceChange(index: number, serviceId: string): void {
@@ -237,16 +239,7 @@ export class BatchSubscriptionFormComponent implements OnInit {
 
     this.accountsService.getAccountDetail(accountId).subscribe({
       next: (detail) => {
-        ctx.profiles = (detail.profiles ?? []).map(profile => ({
-          id: profile.id || '',
-          accountId,
-          name: profile.name || '',
-          pin: profile.pin,
-          notes: profile.notes,
-          isOwner: profile.isOwner ?? false,
-          status: profile.status as ProfileResponse['status'],
-          createdAt: '',
-        })).filter(profile => profile.status === 'AVAILABLE');
+        ctx.profiles = this.mapDetailProfiles(detail, accountId);
       }
     });
   }
@@ -390,30 +383,42 @@ export class BatchSubscriptionFormComponent implements OnInit {
       return;
     }
 
-    const formValue = this.batchForm.getRawValue();
-    const items: BatchItem[] = formValue.items.map((line: { serviceId: string; quantity: number; priceSold: number; useAutoAssign: boolean; profileId: string }) => ({
-      serviceId: line.serviceId,
-      quantity: line.quantity,
-      priceSold: line.priceSold,
-      profileId: line.useAutoAssign ? undefined : (line.profileId || undefined)
-    }));
-
-    const request: BatchCreateManualSubscriptionRequest = {
-      clientId: formValue.clientId,
-      items,
-      discountApplied: formValue.discountApplied || 0,
-      paymentDueDate: formValue.paymentDueDate,
-      sendNotification: formValue.sendNotification,
-      notes: formValue.notes || undefined
-    };
-
     this.isSubmitting = true;
     this.batchResult = null;
 
-    // Step 1: rename profiles with a custom name/PIN before assigning.
-    // If any rename fails, abort the batch to avoid partial assignments.
-    this.renameCustomizedProfiles().pipe(
-      switchMap(() => this.subscriptionsService.createBatchSubscriptions(request))
+    // Manual lines must target a profile; auto lines resolve at submit time.
+    const missingTarget = this.items.controls.some(line =>
+      !line.get('useAutoAssign')?.value && !line.get('profileId')?.value);
+    if (missingTarget) {
+      this.isSubmitting = false;
+      this.toastService.error('En modo manual debes elegir cuenta y Perfil en cada línea.');
+      return;
+    }
+
+    // Step 1: resolve auto lines carrying a custom name/PIN into concrete profiles.
+    // Step 2: rename customized profiles.
+    // Step 3: create the batch. Any failure aborts before creating subscriptions.
+    this.resolveAutoTargets().pipe(
+      switchMap(() => this.renameCustomizedProfiles()),
+      switchMap(() => {
+        const raw = this.batchForm.getRawValue();
+        const batchItems: BatchItem[] = raw.items.map(
+          (line: { serviceId: string; quantity: number; priceSold: number; useAutoAssign: boolean; profileId: string }) => ({
+            serviceId: line.serviceId,
+            quantity: line.quantity,
+            priceSold: line.priceSold,
+            profileId: line.useAutoAssign ? undefined : (line.profileId || undefined)
+          }));
+        const batchRequest: BatchCreateManualSubscriptionRequest = {
+          clientId: raw.clientId,
+          items: batchItems,
+          discountApplied: raw.discountApplied || 0,
+          paymentDueDate: raw.paymentDueDate,
+          sendNotification: raw.sendNotification,
+          notes: raw.notes || undefined
+        };
+        return this.subscriptionsService.createBatchSubscriptions(batchRequest);
+      })
     ).subscribe({
       next: (response) => {
         this.isSubmitting = false;
@@ -426,10 +431,12 @@ export class BatchSubscriptionFormComponent implements OnInit {
         if (this.batchResult.failed === 0) {
           this.toastService.success(`${this.batchResult.success} suscripciones creadas exitosamente.`);
           this.batchCreated.emit();
+          this.accountsService.refreshAccounts().subscribe();
           setTimeout(() => this.closeModal(), 1500);
         } else if (this.batchResult.success > 0) {
           this.toastService.warning(`${this.batchResult.success} creadas, ${this.batchResult.failed} fallidas. Revisa el detalle.`);
           this.batchCreated.emit();
+          this.accountsService.refreshAccounts().subscribe();
         } else {
           this.toastService.error('Todas las suscripciones fallaron. Revisa el detalle.');
         }
@@ -439,6 +446,62 @@ export class BatchSubscriptionFormComponent implements OnInit {
         this.toastService.error('Error al crear las suscripciones.');
       }
     });
+  }
+
+  private resolveAutoTargets() {
+    const resolutions = this.items.controls.map((line, index) => {
+      const useAuto = line.get('useAutoAssign')?.value;
+      const profileName = (line.get('profileName')?.value || '').trim();
+      const profilePin = (line.get('profilePin')?.value || '').trim();
+      if (!useAuto || (!profileName && !profilePin)) {
+        return of(true);
+      }
+      const ctx = this.lineContexts[index];
+      const account = ctx.accounts.find(a => (a.availableProfiles || 0) > 0);
+      if (!account) {
+        this.toastService.error('No hay perfiles disponibles para una línea con nombre personalizado.');
+        return throwError(() => new Error('no-availability-for-rename'));
+      }
+      return this.accountsService.getAccountDetail(account.id).pipe(
+        map(detail => {
+          const target = (detail.profiles ?? []).find(p => p.status === 'AVAILABLE');
+          if (!target || !target.id) {
+            this.toastService.error('No hay perfiles disponibles para una línea con nombre personalizado.');
+            throw new Error('no-availability-for-rename');
+          }
+          line.patchValue(
+            { accountId: account.id, profileId: target.id, useAutoAssign: false },
+            { emitEvent: false });
+          this.lineContexts[index].profiles = this.mapDetailProfiles(detail, account.id);
+          return true;
+        }),
+        catchError((err) => {
+          if (err instanceof Error && err.message === 'no-availability-for-rename') {
+            throw err;
+          }
+          this.toastService.error('No se pudo resolver un Perfil disponible.');
+          throw new Error('resolve-failed');
+        })
+      );
+    });
+
+    return forkJoin(resolutions).pipe(map(() => true));
+  }
+
+  private mapDetailProfiles(
+    detail: { profiles?: { id?: string; name?: string; pin?: string; notes?: string; isOwner?: boolean; status?: string }[] },
+    accountId: string
+  ): ProfileResponse[] {
+    return (detail.profiles ?? []).map(profile => ({
+      id: profile.id || '',
+      accountId,
+      name: profile.name || '',
+      pin: profile.pin,
+      notes: profile.notes,
+      isOwner: profile.isOwner ?? false,
+      status: profile.status as ProfileResponse['status'],
+      createdAt: ''
+    })).filter(profile => profile.status === 'AVAILABLE');
   }
 
   private renameCustomizedProfiles() {

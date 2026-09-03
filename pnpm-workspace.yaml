@@ -26,4 +26,4 @@ allowBuilds:
   sharp: true
   workerd: true
 minimumReleaseAgeExclude:
-  - '@alexandercanon/api-client-angular@1.0.0'
+  - '@alexandercanon/api-client-angular@1.0.1'

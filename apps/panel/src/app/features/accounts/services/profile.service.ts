@@ -46,6 +46,19 @@ export class ProfileService {
     );
   }
 
+  /**
+   * Deletes an AVAILABLE profile without active subscriptions (BR-02 refactor).
+   */
+  deleteProfile(id: string): Observable<void> {
+    return this.profilesApi.deleteProfile(id).pipe(
+      tap(() => {
+        this._profiles.update((current: ProfileResponse[]) =>
+          current.filter((p: ProfileResponse) => p.id !== id)
+        );
+      })
+    );
+  }
+
   updateProfile(id: string, profile: ProfileRequest): Observable<ProfileResponse> {
     const apiRequest: ApiProfileRequest = {
       accountId: profile.accountId,

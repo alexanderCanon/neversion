@@ -127,7 +127,8 @@
               </td>
               <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-2">
-                  <button class="btn btn-action-sm edit" (click)="openEditModal(profile)" title="Editar Perfil">
+                  <button class="btn btn-action-sm edit" (click)="openEditModal(profile)" title="Editar Perfil"
+                          [disabled]="profile.status !== 'AVAILABLE'">
                     <i class="bi bi-pencil-square"></i>
                   </button>
                   <button class="btn btn-action-sm copy" (click)="copyAccess(profile)" title="Generar Accesos">
@@ -143,12 +144,17 @@
                           [title]="profileClients[profile.id] ? 'Ver Cliente: ' + profileClients[profile.id].name : 'Este perfil aún no tiene asignado un cliente, o perfil disponible para venta'">
                     <i class="bi bi-eye"></i>
                   </button>
-                  <button class="btn btn-action-sm" 
+                  <button class="btn btn-action-sm"
                           [ngClass]="profile.status === 'BLOCKED' ? 'activate' : 'deactivate'"
-                          (click)="toggleBlocked(profile)" 
+                          (click)="toggleBlocked(profile)"
                           [title]="profile.status === 'BLOCKED' ? 'Desbloquear' : 'Bloquear'">
                     <i class="bi" [ngClass]="profile.status === 'BLOCKED' ? 'bi-unlock' : 'bi-shield-lock'"></i>
                   </button>
+                  @if (profile.status === 'AVAILABLE' && !profile.isOwner) {
+                    <button class="btn btn-action-sm delete" (click)="onDeleteProfile(profile)" title="Eliminar Perfil disponible">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  }
                 </div>
               </td>
             </tr>

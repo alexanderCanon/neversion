@@ -71,6 +71,7 @@ Este documento define las reglas de negocio que rigen el comportamiento del sist
 ### BR-02 — Estructura de cuenta
 - Una cuenta pertenece a un solo servicio (ej: Perfil X en Cuenta Netflix A).
 - La cantidad máxima de perfiles vendibles es definida por el vendedor al configurar el servicio.
+- El `maxProfiles` del Servicio es techo absoluto: ninguna Cuenta puede configurarse con más perfiles que el máximo del Servicio (decisión Alex, 2026-09-03; enforcement pendiente en backend + panel).
 
 ### BR-03 — Generación de perfiles
 - Los perfiles son **entidades reales** con identidad propia, no simples contadores.

@@ -70,6 +70,13 @@ export class AccountFormComponent implements OnInit {
 
   readonly serviceOptions = signal<ServiceOption[]>([]);
 
+  /** BR-02 ceiling: max profiles allowed by the selected service. */
+  get serviceCeiling(): number | null {
+    const serviceId = this.accountForm?.get('serviceId')?.value;
+    const service = this.serviceOptions().find(s => s.id === serviceId);
+    return service ? service.maxProfiles : null;
+  }
+
   constructor() {
     this.isBrowser = true;
   }
@@ -88,6 +95,7 @@ export class AccountFormComponent implements OnInit {
           maxProfiles: s.maxProfiles || 1
         }));
         this.serviceOptions.set(options);
+        this.applyCeiling();
       },
       error: (err) => console.error('Failed to load services', err)
     });
@@ -120,10 +128,29 @@ export class AccountFormComponent implements OnInit {
         const serviceId = this.accountForm.get('serviceId')?.value;
         const service = this.serviceOptions().find(s => s.id === serviceId);
         maxProfilesCtrl?.setValue(service ? service.maxProfiles : 1);
+        this.applyCeiling();
       }
     });
 
+    this.accountForm.get('serviceId')?.valueChanges.subscribe(() => this.applyCeiling());
+
     this.applyPreselectedService();
+  }
+
+  /** BR-02 ceiling: clamp maxProfiles to the selected service maximum (create mode only). */
+  private applyCeiling(): void {
+    const ctrl = this.accountForm.get('maxProfiles');
+    if (!ctrl || this.isEditMode) return;
+    const ceiling = this.serviceCeiling;
+    const validators = [Validators.required, Validators.min(1)];
+    if (ceiling != null) {
+      validators.push(Validators.max(ceiling));
+    }
+    ctrl.setValidators(validators);
+    if (ceiling != null && ctrl.value != null && Number(ctrl.value) > ceiling) {
+      ctrl.setValue(ceiling);
+    }
+    ctrl.updateValueAndValidity({ emitEvent: false });
   }
 
   private applyPreselectedService(): void {
@@ -133,6 +160,7 @@ export class AccountFormComponent implements OnInit {
         maxProfiles: this._preselectedService.maxProfiles
       });
       this.accountForm.get('serviceId')?.disable();
+      this.applyCeiling();
     }
   }
 
@@ -141,6 +169,7 @@ export class AccountFormComponent implements OnInit {
     if (service && this.accountForm.get('saleMode')?.value === SaleMode.BY_PROFILE) {
       this.accountForm.patchValue({ maxProfiles: service.maxProfiles });
     }
+    this.applyCeiling();
   }
 
   openModal(account?: AccountResponse): void {
@@ -165,6 +194,9 @@ export class AccountFormComponent implements OnInit {
 
         // En modo edición no se puede cambiar el servicio
         this.accountForm.get('serviceId')?.disable();
+        // Legacy over-ceiling accounts stay editable: no max validator here (backend guards increases).
+        this.accountForm.get('maxProfiles')?.setValidators([Validators.required, Validators.min(1)]);
+        this.accountForm.get('maxProfiles')?.updateValueAndValidity({ emitEvent: false });
       } else {
         this.isEditMode = false;
         this.accountId = null;
@@ -269,6 +301,7 @@ export class AccountFormComponent implements OnInit {
     });
     this.accountForm.get('maxProfiles')?.enable();
     this.applyPreselectedService();
+    this.applyCeiling();
     this.isSubmitting = false;
   }
 }
