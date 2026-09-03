@@ -161,6 +161,12 @@
         border-color: var(--color-border);
     }
 
+    &.edit:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     &.activate:hover {
         background-color: #f0fdf4;
         color: #22c55e;

@@ -373,6 +373,11 @@ export class ProfileListComponent implements OnInit, OnChanges {
   }
 
   openEditModal(profile: ProfileResponse): void {
+    // Sold profiles are immutable: identity follows the active subscription.
+    if (profile.status !== ProfileStatus.AVAILABLE) {
+      this.toastService.error('Solo se pueden editar perfiles disponibles.');
+      return;
+    }
     this.selectedProfileId = profile.id;
     this.profileForm.patchValue({
       name: profile.name,

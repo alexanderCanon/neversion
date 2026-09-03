@@ -127,7 +127,8 @@
               </td>
               <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-2">
-                  <button class="btn btn-action-sm edit" (click)="openEditModal(profile)" title="Editar Perfil">
+                  <button class="btn btn-action-sm edit" (click)="openEditModal(profile)" title="Editar Perfil"
+                          [disabled]="profile.status !== 'AVAILABLE'">
                     <i class="bi bi-pencil-square"></i>
                   </button>
                   <button class="btn btn-action-sm copy" (click)="copyAccess(profile)" title="Generar Accesos">
