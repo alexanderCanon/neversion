@@ -67,6 +67,93 @@ describe("Telegram Service", () => {
 		expect(report.replyMarkup?.inline_keyboard[1][0].text).toContain("⚠️ Maria Lopez (Sin email)");
 	});
 
+	it("formats consolidated report with both client subscriptions and master accounts", () => {
+		const subGroups: RenewalWindowGroup[] = [
+			{
+				days: 0,
+				label: "🔴 Vencen hoy",
+				subscriptions: [
+					{
+						id: 101,
+						uuid: "sub-101",
+						clientName: "Alex Canon",
+						clientEmail: "alex@example.com",
+						serviceName: "Netflix UHD",
+						paymentDueDate: "2026-09-03",
+						price: "35.00",
+						daysRemaining: 0,
+					},
+				],
+			},
+		];
+
+		const accountGroups = [
+			{
+				days: 1,
+				label: "🟠 Vencen mañana (1 día)",
+				accounts: [
+					{
+						id: 201,
+						uuid: "acc-201",
+						serviceName: "Disney+",
+						email: "disney_master@example.com",
+						source: "DigitalStore",
+						renewalDate: "2026-09-04",
+						daysRemaining: 1,
+					},
+				],
+			},
+		];
+
+		const report = buildConsolidatedReport(subGroups, accountGroups);
+		expect(report.totalSubscriptions).toBe(1);
+		expect(report.totalAccounts).toBe(1);
+		expect(report.text).toContain("🔔 *Reporte de Renovaciones de Clientes*");
+		expect(report.text).toContain("🔑 *Cuentas Maestras por Renovar*");
+		expect(report.text).toContain("Disney+");
+		expect(report.text).toContain("disney_master@example.com");
+		expect(report.text).toContain("DigitalStore");
+		expect(report.text).toContain("2026-09-04");
+		expect(report.text).toContain("1 suscripción(es) | 1 cuenta(s) maestra(s)");
+		expect(report.replyMarkup?.inline_keyboard).toHaveLength(1);
+	});
+
+	it("formats report with only master accounts and no buttons", () => {
+		const emptySubGroups: RenewalWindowGroup[] = [
+			{ days: 3, label: "🟡 Vencen en 3 días", subscriptions: [] },
+			{ days: 1, label: "🟠 Vencen mañana", subscriptions: [] },
+			{ days: 0, label: "🔴 Vencen hoy", subscriptions: [] },
+		];
+
+		const accountGroups = [
+			{
+				days: 0,
+				label: "🔴 Vencen hoy",
+				accounts: [
+					{
+						id: 301,
+						uuid: "acc-301",
+						serviceName: "HBO Max",
+						email: "hbo_master@example.com",
+						source: "SupplierX",
+						renewalDate: "2026-09-03",
+						daysRemaining: 0,
+					},
+				],
+			},
+		];
+
+		const report = buildConsolidatedReport(emptySubGroups, accountGroups);
+		expect(report.totalSubscriptions).toBe(0);
+		expect(report.totalAccounts).toBe(1);
+		expect(report.text).not.toContain("🔔 *Reporte de Renovaciones de Clientes*");
+		expect(report.text).toContain("🔑 *Cuentas Maestras por Renovar*");
+		expect(report.text).toContain("HBO Max");
+		expect(report.text).toContain("hbo_master@example.com");
+		expect(report.text).toContain("SupplierX");
+		expect(report.replyMarkup).toBeUndefined();
+	});
+
 	it("calls answerCallbackQuery correctly", async () => {
 		const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input: any, init: any) => {
 			const url = typeof input === "string" ? input : input.url;
