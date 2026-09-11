@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useSearchParams, Link, useNavigate } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router'
 import { useReservation, useUploadReceipt, useVendorPublic } from '../hooks/useQueries'
 import { supabase } from '../lib/supabase'
 import { env } from '../config/env'

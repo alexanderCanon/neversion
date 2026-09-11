@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router'
 import { useServices, type StoreServiceItem } from '../hooks/useQueries'
 import { useCart } from '../hooks/useCart'
 import { SectionHeader } from '../components/ui/SectionHeader'

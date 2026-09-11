@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router'
 import { useGames, useGameSkus } from '../hooks/useQueries'
 import { SectionHeader } from '../components/ui/SectionHeader'
 import { getWhatsAppLink } from '../config/constants'

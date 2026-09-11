@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router'
 import { useServices, type StoreServiceItem } from '../hooks/useQueries'
 import { useCart } from '../hooks/useCart'
 import { AmberBtn } from '../components/ui/AmberBtn'

@@ -1,4 +1,4 @@
-import { Navigate, useSearchParams } from 'react-router-dom'
+import { Navigate, useSearchParams } from 'react-router'
 import { useAuth } from '../../hooks/useAuth'
 import { Loader2 } from 'lucide-react'
 import { OnboardingModal } from './OnboardingModal'

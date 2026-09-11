@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useGames } from '../hooks/useQueries'
 import { PlatformBadge } from '../components/ui/PlatformBadge'
 import { resolveServiceImageUrl } from '../lib/image'

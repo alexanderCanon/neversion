@@ -14,6 +14,8 @@ target/
 .angular/
 .astro/
 apps/www/.astro/
+.react-router/
+.vercel/
 coverage/
 
 # ── Databases & Local Storage ──────────────────────

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { useVendorPublic } from '../hooks/useQueries'
 import { SectionHeader } from '../components/ui/SectionHeader'
 import { AmberBtn } from '../components/ui/AmberBtn'

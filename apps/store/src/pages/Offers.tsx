@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Tag, Sparkles, ArrowRight, Bell } from 'lucide-react'
 import { AmberBtn } from '../components/ui/AmberBtn'
 

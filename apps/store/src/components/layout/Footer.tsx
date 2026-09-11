@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import neverisionLogo from '@/imports/neversion-logo-24062026.jpeg'
 import { STORE_WHATSAPP_URL } from '../../config/constants'
 import { ShieldCheck, Zap, Headphones, MessageCircle } from 'lucide-react'
