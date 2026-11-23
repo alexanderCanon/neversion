@@ -17,7 +17,7 @@ export interface InlineKeyboardMarkup {
  * Realiza una llamada a la API de Telegram.
  */
 async function callTelegramApi(
-	env: Env,
+	env: Pick<Env, "TELEGRAM_BOT_TOKEN">,
 	method: string,
 	body: Record<string, any>
 ) {
@@ -44,10 +44,11 @@ async function callTelegramApi(
  * Envía un mensaje de texto formateado a Telegram (con soporte opcional de teclado inline).
  */
 export async function sendTelegramMessage(
-	env: Env,
+	env: Pick<Env, "TELEGRAM_BOT_TOKEN" | "TELEGRAM_CHAT_ID">,
 	text: string,
 	replyMarkup?: InlineKeyboardMarkup,
-	chatId?: string | number
+	chatId?: string | number,
+	parseMode: "Markdown" | "plain" = "Markdown"
 ) {
 	const targetChatId = chatId || env.TELEGRAM_CHAT_ID;
 	if (!targetChatId) {
@@ -57,7 +58,7 @@ export async function sendTelegramMessage(
 	const body: Record<string, any> = {
 		chat_id: targetChatId,
 		text,
-		parse_mode: "Markdown",
+		...(parseMode === "Markdown" && { parse_mode: parseMode }),
 	};
 
 	if (replyMarkup && replyMarkup.inline_keyboard.length > 0) {
